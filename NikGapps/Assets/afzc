@@ -1,0 +1,560 @@
+#!/sbin/sh
+#
+# afzc script to perform various operations created by Nikhil Menghani
+#
+# inspired from topjohnwu's (@xda) magisk
+# inspired from xXx's (@xda) no limits module
+# inspired from osm0sis's (@xda) universal shell script functions
+# inspired from opengapps installer script (reference below)
+# https://github.com/opengapps/opengapps/blob/master/scripts/inc.installer.sh
+#
+
+#Setting up variables
+OFD=$1
+ZIPFILE="$2"
+ZIPDIR=$(dirname "$ZIPFILE")
+ZIPNAME="$(basename "$ZIPFILE")"
+OUTFD=/proc/self/fd/$OFD
+#system="/system"
+product=""
+addonDir="/tmp/addon"
+nikGappsLog="/tmp/NikGapps.log"
+datetime=$(date +%Y_%m_%d_%H_%M_%S)
+nikGappsLogFile="NikGapps_logs_$datetime.tar.gz"
+recoveryLog=/tmp/recovery.log
+logDir="/tmp/NikGapps/logs"
+nikGappsDir="/sdcard/NikGapps"
+COMMONDIR=/tmp/AFZCScripts
+install_partition="$system"
+tmp_nikgapps=/tmp/NikGapps
+Current_AppSet=""
+extn="dat.br"
+
+abort() {
+  ui_print " "
+  ui_print "------------------------------------------"
+  ui_print "$@"
+  ui_print "------------------------------------------"
+  ui_print " "
+  addToLog "Aborting while mounting $*"
+  exit_install
+  exit 1
+}
+
+beginswith() {
+  case $2 in
+  "$1"*) echo true ;;
+  *) echo false ;;
+  esac
+}
+
+is_mounted_rw() {
+  local mounted_rw=false
+  local startswith=$(beginswith / "$1")
+  test "$startswith" == "false" && part=/"$1" || part="$1"
+  touch "$part"/.rw && rm "$part"/.rw && mounted_rw=true
+  addToLog "- checked if $part/.rw is writable i.e. $mounted_rw ($1/.rw being original argument)"
+  echo $mounted_rw
+}
+
+calculate_space() {
+  local partitions="$*"
+  for partition in $partitions; do
+    addToLog " "
+    addToLog "--> Calculating space in /$partition"
+    # Read and save system partition size details
+    df=$(df -k /"$partition" | tail -n 1)
+    case $df in
+    /dev/block/*) df=$(echo "$df" | awk '{ print substr($0, index($0,$2)) }') ;;
+    esac
+    total_system_size_kb=$(echo "$df" | awk '{ print $1 }')
+    used_system_size_kb=$(echo "$df" | awk '{ print $2 }')
+    free_system_size_kb=$(echo "$df" | awk '{ print $3 }')
+    addToLog "- Total System Size (KB) $total_system_size_kb"
+    addToLog "- Used System Space (KB) $used_system_size_kb"
+    addToLog "- Current Free Space (KB) $free_system_size_kb"
+  done
+}
+
+check_if_system_mounted_rw() {
+  local p="system"
+  if [ "$(is_mounted_rw "$p" 2>/dev/null)" ]; then
+    addToLog "- System ($p) is properly mounted as rw"
+  else
+    abort "$p is not mounted as rw, Installation failed!"
+  fi
+}
+
+cleanup() {
+  #rm files
+  rm -rf "/sdcard/NikGapps/nikgapps.log"
+}
+
+contains() {
+  case $2 in
+    *"$1"*) echo true ;;
+    *) echo false ;;
+  esac
+}
+
+# This is meant to copy the files safely from source to destination
+CopyFile() {
+  if [ -f "$1" ]; then
+    mkdir -p "$(dirname "$2")"
+    cp -f "$1" "$2"
+  else
+    addToLog "- File $1 does not exist!"
+  fi
+}
+
+copy_file() {
+  mkdir -p "$(dirname "$3")"
+  addToLog "- Unzipping $1"
+  addToLog "  -> copying $2"
+  addToLog "  -> to $3"
+  unzip -o "$1" "$2" -p >"$3"
+}
+
+copyLogs() {
+  ui_print "- Copying logs to $nikgapps_config_dir/nikgapps_logs/$nikGappsLogFile"
+  CopyFile "$system/addon.d/nikgapps-addon.sh" "$logDir/scripts/nikgapps-addon.sh"
+  CopyFile "$COMMONDIR/nikgapps.sh" "$logDir/scripts/nikgapps.sh"
+  CopyFile "$COMMONDIR/ak3mount.sh" "$logDir/scripts/ak3mount.sh"
+  CopyFile "$COMMONDIR/nikgapps_installer" "$logDir/scripts/nikgapps_installer.sh"
+  CopyFile "$COMMONDIR/addon" "$logDir/scripts/addon.sh"
+  # Store the size of partitions after installation starts
+  df >"$COMMONDIR/size_after.txt"
+  df -h >"$COMMONDIR/size_after_readable.txt"
+  CopyFile "/vendor/etc/fstab.qcom" "$logDir/fstab/fstab.qcom"
+  CopyFile "/etc/recovery.fstab" "$logDir/fstab/recovery.fstab"
+  CopyFile "$COMMONDIR/size_before.txt" "$logDir/partitions/size_before.txt"
+  CopyFile "$COMMONDIR/size_before_readable.txt" "$logDir/partitions/size_before_readable.txt"
+  CopyFile "$COMMONDIR/size_after.txt" "$logDir/partitions/size_after.txt"
+  CopyFile "$COMMONDIR/size_after_readable.txt" "$logDir/partitions/size_after_readable.txt"
+  ls -alR /system >"$logDir/partitions/System_Files_After.txt"
+  ls -alR /product >"$logDir/partitions/Product_Files_After.txt"
+  CopyFile "$COMMONDIR/System_Files_Before.txt" "$logDir/partitions/System_Files_Before.txt"
+  CopyFile "$COMMONDIR/Product_Files_Before.txt" "$logDir/partitions/Product_Files_Before.txt"
+  CopyFile "$recoveryLog" "$logDir/logfiles/recovery.log"
+  CopyFile "$nikGappsLog" "$logDir/logfiles/NikGapps.log"
+  CopyFile "$system/build.prop" "$logDir/propfiles/build.prop"
+  CopyFile "$debloater_config_file_name" "$logDir/configfiles/debloater.config"
+  CopyFile "$nikgapps_config_file_name" "$logDir/configfiles/nikgapps.config"
+  CopyFile "$system/etc/ng.prop" "$logDir/propfiles/ng.prop"
+  cd $logDir
+  rm -rf $nikGappsDir/logs
+  tar -cz -f "/tmp/$nikGappsLogFile" *
+  mkdir -p $nikGappsDir/logs
+  CopyFile /tmp/"$nikGappsLogFile" $nikGappsDir/logs/"$nikGappsLogFile"
+  rm -rf "$nikgapps_config_dir"/nikgapps_logs
+  mkdir -p "$nikgapps_config_dir"/nikgapps_logs
+  CopyFile /tmp/"$nikGappsLogFile" "$nikgapps_config_dir"/nikgapps_logs/"$nikGappsLogFile"
+  cd /
+}
+
+copy_nikgapps_prop() {
+  if [ -f "$system/etc/ng.prop" ]; then
+    rm -f "$system/etc/ng.prop"
+  fi
+  addToLog "- Copying ng.prop to $system/etc/ng.prop"
+  echo "$datetime" >"$system/etc/ng.prop"
+}
+
+Debloat() {
+  debloaterFilesPath="DebloaterFiles"
+  debloaterRan=0
+  if [ -f "$debloater_config_file_name" ]; then
+    addToLog "- Debloater.config found!"
+    g=$(sed -e '/^[[:blank:]]*#/d;s/[\t\n\r ]//g;/^$/d' "$debloater_config_file_name")
+    for i in $g; do
+      if [ $debloaterRan = 0 ]; then
+        ui_print " "
+        ui_print "--> Running Debloater"
+      fi
+      value=$($i | grep "^WipeDalvikCache=" | cut -d'=' -f 1)
+      if [ "$i" != "WipeDalvikCache" ]; then
+        addToLog "- Deleting $i"
+        if [ -z "$i" ]; then
+          ui_print "Cannot delete blank folder!"
+        else
+          debloaterRan=1
+          startswith=$(beginswith / "$i")
+          ui_print "x Removing $i"
+          if [ "$startswith" = "false" ]; then
+            echo "debloat=$i" >>/tmp/addon/$debloaterFilesPath
+            addToLog "- value of i is $i"
+            rmv "$system/app/$i"
+            rmv "$system$product/app/$i"
+            rmv "$system/priv-app/$i"
+            rmv "$system$product/priv-app/$i"
+            rmv "$system/system_ext/app/$i"
+            rmv "$system/system_ext/priv-app/$i"
+            rmv "/product/app/$i"
+            rmv "/product/priv-app/$i"
+            rmv "/system_ext/app/$i"
+            rmv "/system_ext/priv-app/$i"
+          else
+            rmv "$i"
+            echo "debloat=$i" >>/tmp/addon/$debloaterFilesPath
+          fi
+        fi
+      else
+        addToLog "- WipeDalvikCache config found!"
+      fi
+    done
+    if [ $debloaterRan = 1 ]; then
+      . /tmp/AFZCScripts/addon "$OFD" "Debloater" "" "" "/tmp/addon/$debloaterFilesPath" ""
+      CopyFile "$system/addon.d/nikgapps/Debloater.sh" "$logDir/addonscripts/Debloater.sh"
+      CopyFile "/tmp/addon/$debloaterFilesPath" "$logDir/addonfiles/Debloater.addon"
+      rmv "/tmp/addon/$debloaterFilesPath"
+    fi
+  else
+    addToLog "- Debloater.config not found!"
+    copy_file "$ZIPFILE" "afzc/debloater.config" "/sdcard/NikGapps/debloater.config"
+  fi
+}
+
+findDevice() {
+  # Get device name any which way we can
+  for field in ro.omni.device ro.product.device ro.build.product ro.product.name; do
+    device_name="$(grep_prop "$field")"
+    addToLog "$field has device_name as $device_name"
+    if [ "${#device_name}" -ge "2" ]; then
+      break
+    fi
+    device_name="Bad ROM/Recovery"
+  done
+  addToLog "- Device code in Recovery: $device_name"
+  #  if [ $device_name == "Bad ROM/Recovery" ]; then
+  #    abort "Make Sure you flash NikGapps after you flash a proper Rom"
+  #  fi
+}
+
+find_partition_type() {
+  # find the slot
+  local slot=$(getprop ro.boot.slot_suffix 2>/dev/null);
+  local part_mounted_rw=false
+  local partition=$1
+  dynamic_partitions=$(getprop ro.boot.dynamic_partitions)
+  device_ab=$(getprop ro.build.ab_update 2>/dev/null)
+  test "$dynamic_partitions" = "true" && "$device_ab" = "true" || slot=""
+  part_mounted_rw=$(is_mounted_rw "$partition$slot" 2>/dev/null)
+  test "$part_mounted_rw" = "true" && echo "is mounted as dedicated partition" && return
+  test "$part_mounted_rw" = "false" && part_mounted_rw=$(is_mounted_rw "$system/$partition$slot" 2>/dev/null)
+  test "$part_mounted_rw" = "true" && echo "is symlinked to /system/$partition" || echo "does not exist on device"
+}
+
+find_zip_type() {
+  addToLog "- Finding zip type"
+  if [ "$(contains "-arm64-" "$ZIPNAME")" = "true" ]; then
+    zip_type="gapps"
+  elif [ "$(contains "Debloater" "$ZIPNAME")" = "true" ]; then
+    zip_type="debloater"
+  elif [ "$(contains "15" "$ZIPNAME")" = "true" ] || [ "$(contains "YouTubeMusic" "$ZIPNAME")" = "true" ]; then
+    zip_type="addon_exclusive"
+  elif [ "$(contains "Addon" "$ZIPNAME")" = "true" ]; then
+    zip_type="addon"
+  elif [ "$(contains "package" "$ZIPNAME")" = "true" ]; then
+    zip_type="sideload"
+  else
+    zip_type="unknown"
+  fi
+  addToLog "- Zip Type is $zip_type"
+}
+
+exit_install() {
+  CopyFile "$COMMONDIR/nikgapps.sh" "$system/addon.d/nikgapps-addon.sh"
+  ui_print " "
+  wipedalvik=$(ReadConfigValue "WipeDalvikCache" "$nikgapps_config_file_name")
+  addToLog "- WipeDalvikCache value: $wipedalvik"
+  if [ "$wipedalvik" != 0 ]; then
+    ui_print "- Wiping dalvik-cache"
+    rm -rf "/data/dalvik-cache"
+  fi
+  rm -rf "$system/nikgapps.config"
+  ui_print "- Finished Installation"
+  calculate_space "system" "product"
+  ui_print " "
+  copyLogs
+  restore_env
+}
+
+find_config() {
+  if [ -f "/tmp/nikgapps.config" ]; then
+    nikgapps_config_file_name="/tmp/nikgapps.config"
+  elif [ -f "$ZIPDIR/nikgapps.config" ]; then
+    nikgapps_config_file_name="$ZIPDIR/nikgapps.config"
+  elif [ -f "/sdcard1/nikgapps.config" ]; then
+    nikgapps_config_file_name="/sdcard1/nikgapps.config"
+  elif [ -f "/sdcard1/NikGapps/nikgapps.config" ]; then
+    nikgapps_config_file_name="/sdcard1/NikGapps/nikgapps.config"
+  elif [ -f "/sdcard/nikgapps.config" ]; then
+    nikgapps_config_file_name="/sdcard/nikgapps.config"
+  else
+    nikgapps_config_file_name="$nikGappsDir/nikgapps.config"
+  fi
+  nikgapps_config_dir=$(dirname "$nikgapps_config_file_name")
+  if [ -f "$ZIPDIR/debloater.config" ]; then
+    debloater_config_file_name="$ZIPDIR/debloater.config"
+  else
+    debloater_config_file_name="/sdcard/NikGapps/debloater.config"
+  fi
+  addToLog "- nikgapps.config found in $nikgapps_config_file_name"
+  addToLog "- debloater.config found in $debloater_config_file_name"
+}
+
+find_install_type() {
+  install_type="clean"
+  for i in $(find /data -iname "runtime-permissions.xml" 2>/dev/null;); do
+    if [ -e "$i" ]; then
+      install_type="dirty"
+      value=$(ReadConfigValue "WipeRuntimePermissions" "$nikgapps_config_file_name")
+      [ -z "$value" ] && value=0
+      addToLog "- runtime-permissions.xml found at $i with wipe permission $value"
+      if [ "$value" = "1" ]; then
+        rm -rf "$i"
+      fi
+    fi;
+  done
+  ui_print "- Install Type is $install_type"
+}
+
+find_gapps_size() {
+  file_value=$(cat $COMMONDIR/file_size)
+  for i in $file_value; do
+    install_pkg_title=$(echo "$i" | cut -d'=' -f 1)
+    install_pkg_size=$(echo "$i" | cut -d'=' -f 2)
+    if [ -f "$nikgapps_config_file_name" ]; then
+      value=$(ReadConfigValue ">>$install_pkg_title" "$nikgapps_config_file_name")
+      [ -z "$value" ] && value=$(ReadConfigValue "$install_pkg_title" "$nikgapps_config_file_name")
+    else
+      abort "NikGapps Config not found!"
+    fi
+    if [ "$value" = "1" ]; then
+      gapps_size=$((gapps_size+install_pkg_size))
+    fi
+  done
+  ui_print "- Gapps Size: $gapps_size KB"
+}
+
+find_system_size() {
+  ui_print " "
+  ui_print "--> Fetching system size"
+  system_size=$(get_available_size "system")
+  [ "$system_size" != "Used" ] && ui_print "- /system available size: $system_size KB"
+  [ "$system_size" = "Used" ] && system_size=0
+
+  product_size=$(get_available_size "product")
+  [ "$product_size" != "Used" ] && ui_print "- /product available size: $product_size KB"
+  [ "$product_size" = "Used" ] && product_size=0
+
+  system_ext_size=$(get_available_size "system_ext")
+  [ "$system_ext_size" != "Used" ] && ui_print "- /system_ext available size: $system_ext_size KB"
+  [ "$system_ext_size" = "Used" ] && system_ext_size=0
+
+  total_size=$((system_size+product_size+system_ext_size))
+
+  addToLog "- Total available size: $total_size KB"
+}
+
+get_available_size() {
+    df=$(df -k /"$1" | tail -n 1)
+    case $df in
+        /dev/block/*) df=$(echo "$df" | awk '{ print substr($0, index($0,$2)) }');;
+    esac
+    free_system_size_kb=$(echo "$df" | awk '{ print $3 }')
+    echo "$free_system_size_kb"
+}
+
+get_file_prop() {
+  grep -m1 "^$2=" "$1" | cut -d= -f2
+}
+
+grep_prop() {
+  local REGEX="s/^$1=//p"
+  shift
+  local FILES=$@
+  [ -z "$FILES" ] && FILES='/system/build.prop'
+  sed -n "$REGEX" $FILES 2>/dev/null | head -n 1
+}
+
+initialize_app_set() {
+  value=1
+  if [ -f "$nikgapps_config_file_name" ]; then
+    value=$(ReadConfigValue "$1" "$nikgapps_config_file_name")
+    if [ "$value" = "" ]; then
+      value=1
+    fi
+  fi
+  addToLog " "
+  addToLog "- Inside InitializeAppSet, value=$value"
+  if [ "$value" -eq 0 ]; then
+    echo 0
+  else
+    addToLog "- Current_AppSet=$1"
+    echo 1
+  fi
+}
+
+install_the_package() {
+  value=1
+  pkgFile="/tmp/$2.zip"
+  pkgContent="pkgContent"
+  if [ -f "$nikgapps_config_file_name" ]; then
+    value=$(ReadConfigValue ">>$2" "$nikgapps_config_file_name")
+    [ -z "$value" ] && value=$(ReadConfigValue "$2" "$nikgapps_config_file_name")
+  fi
+  addToLog " "
+  addToLog "- Working for $2"
+  [ -z "$value" ] && value=1
+  addToLog "- Config Value is $value"
+  if [ "$value" -eq 0 ]; then
+    ui_print "x Skipping $2"
+  else
+    copy_file "$ZIPFILE" "AppSet/$1/$2.$extn" "$pkgFile"
+    copy_file "$pkgFile" "installer.sh" "/tmp/$pkgContent/installer.sh"
+    chmod 755 /tmp/$pkgContent/installer.sh
+    # shellcheck source=src/installer.sh
+    . "/tmp/$pkgContent/installer.sh" "$value" "$nikgapps_config_file_name"
+    test $zip_type == "gapps" && copy_nikgapps_prop
+  fi
+}
+
+is_on_top_of_nikgapps() {
+  nikgapps_present=false
+  # shellcheck disable=SC2143
+  if [ "$(grep 'allow-in-power-save package=\"com.mgoogle.android.gms\"' "$system"/etc/sysconfig/*.xml)" ] ||
+        [ "$(grep 'allow-in-power-save package=\"com.mgoogle.android.gms\"' "$system"/product/etc/sysconfig/*.xml)" ]; then
+    nikgapps_present=true
+  fi
+  addToLog "- Is on top of NikGapps: $nikgapps_present"
+  if [ "$nikgapps_present" != "true" ]; then
+    abort "This Addon can only be flashed on top of NikGapps"
+  fi
+}
+
+make_dir() {
+  mkdir -p "$nikGappsDir"
+  mkdir -p "$addonDir"
+  mkdir -p "$logDir"
+}
+
+# Read the config file from (Thanks to xXx @xda)
+ReadConfigValue() {
+  value=$(sed -e '/^[[:blank:]]*#/d;s/[\t\n\r ]//g;/^$/d' "$2" | grep "^$1=" | cut -d'=' -f 2)
+  echo "$value"
+  return $?
+}
+
+# show_progress <amount> <time>
+show_progress() { echo "progress $1 $2" >>"$OUTFD"; }
+# set_progress <amount>
+set_progress() { echo "set_progress $1" >>"$OUTFD"; }
+
+show_device_info() {
+  ui_print " "
+  ui_print "--> Fetching Device Information"
+  #  findDevice
+  for field in ro.product.device ro.build.product ro.product.name; do
+    device_name="$(grep_prop "$field")"
+    addToLog "- Device name: $device_name"
+    if [ "${#device_name}" -ge "2" ]; then
+      break
+    fi
+  done
+  device=$(get_file_prop "$system/build.prop" "ro.product.system.device")
+  if [ -z "$device" ]; then
+    addToLog "- Device code not found!"
+    device=$device_name
+    if [ -z "$device" ]; then
+      abort "NikGapps not supported for your device yet!"
+    fi
+  fi
+  ui_print "- Device: $device"
+  sdkVersion=$(get_file_prop "$system/build.prop" "ro.build.version.sdk")
+  ui_print "- SDK Version: $sdkVersion"
+  androidVersion=$(get_file_prop "$system/build.prop" "ro.build.version.release")
+  ui_print "- Android Version: $androidVersion"
+  model=$(get_file_prop "$system/build.prop" "ro.product.system.model")
+  addToLog "- Model: $model"
+  case "$androidVersion" in
+  "1*") product="/product" ;;
+  "*") product="" ;;
+  esac
+  device_ab=$(getprop ro.build.ab_update 2>/dev/null)
+  dynamic_partitions=$(getprop ro.boot.dynamic_partitions)
+  if [ "$device_ab" = "true" ]; then
+    ui_print "- A/B Device Found"
+  else
+    ui_print "- A-Only Device Found"
+  fi
+  if [ "$dynamic_partitions" = "true" ]; then
+    ui_print "- Device has Dynamic Partitions"
+  else
+    addToLog "- Devices doesn't have Dynamic Partitions"
+  fi
+  addToLog "- /product $(find_partition_type "product")"
+  addToLog "- /system_ext $(find_partition_type "system_ext")"
+  test $zip_type == "gapps" && find_install_type
+}
+
+rmv() {
+  addToLog "- Removing $1"
+  rm -rf "$1"
+}
+
+set_prop() {
+  property="$1";
+  value="$2";
+  test -z "$3" && file_location="$install_partition/build.prop" || file_location="$3"
+  addToLog "- Setting Property ${1} to ${2} in ${file_location}"
+  if grep -q "${property}" "${file_location}"; then
+    addToLog "- Updating ${property} to ${value} in ${file_location}"
+    sed -i "s/\(${property}\)=.*/\1=${value}/g" "${file_location}";
+  else
+    addToLog "- Adding ${property} to ${value} in ${file_location}"
+    echo "${property}=${value}" >> "${file_location}";
+  fi;
+}
+
+SetupTools() {
+  make_dir
+  find_zip_type
+
+  if [ ! "$(getprop 2>/dev/null)" ]; then
+    getprop() {
+      local propdir propfile propval;
+      for propdir in / /system_root /system /vendor /odm /product; do
+        for propfile in default.prop build.prop; do
+          test "$propval" && break 2 || propval="$(file_getprop $propdir/$propfile "$1" 2>/dev/null)";
+        done;
+      done;
+      test "$propval" && echo "$propval" || echo "";
+    }
+  elif [ ! "$(getprop ro.build.type 2>/dev/null)" ]; then
+    getprop() {
+      ($(which getprop) | $BB grep "$1" | $BB cut -d[ -f3 | $BB cut -d] -f1) 2>/dev/null;
+    }
+  fi;
+
+  nikgappsConfig="/sdcard/NikGapps/nikgapps.config"
+  debloaterConfig="/sdcard/NikGapps/debloater.config"
+  if [ ! -f $nikgappsConfig ]; then
+    copy_file "$ZIPFILE" "afzc/nikgapps.config" "/sdcard/NikGapps/nikgapps.config"
+    addToLog "nikgapps.config is copied to $nikgappsConfig"
+  fi
+  if [ ! -f $debloaterConfig ]; then
+    copy_file "$ZIPFILE" "afzc/debloater.config" "/sdcard/NikGapps/debloater.config"
+    addToLog "debloater.config is copied to $debloaterConfig"
+  fi
+  find_config
+  show_device_info
+  find_system_size
+  find_gapps_size
+  check_if_system_mounted_rw
+  test $zip_type = "debloater" && Debloat
+  calculate_space "system" "product"
+  ui_print " "
+  test $zip_type == "addon_exclusive" || test $zip_type == "addon" && is_on_top_of_nikgapps
+  test $zip_type != "debloater" && ui_print "--> Starting the install process"
+}
