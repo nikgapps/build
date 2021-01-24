@@ -1,0 +1,281 @@
+#!/sbin/sh
+nikGappsLog="/tmp/NikGapps.log"
+configValue="$1"
+nikgapps_config_file_name="$2"
+logDir="/tmp/NikGapps/logs"
+nikGappsDir="/sdcard/NikGapps"
+NikGappsAddonDir="$system/addon.d/nikgapps"
+recoveryLog=/tmp/recovery.log
+datetime=$(date +%Y_%m_%d_%H_%M_%S)
+nikGappsLogFile="NikGapps_logs_$datetime.tar.gz"
+install_partition="$system"
+abort_in_installer() {
+  ui_print " "
+  ui_print "------------------------------------------"
+  ui_print "$@"
+  ui_print "------------------------------------------"
+  ui_print " "
+  addToLog "Aborting while mounting $*"
+  copy_installer_logs
+  exit 1
+}
+
+addToLog() {
+  echo "$1" >>$nikGappsLog
+}
+
+begins_with() {
+  case $2 in
+    "$1"*) echo true ;;
+    *) echo false ;;
+  esac
+}
+
+ch_con() {
+#  chcon -h u:object_r:"${1}"_file:s0 "$2"
+  addToLog "- ch_con with ${1} for $2"
+}
+
+clean_recursive() {
+  func_result="$(begins_with / "$1")"
+  addToLog "- Deleting $1 with func_result: $func_result"
+  if [ "$func_result" = "true" ]; then
+    addToLog "- Deleting $1"
+    rm -rf "$1"
+  else
+    addToLog "- Deleting $1"
+    # For Devices having symlinked product and system_ext partition
+    for sys in "/system"; do
+      for subsys in "/system" "/product" "/system_ext"; do
+        for folder in "/app" "/priv-app"; do
+          delete_recursive "$sys$subsys$folder/$1"
+        done
+      done
+    done
+    # For devices having dedicated product and system_ext partitions
+    for subsys in "/system" "/product" "/system_ext"; do
+      for folder in "/app" "/priv-app"; do
+        delete_recursive "$subsys$folder/$1"
+      done
+    done
+  fi
+}
+
+# This is meant to copy the files safely from source to destination
+CopyFile() {
+  if [ -f "$1" ]; then
+    mkdir -p "$(dirname "$2")"
+    cp -f "$1" "$2"
+  else
+    addToLog "- File $1 does not exist!"
+  fi
+}
+
+copy_installer_logs() {
+  ui_print "- Copying logs to $nikGappsDir/logs"
+  CopyFile "$recoveryLog" "$logDir/logfiles/recovery.log"
+  CopyFile "$nikGappsLog" "$logDir/logfiles/NikGapps.log"
+  CopyFile "$system/build.prop" "$logDir/propfiles/build.prop"
+  # Store the size of partitions after installation starts
+  df >"$COMMONDIR/size_after.txt"
+  df -h >"$COMMONDIR/size_after_readable.txt"
+  CopyFile "/vendor/etc/fstab.qcom" "$logDir/partitions/fstab.qcom"
+  CopyFile "/etc/recovery.fstab" "$logDir/fstab/recovery.fstab"
+  CopyFile "$COMMONDIR/size_before.txt" "$logDir/partitions/size_before.txt"
+  CopyFile "$COMMONDIR/size_before_readable.txt" "$logDir/partitions/size_before_readable.txt"
+  CopyFile "$COMMONDIR/size_after.txt" "$logDir/partitions/size_after.txt"
+  CopyFile "$COMMONDIR/size_after_readable.txt" "$logDir/partitions/size_after_readable.txt"
+  ls -alZR /system >"$COMMONDIR/System_Files_After.txt"
+  CopyFile "$COMMONDIR/System_Files_After.txt" "$logDir/partitions/System_Files_After.txt"
+  CopyFile "$COMMONDIR/System_Files_After.txt" "$logDir/partitions/System_Files_Before.txt"
+  CopyFile "$system/etc/ng.prop" "$logDir/propfiles/ng.prop"
+  cd $logDir || return
+  rm -rf $nikGappsDir/logs
+  tar -cz -f "/tmp/$nikGappsLogFile" ./*
+  mkdir -p $nikGappsDir/logs
+  CopyFile /tmp/"$nikGappsLogFile" $nikGappsDir/logs/"$nikGappsLogFile"
+  [ -z "$nikgapps_config_dir" ] && nikgapps_config_dir=/sdcard/NikGapps
+  rm -rf "$nikgapps_config_dir"/nikgapps_logs
+  mkdir -p "$nikgapps_config_dir"/nikgapps_logs
+  CopyFile /tmp/"$nikGappsLogFile" "$nikgapps_config_dir"/nikgapps_logs/"$nikGappsLogFile"
+  cd /
+}
+
+delete_package() {
+  addToLog "- Deleting package $1"
+  clean_recursive "$1"
+}
+
+delete_package_data() {
+  addToLog "- Deleting data of package $1"
+  rm -rf "/data/data/${1}*"
+}
+
+delete_recursive() {
+  addToLog "- rm -rf $*"
+  rm -rf "$*"
+}
+
+find_Install_partition() {
+  androidVersion=$(get_file_prop "$system/build.prop" "ro.build.version.release")
+  case "$androidVersion" in
+  "1"*) product="/product" ;;
+  "*") product="" ;;
+  esac
+  if [ -f "$nikgapps_config_file_name" ]; then
+    val=$(ReadConfigValue "InstallPartition" "$nikgapps_config_file_name")
+    addToLog "- Config Value for InstallPartition is $val"
+    install_partition=$system$product
+    [ -z "$dynamic_partitions" ] && dynamic_partitions=$(getprop ro.boot.dynamic_partitions)
+    test "$dynamic_partitions" = "true" && install_partition=$system
+    case "$val" in
+      "system") product=""; install_partition=$system ;;
+      "product") product="/product"; install_partition=$system$product ;;
+      "data") install_partition="/data/extra" ;;
+      /*) install_partition=$val ;;
+    esac
+    addToLog "- InstallPartition = $install_partition"
+  else
+    addToLog "- nikgapps.config file doesn't exist!"
+  fi
+}
+
+find_install_mode() {
+  mode=$(ReadConfigValue "mode" "$nikgapps_config_file_name")
+  [ -z "$mode" ] && mode="install"
+  addToLog "- Install mode is $mode"
+  if [ "$configValue" = "-1" ]; then
+    ui_print "- Uninstalling $package_title"
+    uninstall_package
+  elif [ "$mode" = "install" ]; then
+    ui_print "- Installing $package_title"
+    install_package
+  fi
+}
+
+get_file_prop() {
+  grep -m1 "^$2=" "$1" | cut -d= -f2
+}
+
+InstallFile() {
+  if [ "$mode" != "uninstall" ]; then
+    # $1 will start with ___ which needs to be skipped so replacing it with blank value
+    blank=""
+    file_location=$(echo "$1" | sed "s/___/$blank/" | sed "s/___/\//g")
+    # install_location is dynamic location where package would be installed (usually /system, /system/product)
+    install_location="$install_partition/$file_location"
+    # Make sure the directory exists, if not, copying the file would fail
+    mkdir -p "$(dirname "$install_location")"
+    # It's important to set selinux policy
+#    ch_con system "$(dirname "$install_location")"
+    # unpacking of package
+    addToLog "- Unzipping $pkgFile"
+    addToLog "  -> copying $1"
+    addToLog "  -> to $install_location"
+    unzip -o "$pkgFile" "$1" -p >"$install_location"
+    # post unpack operations
+    if [ -f "$install_location" ]; then
+      addToLog "- File Successfully Written!"
+#      case $install_location in
+#      */overlay/*) ch_con vendor_overlay "$install_location" ;;
+#      *) ch_con system "$install_location" ;;
+#      esac
+      set_perm 0 0 0644 "$install_location"
+      # Addon stuff!
+      installPath=$(echo "$product" | sed "s/\//$blank/")
+      [ -z "$product" ] && installPath=$file_location || installPath="$installPath/$file_location"
+      echo "install=$installPath" >>/tmp/addon/"$packagePath"
+    else
+      addToLog "- Failed to write $install_location"
+      abort_in_installer "Installation Failed! Looks like Storage space is full!"
+    fi
+  fi
+}
+
+make_dir() {
+  addToLog "- Creating Directory: $install_partition/$1"
+  mkdir -p "$install_partition/$1"
+  set_perm 1000 1000 0755 "$install_partition/$1"
+}
+
+ReadConfigValue() {
+  value=$(sed -e '/^[[:blank:]]*#/d;s/[\t\n\r ]//g;/^$/d' "$2" | grep "^$1=" | cut -d'=' -f 2)
+  echo "$value"
+  return $?
+}
+
+RemoveAospAppsFromRom() {
+  addToLog "- Removing AOSP App from Rom"
+  if [ "$configValue" -eq 2 ]; then
+    addToLog "- Not creating addon.d script for $*"
+  else
+    clean_recursive "$1"
+    addToLog "- Creating addon.d script for $*"
+    deletePath="$1"
+    echo "delete=$deletePath" >>/tmp/addon/"$deleteFilesPath"
+  fi
+}
+
+RemoveFromRomWithGapps() {
+  addToLog "- Removing From Rom with Gapps"
+  clean_recursive "$1"
+  addToLog "- Creating addon.d script for $*"
+  deletePath="$1"
+  echo "delete=$deletePath" >>/tmp/addon/"$deleteFilesFromRomPath"
+}
+
+set_perm() {
+  uid=$1
+  gid=$2
+  mod=$3
+  shift 3
+  chown "$uid.$gid" "$@"
+  chown "$uid:$gid" "$@"
+  chmod "$mod" "$@"
+}
+
+set_prop() {
+  property="$1"
+  value="$2"
+  test -z "$3" && file_location="${install_partition}/build.prop" || file_location="$3"
+  test ! -f "$file_location" && touch "$file_location" && set_perm 0 0 0600 "$file_location"
+  addToLog "- Setting Property ${1} to ${2} in ${file_location}"
+  if grep -q "${property}" "${file_location}"; then
+    addToLog "- Updating ${property} to ${value} in ${file_location}"
+    sed -i "s/\(${property}\)=.*/\1=${value}/g" "${file_location}"
+  else
+    addToLog "- Adding ${property} to ${value} in ${file_location}"
+    echo "${property}=${value}" >>"${file_location}"
+  fi
+}
+
+# ui_print "<message>" ["<message 2>" ...]
+ui_print() {
+  until [ ! "$1" ]; do
+    echo -e "ui_print $1\nui_print" >>"$OUTFD"
+    addToLog "$1"
+    shift
+  done
+}
+
+UninstallFile() {
+  addToLog "- Inside UninstallFile, mode is $mode"
+  if [ "$mode" = "uninstall" ]; then
+    # $1 will start with ___ which needs to be skipped so replacing it with blank value
+    blank=""
+    file_location=$(echo "$1" | sed "s/___/$blank/" | sed "s/___/\//g")
+    # install_location is dynamic location where package would be installed (usually /system, /system/product)
+    install_location="$install_partition/$file_location"
+    # Remove the file
+    addToLog "- Removing the file $install_location"
+    rm -rf "$install_location"
+    addon_file=$package_title".sh"
+    # Removing the addon sh so it doesn't get backed up and restored
+    addToLog "- Removing $addon_file"
+    rm -rf "/system/addon.d/nikgapps/$addon_file"
+    # Removing the updates and residue
+    [ -n "$package_name" ] && rm -rf "/data/data/$package_name" && rm -rf "/data/app/$package_name*" && rm -rf "/data/app/*/$package_name*"
+  fi
+}
+
+find_Install_partition
