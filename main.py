@@ -47,7 +47,7 @@ print("Android Versions to build: " + str(android_versions))
 print("Packages to build: " + str(package_list))
 
 # # override when we don't want to execute anything
-# android_versions = [10, 11]
+android_versions = []
 
 release_repo = None
 source_last_commit_datetime = None
@@ -88,8 +88,8 @@ for android_version in android_versions:
             release_repo.git_push(str(android_version) + ": " + str(commit_message))
 
 website_repo = None
-print("Updating the changelog to the website")
 if FileOp.dir_exists(Constants.website_directory):
+    print("Updating the changelog to the website")
     if Config.GIT_CHECK:
         website_repo = Git(Constants.website_directory)
         if website_repo is not None:
