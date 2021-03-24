@@ -9,8 +9,14 @@ import pytz
 from datetime import datetime
 import platform
 import psutil
+import os
 
 print("Start of the Program")
+value_of_var = os.environ.get('USER_NAME')
+if value_of_var is None:
+    print("it's none")
+else:
+    print("it's " + str(value_of_var))
 start_time = Constants.start_of_function()
 mem = psutil.virtual_memory()
 total_ram_in_bytes = mem.total
