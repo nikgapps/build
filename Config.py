@@ -39,7 +39,7 @@ if RELEASE_TYPE.__eq__("production"):
     DEBUG_MODE = False
 
 # True if we want the files to upload as soon as they get created
-UPLOAD_FILES = False
+UPLOAD_FILES = True
 
 # Release day can be any of the 7 days
 RELEASE_DAY = "Sat"

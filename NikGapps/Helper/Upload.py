@@ -3,12 +3,16 @@ import time
 import pytz
 from datetime import datetime
 import Config
+import os
 
 
 class Upload:
 
     def __init__(self):
         self.release_dir = "/home/frs/project/nikgapps/Releases"
+        sf_pwd = os.environ.get('SF_PWD')
+        if sf_pwd is None:
+            sf_pwd = ""
         tz_london = pytz.timezone('Europe/London')
         datetime_london = datetime.now(tz_london)
         self.release_date = str(datetime_london.strftime("%d-%b-%Y"))
@@ -19,13 +23,13 @@ class Upload:
         if i == 1:
             self.child.sendline("yes")
             self.child.expect("Password")
-            self.child.sendline("********")
+            self.child.sendline(str(sf_pwd))
             status = self.child.expect(["Connected to frs.sourceforge.net", "sftp> ", "Password"])
             if status == 0 or status == 1:
                 self.successful_connection = True
                 print("Connection was successful")
         elif i == 0:
-            self.child.sendline("********")
+            self.child.sendline(str(sf_pwd))
             status = self.child.expect(["Connected to frs.sourceforge.net", "sftp> ", "Password"])
             if status == 0 or status == 1:
                 self.successful_connection = True
