@@ -32,7 +32,7 @@ begins_with() {
 }
 
 ch_con() {
-#  chcon -h u:object_r:"${1}"_file:s0 "$2"
+  chcon -h u:object_r:"${1}"_file:s0 "$2"
   addToLog "- ch_con with ${1} for $2"
 }
 
@@ -176,10 +176,9 @@ InstallFile() {
     # post unpack operations
     if [ -f "$install_location" ]; then
       addToLog "- File Successfully Written!"
-#      case $install_location in
-#      */overlay/*) ch_con vendor_overlay "$install_location" ;;
-#      *) ch_con system "$install_location" ;;
-#      esac
+      case $install_location in
+      *) ch_con system "$install_location" ;;
+      esac
       set_perm 0 0 0644 "$install_location"
       # Addon stuff!
       installPath=$(echo "$product" | sed "s/\//$blank/")
