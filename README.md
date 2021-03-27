@@ -22,9 +22,7 @@ Here are some feature highlights:
 - It also allows optimizing Google Play Services (when you turn off Find My Device) so that you can sleep with peace without having to worry about Google play services eating your battery. (Requires support from Rom too in order to work)
 
 ## For Developers
-[![](https://img.shields.io/badge/NikGapps%20-How%20to%20build%20Your%20Own-blue)](https://github.com/nikgapps/build)
+[![](https://img.shields.io/badge/NikGapps%20-How%20to%20fetch%20App%20Updates-blue)](https://github.com/nikgapps/build)
 
 ## Total Downloads  
-<img alt="SourceForge" src="https://img.shields.io/sourceforge/dt/nikgapps?label=Total%20Downloads&color=red">
-<br>
-<img alt="SourceForge" src="https://img.shields.io/sourceforge/dd/nikgapps?label=Downloads%20Per%20Day&color=blue">  
+<img alt="SourceForge" src="https://img.shields.io/sourceforge/dt/nikgapps?label=Total%20Downloads&color=red"> <img alt="SourceForge" src="https://img.shields.io/sourceforge/dd/nikgapps?label=Downloads%20Per%20Day&color=blue">  
