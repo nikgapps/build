@@ -9,7 +9,6 @@ import pytz
 from datetime import datetime
 import platform
 import psutil
-import os
 
 print("Start of the Program")
 start_time = Constants.start_of_function()
