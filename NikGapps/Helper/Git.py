@@ -47,8 +47,11 @@ class Git:
                 return True
         return False
 
-    def git_push(self, commit_message):
+    def git_push(self, commit_message, push_untracked_files=None):
         self.repo.git.add(update=True)
+        if push_untracked_files is not None:
+            for file in self.repo.untracked_files:
+                self.repo.index.add([file])
         self.repo.index.commit(commit_message)
         origin = self.repo.remote(name='origin')
         origin.push()
@@ -63,3 +66,19 @@ class Git:
             self.git_push("Update Changelog")
         else:
             print("There is nothing to update!")
+
+    def update_config_changes(self, message):
+        if self.due_changes():
+            print(message)
+            self.git_push(message, push_untracked_files=True)
+        else:
+            print("There is nothing to update!")
+
+    def get_status(self, path):
+        changed = [item.a_path for item in self.repo.index.diff(None)]
+        if path in self.repo.untracked_files:
+            return 'untracked'
+        elif path in changed:
+            return 'modified'
+        else:
+            return 'don''t care'

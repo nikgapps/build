@@ -47,13 +47,15 @@ print("Android Versions to build: " + str(android_versions))
 print("Packages to build: " + str(package_list))
 
 # # override when we don't want to execute anything
-# android_versions = []
+android_versions = []
 
 release_repo = None
 source_last_commit_datetime = None
 if Config.GIT_CHECK:
     if FileOp.dir_exists(Constants.release_history_directory):
         release_repo = Git(Constants.release_history_directory)
+    else:
+        print(Constants.release_history_directory + " doesn't exist!")
     source_repo = Git(Constants.cwd)
     source_last_commit_datetime = source_repo.get_latest_commit_date(repo="main")
     print("Last Source Commit: " + str(source_last_commit_datetime))
@@ -73,6 +75,8 @@ for android_version in android_versions:
                 apk_source_datetime = apk_source_repo.get_latest_commit_date()
                 # if last commit was before release date, the release was already made so we don't need a new release
                 print("Last Apk Repo (" + str(Config.TARGET_ANDROID_VERSION) + ") Commit: " + str(apk_source_datetime))
+        else:
+            print(Constants.apk_source_directly + " doesn't exist!")
         if apk_source_datetime is None or source_last_commit_datetime is None or release_datetime is None:
             new_release = True
         if new_release or apk_source_datetime > release_datetime or source_last_commit_datetime > release_datetime:
@@ -87,10 +91,16 @@ for android_version in android_versions:
         if release_repo is not None:
             release_repo.git_push(str(android_version) + ": " + str(commit_message))
 
+if Config.BUILD_CONFIG:
+    if FileOp.dir_exists(Constants.config_directory):
+        zip_status = Release.zip(['config'])
+    else:
+        print(Constants.config_directory + " doesn't exist!")
+
 website_repo = None
 if FileOp.dir_exists(Constants.website_directory):
-    print("Updating the changelog to the website")
     if Config.GIT_CHECK:
+        print("Updating the changelog to the website")
         website_repo = Git(Constants.website_directory)
         if website_repo is not None:
             commit_datetime = website_repo.get_latest_commit_date()

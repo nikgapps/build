@@ -38,6 +38,7 @@ class Constants:
     website_directory = str(Path(cwd).parent) + os.path.sep + "nikgapps.github.io"
     release_history_directory = str(Path(cwd).parent) + os.path.sep + "release"
     apk_source_directly = str(Path(cwd).parent) + os.path.sep
+    config_directory = str(Path(cwd).parent) + os.path.sep + "config"
     # source_directory = export_directory
     # The directory where all the final nikgapps packages will be exported
     # release_directory = str(Path(cwd).parent) + os.path.sep + "Releases" + os.path.sep + str(
