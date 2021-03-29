@@ -22,6 +22,13 @@ class NikGappsPackages:
             return NikGappsPackages.get_stock_package()
         if str(package_type).lower() == "full":
             return NikGappsPackages.get_full_package()
+        if str(package_type).lower() == "all":
+            all_package_list = []
+            for app_set in NikGappsPackages.get_full_package():
+                all_package_list.append(app_set)
+            # for app_set in AddonSet.get_addon_packages():
+            #     all_package_list.append(app_set)
+            return all_package_list
         if str(package_type).lower() == "addons":
             addon_set_list = AddonSet.get_addon_packages()
             return addon_set_list

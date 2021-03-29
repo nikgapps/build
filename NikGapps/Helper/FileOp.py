@@ -16,6 +16,11 @@ class FileOp:
         shutil.copy2(source, destination)
 
     @staticmethod
+    def move_file(source, destination):
+        FileOp.create_file_dir(destination)
+        shutil.move(source, destination)
+
+    @staticmethod
     def dir_exists(dir_path):
         if os.path.exists(dir_path):
             return True
@@ -137,6 +142,7 @@ class FileOp:
             file.close()
             return lines
         else:
+            print("File: " + file_path + " not found!")
             return ['File Not Found']
 
     @staticmethod
@@ -147,4 +153,5 @@ class FileOp:
             file.close()
             return lines
         else:
+            print("File: " + file_path + " not found!")
             return ['File Not Found']

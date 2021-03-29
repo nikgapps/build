@@ -49,4 +49,7 @@ OVERRIDE_RELEASE = False
 
 # Git Check enables controlled releases.
 # If this is set to True, new release will only happen when there is a change in the source repo or apk is updated
-GIT_CHECK = True
+GIT_CHECK = False
+
+# Enabling this will enable the feature of building NikGapps using config file
+BUILD_CONFIG = True

@@ -27,6 +27,7 @@ class Export:
         print_progress = ""
         start_time = Constants.start_of_function()
         file_sizes = ""
+        zip_execution_status = False
         try:
             app_set_count = len(app_set_list)
             app_set_index = 1
@@ -159,6 +160,7 @@ class Export:
             zpkg.writestringtozip(file_sizes, "file_size")
             zpkg.close()
             self.z.writefiletozip(Constants.temp_packages_directory + Constants.dir_sep + "afzc.zip", "tools/busybox")
+            zip_execution_status = True
             print('The zip ' + self.file_name + ' is created successfully!')
             if sent_message is not None:
                 sent_message.edit_text(
@@ -178,6 +180,7 @@ class Export:
             elif SIGN_ZIP:
                 start_time = Constants.start_of_function()
                 print('Signing The Zip')
+                zip_execution_status = False
                 if sent_message is not None:
                     sent_message.edit_text("Signing The Zip")
                 cmd = Cmd()
@@ -186,6 +189,7 @@ class Export:
                     if output.__eq__("Success!"):
                         file_name = file_name[:-4] + "-signed.zip"
                         print("The zip signed successfully: " + file_name)
+                        zip_execution_status = True
                         if sent_message is not None:
                             sent_message.edit_text("The zip signed successfully: " + Constants.get_base_name(file_name))
                 Constants.end_of_function(start_time, "Total time taken to sign the zip")
@@ -213,6 +217,7 @@ class Export:
                 elif Constants.get_base_name(file_name).__contains__("Debloater"):
                     file_type = "debloater"
                 u = Upload()
+                zip_execution_status = False
                 # proceed only if the connection is successful
                 if u.successful_connection:
                     # check if directory exists, if it does, we're good to upload the file
@@ -229,6 +234,7 @@ class Export:
                         print("uploading " + file_name + " ...")
                         u.upload_file(file_name)
                         print("uploading file finished...")
+                        zip_execution_status = True
                     else:
                         print("The directory doesn't exist!")
                 else:
@@ -236,3 +242,4 @@ class Export:
                 # make sure we close the connection
                 u.close()
                 Constants.end_of_function(start_time, "Total time taken to upload the file")
+            return zip_execution_status
