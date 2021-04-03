@@ -46,7 +46,7 @@ print("Android Versions to build: " + str(android_versions))
 print("Packages to build: " + str(package_list))
 
 # # override when we don't want to execute anything
-android_versions = []
+# android_versions = []
 
 release_repo = None
 source_last_commit_datetime = None
