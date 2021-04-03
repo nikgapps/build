@@ -1,3 +1,8 @@
+- date: 4th April 2021 (Android R and Q Release)
+  changes:
+      - item: Addon v3 support
+      - item: Add support for GoogleDuo, GoogleDocs, GoogleSlides, GoogleSheets
+      - item: Playstore Updates (4th April)
 - date: 28th Jan 2021 (Android R and Q Release)
   changes:
       - item: Added missing Hotward Permissions
