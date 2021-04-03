@@ -28,7 +28,7 @@ COMMONDIR=/tmp/AFZCScripts
 install_partition="$system"
 tmp_nikgapps=/tmp/NikGapps
 Current_AppSet=""
-extn="dat.br"
+extn="zip"
 
 abort() {
   ui_print " "

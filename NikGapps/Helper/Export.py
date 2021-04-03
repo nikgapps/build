@@ -78,7 +78,7 @@ class Export:
                                         sent_message.edit_text(
                                             "The zip signed successfully: " + Constants.get_base_name(pkg_zip_path))
                     self.z.writefiletozip(pkg_zip_path,
-                                          "AppSet/" + str(app_set.title) + "/" + str(pkg.package_title) + ".dat.br")
+                                          "AppSet/" + str(app_set.title) + "/" + str(pkg.package_title) + ".zip")
                     package_index = package_index + 1
                     total_packages += 1
                     file_sizes = file_sizes + str(pkg.package_title) + "=" + str(pkg_size) + "\n"
