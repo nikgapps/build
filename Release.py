@@ -36,7 +36,9 @@ class Release:
                     # Create config obj to handle config operations
                     config_obj = NikGappsConfig(config_files)
                     # Get Target Android Version so the packages can be created
-                    Config.TARGET_ANDROID_VERSION = int(config_obj.get_android_version())
+                    android_version = int(config_obj.get_android_version())
+                    if str(android_version) != str(Config.TARGET_ANDROID_VERSION):
+                        continue
                     Constants.update_android_version_dependencies()
                     # Build package list from config
                     config_package_list = config_obj.get_config_packages()
