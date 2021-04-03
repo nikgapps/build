@@ -1,5 +1,5 @@
 #!/sbin/sh
-# ADDOND_VERSION=2
+# ADDOND_VERSION=3
 ########################################################
 #
 # NikGapps Survival Script for ROMs with addon.d support
@@ -82,7 +82,7 @@ execute_addon() {
   if [ -d "$NikGappsAddonDir" ]; then
     addToLog "Executing $* in NikGapps addon"
     # Load mount functions
-    test "$execute_config" = "1" && test "$mount_config" = "1" && mount_partitions "product"
+#    test "$execute_config" = "1" && test "$mount_config" = "1" && mount_partitions "product"
     test "$execute_config" = "1" && run_stage "$@"
     addToLog "- Copying recovery log at $argument"
     CopyFile "$recoveryLog" "$addonLogsDir/logfiles/recovery.log"
