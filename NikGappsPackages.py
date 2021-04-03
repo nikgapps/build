@@ -60,17 +60,6 @@ class NikGappsPackages:
     @staticmethod
     def get_go_package():
         extra_files_go = Package("ExtraFilesGo", None, None)
-        extra_files_go.predefined_file_list.append("etc/default-permissions/default-permissions.xml")
-        extra_files_go.predefined_file_list.append("etc/default-permissions/opengapps-permissions.xml")
-        extra_files_go.predefined_file_list.append("etc/permissions/privapp-permissions-google.xml")
-        extra_files_go.predefined_file_list.append("etc/permissions/privapp-permissions-hotword.xml")
-        if TARGET_ANDROID_VERSION == 9:
-            extra_files_go.predefined_file_list.append("etc/permissions/privapp-permissions-google-product.xml")
-            extra_files_go.predefined_file_list.append("etc/permissions/privapp-permissions-elgoog.xml")
-        if TARGET_ANDROID_VERSION == 10:
-            extra_files_go.predefined_file_list.append("etc/permissions/privapp-permissions-google-p.xml")
-            extra_files_go.predefined_file_list.append("etc/permissions/privapp-permissions-google-ps.xml")
-            extra_files_go.predefined_file_list.append("etc/permissions/split-permissions-google.xml")
         extra_files_go.additional_installer_script = """script_text="<permissions>
                             <!-- Shared library required on the device to get Google Dialer updates from
                                  Play Store. This will be deprecated once Google Dialer play store
@@ -126,24 +115,6 @@ class NikGappsPackages:
                                 if [ -f "$install_partition/etc/permissions/com.google.android.media.effects.xml" ]; then
                                   addToLog "- $install_partition/etc/permissions/com.google.android.media.effects.xml Successfully Written!"
                                 fi"""
-        extra_files_go.predefined_file_list.append("etc/sysconfig/google-hiddenapi-package-whitelist.xml")
-        extra_files_go.predefined_file_list.append("etc/sysconfig/pixel_experience_2017.xml")
-        extra_files_go.predefined_file_list.append("etc/sysconfig/pixel_experience_2018.xml")
-        extra_files_go.predefined_file_list.append("etc/sysconfig/pixel_experience_2019_midyear.xml")
-        extra_files_go.predefined_file_list.append("etc/sysconfig/pixel_experience_2019.xml")
-        extra_files_go.predefined_file_list.append("etc/sysconfig/pixel_2019_exclusive.xml")
-        extra_files_go.predefined_file_list.append("etc/sysconfig/nexus.xml")
-        extra_files_go.predefined_file_list.append("etc/sysconfig/google_build.xml")
-        extra_files_go.predefined_file_list.append("etc/sysconfig/google_vr_build.xml")
-        extra_files_go.predefined_file_list.append("etc/sysconfig/google.xml")
-        extra_files_go.predefined_file_list.append("framework/com.google.android.maps.jar")
-        extra_files_go.predefined_file_list.append("framework/com.google.android.dialer.support.jar")
-        extra_files_go.predefined_file_list.append("framework/com.google.widevine.software.drm.jar")
-        extra_files_go.predefined_file_list.append("framework/com.google.android.media.effects.jar")
-        extra_files_go.predefined_file_list.append("lib64/libgdx.so")
-        extra_files_go.predefined_file_list.append("etc/preferred-apps/google_go.xml")
-        extra_files_go.predefined_file_list.append("etc/sysconfig/google_dialergo_experience.xml")
-        extra_files_go.predefined_file_list.append("etc/sysconfig/gmsexpress.xml")
 
         core_go = AppSet("CoreGo")
         core_go.add_package(extra_files_go)
@@ -211,29 +182,6 @@ class NikGappsPackages:
     @staticmethod
     def get_core_package():
         files = Package("ExtraFiles", None, None)
-        files.predefined_file_list.append("etc/default-permissions/default-permissions.xml")
-        if TARGET_ANDROID_VERSION <= 10:
-            files.predefined_file_list.append("etc/default-permissions/opengapps-permissions.xml")
-        if TARGET_ANDROID_VERSION == 11:
-            files.predefined_file_list.append("etc/default-permissions/default-permissions-google.xml")
-            files.predefined_file_list.append("etc/default-permissions/nikgapps-permissions.xml")
-        if TARGET_ANDROID_VERSION <= 10:
-            files.predefined_file_list.append("etc/permissions/privapp-permissions-google.xml")
-        files.predefined_file_list.append("etc/permissions/privapp-permissions-hotword.xml")
-        if TARGET_ANDROID_VERSION == 9:
-            files.predefined_file_list.append("etc/permissions/privapp-permissions-elgoog.xml")
-        if TARGET_ANDROID_VERSION == 10:
-            files.predefined_file_list.append("etc/permissions/privapp-permissions-google-p.xml")
-            files.predefined_file_list.append("etc/permissions/privapp-permissions-google-ps.xml")
-            files.predefined_file_list.append("etc/permissions/split-permissions-google.xml")
-        if TARGET_ANDROID_VERSION == 11:
-            files.predefined_file_list.append("etc/permissions/com.google.android.dialer.support.xml")
-            files.predefined_file_list.append("etc/permissions/NikGapps-privapp-permissions-google.xml")
-            files.predefined_file_list.append("etc/permissions/privapp-permissions-google-comms-suite.xml")
-            files.predefined_file_list.append("etc/permissions/privapp-permissions-google-p.xml")
-            files.predefined_file_list.append("etc/permissions/privapp-permissions-google-product.xml")
-            files.predefined_file_list.append("etc/permissions/privapp-permissions-google-system-ext.xml")
-            files.predefined_file_list.append("etc/permissions/split-permissions-google.xml")
         files.additional_installer_script = """script_text="<permissions>
                     <!-- Shared library required on the device to get Google Dialer updates from
                          Play Store. This will be deprecated once Google Dialer play store
@@ -289,31 +237,10 @@ class NikGappsPackages:
                         if [ -f "$install_partition/etc/permissions/com.google.android.media.effects.xml" ]; then
                           addToLog "- $install_partition/etc/permissions/com.google.android.media.effects.xml Successfully Written!"
                         fi"""
-        if TARGET_ANDROID_VERSION <= 10:
-            files.predefined_file_list.append("etc/sysconfig/google-hiddenapi-package-whitelist.xml")
-            files.predefined_file_list.append("etc/sysconfig/google_build.xml")
-            files.predefined_file_list.append("etc/sysconfig/google_vr_build.xml")
-            files.predefined_file_list.append("etc/sysconfig/google.xml")
-        if TARGET_ANDROID_VERSION == 11:
-            files.predefined_file_list.append("etc/sysconfig/backup.xml")
-            files.predefined_file_list.append("etc/sysconfig/dialer_experience.xml")
-            files.predefined_file_list.append("etc/sysconfig/google-hiddenapi-package-allowlist.xml")
-            files.predefined_file_list.append("etc/sysconfig/pixel.xml")
-            files.predefined_file_list.append("etc/sysconfig/preinstalled-packages-platform-handheld-product.xml")
-            files.predefined_file_list.append("etc/sysconfig/preinstalled-packages-platform-overlays.xml")
-            files.predefined_file_list.append("etc/sysconfig/wellbeing.xml")
-        files.predefined_file_list.append("etc/sysconfig/pixel_experience_2017.xml")
-        files.predefined_file_list.append("etc/sysconfig/pixel_experience_2018.xml")
-        files.predefined_file_list.append("etc/sysconfig/pixel_experience_2019_midyear.xml")
-        files.predefined_file_list.append("etc/sysconfig/pixel_experience_2019.xml")
-        files.predefined_file_list.append("etc/sysconfig/pixel_2019_exclusive.xml")
-        files.predefined_file_list.append("etc/sysconfig/nexus.xml")
-        files.predefined_file_list.append("framework/com.google.android.maps.jar")
-        files.predefined_file_list.append("framework/com.google.android.dialer.support.jar")
-        files.predefined_file_list.append("framework/com.google.widevine.software.drm.jar")
-        files.predefined_file_list.append("framework/com.google.android.media.effects.jar")
-        files.predefined_file_list.append("lib64/libgdx.so")
-        # files.predefined_file_list.append("lib64/libjni_latinimegoogle.so")
+
+        # example of how to add files
+        # files.predefined_file_list.append("framework/com.google.android.media.effects.jar")
+        # files.predefined_file_list.append("lib64/libgdx.so")
         prebuiltgmscore = Package("PrebuiltGmsCore", "com.google.android.gms", Constants.is_priv_app, "GmsCore")
         prebuiltgmscore.delete_in_rom("PrebuiltGmsCoreQt")
         prebuiltgmscore.delete_in_rom("PrebuiltGmsCoreRvc")
@@ -476,6 +403,8 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
         google_turbo = Package("Turbo", "com.google.android.apps.turbo", Constants.is_priv_app, "DeviceHealthServices")
         google_turbo.delete_in_rom("TurboPrebuilt")
         app_set_list.append(AppSet("DeviceHealthServices", [google_turbo]))
+        google_duo = Package("GoogleDuo", "com.google.android.apps.tachyon", Constants.is_system_app)
+        app_set_list.append(AppSet("GoogleDuo", [google_duo]))
         return app_set_list
 
     @staticmethod
@@ -560,13 +489,18 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
                                Constants.is_priv_app, "AndroidAuto")
         app_set_list.append(AppSet("AndroidAuto", [android_auto]))
         app_set_list.append(NikGappsPackages.get_chrome())
+        google_docs = Package("GoogleDocs", "com.google.android.apps.docs.editors.docs", Constants.is_system_app)
+        app_set_list.append(AppSet("GoogleDocs", [google_docs]))
+        google_sheets = Package("GoogleSheets", "com.google.android.apps.docs.editors.sheets", Constants.is_system_app)
+        app_set_list.append(AppSet("GoogleSheets", [google_sheets]))
+        google_slides = Package("GoogleSlides", "com.google.android.apps.docs.editors.slides", Constants.is_system_app)
+        app_set_list.append(AppSet("GoogleSlides", [google_slides]))
         return app_set_list
 
     @staticmethod
     def get_google_files():
         google_files = Package("FilesPrebuilt", "com.google.android.apps.nbu.files", Constants.is_priv_app,
                                "GoogleFiles")
-        # google_files.delete("DocumentsUI")
         google_files.predefined_file_list.append("overlay/FilesOverlay/FilesOverlay.apk")
         google_files.predefined_file_list.append(
             "overlay/PixelDocumentsUIGoogleOverlay/PixelDocumentsUIGoogleOverlay.apk")
@@ -610,7 +544,6 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
         setup_wizard = Package("SetupWizardPrebuilt", "com.google.android.setupwizard", Constants.is_priv_app,
                                "SetupWizard")
         setup_wizard.delete("Provision")
-        # setup_wizard.delete("ManagedProvisioning")
         setup_wizard.delete("SetupWizardPrebuilt")
         setup_wizard.delete("SetupWizard")
         setup_wizard.delete("GoogleRestore")
