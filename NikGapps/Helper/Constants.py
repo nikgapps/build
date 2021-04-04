@@ -93,12 +93,11 @@ class Constants:
     @staticmethod
     def update_sourceforge_release_directory(release_type):
         if release_type == "config":
-            sourceforge_release_directory = "/home/frs/project/nikgapps/Config-Releases"
+            Constants.sourceforge_release_directory = "/home/frs/project/nikgapps/Config-Releases"
         elif release_type == "canary":
-            sourceforge_release_directory = "/home/frs/project/nikgapps/Canary-Releases"
+            Constants.sourceforge_release_directory = "/home/frs/project/nikgapps/Canary-Releases"
         else:
-            sourceforge_release_directory = "/home/frs/project/nikgapps/Releases"
-        return sourceforge_release_directory
+            Constants.sourceforge_release_directory = "/home/frs/project/nikgapps/Releases"
 
     @staticmethod
     def update_android_version_dependencies():
