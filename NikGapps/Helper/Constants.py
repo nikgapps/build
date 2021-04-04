@@ -102,6 +102,7 @@ class Constants:
             Config.TARGET_ANDROID_VERSION) + os.path.sep + Constants.current_time
         Constants.source_directory = str(Path(Constants.cwd).parent) + os.path.sep + str(
             Constants.android_version_folder)
+        print("Source: " + Constants.source_directory)
         Constants.release_directory = str(Path(Constants.cwd).parent) + os.path.sep + "Releases" + os.path.sep + str(
             Config.TARGET_ANDROID_VERSION)
         Constants.temp_packages_directory = str(Path(Constants.cwd).parent) + os.path.sep + "TempPackages" + os.path.sep + str(
