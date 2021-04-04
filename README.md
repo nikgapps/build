@@ -1,3 +1,5 @@
+![](https://raw.githubusercontent.com/nikgapps/nikgapps.github.io/master/images/nikgapps-logo.webp)
+
 ## Introduction
 
 NikGapps project started with the goal to provide custom gapps packages that suits everyone's needs. A gapps package which is completely configurable, allows you to install exactly the set of google apps you want and It comes in 6 variants.   
@@ -23,4 +25,4 @@ Here are some feature highlights:
 [![](https://img.shields.io/badge/NikGapps%20-How%20to%20fetch%20App%20Updates-blue)](https://github.com/nikgapps/build)
 
 ## Total Downloads  
-<img alt="SourceForge" src="https://img.shields.io/sourceforge/dt/nikgapps?label=Total%20Downloads&color=red"> <img alt="SourceForge" src="https://img.shields.io/sourceforge/dd/nikgapps?label=Downloads%20Per%20Day&color=blue">  
+<img alt="SourceForge" src="https://img.shields.io/sourceforge/dt/nikgapps?label=Total%20Downloads&color=red"> <img alt="SourceForge" src="https://img.shields.io/sourceforge/dd/nikgapps?label=Downloads%20Per%20Day&color=blue">

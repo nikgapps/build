@@ -2,14 +2,15 @@ import pexpect
 import time
 import pytz
 from datetime import datetime
-import Config
 import os
+
+from NikGapps.Helper import Constants
 
 
 class Upload:
 
     def __init__(self):
-        self.release_dir = "/home/frs/project/nikgapps/Releases"
+        self.release_dir = Constants.sourceforge_release_directory
         sf_pwd = os.environ.get('SF_PWD')
         if sf_pwd is None:
             sf_pwd = ""
@@ -63,8 +64,6 @@ class Upload:
                 folder_name = "Addons-R"
         elif file_type == "debloater":
             folder_name = "Debloater"
-        if self.day != Config.RELEASE_DAY:
-            return "/home/frs/project/nikgapps/Canary-Releases" + "/" + folder_name
         return self.release_dir + "/" + folder_name
 
     def cd(self, path):
