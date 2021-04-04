@@ -86,12 +86,18 @@ for android_version in android_versions:
         if Config.TARGET_ANDROID_VERSION == 10 and "go" not in Config.BUILD_PACKAGE_LIST:
             Config.BUILD_PACKAGE_LIST.append("go")
         Constants.update_android_version_dependencies()
+        today = datetime.now(pytz.timezone('Europe/London')).strftime("%a")
+        if today != Config.RELEASE_DAY:
+            Constants.update_sourceforge_release_directory("canary")
+        else:
+            Constants.update_sourceforge_release_directory("")
         Release.zip(package_list)
         if release_repo is not None:
             release_repo.git_push(str(android_version) + ": " + str(commit_message))
 
 if Config.BUILD_CONFIG:
     if FileOp.dir_exists(Constants.config_directory):
+        Constants.update_sourceforge_release_directory("config")
         zip_status = Release.zip(['config'])
     else:
         print(Constants.config_directory + " doesn't exist!")

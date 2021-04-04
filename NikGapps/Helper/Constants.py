@@ -39,6 +39,8 @@ class Constants:
     release_history_directory = str(Path(cwd).parent) + os.path.sep + "release"
     apk_source_directly = str(Path(cwd).parent) + os.path.sep
     config_directory = str(Path(cwd).parent) + os.path.sep + "config"
+    sourceforge_release_directory = "/home/frs/project/nikgapps/Releases"
+
     # source_directory = export_directory
     # The directory where all the final nikgapps packages will be exported
     # release_directory = str(Path(cwd).parent) + os.path.sep + "Releases" + os.path.sep + str(
@@ -87,6 +89,16 @@ class Constants:
         print("--- %s seconds --- " % (time.time() - start_time))
         print("--- %s minutes %s seconds --- " % (minutes, seconds))
         print()
+
+    @staticmethod
+    def update_sourceforge_release_directory(release_type):
+        if release_type == "config":
+            sourceforge_release_directory = "/home/frs/project/nikgapps/Config-Releases"
+        elif release_type == "canary":
+            sourceforge_release_directory = "/home/frs/project/nikgapps/Canary-Releases"
+        else:
+            sourceforge_release_directory = "/home/frs/project/nikgapps/Releases"
+        return sourceforge_release_directory
 
     @staticmethod
     def update_android_version_dependencies():
