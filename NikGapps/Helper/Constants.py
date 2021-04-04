@@ -96,7 +96,7 @@ class Constants:
             Constants.android_version_folder = "Q"
         elif str(Config.TARGET_ANDROID_VERSION).__eq__("11"):
             Constants.android_version_folder = "R"
-        if str(Config.RELEASE_TYPE).lower == "production":
+        if str(Config.RELEASE_TYPE.lower()) == "production":
             Constants.android_version_folder = str(Config.TARGET_ANDROID_VERSION)
         Constants.export_directory = str(Path(Constants.cwd).parent) + os.path.sep + "Export" + os.path.sep + str(
             Config.TARGET_ANDROID_VERSION) + os.path.sep + Constants.current_time
