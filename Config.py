@@ -1,9 +1,16 @@
+import os
+
 # The android version that we're targeting this application to run
 TARGET_ANDROID_VERSION = 11
 
 # Release type differentiates the experimental and stable features
 # Possible values are [ 'production', 'development' ]
 RELEASE_TYPE = "production"
+release_type = os.environ.get('RELEASE_TYPE')
+if release_type is None:
+    RELEASE_TYPE = "development"
+else:
+    RELEASE_TYPE = release_type
 
 # Possible Values are ['core', 'basic', 'omni', 'stock', 'full', 'ultra', 'addons', 'addonsets']
 BUILD_PACKAGE_LIST = ['core', 'basic', 'omni', 'stock', 'full', 'addons', 'addonsets']
