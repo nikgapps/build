@@ -7,9 +7,7 @@ TARGET_ANDROID_VERSION = 11
 # Possible values are [ 'production', 'development' ]
 RELEASE_TYPE = "production"
 release_type = os.environ.get('RELEASE_TYPE')
-if release_type is None:
-    RELEASE_TYPE = "development"
-else:
+if release_type is not None:
     RELEASE_TYPE = release_type
 
 # Possible Values are ['core', 'basic', 'omni', 'stock', 'full', 'ultra', 'addons', 'addonsets']

@@ -25,6 +25,7 @@ class NikGappsConfig:
                     or line.startswith("mode=") \
                     or line.__contains__(".d=") \
                     or line.startswith("File Not Found") \
+                    or line.startswith("WipeRuntimePermissions=") \
                     or line.startswith("WipeDalvikCache="):
                 continue
             lines[line.split('=')[0]] = line.split('=')[1].replace('\n', '')
@@ -44,12 +45,12 @@ class NikGappsConfig:
                 new_app_set = AppSet(app_set.title)
                 for pkg in app_set.package_list:
                     pkg: Package
-                    if str(">>" + pkg.title) not in config_dict:
+                    if str(">>" + pkg.package_title) not in config_dict:
                         continue
-                    if config_dict[str(">>" + pkg.title)] == "1":
+                    if config_dict[str(">>" + pkg.package_title)] == "1":
                         new_app_set.add_package(pkg)
                     else:
-                        print("Package disabled " + pkg.title)
+                        print("Package disabled " + pkg.package_title)
             elif pkg_len == 1 and str(config_dict[app_set.title]) == "1":
                 new_app_set = app_set
             if new_app_set is not None:
