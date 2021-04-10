@@ -26,6 +26,7 @@ class NikGappsConfig:
                     or line.__contains__(".d=") \
                     or line.startswith("File Not Found") \
                     or line.startswith("WipeRuntimePermissions=") \
+                    or not line.__contains__("=") \
                     or line.startswith("WipeDalvikCache="):
                 continue
             lines[line.split('=')[0]] = line.split('=')[1].replace('\n', '')

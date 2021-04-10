@@ -10,14 +10,16 @@ release_type = os.environ.get('RELEASE_TYPE')
 if release_type is not None:
     RELEASE_TYPE = release_type
 
-# Possible Values are ['core', 'basic', 'omni', 'stock', 'full', 'ultra', 'addons', 'addonsets']
+# Possible Values are ['core', 'basic', 'omni', 'stock', 'full', 'addons', 'addonsets']
 BUILD_PACKAGE_LIST = ['core', 'basic', 'omni', 'stock', 'full', 'addons', 'addonsets']
 
 if TARGET_ANDROID_VERSION == 10:
     BUILD_PACKAGE_LIST.append("go")
 
 # Send the zip to device after creation, Possible values are True and False
-SEND_ZIP_DEVICE = False
+SEND_ZIP_DEVICE = True
+if RELEASE_TYPE.__eq__("production"):
+    SEND_ZIP_DEVICE = False
 
 # This will create a Debloater Zip
 CREATE_DEBLOATER_ZIP = True

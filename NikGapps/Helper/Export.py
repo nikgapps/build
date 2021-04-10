@@ -197,6 +197,7 @@ class Export:
                 start_time = Constants.start_of_function()
                 cmd = Cmd()
                 message = "Sending the zip to device: " + Constants.get_base_name(file_name)
+                print(message)
                 if sent_message is not None:
                     sent_message.edit_text(message)
                 cmd.push_package(file_name,
@@ -205,7 +206,6 @@ class Export:
                                  + Constants.get_base_name(file_name))
                 if sent_message is not None:
                     sent_message.edit_text("Sent the zip!")
-                print(message)
                 Constants.end_of_function(start_time, "Total time taken to send the zip to device")
             system_name = platform.system()
             if system_name != "Windows" and UPLOAD_FILES:
