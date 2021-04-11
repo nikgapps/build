@@ -28,8 +28,10 @@ test "$ANDROID_ROOT" || ANDROID_ROOT=/system;
 mkdir -p "$NikGappsAddonDir"
 
 addToLog() {
-  mkdir -p "$(dirname "$NikGappsLog")";
-  echo "$1" >> "$NikGappsLog"
+  if [ "$execute_config" = "1" ]; then
+    mkdir -p "$(dirname "$NikGappsLog")";
+    echo "$1" >> "$NikGappsLog"
+  fi
 }
 
 ps | grep zygote | grep -v grep >/dev/null && BOOTMODE=true || BOOTMODE=false
