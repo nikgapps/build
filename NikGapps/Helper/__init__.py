@@ -12,3 +12,5 @@ from .AddonSet import AddonSet
 from .Upload import Upload
 from .Git import Git
 from .NikGappsConfig import NikGappsConfig
+from .SystemStat import SystemStat
+

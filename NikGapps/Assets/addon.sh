@@ -28,8 +28,10 @@ test "$ANDROID_ROOT" || ANDROID_ROOT=/system;
 mkdir -p "$NikGappsAddonDir"
 
 addToLog() {
-  mkdir -p "$(dirname "$NikGappsLog")";
-  echo "$1" >> "$NikGappsLog"
+  if [ "$execute_config" = "1" ]; then
+    mkdir -p "$(dirname "$NikGappsLog")";
+    echo "$1" >> "$NikGappsLog"
+  fi
 }
 
 ps | grep zygote | grep -v grep >/dev/null && BOOTMODE=true || BOOTMODE=false
@@ -80,12 +82,14 @@ copy_logs() {
 execute_addon() {
   mount /data 2>/dev/null
   if [ -d "$NikGappsAddonDir" ]; then
-    addToLog "Executing $* in NikGapps addon"
-    # Load mount functions
-#    test "$execute_config" = "1" && test "$mount_config" = "1" && mount_partitions "product"
-    test "$execute_config" = "1" && run_stage "$@"
-    addToLog "- Copying recovery log at $argument"
-    CopyFile "$recoveryLog" "$addonLogsDir/logfiles/recovery.log"
+    if [ "$execute_config" = "1" ]; then
+      ui_print "Executing $* in NikGapps addon"
+      test "$execute_config" = "1" && run_stage "$@"
+      addToLog "- Copying recovery log at $argument"
+      CopyFile "$recoveryLog" "$addonLogsDir/logfiles/recovery.log"
+    else
+      addToLog "! Execution disabled!"
+    fi
   else
     ui_print "! Cannot find NikGapps addon - was data wiped or not decrypted?"
     exit 1
@@ -250,14 +254,8 @@ umount_all() {
   ) 2>/dev/null;
 }
 
-# Copy the addon file to ensure
-if [ ! -f "$S/addon.d/nikgapps-addon.sh" ]; then
-  addToLog "- Copying $0 to $S/addon.d/nikgapps-addon.sh at $argument"
-  CopyFile "$0" "$S/addon.d/nikgapps-addon.sh"
-else
-  addToLog "- $S/addon.d/nikgapps-addon.sh already present at $argument"
-fi
 find_config
+
 execute_config=$(ReadConfigValue "execute.d" "$nikgapps_config_file_name")
 [ "$execute_config" != "0" ] && execute_config=1
 addToLog "- execute_config = $execute_config"
@@ -267,13 +265,26 @@ addToLog "- unmount_config = $unmount_config"
 mount_config=$(ReadConfigValue "mount.d" "$nikgapps_config_file_name")
 [ "$mount_config" != "0" ] && mount_config=1
 addToLog "- mount_config = $mount_config"
+
+test "$execute_config" = "0" && exit 1
+
+# Copy the addon file to ensure
+if [ ! -f "$S/addon.d/nikgapps-addon.sh" ]; then
+  addToLog "- Copying $0 to $S/addon.d/nikgapps-addon.sh at $argument"
+  test "$execute_config" = "1" && CopyFile "$0" "$S/addon.d/nikgapps-addon.sh"
+else
+  test "$execute_config" = "1" && addToLog "- $S/addon.d/nikgapps-addon.sh already present at $argument"
+fi
+
 # Store the current storage details of partitions
 mkdir -p "$addonLogsDir/partitions"
 df > "$addonLogsDir/partitions/size_at_$1.txt"
 df -h > "$addonLogsDir/partitions/size_readable_at_$1.txt"
 ls -alR /system > "$addonLogsDir/partitions/System_Files_at_$1.txt"
 ls -alR /product > "$addonLogsDir/partitions/Product_Files_at_$1.txt"
+
 setup_env
+
 case "$1" in
   pre-backup)
     # keep GApps addon.d from executing unless GApps are actually installed
@@ -287,9 +298,8 @@ case "$1" in
     execute_addon "$@"
   ;;
   backup)
-    ui_print "Executing $* in NikGapps addon"
     execute_addon "$@"
-    umount /product
+    test "$execute_config" = "1" && umount /product
   ;;
   post-backup)
     # Stub
@@ -298,19 +308,13 @@ case "$1" in
     # Stub
   ;;
   restore)
-    ui_print "Executing $* in NikGapps addon"
     execute_addon "$@"
-    ui_print "- Restoring NikGapps addon scripts"
-    cp -a $T/addon.d/nikgapps/* $S/addon.d/nikgapps/
+    addToLog "- Restoring NikGapps addon scripts"
+    test "$execute_config" = "1" && cp -a $T/addon.d/nikgapps/* $S/addon.d/nikgapps/
     test "$execute_config" = "1" && test "$unmount_config" = "1" && umount_all
   ;;
   post-restore)
-#    ui_print "Executing $* in NikGapps addon"
-#    execute_addon "$@"
-#    addToLog "- Unmounting /product"
-#    umount /product
-#    test "$execute_config" = "1" && test "$unmount_config" = "1" && umount_all
-    copy_logs
+    test "$execute_config" = "1" && copy_logs
     rm -rf $addonLogsDir
   ;;
 esac

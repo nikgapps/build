@@ -1,3 +1,4 @@
+import git.exc
 from git import Repo, Commit
 from shutil import copyfile
 from NikGapps.Helper.Assets import Assets
@@ -22,10 +23,14 @@ class Git:
     # repo = git.Repo.clone_from(repo_url, working_tree_dir, branch='master')
     def get_latest_commit_date(self, repo=None, filter_key=None):
         tz_london = pytz.timezone('Europe/London')
-        if repo is not None:
-            commits = list(self.repo.iter_commits(repo, max_count=50))
-        else:
+        try:
+            if repo is not None:
+                commits = list(self.repo.iter_commits(repo, max_count=50))
+            else:
+                commits = list(self.repo.iter_commits('master', max_count=50))
+        except git.exc.GitCommandError:
             commits = list(self.repo.iter_commits('master', max_count=50))
+
         for commit in commits:
             commit: Commit
             # if filter_key = 10, it will look for commits that starts with 10

@@ -32,7 +32,6 @@ class Release:
                             or str(config_files).endswith(".gitattributes") or str(config_files).endswith("README.md") \
                             or str(config_files).__contains__(os.path.sep + "archive" + os.path.sep):
                         continue
-                    print("Working on " + str(config_files))
                     # Create config obj to handle config operations
                     config_obj = NikGappsConfig(config_files)
                     # Get Target Android Version so the packages can be created
