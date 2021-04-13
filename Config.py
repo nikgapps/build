@@ -3,12 +3,19 @@ import os
 # The android version that we're targeting this application to run
 TARGET_ANDROID_VERSION = 11
 
-# Release type differentiates the experimental and stable features
-# Possible values are [ 'production', 'development' ]
-RELEASE_TYPE = "production"
+# Release type defines the release
+# Possible values are [ 'canary', 'stable' ]
+RELEASE_TYPE = "canary"
 release_type = os.environ.get('RELEASE_TYPE')
 if release_type is not None:
     RELEASE_TYPE = release_type
+
+# Environment type differentiates the experimental and stable features
+# Possible values are [ 'production', 'development' ]
+ENVIRONMENT_TYPE = "development"
+environment_type = os.environ.get('ENVIRONMENT_TYPE')
+if environment_type is not None:
+    ENVIRONMENT_TYPE = environment_type
 
 # Possible Values are ['core', 'basic', 'omni', 'stock', 'full', 'addons', 'addonsets']
 BUILD_PACKAGE_LIST = ['core', 'basic', 'omni', 'stock', 'full', 'addons', 'addonsets']
@@ -18,7 +25,7 @@ if TARGET_ANDROID_VERSION == 10:
 
 # Send the zip to device after creation, Possible values are True and False
 SEND_ZIP_DEVICE = True
-if RELEASE_TYPE.__eq__("production"):
+if ENVIRONMENT_TYPE.__eq__("production"):
     SEND_ZIP_DEVICE = False
 
 # This will create a Debloater Zip
@@ -28,7 +35,7 @@ CREATE_DEBLOATER_ZIP = True
 SIGN_ZIP = True
 # This will allow the program to sign the individual packages
 SIGN_PACKAGE = False
-if RELEASE_TYPE.__eq__("production"):
+if ENVIRONMENT_TYPE.__eq__("production"):
     SIGN_ZIP = True
     SIGN_PACKAGE = False
 
@@ -42,7 +49,7 @@ FRESH_BUILD = True
 
 # DEBUG_MODE will be helpful in printing more stuff so program can be debugged
 DEBUG_MODE = True
-if RELEASE_TYPE.__eq__("production"):
+if ENVIRONMENT_TYPE.__eq__("production"):
     DEBUG_MODE = False
 
 # True if we want the files to upload as soon as they get created

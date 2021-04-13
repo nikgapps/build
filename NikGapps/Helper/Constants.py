@@ -32,11 +32,14 @@ class Constants:
     elif str(Config.TARGET_ANDROID_VERSION).__eq__("11"):
         android_version_folder = "R"
 
-    if str(Config.RELEASE_TYPE).__eq__("production"):
+    if str(Config.ENVIRONMENT_TYPE).__eq__("production"):
         android_version_folder = str(Config.TARGET_ANDROID_VERSION)
     source_directory = str(Path(cwd).parent) + os.path.sep + str(android_version_folder)
     website_directory = str(Path(cwd).parent) + os.path.sep + "nikgapps.github.io"
     release_history_directory = str(Path(cwd).parent) + os.path.sep + "release"
+    if Config.RELEASE_TYPE.__eq__("canary"):
+        release_history_directory = str(Path(cwd).parent) + os.path.sep + "canary-release"
+
     apk_source_directly = str(Path(cwd).parent) + os.path.sep
     config_directory = str(Path(cwd).parent) + os.path.sep + "config"
     sourceforge_release_directory = "/home/frs/project/nikgapps/Releases"
@@ -47,7 +50,8 @@ class Constants:
     #     Config.TARGET_ANDROID_VERSION) + os.path.sep + current_time
     release_directory = str(Path(cwd).parent) + os.path.sep + "Releases" + os.path.sep + str(
         Config.TARGET_ANDROID_VERSION)
-    temp_packages_directory = str(Path(cwd).parent) + os.path.sep + "TempPackages" + os.path.sep + str(android_version_folder)
+    temp_packages_directory = str(Path(cwd).parent) + os.path.sep + "TempPackages" + os.path.sep + str(
+        android_version_folder)
     # temp_packages_directory = str(Path(cwd).parent) + os.path.sep + "TempPackages" + os.path.sep + str(
     #     TARGET_ANDROID_VERSION) + os.path.sep + current_time + os.path.sep + "Packages"
     path = os.path
@@ -107,7 +111,7 @@ class Constants:
             Constants.android_version_folder = "Q"
         elif str(Config.TARGET_ANDROID_VERSION).__eq__("11"):
             Constants.android_version_folder = "R"
-        if str(Config.RELEASE_TYPE.lower()) == "production":
+        if str(Config.ENVIRONMENT_TYPE.lower()) == "production":
             Constants.android_version_folder = str(Config.TARGET_ANDROID_VERSION)
         Constants.export_directory = str(Path(Constants.cwd).parent) + os.path.sep + "Export" + os.path.sep + str(
             Config.TARGET_ANDROID_VERSION) + os.path.sep + Constants.current_time
@@ -116,7 +120,8 @@ class Constants:
         print("Source: " + Constants.source_directory)
         Constants.release_directory = str(Path(Constants.cwd).parent) + os.path.sep + "Releases" + os.path.sep + str(
             Config.TARGET_ANDROID_VERSION)
-        Constants.temp_packages_directory = str(Path(Constants.cwd).parent) + os.path.sep + "TempPackages" + os.path.sep + str(
+        Constants.temp_packages_directory = str(
+            Path(Constants.cwd).parent) + os.path.sep + "TempPackages" + os.path.sep + str(
             Constants.android_version_folder)
 
     @staticmethod
