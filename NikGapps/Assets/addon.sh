@@ -264,7 +264,13 @@ mount_config=$(ReadConfigValue "mount.d" "$nikgapps_config_file_name")
 [ "$mount_config" != "0" ] && mount_config=1
 addToLog "- mount_config = $mount_config"
 
-test "$execute_config" = "0" && exit 1
+if [ "$execute_config" = "0" ]; then
+  rm -rf $S/addon.d/nikgapps-addon.sh
+  rm -rf $S/addon.d/nikgapps
+  rm -rf $T/addon.d/nikgapps-addon.sh
+  rm -rf $T/addon.d/nikgapps
+  exit 1
+fi
 
 # Copy the addon file to ensure
 if [ ! -f "$S/addon.d/nikgapps-addon.sh" ]; then
