@@ -82,6 +82,7 @@ execute_addon() {
   if [ -d "$NikGappsAddonDir" ]; then
     if [ "$execute_config" = "1" ]; then
       ui_print "Executing $* in NikGapps addon"
+      test "$execute_config" = "1" && test "$mount_config" = "1" && test "$addon_version_config" = "2" && mount_partitions "product"
       test "$execute_config" = "1" && run_stage "$@"
       addToLog "- Copying recovery log at $argument"
       CopyFile "$recoveryLog" "$addonLogsDir/logfiles/recovery.log"
@@ -263,6 +264,9 @@ addToLog "- unmount_config = $unmount_config"
 mount_config=$(ReadConfigValue "mount.d" "$nikgapps_config_file_name")
 [ "$mount_config" != "0" ] && mount_config=1
 addToLog "- mount_config = $mount_config"
+addon_version_config=$(ReadConfigValue "addon_version.d" "$nikgapps_config_file_name")
+[ -z "$addon_version_config" ] && addon_version_config=2
+addToLog "- addon_version_config = $addon_version_config"
 
 if [ "$execute_config" = "0" ]; then
   rm -rf $S/addon.d/nikgapps-addon.sh
@@ -303,7 +307,7 @@ case "$1" in
   ;;
   backup)
     execute_addon "$@"
-    test "$execute_config" = "1" && umount /product
+    test "$execute_config" = "1" && test "$addon_version_config" = "2" && umount /product
   ;;
   post-backup)
     # Stub
