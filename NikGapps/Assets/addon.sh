@@ -1,5 +1,3 @@
-#!/sbin/sh
-# ADDOND_VERSION=3
 ########################################################
 #
 # NikGapps Survival Script for ROMs with addon.d support
