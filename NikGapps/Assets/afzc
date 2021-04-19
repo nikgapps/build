@@ -78,8 +78,9 @@ calculate_space() {
 
 check_if_system_mounted_rw() {
   local p="system"
-  if [ "$(is_mounted_rw "$p" 2>/dev/null)" ]; then
-    addToLog "- System ($p) is properly mounted as rw"
+  is_partition_mounted="$(is_mounted_rw "$p" 2>/dev/null)"
+  if [ "$is_partition_mounted" = "true" ]; then
+    ui_print "- System (/$p) is properly mounted as rw"
   else
     abort "$p is not mounted as rw, Installation failed!"
   fi
@@ -333,6 +334,7 @@ find_gapps_size() {
     if [ -f "$nikgapps_config_file_name" ]; then
       value=$(ReadConfigValue ">>$install_pkg_title" "$nikgapps_config_file_name")
       [ -z "$value" ] && value=$(ReadConfigValue "$install_pkg_title" "$nikgapps_config_file_name")
+      [ "$value" != "0" ] && value=1
     else
       abort "NikGapps Config not found!"
     fi
