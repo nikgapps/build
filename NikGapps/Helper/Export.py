@@ -154,6 +154,8 @@ class Export:
             zpkg.writefiletozip(Assets.busybox, "busybox")
             zpkg.writefiletozip(Assets.addon_path, "addon")
             zpkg.writefiletozip(Assets.ak3mount_path, "ak3mount")
+            zpkg.writefiletozip(Assets.nikmount_path, "nikmount.sh")
+            zpkg.writefiletozip(Assets.device_details_path, "device_details.sh")
             zpkg.writefiletozip(Assets.addon_sh_path, "nikgapps.sh")
             zpkg.writefiletozip(Assets.header_path, "header")
             zpkg.writefiletozip(Assets.functions_path, "functions")
