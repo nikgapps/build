@@ -38,7 +38,7 @@ class Upload:
         elif i == 2 or i == 3:
             print("Timeout has occurred, let's try one more time")
             print(str(self.child))
-            self.child.sendline('\003')
+            self.child.sendcontrol('c')
             self.child = pexpect.spawn('sftp nikhilmenghani@frs.sourceforge.net')
             i = self.child.expect(["Password", "yes/no", pexpect.TIMEOUT, pexpect.EOF])
             if i == 1:
