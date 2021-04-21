@@ -131,12 +131,20 @@ class Export:
                                                                           "packages belonging to " \
                                                                           "" + app_set.title + " Package\n"
                     nikgapps_config_lines += app_set.title + "=" + str(1) + "\n"
-                    for pkg in app_set.package_list:
-                        nikgapps_config_lines += ">>" + pkg.package_title + "=" + str(pkg.enabled) + "\n"
+                    if str(os.environ.get('pkg_type')).__eq__("config"):
+                        for pkg in app_set.package_list:
+                            nikgapps_config_lines += ">>" + pkg.package_title + "=" + str(1) + "\n"
+                    else:
+                        for pkg in app_set.package_list:
+                            nikgapps_config_lines += ">>" + pkg.package_title + "=" + str(pkg.enabled) + "\n"
                     nikgapps_config_lines += "\n"
                 else:
-                    for pkg in app_set.package_list:
-                        nikgapps_config_lines += pkg.package_title + "=" + str(pkg.enabled) + "\n"
+                    if str(os.environ.get('pkg_type')).__eq__("config"):
+                        for pkg in app_set.package_list:
+                            nikgapps_config_lines += ">>" + pkg.package_title + "=" + str(1) + "\n"
+                    else:
+                        for pkg in app_set.package_list:
+                            nikgapps_config_lines += pkg.package_title + "=" + str(pkg.enabled) + "\n"
             for app_set in NikGappsPackages.get_packages("go"):
                 if len(app_set.package_list) > 1:
                     nikgapps_config_lines += "# Set " + app_set.title + "=0 if you want to skip installing all " \

@@ -15,10 +15,10 @@ class AddonSet:
             AddonSet.get_youtube_black_15(),
             AddonSet.get_youtube_music(),
             AddonSet.get_pixel_setup_wizard(),
-            AddonSet.get_pixel_launcher(),
             AddonSet.get_google_fi(),
-            AddonSet.get_device_personalization_services(),
-            AddonSet.get_youtube()
+            AddonSet.get_mixplorer(),
+            AddonSet.get_youtube(),
+            AddonSet.get_los_recorder()
         ]
         if addon_name is None:
             return addon_set_list
@@ -27,6 +27,12 @@ class AddonSet:
                 if addon_set.title == addon_name:
                     return [addon_set]
         return None
+
+    @staticmethod
+    def get_los_recorder():
+        los_recorder = Package("Recorder", "org.lineageos.recorder", Constants.is_system_app, "LineageRecorder")
+        gapps_list = [los_recorder]
+        return AppSet("LineageRecorder", gapps_list)
 
     @staticmethod
     def get_device_personalization_services():
@@ -50,37 +56,6 @@ class AddonSet:
             gcs = Package("GCS", "com.google.android.apps.gcs", Constants.is_priv_app)
             google_fi_set.add_package(gcs)
         return google_fi_set
-
-    @staticmethod
-    def get_pixel_launcher():
-        pixel_launcher = Package("NexusLauncherPrebuilt", "com.google.android.apps.nexuslauncher",
-                                 Constants.is_priv_app, "PixelLauncher")
-        pixel_launcher.priv_app_permissions.append("android.permission.PACKAGE_USAGE_STATS")
-        pixel_launcher.delete("TrebuchetQuickStep")
-        # pixel_launcher.delete("Launcher3QuickStep")
-        if TARGET_ANDROID_VERSION <= 10:
-            pixel_launcher.predefined_file_list.append("overlay/PixelLauncherOverlay.apk")
-        if TARGET_ANDROID_VERSION == 11:
-            pixel_launcher.predefined_file_list.append("overlay/PixelConfigOverlayCommon.apk")
-            pixel_launcher.predefined_file_list.append("etc/permissions/com.android.launcher3.xml")
-            pixel_launcher.predefined_file_list.append(
-                "etc/sysconfig/hiddenapi-whitelist-com.google.android.apps.nexuslauncher.xml")
-            pixel_launcher.predefined_file_list.append(
-                "etc/permissions/privapp-permissions-com.google.android.apps.nexuslauncher.xml")
-        device_personalization_services = Package("MatchmakerPrebuiltPixel4", "com.google.android.as",
-                                                  Constants.is_priv_app, "DevicePersonalizationServices")
-        gapps_list = [pixel_launcher]
-        if TARGET_ANDROID_VERSION >= 9:
-            if TARGET_ANDROID_VERSION == 10:
-                device_personalization_services.predefined_file_list.append(
-                    "overlay/DevicePersonalizationServicesConfig.apk")
-            device_personalization_services.delete_in_rom("DevicePersonalizationPrebuiltPixel4")
-            gapps_list.append(device_personalization_services)
-        if TARGET_ANDROID_VERSION == 11:
-            quick_access_wallet = Package("QuickAccessWallet", "com.android.systemui.plugin.globalactions.wallet",
-                                          Constants.is_priv_app)
-            gapps_list.append(quick_access_wallet)
-        return AppSet("PixelLauncher", gapps_list)
 
     @staticmethod
     def get_mixplorer():

@@ -15,6 +15,7 @@ class Release:
     def zip(build_package_list, sent_message=None):
         for pkg_type in build_package_list:
             print("Currently Working on " + pkg_type)
+            os.environ['pkg_type'] = str(pkg_type)
             if str(pkg_type).__contains__("addons"):
                 for app_set in NikGappsPackages.get_packages(pkg_type):
                     print("Building for " + str(app_set.title))
@@ -94,6 +95,7 @@ class Release:
                                                 + Constants.dir_sep + "addons" + Constants.dir_sep + "NikGapps-Addon-"
                                                 + Constants.android_version_folder + "-" + app_set.title + ".zip",
                                                 [app_set])
+            os.environ['pkg_type'] = ''
 
     @staticmethod
     def get_config_packages(file_path):
