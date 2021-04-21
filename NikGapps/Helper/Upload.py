@@ -20,7 +20,7 @@ class Upload:
         self.child = pexpect.spawn('sftp nikhilmenghani@frs.sourceforge.net')
         self.successful_connection = False
         self.day = datetime.now(pytz.timezone('Europe/London')).strftime("%a")
-        i = self.child.expect(["Password", "yes/no"])
+        i = self.child.expect(["Password", "yes/no"], timeout=120)
         if i == 1:
             self.child.sendline("yes")
             self.child.expect("Password")
