@@ -40,7 +40,7 @@ class Upload:
             print(str(self.child))
             self.child.sendline('\003')
             self.child = pexpect.spawn('sftp nikhilmenghani@frs.sourceforge.net')
-            i = self.child.expect(["Password", "yes/no", pexpect.TIMEOUT, pexpect.EOF], timeout=120)
+            i = self.child.expect(["Password", "yes/no", pexpect.TIMEOUT, pexpect.EOF])
             if i == 1:
                 self.child.sendline("yes")
                 self.child.expect("Password")
