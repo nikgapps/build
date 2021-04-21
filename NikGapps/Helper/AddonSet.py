@@ -15,10 +15,11 @@ class AddonSet:
             AddonSet.get_youtube_black_15(),
             AddonSet.get_youtube_music(),
             AddonSet.get_pixel_setup_wizard(),
-            AddonSet.get_pixel_launcher(),
             AddonSet.get_google_fi(),
-            AddonSet.get_device_personalization_services(),
-            AddonSet.get_youtube()
+            AddonSet.get_google_duo(),
+            AddonSet.get_google_docs(),
+            AddonSet.get_google_slides(),
+            AddonSet.get_google_sheets()
         ]
         if addon_name is None:
             return addon_set_list
@@ -27,6 +28,26 @@ class AddonSet:
                 if addon_set.title == addon_name:
                     return [addon_set]
         return None
+
+    @staticmethod
+    def get_google_docs():
+        google_docs = Package("GoogleDocs", "com.google.android.apps.docs.editors.docs", Constants.is_system_app)
+        return AppSet("GoogleDocs", [google_docs])
+
+    @staticmethod
+    def get_google_sheets():
+        google_sheets = Package("GoogleSheets", "com.google.android.apps.docs.editors.sheets", Constants.is_system_app)
+        return AppSet("GoogleSheets", [google_sheets])
+
+    @staticmethod
+    def get_google_slides():
+        google_slides = Package("GoogleSlides", "com.google.android.apps.docs.editors.slides", Constants.is_system_app)
+        return AppSet("GoogleSlides", [google_slides])
+
+    @staticmethod
+    def get_google_duo():
+        google_duo = Package("GoogleDuo", "com.google.android.apps.tachyon", Constants.is_system_app)
+        return AppSet("GoogleDuo", [google_duo])
 
     @staticmethod
     def get_device_personalization_services():

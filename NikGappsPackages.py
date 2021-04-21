@@ -403,8 +403,6 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
         google_turbo = Package("Turbo", "com.google.android.apps.turbo", Constants.is_priv_app, "DeviceHealthServices")
         google_turbo.delete_in_rom("TurboPrebuilt")
         app_set_list.append(AppSet("DeviceHealthServices", [google_turbo]))
-        google_duo = Package("GoogleDuo", "com.google.android.apps.tachyon", Constants.is_system_app)
-        app_set_list.append(AppSet("GoogleDuo", [google_duo]))
         return app_set_list
 
     @staticmethod
@@ -489,12 +487,6 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
                                Constants.is_priv_app, "AndroidAuto")
         app_set_list.append(AppSet("AndroidAuto", [android_auto]))
         app_set_list.append(NikGappsPackages.get_chrome())
-        google_docs = Package("GoogleDocs", "com.google.android.apps.docs.editors.docs", Constants.is_system_app)
-        app_set_list.append(AppSet("GoogleDocs", [google_docs]))
-        google_sheets = Package("GoogleSheets", "com.google.android.apps.docs.editors.sheets", Constants.is_system_app)
-        app_set_list.append(AppSet("GoogleSheets", [google_sheets]))
-        google_slides = Package("GoogleSlides", "com.google.android.apps.docs.editors.slides", Constants.is_system_app)
-        app_set_list.append(AppSet("GoogleSlides", [google_slides]))
         return app_set_list
 
     @staticmethod
