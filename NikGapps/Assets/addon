@@ -22,6 +22,7 @@ nikGappsAddonLogFile="$addonDir/addonlogfiles/NikGapps_"$fileName"_addon.log"
 nikGappsTestLog="$addonDir/logfiles/NikGapps.log"
 newline='
 '
+nikgapps_config_file_name=""
 
 echo_add_to_log() {
   echo ""
@@ -31,6 +32,20 @@ echo_add_to_log() {
   echo "}"
   echo ""
   echo "addToLog \"Execute Log for $fileName with commands: \$@\""
+}
+
+find_config() {
+  if [ -f "/tmp/nikgapps.config" ]; then
+    nikgapps_config_file_name="/tmp/nikgapps.config"
+  elif [ -f "/sdcard1/nikgapps.config" ]; then
+    nikgapps_config_file_name="/sdcard1/nikgapps.config"
+  elif [ -f "/sdcard1/NikGapps/nikgapps.config" ]; then
+    nikgapps_config_file_name="/sdcard1/NikGapps/nikgapps.config"
+  elif [ -f "/sdcard/nikgapps.config" ]; then
+    nikgapps_config_file_name="/sdcard/nikgapps.config"
+  else
+    nikgapps_config_file_name="$nikGappsDir/nikgapps.config"
+  fi
 }
 
 list_files() {
@@ -152,8 +167,33 @@ run() {
   echo " ;;"
   echo "esac"
 }
+
+# Read the config file from (Thanks to xXx @xda)
+ReadConfigValue() {
+  value=$(sed -e '/^[[:blank:]]*#/d;s/[\t\n\r ]//g;/^$/d' "$2" | grep "^$1=" | cut -d'=' -f 2)
+  echo "$value"
+  return $?
+}
+
+header() {
+  find_config
+  if [ -z "$nikgapps_config_file_name" ]; then
+    echo "#!/sbin/sh"
+    echo "#"
+    echo "# ADDOND_VERSION=2"
+  else
+    addon_version_config=$(ReadConfigValue "addon_version.d" "$nikgapps_config_file_name")
+    [ -n "$addon_version_config" ] && version=$addon_version_config
+    [ -z "$addon_version_config" ] && version=2
+    echo "#!/sbin/sh"
+    echo "#"
+    echo "# ADDOND_VERSION=$version"
+  fi
+}
+
 rm -rf "$dest"
-cat "$COMMONDIR/header" >"$dest"
+header > "$dest"
+cat "$COMMONDIR/header" >> "$dest"
 {
   echo_add_to_log
   cat "$COMMONDIR/functions"

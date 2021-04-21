@@ -28,6 +28,8 @@ class Assets:
     afzc_path = cwd + "afzc"
     file_sizes_path = cwd + "file_size.txt"
     ak3mount_path = cwd + "ak3mount"
+    nikmount_path = cwd + "nikmount.sh"
+    device_details_path = cwd + "device_details.sh"
     update_binary_busybox_path = cwd + "update-binary-busybox"
     update_script_path = cwd + "updater-script"
     nikgapps_config = cwd + "nikgapps.config"

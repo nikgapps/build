@@ -4,9 +4,6 @@
 #Variables
 OUTFD=/proc/self/fd/$2;
 ZIPFILE="$3";
-COMMONDIR=/tmp/AFZCScripts;
-TMPDIR=/dev/tmp
-NikGappsAddonDir="/system/addon.d/nikgapps"
 
 addToLog() {
   echo "$1" >> "/tmp/NikGapps.log"
@@ -43,12 +40,85 @@ package_extract_dir() {
   done;
 }
 
-#-----------------------------------Execution Starts---------------------------------#
+nikGappsLogo() {
+  ui_print " "
+  ui_print "------------------------------------------"
+  ui_print "*   * * *  * *****   *   ***** ***** *****"
+  ui_print "**  * * * *  *      * *  *   * *   * *    "
+  ui_print "* * * * **   * *** *   * ***** ***** *****"
+  ui_print "*  ** * * *  *   * ***** *     *         *"
+  ui_print "*   * * *  * ***** *   * *     *     *****"
+  ui_print " "
+  ui_print "-->     Created by Nikhil Menghani     <--"
+  ui_print "------------------------------------------"
+  ui_print " "
+}
 
+setup_flashable() {
+  $BOOTMODE && return
+  MAGISKTMP=/sbin/.magisk
+  MAGISKBIN=/data/adb/magisk
+  [ -z "$TMPDIR" ] && TMPDIR=/dev/tmp
+  ui_print "--> Setting up Environment"
+  if [ -x "$MAGISKTMP"/busybox/busybox ]; then
+    BB=$MAGISKTMP/busybox/busybox
+    [ -z "$BBDIR" ] && BBDIR=$MAGISKTMP/busybox
+    addToLog "- Busybox exists at $BB"
+  elif [ -x $TMPDIR/bin/busybox ]; then
+    BB=$TMPDIR/bin/busybox
+    addToLog "- Busybox exists at $BB"
+    [ -z "$BBDIR" ] && BBDIR=$TMPDIR/bin
+  else
+    # Construct the PATH
+    [ -z $BBDIR ] && BBDIR=$TMPDIR/bin
+    mkdir -p $BBDIR
+    addToLog "- Installing Busybox at $MAGISKBIN/busybox"
+    ln -s $MAGISKBIN/busybox $BBDIR/busybox
+    $MAGISKBIN/busybox --install -s $BBDIR
+    BB=$MAGISKBIN/busybox
+    addToLog "- Installed Busybox at $MAGISKBIN/busybox"
+  fi
+  ui_print "- Busybox found in $BB"
+  echo "$PATH" | grep -q "^$BBDIR" || export PATH=$BBDIR:$PATH
+}
+
+# Setting up mount point
+setup_mountpoint() {
+  addToLog "- Setting up mount point $1 before actual mount"
+  test -L "$1" && $BB mv -f "$1" "${1}"_link;
+  if [ ! -d "$1" ]; then
+    rm -f "$1";
+    mkdir -p "$1";
+  fi;
+}
+
+setup_variables() {
+  # Detect whether in boot mode
+  [ -z "$BOOTMODE" ] && ps | grep zygote | grep -qv grep && BOOTMODE=true
+  [ -z $BOOTMODE ] && ps -A 2>/dev/null | grep zygote | grep -qv grep && BOOTMODE=true
+  [ -z $BOOTMODE ] && BOOTMODE=false
+  COMMONDIR=/tmp/AFZCScripts;
+  TMPDIR=/dev/tmp
+  NikGappsAddonDir="/system/addon.d/nikgapps"
+  nikGappsLog="/tmp/NikGapps.log"
+  datetime=$(date +%Y_%m_%d_%H_%M_%S)
+  nikGappsLogFile="NikGapps_logs_$datetime.tar.gz"
+  recoveryLog=/tmp/recovery.log
+  logDir="/tmp/NikGapps/logs"
+  nikGappsDir="/sdcard/NikGapps"
+  dynamic_partitions="false"
+  system=/system
+  test "$ANDROID_ROOT" || ANDROID_ROOT=/system;
+}
+
+#-----------------------------------Execution Starts---------------------------------#
+setup_variables
 package_extract_file "tools/busybox" "$COMMONDIR/busybox"
 
 decrypt "nikgapps_installer" "$COMMONDIR/nikgapps_installer"
 decrypt "ak3mount" "$COMMONDIR/ak3mount.sh"
+decrypt "nikmount.sh" "$COMMONDIR/nikmount.sh"
+decrypt "device_details.sh" "$COMMONDIR/device_details.sh"
 decrypt "addon" "$COMMONDIR/addon"
 decrypt "header" "$COMMONDIR/header"
 decrypt "functions" "$COMMONDIR/functions"
@@ -57,6 +127,12 @@ decrypt "file_size" "$COMMONDIR/file_size"
 
 rm -f "$COMMONDIR/busybox"
 
+nikGappsLogo
+setup_flashable
+# Find Device Details
+. $COMMONDIR/device_details.sh
+# Mount the partitions
+. $COMMONDIR/nikmount.sh
 # Mount the partitions
 . $COMMONDIR/ak3mount.sh
 # Install the stuff

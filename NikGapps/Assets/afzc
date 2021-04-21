@@ -78,8 +78,9 @@ calculate_space() {
 
 check_if_system_mounted_rw() {
   local p="system"
-  if [ "$(is_mounted_rw "$p" 2>/dev/null)" ]; then
-    addToLog "- System ($p) is properly mounted as rw"
+  is_partition_mounted="$(is_mounted_rw "$p" 2>/dev/null)"
+  if [ "$is_partition_mounted" = "true" ]; then
+    ui_print "- System (/$p) is properly mounted as rw"
   else
     abort "$p is not mounted as rw, Installation failed!"
   fi
@@ -263,7 +264,13 @@ find_zip_type() {
 }
 
 exit_install() {
-  CopyFile "$COMMONDIR/nikgapps.sh" "$system/addon.d/nikgapps-addon.sh"
+  rm -rf "$system/addon.d/nikgapps-addon.sh"
+  addon_version_config=$(ReadConfigValue "addon_version.d" "$nikgapps_config_file_name")
+  [ -n "$addon_version_config" ] && version=$addon_version_config
+  [ -z "$addon_version_config" ] && version=2
+  echo "#!/sbin/sh" > "$system/addon.d/nikgapps-addon.sh"
+  echo "# ADDOND_VERSION=$version" >> "$system/addon.d/nikgapps-addon.sh"
+  cat "$COMMONDIR/nikgapps.sh" >> "$system/addon.d/nikgapps-addon.sh"
   ui_print " "
   wipedalvik=$(ReadConfigValue "WipeDalvikCache" "$nikgapps_config_file_name")
   addToLog "- WipeDalvikCache value: $wipedalvik"
@@ -327,6 +334,7 @@ find_gapps_size() {
     if [ -f "$nikgapps_config_file_name" ]; then
       value=$(ReadConfigValue ">>$install_pkg_title" "$nikgapps_config_file_name")
       [ -z "$value" ] && value=$(ReadConfigValue "$install_pkg_title" "$nikgapps_config_file_name")
+      [ "$value" != "0" ] && value=1
     else
       abort "NikGapps Config not found!"
     fi
