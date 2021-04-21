@@ -1,23 +1,5 @@
 #!/sbin/sh
 
-dynamic_partitions=$(getprop ro.boot.dynamic_partitions)
-[ -z "$dynamic_partitions" ] && dynamic_partitions="false"
-addToLog "- dynamic_partitions is $dynamic_partitions"
-
-BLK_PATH=/dev/block/bootdevice/by-name
-[ "$dynamic_partitions" = "true" ] && BLK_PATH="/dev/block/mapper"
-addToLog "Block Path = $BLK_PATH"
-
-SLOT=$(find_slot)
-if [ -n "$SLOT" ]; then
-  if [ "$SLOT" = "_a" ]; then
-    # Opposite slot
-    SLOT_SUFFIX="_b"
-  else
-    SLOT_SUFFIX="_a"
-  fi
-fi
-
 find_slot() {
   slot=$(getprop ro.boot.slot_suffix 2>/dev/null)
   test "$slot" || slot=$(grep -o 'androidboot.slot_suffix=.*$' /proc/cmdline | cut -d\  -f1 | cut -d= -f2)
@@ -43,3 +25,21 @@ mount_system_source() {
 }
 
 mount_system_source
+
+dynamic_partitions=$(getprop ro.boot.dynamic_partitions)
+[ -z "$dynamic_partitions" ] && dynamic_partitions="false"
+addToLog "- Dynamic Partitions is $dynamic_partitions"
+
+BLK_PATH=/dev/block/bootdevice/by-name
+[ "$dynamic_partitions" = "true" ] && BLK_PATH="/dev/block/mapper"
+addToLog "- Block Path = $BLK_PATH"
+
+SLOT=$(find_slot)
+if [ -n "$SLOT" ]; then
+  if [ "$SLOT" = "_a" ]; then
+    # Opposite slot
+    SLOT_SUFFIX="_b"
+  else
+    SLOT_SUFFIX="_a"
+  fi
+fi

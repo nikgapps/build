@@ -107,11 +107,15 @@ setup_variables() {
   logDir="/tmp/NikGapps/logs"
   nikGappsDir="/sdcard/NikGapps"
   dynamic_partitions="false"
-  system=/system
+  system="/system"
+  product=""
+  system_ext=""
+
   test "$ANDROID_ROOT" || ANDROID_ROOT=/system;
 }
 
 #-----------------------------------Execution Starts---------------------------------#
+nikGappsLogo
 setup_variables
 package_extract_file "tools/busybox" "$COMMONDIR/busybox"
 
@@ -127,7 +131,6 @@ decrypt "file_size" "$COMMONDIR/file_size"
 
 rm -f "$COMMONDIR/busybox"
 
-nikGappsLogo
 setup_flashable
 # Find Device Details
 . $COMMONDIR/device_details.sh

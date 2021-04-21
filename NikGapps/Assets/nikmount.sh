@@ -5,22 +5,89 @@ lets_mount() {
   mount_extra $all_V3_partitions
 }
 
+get_available_size() {
+    df=$(df -k /"$1" | tail -n 1)
+    case $df in
+        /dev/block/*) df=$(echo "$df" | awk '{ print substr($0, index($0,$2)) }');;
+    esac
+    free_system_size_kb=$(echo "$df" | awk '{ print $3 }')
+    echo "$free_system_size_kb"
+}
+
+mount_extra() {
+  # find the slot
+  local slot=$(getprop ro.boot.slot_suffix 2>/dev/null);
+  dynamic_partitions=$(getprop ro.boot.dynamic_partitions)
+  device_ab=$(getprop ro.build.ab_update 2>/dev/null)
+  test "$dynamic_partitions" = "true" && "$device_ab" = "true" || slot=""
+  for partition in "product" "system_ext"; do
+    local part_mounted_rw=false
+    part_mounted_rw=$(is_mounted_rw "$partition$slot" 2>/dev/null)
+    if [ "$part_mounted_rw" = "true" ]; then
+      case "$partition" in
+        "product") product="/product" ;;
+        "system_ext") system_ext="/system_ext" ;;
+      esac
+      ui_print "- /$partition is mounted as dedicated partition"
+    elif [ "$part_mounted_rw" = "false" ]; then
+      part_mounted_rw=$(is_mounted_rw "$system/$partition$slot" 2>/dev/null)
+      if [ "$part_mounted_rw" = "true" ]; then
+        case "$partition" in
+          "product") product="/system/product" ;;
+          "system_ext") system_ext="/system/system_ext" ;;
+        esac
+        ui_print "- /$partition is symlinked to /system/$partition"
+        [ -L "/$partition" ] && addToLog "- Yup! /$partition is symlinked!"
+      else
+        addToLog "- /$partition does not exist on device"
+      fi
+    fi
+  done
+}
+
+find_system_size() {
+  ui_print " "
+  ui_print "--> Fetching system size"
+  system_size=$(get_available_size "system")
+  [ "$system_size" != "Used" ] && ui_print "- /system available size: $system_size KB"
+  [ "$system_size" = "Used" ] && system_size=0
+
+  product_size=$(get_available_size "product")
+  [ "$product_size" != "Used" ] && ui_print "- /product available size: $product_size KB"
+  [ "$product_size" = "Used" ] && product_size=0
+
+  system_ext_size=$(get_available_size "system_ext")
+  [ "$system_ext_size" != "Used" ] && ui_print "- /system_ext available size: $system_ext_size KB"
+  [ "$system_ext_size" = "Used" ] && system_ext_size=0
+
+  total_size=$((system_size+product_size+system_ext_size))
+
+  addToLog "- Total available size: $total_size KB"
+}
+
 get_block_for_mount_point() {
   grep -v "^#" /vendor/etc/fstab.$(getprop ro.boot.hardware) | grep " $1 " | tail -n1 | tr -s ' ' | cut -d' ' -f1
 }
 
-mount_extra() {
-  for partition in "$@"; do
-    ui_print "mounting extra for $partition"
+find_partition_type() {
+  for partition in "product" "system_ext"; do
     mnt_point="/$partition"
-    mountpoint "$mnt_point" >/dev/null 2>&1 && ui_print "already mounted!" && continue
-    [ -L "$mnt_point" ] && ui_print "symlinked!" && continue
-
+    mountpoint "$mnt_point" >/dev/null 2>&1 && addToLog "- $mnt_point already mounted!" # && continue
+    [ -L "$mnt_point" ] && addToLog "- $mnt_point symlinked!" # && continue
     blk_dev=$(find_my_block "$partition")
     if [ -n "$blk_dev" ]; then
-      [ "$DYNAMIC_PARTITIONS" = "true" ] && blockdev --setrw "$blk_dev"
-#      mount -o rw "$blk_dev" "$mnt_point"
-      ui_print "Mounting ro"
+      addToLog "- Found block for $mnt_point"
+      case "$partition" in
+        "product") product="/product" ;;
+        "system_ext") system_ext="/system_ext" ;;
+      esac
+      ui_print "- /$partition is mounted as dedicated partition"
+    else
+      case "$partition" in
+        "product") product="/system/product" ;;
+        "system_ext") system_ext="/system/system_ext" ;;
+      esac
+      ui_print "- /$partition is symlinked to /system/$partition"
     fi
   done
 }
@@ -47,7 +114,7 @@ find_my_block() {
     fi
   fi
   if [ -b "$dev" ]; then
-    ui_print "Block Dev: $dev"
+    addToLog "Block Dev: $dev"
     echo "$dev"
   fi
 }

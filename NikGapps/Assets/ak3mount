@@ -61,6 +61,22 @@ copyLogs_mounting() {
 
 file_getprop() { $BB grep "^$2=" "$1" | $BB cut -d= -f2-; }
 
+if [ ! "$(getprop 2>/dev/null)" ]; then
+  getprop() {
+    local propdir propfile propval
+    for propdir in / /system_root /system /vendor /odm /product; do
+      for propfile in default.prop build.prop; do
+        test "$propval" && break 2 || propval="$(file_getprop $propdir/$propfile "$1" 2>/dev/null)"
+      done
+    done
+    test "$propval" && echo "$propval" || echo ""
+  }
+elif [ ! "$(getprop ro.build.type 2>/dev/null)" ]; then
+  getprop() {
+    ($(which getprop) | $BB grep "$1" | $BB cut -d[ -f3 | $BB cut -d] -f1) 2>/dev/null
+  }
+fi
+
 grep_cmdline() {
   local REGEX="s/^$1=//p"
   cat /proc/cmdline | tr '[:space:]' '\n' | sed -n "$REGEX" 2>/dev/null
@@ -99,14 +115,14 @@ mount_all() {
     ui_print "- Mounting /$partition"
     $BB mount -o ro -t auto "/$partition" 2>/dev/null;
   done) 2>/dev/null
-#  mount_android_root
-#  addToLog "- $ANDROID_ROOT should be mounted as rw"
+  addToLog "----------------------------------------------------------------------------"
   addToLog "- Setting up mount point $ANDROID_ROOT"
+  addToLog "- ANDROID_ROOT=$ANDROID_ROOT"
   setup_mountpoint "$ANDROID_ROOT"
   if ! is_mounted "$ANDROID_ROOT"; then
     mount -o ro -t auto "$ANDROID_ROOT" 2>/dev/null
   fi
-  addToLog "ANDROID_ROOT=$ANDROID_ROOT"
+  addToLog "----------------------------------------------------------------------------"
   case $ANDROID_ROOT in
     /system_root) setup_mountpoint /system;;
     /system)
@@ -147,7 +163,9 @@ mount_all() {
       fi
     ;;
   esac;
+  addToLog "----------------------------------------------------------------------------"
   addToLog "- Checking if /system_root is mounted.."
+  addToLog "----------------------------------------------------------------------------"
   if is_mounted /system_root; then
     mount_apex;
     if [ -f /system_root/build.prop ]; then
@@ -163,6 +181,7 @@ mount_all() {
     addToLog "- Could not mount /system"
     abort_while_mounting "- Could not mount /system, try changing recovery!"
   fi;
+  addToLog "----------------------------------------------------------------------------"
   system=/system
   if [ -d /dev/block/mapper ]; then
     for block in system vendor product; do
@@ -171,14 +190,15 @@ mount_all() {
         blockdev --setrw /dev/block/mapper/$block$slot 2>/dev/null
       done
     done
+  addToLog "----------------------------------------------------------------------------"
   fi
-
   addToLog "- Remounting /system as read write"
   mount -o rw,remount -t auto /system || mount -o rw,remount -t auto /
   for partition in "vendor" "product"; do
     addToLog "- Remounting /$partition as read write"
     mount -o rw,remount -t auto "/$partition" 2>/dev/null
   done
+  addToLog "----------------------------------------------------------------------------"
   ls -alR /system > "$COMMONDIR/System_Files_Before.txt"
   ls -alR /product > "$COMMONDIR/Product_Files_Before.txt"
 }
