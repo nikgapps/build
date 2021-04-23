@@ -70,6 +70,12 @@ class Release:
                             Logs.get_current_time()) + ".config")
                     else:
                         print("Failed to create zip!")
+            elif pkg_type == "debloater":
+                if Config.CREATE_DEBLOATER_ZIP:
+                    file_name = Constants.release_directory + Constants.dir_sep + "Debloater.zip"
+                    z = Export(file_name)
+                    pkg_build_list = []
+                    z.zip(pkg_build_list, sent_message)
             else:
                 if pkg_type in Config.BUILD_PACKAGE_LIST:
                     file_name = Constants.release_directory
