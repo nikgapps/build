@@ -12,8 +12,6 @@
 #Setting up variables
 OFD=$1
 ZIPFILE="$2"
-ZIPDIR=$(dirname "$ZIPFILE")
-ZIPNAME="$(basename "$ZIPFILE")"
 OUTFD=/proc/self/fd/$OFD
 addonDir="/tmp/addon"
 nikGappsLog="/tmp/NikGapps.log"
@@ -71,13 +69,6 @@ check_if_system_mounted_rw() {
 cleanup() {
   #rm files
   rm -rf "/sdcard/NikGapps/nikgapps.log"
-}
-
-contains() {
-  case $2 in
-    *"$1"*) echo true ;;
-    *) echo false ;;
-  esac
 }
 
 copy_file() {
@@ -187,40 +178,6 @@ Debloat() {
   fi
 }
 
-findDevice() {
-  # Get device name any which way we can
-  for field in ro.product.device ro.build.product ro.product.name ro.omni.device; do
-    device_name="$(grep_prop "$field")"
-    addToLog "$field has device_name as $device_name"
-    if [ "${#device_name}" -ge "2" ]; then
-      break
-    fi
-    device_name="Bad ROM/Recovery"
-  done
-  addToLog "- Device code in Recovery: $device_name"
-  #  if [ $device_name == "Bad ROM/Recovery" ]; then
-  #    abort "Make Sure you flash NikGapps after you flash a proper Rom"
-  #  fi
-}
-
-find_zip_type() {
-  addToLog "- Finding zip type"
-  if [ "$(contains "-arm64-" "$ZIPNAME")" = "true" ]; then
-    zip_type="gapps"
-  elif [ "$(contains "Debloater" "$ZIPNAME")" = "true" ]; then
-    zip_type="debloater"
-  elif [ "$(contains "15" "$ZIPNAME")" = "true" ] || [ "$(contains "YouTubeMusic" "$ZIPNAME")" = "true" ]; then
-    zip_type="addon_exclusive"
-  elif [ "$(contains "Addon" "$ZIPNAME")" = "true" ]; then
-    zip_type="addon"
-  elif [ "$(contains "package" "$ZIPNAME")" = "true" ]; then
-    zip_type="sideload"
-  else
-    zip_type="unknown"
-  fi
-  addToLog "- Zip Type is $zip_type"
-}
-
 exit_install() {
   rm -rf "$system/addon.d/nikgapps-addon.sh"
   addon_version_config=$(ReadConfigValue "addon_version.d" "$nikgapps_config_file_name")
@@ -300,7 +257,8 @@ find_gapps_size() {
       gapps_size=$((gapps_size+install_pkg_size))
     fi
   done
-  ui_print "- Gapps Size: $gapps_size KB"
+  ui_print "$zip_type"
+  test "$zip_type" != "debloater" && ui_print "- Gapps Size: $gapps_size KB"
 }
 
 get_file_prop() {
@@ -383,15 +341,9 @@ ReadConfigValue() {
   return $?
 }
 
-# show_progress <amount> <time>
-show_progress() { echo "progress $1 $2" >>"$OUTFD"; }
-# set_progress <amount>
-set_progress() { echo "set_progress $1" >>"$OUTFD"; }
-
 show_device_info() {
   ui_print " "
   ui_print "--> Fetching Device Information"
-  #  findDevice
   for field in ro.product.device ro.build.product ro.product.name; do
     device_name="$(grep_prop "$field")"
     addToLog "- Device name: $device_name"
@@ -414,12 +366,6 @@ show_device_info() {
   ui_print "- Android Version: $androidVersion"
   model=$(get_file_prop "$system/build.prop" "ro.product.system.model")
   addToLog "- Model: $model"
-  case "$androidVersion" in
-  "1*") product="/product" ;;
-  "*") product="" ;;
-  esac
-  device_ab=$(getprop ro.build.ab_update 2>/dev/null)
-  dynamic_partitions=$(getprop ro.boot.dynamic_partitions)
   if [ "$device_ab" = "true" ]; then
     ui_print "- A/B Device Found"
   else
@@ -431,7 +377,7 @@ show_device_info() {
     addToLog "- Devices doesn't have Dynamic Partitions"
   fi
   find_partition_type
-  test $zip_type == "gapps" && find_install_type
+  test "$zip_type" == "gapps" && find_install_type
   check_if_system_mounted_rw
 }
 
@@ -456,7 +402,6 @@ set_prop() {
 
 SetupTools() {
   make_dir
-  find_zip_type
   nikgappsConfig="/sdcard/NikGapps/nikgapps.config"
   debloaterConfig="/sdcard/NikGapps/debloater.config"
   if [ ! -f $nikgappsConfig ]; then
@@ -471,9 +416,10 @@ SetupTools() {
   show_device_info
   find_system_size
   find_gapps_size
-  test $zip_type = "debloater" && Debloat
+  test "$zip_type" = "debloater" && Debloat
   calculate_space "system" "product"
   ui_print " "
-  test $zip_type == "addon_exclusive" || test $zip_type == "addon" && is_on_top_of_nikgapps
-  test $zip_type != "debloater" && ui_print "--> Starting the install process"
+  test "$zip_type" == "addon_exclusive" || test "$zip_type" == "addon" && is_on_top_of_nikgapps
+  test "$zip_type" != "debloater" && ui_print "--> Starting the install process"
+  test "$zip_type" = "debloater" && ui_print "--> Starting the debloat process"
 }

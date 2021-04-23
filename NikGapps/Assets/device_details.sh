@@ -30,6 +30,8 @@ dynamic_partitions=$(getprop ro.boot.dynamic_partitions)
 [ -z "$dynamic_partitions" ] && dynamic_partitions="false"
 addToLog "- Dynamic Partitions is $dynamic_partitions"
 
+device_ab=$(getprop ro.build.ab_update 2>/dev/null)
+
 BLK_PATH=/dev/block/bootdevice/by-name
 [ "$dynamic_partitions" = "true" ] && BLK_PATH="/dev/block/mapper"
 addToLog "- Block Path = $BLK_PATH"

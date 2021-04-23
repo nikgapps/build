@@ -1,10 +1,5 @@
 #!/sbin/sh
 
-lets_mount() {
-  export all_V3_partitions="system vendor product system_ext"
-  mount_extra $all_V3_partitions
-}
-
 get_available_size() {
     df=$(df -k /"$1" | tail -n 1)
     case $df in
@@ -12,37 +7,6 @@ get_available_size() {
     esac
     free_system_size_kb=$(echo "$df" | awk '{ print $3 }')
     echo "$free_system_size_kb"
-}
-
-mount_extra() {
-  # find the slot
-  local slot=$(getprop ro.boot.slot_suffix 2>/dev/null);
-  dynamic_partitions=$(getprop ro.boot.dynamic_partitions)
-  device_ab=$(getprop ro.build.ab_update 2>/dev/null)
-  test "$dynamic_partitions" = "true" && "$device_ab" = "true" || slot=""
-  for partition in "product" "system_ext"; do
-    local part_mounted_rw=false
-    part_mounted_rw=$(is_mounted_rw "$partition$slot" 2>/dev/null)
-    if [ "$part_mounted_rw" = "true" ]; then
-      case "$partition" in
-        "product") product="/product" ;;
-        "system_ext") system_ext="/system_ext" ;;
-      esac
-      ui_print "- /$partition is mounted as dedicated partition"
-    elif [ "$part_mounted_rw" = "false" ]; then
-      part_mounted_rw=$(is_mounted_rw "$system/$partition$slot" 2>/dev/null)
-      if [ "$part_mounted_rw" = "true" ]; then
-        case "$partition" in
-          "product") product="/system/product" ;;
-          "system_ext") system_ext="/system/system_ext" ;;
-        esac
-        ui_print "- /$partition is symlinked to /system/$partition"
-        [ -L "/$partition" ] && addToLog "- Yup! /$partition is symlinked!"
-      else
-        addToLog "- /$partition does not exist on device"
-      fi
-    fi
-  done
 }
 
 find_system_size() {
@@ -71,9 +35,10 @@ get_block_for_mount_point() {
 
 find_partition_type() {
   for partition in "product" "system_ext"; do
+    addToLog "- Finding partition type for /$partition"
     mnt_point="/$partition"
-    mountpoint "$mnt_point" >/dev/null 2>&1 && addToLog "- $mnt_point already mounted!" # && continue
-    [ -L "$mnt_point" ] && addToLog "- $mnt_point symlinked!" # && continue
+    mountpoint "$mnt_point" >/dev/null 2>&1 && addToLog "- $mnt_point already mounted!"
+    [ -L "$mnt_point" ] && addToLog "- $mnt_point symlinked!"
     blk_dev=$(find_my_block "$partition")
     if [ -n "$blk_dev" ]; then
       addToLog "- Found block for $mnt_point"
