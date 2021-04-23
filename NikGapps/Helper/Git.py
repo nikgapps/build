@@ -67,10 +67,10 @@ class Git:
         dest_file = Constants.website_directory + os.path.sep + "_data" + os.path.sep + "changelogs.yaml"
         i = copyfile(source_file, dest_file)
         if self.due_changes():
-            print("Updating Changelog")
+            print("Updating the changelog to the website")
             self.git_push("Update Changelog")
         else:
-            print("There is nothing to update!")
+            print("There is no changelog to update!")
 
     def update_config_changes(self, message):
         if self.due_changes():
