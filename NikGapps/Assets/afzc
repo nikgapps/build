@@ -257,7 +257,6 @@ find_gapps_size() {
       gapps_size=$((gapps_size+install_pkg_size))
     fi
   done
-  ui_print "$zip_type"
   test "$zip_type" != "debloater" && ui_print "- Gapps Size: $gapps_size KB"
 }
 
