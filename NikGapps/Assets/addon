@@ -100,10 +100,16 @@ restore() {
   delete_from_rom
   debloat_files
   echo "  for i in \$(list_files); do"
-  echo "    f=\$(get_output_path \"\$S/\$i\")"
-  echo "    chown root:root \"\$f\""
-  echo "    chmod 644 \"\$f\""
-  echo "    chmod 755 \$(dirname \$f)"
+  if [ "$version" = 3 ]; then
+    echo "    f=\$(get_output_path \"\$S/\$i\")"
+    echo "    chown root:root \"\$f\""
+    echo "    chmod 644 \"\$f\""
+    echo "    chmod 755 \$(dirname \$f)"
+  else
+    echo "    chown root:root \"\$P/\$i\""
+    echo "    chmod 644 \"\$P/\$i\""
+    echo "    chmod 755 \"\$(dirname \"\$P/\$i\")\""
+  fi
   echo "  done"
   echo " ;;"
 }
@@ -176,20 +182,18 @@ ReadConfigValue() {
 }
 
 header() {
-  find_config
-  if [ -z "$nikgapps_config_file_name" ]; then
-    echo "#!/sbin/sh"
-    echo "#"
-    echo "# ADDOND_VERSION=2"
-  else
-    addon_version_config=$(ReadConfigValue "addon_version.d" "$nikgapps_config_file_name")
-    [ -n "$addon_version_config" ] && version=$addon_version_config
-    [ -z "$addon_version_config" ] && version=2
-    echo "#!/sbin/sh"
-    echo "#"
-    echo "# ADDOND_VERSION=$version"
-  fi
+  echo "#!/sbin/sh"
+  echo "#"
+  echo "# ADDOND_VERSION=$version"
 }
+find_config
+if [ -z "$nikgapps_config_file_name" ]; then
+  version=2
+else
+  addon_version_config=$(ReadConfigValue "addon_version.d" "$nikgapps_config_file_name")
+  [ -n "$addon_version_config" ] && version=$addon_version_config
+  [ -z "$addon_version_config" ] && version=2
+fi
 
 rm -rf "$dest"
 header > "$dest"
