@@ -112,7 +112,7 @@ find_Install_partition() {
   "1"*) addToLog "- Android version: $androidVersion" ;;
   "*") product="" ;;
   esac
-  install_partition=$system$product
+  install_partition="/system/product"
   if [ -f "$nikgapps_config_file_name" ]; then
     val=$(ReadConfigValue "InstallPartition" "$nikgapps_config_file_name")
     addToLog "- Config Value for InstallPartition is $val"
@@ -127,6 +127,10 @@ find_Install_partition() {
   else
     addToLog "- nikgapps.config file doesn't exist!"
   fi
+  case "$install_partition" in
+    "/system/product") product_prefix="product/" ;;
+    "/system") product_prefix=""
+  esac
 }
 
 find_install_mode() {
@@ -171,7 +175,11 @@ InstallFile() {
       set_perm 0 0 0644 "$install_location"
       # Addon stuff!
       installPath=$(echo "$product" | sed "s/\//$blank/")
-      [ -z "$product" ] && installPath=$file_location || installPath="$installPath/$file_location"
+      case "$installPath" in
+        *"product") installPath="product/$file_location" ;;
+        "") installPath="$file_location" ;;
+      esac
+      addToLog "$installPath"
       echo "install=$installPath" >>/tmp/addon/"$packagePath"
     else
       addToLog "- Failed to write $install_location"
