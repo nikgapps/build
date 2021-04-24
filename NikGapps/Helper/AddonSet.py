@@ -19,7 +19,8 @@ class AddonSet:
             AddonSet.get_google_duo(),
             AddonSet.get_google_docs(),
             AddonSet.get_google_slides(),
-            AddonSet.get_google_sheets()
+            AddonSet.get_google_sheets(),
+            AddonSet.get_youtube()
         ]
         if addon_name is None:
             return addon_set_list

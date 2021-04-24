@@ -222,6 +222,7 @@ class Export:
                                                                     "" + app_set.title + " Package\n"
             nikgapps_config_lines += app_set.title + "=" + str(1) + "\n"
         nikgapps_config_lines += "\n"
+        nikgapps_config_lines += "# Following are the Addon packages NikGapps supports\n"
         for app_set in AddonSet.get_addon_packages():
             nikgapps_config_lines += app_set.title + "=" + str(1) + "\n"
         return nikgapps_config_lines
