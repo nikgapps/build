@@ -1,3 +1,8 @@
+- date: 24th April 2021 (Android R and Q Release)
+  changes:
+      - item: Update Google Setup Wizard associated apps (R)
+      - item: Add Flipendo to Omni, Stock and Full package (R)
+      - item: Installer script improvements
 - date: 20th April 2021 (Android R and Q Release)
   changes:
       - item: Playstore updates (R)
