@@ -403,6 +403,9 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
         google_turbo = Package("Turbo", "com.google.android.apps.turbo", Constants.is_priv_app, "DeviceHealthServices")
         google_turbo.delete_in_rom("TurboPrebuilt")
         app_set_list.append(AppSet("DeviceHealthServices", [google_turbo]))
+        if TARGET_ANDROID_VERSION == 11:
+            flipendo = Package("Flipendo", "com.google.android.flipendo", Constants.is_system_app)
+            app_set_list.append(AppSet("Flipendo", [flipendo]))
         return app_set_list
 
     @staticmethod
