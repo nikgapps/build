@@ -150,10 +150,13 @@ mount_all() {
           mount -o ro -t auto /dev/block/mapper/vendor"$slot" /vendor 2>/dev/null
           addToLog "- Mounting /product$slot as read only"
           mount -o ro -t auto /dev/block/mapper/product"$slot" /product 2>/dev/null
+          addToLog "- Mounting /system_ext$slot as read only"
+          mount -o ro -t auto /dev/block/mapper/system_ext"$slot" /system_ext 2>/dev/null
         else
           test -e /dev/block/bootdevice/by-name/system || local slot=$(find_slot)
           (mount -o ro -t auto /dev/block/bootdevice/by-name/vendor"$slot" /vendor
           mount -o ro -t auto /dev/block/bootdevice/by-name/product"$slot" /product
+          mount -o ro -t auto /dev/block/bootdevice/by-name/system_ext"$slot" /system_ext
           mount -o ro -t auto /dev/block/bootdevice/by-name/persist"$slot" /persist) 2>/dev/null
           addToLog "- Device doesn't have dynamic partitions, mounting /system$slot as ro"
           mount -o ro -t auto /dev/block/bootdevice/by-name/system"$slot" /system_root
@@ -184,7 +187,7 @@ mount_all() {
   addToLog "----------------------------------------------------------------------------"
   system=/system
   if [ -d /dev/block/mapper ]; then
-    for block in system vendor product; do
+    for block in system vendor product system_ext; do
       for slot in "" _a _b; do
         addToLog "- Executing blockdev setrw /dev/block/mapper/$block$slot"
         blockdev --setrw /dev/block/mapper/$block$slot 2>/dev/null
@@ -194,7 +197,7 @@ mount_all() {
   fi
   addToLog "- Remounting /system as read write"
   mount -o rw,remount -t auto /system || mount -o rw,remount -t auto /
-  for partition in "vendor" "product"; do
+  for partition in "vendor" "product" "system_ext"; do
     addToLog "- Remounting /$partition as read write"
     mount -o rw,remount -t auto "/$partition" 2>/dev/null
   done
