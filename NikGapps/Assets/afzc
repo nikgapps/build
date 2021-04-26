@@ -28,9 +28,9 @@ extn="zip"
 
 abort() {
   ui_print " "
-  ui_print "------------------------------------------"
+  ui_print "----------------------------------------------------"
   ui_print "$@"
-  ui_print "------------------------------------------"
+  ui_print "----------------------------------------------------"
   ui_print " "
   addToLog "Aborting while mounting $*"
   exit_install
@@ -57,13 +57,17 @@ calculate_space() {
 }
 
 check_if_system_mounted_rw() {
-  local p="system"
-  is_partition_mounted="$(is_mounted_rw "$p" 2>/dev/null)"
-  if [ "$is_partition_mounted" = "true" ]; then
-    ui_print "- /$p is properly mounted as rw"
-  else
-    abort "$p is not mounted as rw, Installation failed!"
-  fi
+  is_partition_mounted_flag="false"
+  for partition in "system" "product" "system_ext"; do
+    is_partition_mounted="$(is_mounted_rw "$partition" 2>/dev/null)"
+    if [ "$is_partition_mounted" = "true" ]; then
+      ui_print "- /$partition is properly mounted as rw"
+      is_partition_mounted_flag="true"
+    else
+      addToLog "$partition is not mounted as rw, Installation failed!"
+    fi
+  done
+  [ "$is_partition_mounted_flag" = "false" ] && abort "- System is not mounted as rw, Installation failed!"
 }
 
 cleanup() {
