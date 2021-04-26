@@ -137,6 +137,9 @@ setup_variables() {
   system_ext=""
   ZIPDIR=$(dirname "$ZIPFILE")
   ZIPNAME="$(basename "$ZIPFILE")"
+  system_ext_size=0
+  product_size=0
+  system_size=0
 
   test "$ANDROID_ROOT" || ANDROID_ROOT=/system;
 }

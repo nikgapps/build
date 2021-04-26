@@ -16,13 +16,9 @@ find_system_size() {
   [ "$system_size" != "Used" ] && ui_print "- /system available size: $system_size KB"
   [ "$system_size" = "Used" ] && system_size=0
 
-  product_size=$(get_available_size "product")
-  [ "$product_size" != "Used" ] && ui_print "- /product available size: $product_size KB"
-  [ "$product_size" = "Used" ] && product_size=0
+  [ "$product_size" != "0" ] && ui_print "- /product available size: $product_size KB"
 
-  system_ext_size=$(get_available_size "system_ext")
-  [ "$system_ext_size" != "Used" ] && ui_print "- /system_ext available size: $system_ext_size KB"
-  [ "$system_ext_size" = "Used" ] && system_ext_size=0
+  [ "$system_ext_size" != "0" ] && ui_print "- /system_ext available size: $system_ext_size KB"
 
   total_size=$((system_size+product_size+system_ext_size))
 
@@ -45,8 +41,18 @@ find_partition_type() {
     if [ -n "$blk_dev" ]; then
       addToLog "- Found block for $mnt_point"
       case "$partition" in
-        "product") product="/product" ;;
-        "system_ext") system_ext="/system_ext" ;;
+        "product")
+          product="/product"
+          product_size=$(get_available_size "product")
+          [ "$product_size" != "Used" ] && addToLog "- /product available size: $product_size KB"
+          [ "$product_size" = "Used" ] && product_size=0
+        ;;
+        "system_ext")
+          system_ext="/system_ext"
+          system_ext_size=$(get_available_size "system_ext")
+          [ "$system_ext_size" != "Used" ] && addToLog "- /system_ext available size: $system_ext_size KB"
+          [ "$system_ext_size" = "Used" ] && system_ext_size=0
+        ;;
       esac
       ui_print "- /$partition is mounted as dedicated partition"
     else
