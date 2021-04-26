@@ -30,7 +30,9 @@ find_system_size() {
 }
 
 get_block_for_mount_point() {
-  grep -v "^#" /vendor/etc/fstab.$(getprop ro.boot.hardware) | grep " $1 " | tail -n1 | tr -s ' ' | cut -d' ' -f1
+  fstab_file_path="/vendor/etc/fstab.$(getprop ro.boot.hardware)"
+#  [ ! -f "$fstab_file_path" ] && fstab_file_path="/etc/recovery.fstab"
+  grep -v "^#" "$fstab_file_path" | grep " $1 " | tail -n1 | tr -s ' ' | cut -d' ' -f1
 }
 
 find_partition_type() {
@@ -63,7 +65,7 @@ find_my_block() {
   # P-SAR hacks
   [ -z "$fstab_entry" ] && [ "$name" = "system" ] && fstab_entry=$(get_block_for_mount_point "/")
   [ -z "$fstab_entry" ] && [ "$name" = "system" ] && fstab_entry=$(get_block_for_mount_point "/system_root")
-
+  addToLog "- fstab_entry is $fstab_entry of $name with BLK_PATH $BLK_PATH"
   local dev
   if [ "$DYNAMIC_PARTITIONS" = "true" ]; then
     if [ -n "$fstab_entry" ]; then

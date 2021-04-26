@@ -21,6 +21,7 @@ mount_system_source() {
     system_source=$(grep ' / ' /etc/fstab | tail -n1 | cut -d' ' -f1)
   fi
   addToLog "- system source is ${system_source}"
+  addToLog "- fstab source is /etc/fstab"
   echo "${system_source}"
 }
 
