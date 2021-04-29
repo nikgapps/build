@@ -111,6 +111,17 @@ find_config() {
   fi
 }
 
+find_slot() {
+  slot=$(getprop ro.boot.slot_suffix 2>/dev/null)
+  test "$slot" || slot=$(grep -o 'androidboot.slot_suffix=.*$' /proc/cmdline | cut -d\  -f1 | cut -d= -f2)
+  if [ ! "$slot" ]; then
+    slot=$(getprop ro.boot.slot 2>/dev/null)
+    test "$slot" || slot=$(grep -o 'androidboot.slot=.*$' /proc/cmdline | cut -d\  -f1 | cut -d= -f2)
+    test "$slot" && slot=_$slot
+  fi
+  test "$slot" && echo "$slot"
+}
+
 grep_cmdline() {
   local REGEX="s/^$1=//p"
   cat /proc/cmdline | tr '[:space:]' '\n' | sed -n "$REGEX" 2>/dev/null
@@ -135,7 +146,7 @@ is_mounted_rw() {
 mount_partitions() {
   local partitions="$*"
   # find the slot
-  local slot=$(getprop ro.boot.slot_suffix 2>/dev/null);
+  slot=$(find_slot)
   # the partition is not yet mounted as rw
   local part_mounted_rw=false
   local device_ab=$(getprop ro.build.ab_update 2>/dev/null);
