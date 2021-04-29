@@ -128,8 +128,9 @@ find_Install_partition() {
     addToLog "- nikgapps.config file doesn't exist!"
   fi
   case "$install_partition" in
-    "/system/product") product_prefix="product/" ;;
-    "/system") product_prefix=""
+    *"/product") product_prefix="product/" ;;
+    *"/system_ext") product_prefix="system_ext/" ;;
+    *) product_prefix="" ;;
   esac
 }
 
@@ -174,10 +175,10 @@ InstallFile() {
       esac
       set_perm 0 0 0644 "$install_location"
       # Addon stuff!
-      installPath=$(echo "$product" | sed "s/\//$blank/")
-      case "$installPath" in
-        *"product") installPath="product/$file_location" ;;
-        "") installPath="$file_location" ;;
+      case "$install_partition" in
+          *"/product") installPath="product/$file_location" ;;
+          *"/system_ext") installPath="system_ext/$file_location" ;;
+          *) installPath="$file_location" ;;
       esac
       addToLog "$installPath"
       echo "install=$installPath" >>/tmp/addon/"$packagePath"
