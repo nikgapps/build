@@ -1,13 +1,7 @@
 #!/sbin/sh
-nikGappsLog="/tmp/NikGapps.log"
+NikGappsAddonDir="$system/addon.d/nikgapps"
 configValue="$1"
 nikgapps_config_file_name="$2"
-logDir="/tmp/NikGapps/logs"
-nikGappsDir="/sdcard/NikGapps"
-NikGappsAddonDir="$system/addon.d/nikgapps"
-recoveryLog=/tmp/recovery.log
-datetime=$(date +%Y_%m_%d_%H_%M_%S)
-nikGappsLogFile="NikGapps_logs_$datetime.tar.gz"
 install_partition="$system"
 abort_in_installer() {
   ui_print " "
@@ -18,10 +12,6 @@ abort_in_installer() {
   addToLog "Aborting while mounting $*"
   copy_installer_logs
   exit 1
-}
-
-addToLog() {
-  echo "$1" >>$nikGappsLog
 }
 
 begins_with() {
@@ -119,18 +109,17 @@ delete_recursive() {
 find_Install_partition() {
   androidVersion=$(get_file_prop "$system/build.prop" "ro.build.version.release")
   case "$androidVersion" in
-  "1"*) product="/product" ;;
+  "1"*) addToLog "- Android version: $androidVersion" ;;
   "*") product="" ;;
   esac
+  install_partition="/system/product"
   if [ -f "$nikgapps_config_file_name" ]; then
     val=$(ReadConfigValue "InstallPartition" "$nikgapps_config_file_name")
     addToLog "- Config Value for InstallPartition is $val"
-    install_partition=$system$product
-    [ -z "$dynamic_partitions" ] && dynamic_partitions=$(getprop ro.boot.dynamic_partitions)
-    test "$dynamic_partitions" = "true" && install_partition=$system
+    [ -z "$val" ] && [ -n "$product" ] && install_partition=$product
     case "$val" in
-      "system") product=""; install_partition=$system ;;
-      "product") product="/product"; install_partition=$system$product ;;
+      "system") install_partition=$system ;;
+      "product") install_partition=$product ;;
       "data") install_partition="/data/extra" ;;
       /*) install_partition=$val ;;
     esac
@@ -138,6 +127,11 @@ find_Install_partition() {
   else
     addToLog "- nikgapps.config file doesn't exist!"
   fi
+  case "$install_partition" in
+    *"/product") product_prefix="product/" ;;
+    *"/system_ext") product_prefix="system_ext/" ;;
+    *) product_prefix="" ;;
+  esac
 }
 
 find_install_mode() {
@@ -181,8 +175,12 @@ InstallFile() {
       esac
       set_perm 0 0 0644 "$install_location"
       # Addon stuff!
-      installPath=$(echo "$product" | sed "s/\//$blank/")
-      [ -z "$product" ] && installPath=$file_location || installPath="$installPath/$file_location"
+      case "$install_partition" in
+          *"/product") installPath="product/$file_location" ;;
+          *"/system_ext") installPath="system_ext/$file_location" ;;
+          *) installPath="$file_location" ;;
+      esac
+      addToLog "$installPath"
       echo "install=$installPath" >>/tmp/addon/"$packagePath"
     else
       addToLog "- Failed to write $install_location"
@@ -246,15 +244,6 @@ set_prop() {
     addToLog "- Adding ${property} to ${value} in ${file_location}"
     echo "${property}=${value}" >>"${file_location}"
   fi
-}
-
-# ui_print "<message>" ["<message 2>" ...]
-ui_print() {
-  until [ ! "$1" ]; do
-    echo -e "ui_print $1\nui_print" >>"$OUTFD"
-    addToLog "$1"
-    shift
-  done
 }
 
 UninstallFile() {

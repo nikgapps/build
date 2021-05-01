@@ -5,6 +5,7 @@ from Config import SEND_ZIP_DEVICE
 from Config import SIGN_PACKAGE
 import Config
 from Config import UPLOAD_FILES
+from .AddonSet import AddonSet
 from .ZipOp import ZipOp
 from .FileOp import FileOp
 from .Constants import Constants
@@ -84,66 +85,9 @@ class Export:
                     file_sizes = file_sizes + str(pkg.package_title) + "=" + str(pkg_size) + "\n"
                 app_set_index = app_set_index + 1
             # Writing additional script files to the zip
-            updater_script_path_string = ""
-            lines = Assets.get_string_resource(Assets.update_script_path)
-            for line in lines:
-                updater_script_path_string += line
-            progress_max = 0.9
-            progress_per_package = 0
-            if total_packages > 0:
-                progress_per_package = round(progress_max / total_packages, 2)
-            install_progress = 0
-            # Script to Install the ApPSets
-            for app_set in app_set_list:
-                if len(app_set.package_list) > 1:
-                    updater_script_path_string += "if [ $(initialize_app_set \"" + app_set.title + "\") = \"1\" ]; then\n"
-                    # Script to Install the Packages
-                    for pkg in app_set.package_list:
-                        install_progress += progress_per_package
-                        if install_progress > 1.0:
-                            install_progress = 1.0
-                        updater_script_path_string += "  install_the_package \"" + str(app_set.title) + "\" \"" + str(
-                            pkg.package_title) + "\"\n"
-                        updater_script_path_string += "  set_progress " + str(round(install_progress, 2)) + "\n"
-                    updater_script_path_string += "else\n"
-                    updater_script_path_string += "  ui_print \"x Skipping " + str(app_set.title) + "\"\n"
-                    updater_script_path_string += "fi\n"
-                else:
-                    # Script to Install the Packages
-                    for pkg in app_set.package_list:
-                        install_progress += progress_per_package
-                        if install_progress > 1.0:
-                            install_progress = 1.0
-                        updater_script_path_string += "  install_the_package \"" + str(app_set.title) + "\" \"" + str(
-                            pkg.package_title) + "\"\n"
-                        updater_script_path_string += "  set_progress " + str(round(install_progress, 2)) + "\n"
-
-            updater_script_path_string += "\nset_progress 1.00" + "\n\n"
-            updater_script_path_string += "exit_install" + "\n\n"
-            self.z.writestringtozip(str(updater_script_path_string), Constants.meta_inf_dir + "updater-script")
+            self.z.writestringtozip(self.get_updater_script(total_packages, app_set_list), Constants.meta_inf_dir + "updater-script")
             self.z.writefiletozip(Assets.update_binary_busybox_path, Constants.meta_inf_dir + "update-binary")
-            nikgapps_config_lines = ""
-            for line in Assets.get_string_resource(Assets.nikgapps_config):
-                nikgapps_config_lines += line
-            for app_set in NikGappsPackages.get_packages("full"):
-                if len(app_set.package_list) > 1:
-                    nikgapps_config_lines += "\n# Set " + app_set.title + "=0 if you want to skip installing all " \
-                                                                          "packages belonging to " \
-                                                                          "" + app_set.title + " Package\n"
-                    nikgapps_config_lines += app_set.title + "=" + str(1) + "\n"
-                    for pkg in app_set.package_list:
-                        nikgapps_config_lines += ">>" + pkg.package_title + "=" + str(pkg.enabled) + "\n"
-                    nikgapps_config_lines += "\n"
-                else:
-                    for pkg in app_set.package_list:
-                        nikgapps_config_lines += pkg.package_title + "=" + str(pkg.enabled) + "\n"
-            for app_set in NikGappsPackages.get_packages("go"):
-                if len(app_set.package_list) > 1:
-                    nikgapps_config_lines += "# Set " + app_set.title + "=0 if you want to skip installing all " \
-                                                                        "packages belonging to " \
-                                                                        "" + app_set.title + " Package\n"
-                nikgapps_config_lines += app_set.title + "=" + str(1) + "\n"
-            self.z.writestringtozip(nikgapps_config_lines, "afzc/nikgapps.config")
+            self.z.writestringtozip(self.get_nikgapps_config(), "afzc/nikgapps.config")
             debloater_config_lines = ""
             for line in Assets.get_string_resource(Assets.debloater_config):
                 debloater_config_lines += line
@@ -245,3 +189,80 @@ class Export:
                 u.close()
                 Constants.end_of_function(start_time, "Total time taken to upload the file")
             return zip_execution_status
+
+    @staticmethod
+    def get_nikgapps_config():
+        nikgapps_config_lines = ""
+        for line in Assets.get_string_resource(Assets.nikgapps_config):
+            nikgapps_config_lines += line
+        for app_set in NikGappsPackages.get_packages("full"):
+            if len(app_set.package_list) > 1:
+                nikgapps_config_lines += "\n# Set " + app_set.title + "=0 if you want to skip installing all " \
+                                                                      "packages belonging to " \
+                                                                      "" + app_set.title + " Package\n"
+                nikgapps_config_lines += app_set.title + "=" + str(1) + "\n"
+                if str(os.environ.get('pkg_type')).__eq__("config"):
+                    for pkg in app_set.package_list:
+                        nikgapps_config_lines += ">>" + pkg.package_title + "=" + str(1) + "\n"
+                else:
+                    for pkg in app_set.package_list:
+                        nikgapps_config_lines += ">>" + pkg.package_title + "=" + str(pkg.enabled) + "\n"
+                nikgapps_config_lines += "\n"
+            else:
+                if str(os.environ.get('pkg_type')).__eq__("config"):
+                    for pkg in app_set.package_list:
+                        nikgapps_config_lines += pkg.package_title + "=" + str(1) + "\n"
+                else:
+                    for pkg in app_set.package_list:
+                        nikgapps_config_lines += pkg.package_title + "=" + str(pkg.enabled) + "\n"
+        for app_set in NikGappsPackages.get_packages("go"):
+            if len(app_set.package_list) > 1:
+                nikgapps_config_lines += "# Set " + app_set.title + "=0 if you want to skip installing all " \
+                                                                    "packages belonging to " \
+                                                                    "" + app_set.title + " Package\n"
+            nikgapps_config_lines += app_set.title + "=" + str(1) + "\n"
+        nikgapps_config_lines += "\n"
+        nikgapps_config_lines += "# Following are the Addon packages NikGapps supports\n"
+        for app_set in AddonSet.get_addon_packages():
+            nikgapps_config_lines += app_set.title + "=" + str(1) + "\n"
+        return nikgapps_config_lines
+
+    @staticmethod
+    def get_updater_script(total_packages, app_set_list):
+        updater_script_path_string = ""
+        lines = Assets.get_string_resource(Assets.update_script_path)
+        for line in lines:
+            updater_script_path_string += line
+        progress_max = 0.9
+        progress_per_package = 0
+        if total_packages > 0:
+            progress_per_package = round(progress_max / total_packages, 2)
+        install_progress = 0
+        # Script to Install the ApPSets
+        for app_set in app_set_list:
+            if len(app_set.package_list) > 1:
+                updater_script_path_string += "if [ $(initialize_app_set \"" + app_set.title + "\") = \"1\" ]; then\n"
+                # Script to Install the Packages
+                for pkg in app_set.package_list:
+                    install_progress += progress_per_package
+                    if install_progress > 1.0:
+                        install_progress = 1.0
+                    updater_script_path_string += "  install_the_package \"" + str(app_set.title) + "\" \"" + str(
+                        pkg.package_title) + "\"\n"
+                    updater_script_path_string += "  set_progress " + str(round(install_progress, 2)) + "\n"
+                updater_script_path_string += "else\n"
+                updater_script_path_string += "  ui_print \"x Skipping " + str(app_set.title) + "\"\n"
+                updater_script_path_string += "fi\n"
+            else:
+                # Script to Install the Packages
+                for pkg in app_set.package_list:
+                    install_progress += progress_per_package
+                    if install_progress > 1.0:
+                        install_progress = 1.0
+                    updater_script_path_string += "  install_the_package \"" + str(app_set.title) + "\" \"" + str(
+                        pkg.package_title) + "\"\n"
+                    updater_script_path_string += "  set_progress " + str(round(install_progress, 2)) + "\n"
+
+        updater_script_path_string += "\nset_progress 1.00" + "\n\n"
+        updater_script_path_string += "exit_install" + "\n\n"
+        return updater_script_path_string

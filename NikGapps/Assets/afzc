@@ -12,11 +12,7 @@
 #Setting up variables
 OFD=$1
 ZIPFILE="$2"
-ZIPDIR=$(dirname "$ZIPFILE")
-ZIPNAME="$(basename "$ZIPFILE")"
 OUTFD=/proc/self/fd/$OFD
-#system="/system"
-product=""
 addonDir="/tmp/addon"
 nikGappsLog="/tmp/NikGapps.log"
 datetime=$(date +%Y_%m_%d_%H_%M_%S)
@@ -32,29 +28,13 @@ extn="zip"
 
 abort() {
   ui_print " "
-  ui_print "------------------------------------------"
+  ui_print "----------------------------------------------------"
   ui_print "$@"
-  ui_print "------------------------------------------"
+  ui_print "----------------------------------------------------"
   ui_print " "
   addToLog "Aborting while mounting $*"
   exit_install
   exit 1
-}
-
-beginswith() {
-  case $2 in
-  "$1"*) echo true ;;
-  *) echo false ;;
-  esac
-}
-
-is_mounted_rw() {
-  local mounted_rw=false
-  local startswith=$(beginswith / "$1")
-  test "$startswith" == "false" && part=/"$1" || part="$1"
-  touch "$part"/.rw && rm "$part"/.rw && mounted_rw=true
-  addToLog "- checked if $part/.rw is writable i.e. $mounted_rw ($1/.rw being original argument)"
-  echo $mounted_rw
 }
 
 calculate_space() {
@@ -77,35 +57,22 @@ calculate_space() {
 }
 
 check_if_system_mounted_rw() {
-  local p="system"
-  is_partition_mounted="$(is_mounted_rw "$p" 2>/dev/null)"
-  if [ "$is_partition_mounted" = "true" ]; then
-    ui_print "- System (/$p) is properly mounted as rw"
-  else
-    abort "$p is not mounted as rw, Installation failed!"
-  fi
+  is_partition_mounted_flag="false"
+  for partition in "system" "product" "system_ext"; do
+    is_partition_mounted="$(is_mounted_rw "$partition" 2>/dev/null)"
+    if [ "$is_partition_mounted" = "true" ]; then
+      ui_print "- /$partition is properly mounted as rw"
+      is_partition_mounted_flag="true"
+    else
+      addToLog "$partition is not mounted as rw, Installation failed!"
+    fi
+  done
+  [ "$is_partition_mounted_flag" = "false" ] && abort "- System is not mounted as rw, Installation failed!"
 }
 
 cleanup() {
   #rm files
   rm -rf "/sdcard/NikGapps/nikgapps.log"
-}
-
-contains() {
-  case $2 in
-    *"$1"*) echo true ;;
-    *) echo false ;;
-  esac
-}
-
-# This is meant to copy the files safely from source to destination
-CopyFile() {
-  if [ -f "$1" ]; then
-    mkdir -p "$(dirname "$2")"
-    cp -f "$1" "$2"
-  else
-    addToLog "- File $1 does not exist!"
-  fi
 }
 
 copy_file() {
@@ -150,6 +117,8 @@ copyLogs() {
   rm -rf "$nikgapps_config_dir"/nikgapps_logs
   mkdir -p "$nikgapps_config_dir"/nikgapps_logs
   CopyFile /tmp/"$nikGappsLogFile" "$nikgapps_config_dir"/nikgapps_logs/"$nikGappsLogFile"
+  mkdir -p "/storage/emulated/NikGapps/logs"
+  CopyFile /tmp/"$nikGappsLogFile" "/storage/emulated/NikGapps"/logs/"$nikGappsLogFile"
   cd /
 }
 
@@ -213,54 +182,6 @@ Debloat() {
     addToLog "- Debloater.config not found!"
     copy_file "$ZIPFILE" "afzc/debloater.config" "/sdcard/NikGapps/debloater.config"
   fi
-}
-
-findDevice() {
-  # Get device name any which way we can
-  for field in ro.omni.device ro.product.device ro.build.product ro.product.name; do
-    device_name="$(grep_prop "$field")"
-    addToLog "$field has device_name as $device_name"
-    if [ "${#device_name}" -ge "2" ]; then
-      break
-    fi
-    device_name="Bad ROM/Recovery"
-  done
-  addToLog "- Device code in Recovery: $device_name"
-  #  if [ $device_name == "Bad ROM/Recovery" ]; then
-  #    abort "Make Sure you flash NikGapps after you flash a proper Rom"
-  #  fi
-}
-
-find_partition_type() {
-  # find the slot
-  local slot=$(getprop ro.boot.slot_suffix 2>/dev/null);
-  local part_mounted_rw=false
-  local partition=$1
-  dynamic_partitions=$(getprop ro.boot.dynamic_partitions)
-  device_ab=$(getprop ro.build.ab_update 2>/dev/null)
-  test "$dynamic_partitions" = "true" && "$device_ab" = "true" || slot=""
-  part_mounted_rw=$(is_mounted_rw "$partition$slot" 2>/dev/null)
-  test "$part_mounted_rw" = "true" && echo "is mounted as dedicated partition" && return
-  test "$part_mounted_rw" = "false" && part_mounted_rw=$(is_mounted_rw "$system/$partition$slot" 2>/dev/null)
-  test "$part_mounted_rw" = "true" && echo "is symlinked to /system/$partition" || echo "does not exist on device"
-}
-
-find_zip_type() {
-  addToLog "- Finding zip type"
-  if [ "$(contains "-arm64-" "$ZIPNAME")" = "true" ]; then
-    zip_type="gapps"
-  elif [ "$(contains "Debloater" "$ZIPNAME")" = "true" ]; then
-    zip_type="debloater"
-  elif [ "$(contains "15" "$ZIPNAME")" = "true" ] || [ "$(contains "YouTubeMusic" "$ZIPNAME")" = "true" ]; then
-    zip_type="addon_exclusive"
-  elif [ "$(contains "Addon" "$ZIPNAME")" = "true" ]; then
-    zip_type="addon"
-  elif [ "$(contains "package" "$ZIPNAME")" = "true" ]; then
-    zip_type="sideload"
-  else
-    zip_type="unknown"
-  fi
-  addToLog "- Zip Type is $zip_type"
 }
 
 exit_install() {
@@ -342,36 +263,7 @@ find_gapps_size() {
       gapps_size=$((gapps_size+install_pkg_size))
     fi
   done
-  ui_print "- Gapps Size: $gapps_size KB"
-}
-
-find_system_size() {
-  ui_print " "
-  ui_print "--> Fetching system size"
-  system_size=$(get_available_size "system")
-  [ "$system_size" != "Used" ] && ui_print "- /system available size: $system_size KB"
-  [ "$system_size" = "Used" ] && system_size=0
-
-  product_size=$(get_available_size "product")
-  [ "$product_size" != "Used" ] && ui_print "- /product available size: $product_size KB"
-  [ "$product_size" = "Used" ] && product_size=0
-
-  system_ext_size=$(get_available_size "system_ext")
-  [ "$system_ext_size" != "Used" ] && ui_print "- /system_ext available size: $system_ext_size KB"
-  [ "$system_ext_size" = "Used" ] && system_ext_size=0
-
-  total_size=$((system_size+product_size+system_ext_size))
-
-  addToLog "- Total available size: $total_size KB"
-}
-
-get_available_size() {
-    df=$(df -k /"$1" | tail -n 1)
-    case $df in
-        /dev/block/*) df=$(echo "$df" | awk '{ print substr($0, index($0,$2)) }');;
-    esac
-    free_system_size_kb=$(echo "$df" | awk '{ print $3 }')
-    echo "$free_system_size_kb"
+  test "$zip_type" != "debloater" && ui_print "- Gapps Size: $gapps_size KB"
 }
 
 get_file_prop() {
@@ -454,15 +346,9 @@ ReadConfigValue() {
   return $?
 }
 
-# show_progress <amount> <time>
-show_progress() { echo "progress $1 $2" >>"$OUTFD"; }
-# set_progress <amount>
-set_progress() { echo "set_progress $1" >>"$OUTFD"; }
-
 show_device_info() {
   ui_print " "
   ui_print "--> Fetching Device Information"
-  #  findDevice
   for field in ro.product.device ro.build.product ro.product.name; do
     device_name="$(grep_prop "$field")"
     addToLog "- Device name: $device_name"
@@ -485,12 +371,6 @@ show_device_info() {
   ui_print "- Android Version: $androidVersion"
   model=$(get_file_prop "$system/build.prop" "ro.product.system.model")
   addToLog "- Model: $model"
-  case "$androidVersion" in
-  "1*") product="/product" ;;
-  "*") product="" ;;
-  esac
-  device_ab=$(getprop ro.build.ab_update 2>/dev/null)
-  dynamic_partitions=$(getprop ro.boot.dynamic_partitions)
   if [ "$device_ab" = "true" ]; then
     ui_print "- A/B Device Found"
   else
@@ -501,9 +381,9 @@ show_device_info() {
   else
     addToLog "- Devices doesn't have Dynamic Partitions"
   fi
-  addToLog "- /product $(find_partition_type "product")"
-  addToLog "- /system_ext $(find_partition_type "system_ext")"
-  test $zip_type == "gapps" && find_install_type
+  find_partition_type
+  test "$zip_type" == "gapps" && find_install_type
+  check_if_system_mounted_rw
 }
 
 rmv() {
@@ -527,24 +407,6 @@ set_prop() {
 
 SetupTools() {
   make_dir
-  find_zip_type
-
-  if [ ! "$(getprop 2>/dev/null)" ]; then
-    getprop() {
-      local propdir propfile propval;
-      for propdir in / /system_root /system /vendor /odm /product; do
-        for propfile in default.prop build.prop; do
-          test "$propval" && break 2 || propval="$(file_getprop $propdir/$propfile "$1" 2>/dev/null)";
-        done;
-      done;
-      test "$propval" && echo "$propval" || echo "";
-    }
-  elif [ ! "$(getprop ro.build.type 2>/dev/null)" ]; then
-    getprop() {
-      ($(which getprop) | $BB grep "$1" | $BB cut -d[ -f3 | $BB cut -d] -f1) 2>/dev/null;
-    }
-  fi;
-
   nikgappsConfig="/sdcard/NikGapps/nikgapps.config"
   debloaterConfig="/sdcard/NikGapps/debloater.config"
   if [ ! -f $nikgappsConfig ]; then
@@ -559,10 +421,10 @@ SetupTools() {
   show_device_info
   find_system_size
   find_gapps_size
-  check_if_system_mounted_rw
-  test $zip_type = "debloater" && Debloat
+  test "$zip_type" = "debloater" && Debloat
   calculate_space "system" "product"
   ui_print " "
-  test $zip_type == "addon_exclusive" || test $zip_type == "addon" && is_on_top_of_nikgapps
-  test $zip_type != "debloater" && ui_print "--> Starting the install process"
+  test "$zip_type" == "addon_exclusive" || test "$zip_type" == "addon" && is_on_top_of_nikgapps
+  test "$zip_type" != "debloater" && ui_print "--> Starting the install process"
+  test "$zip_type" = "debloater" && ui_print "--> Starting the debloat process"
 }

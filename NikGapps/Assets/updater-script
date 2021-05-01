@@ -9,6 +9,13 @@ addToLog() {
   echo "$1" >> "/tmp/NikGapps.log"
 }
 
+contains() {
+  case $2 in
+    *"$1"*) echo true ;;
+    *) echo false ;;
+  esac
+}
+
 decrypt() {
   mkdir -p "$(dirname "$2")"
   addToLog "- decrypting $COMMONDIR/busybox"
@@ -25,6 +32,24 @@ ui_print() {
       addToLog "$1"
     shift;
   done;
+}
+
+find_zip_type() {
+  addToLog "- Finding zip type"
+  if [ "$(contains "-arm64-" "$ZIPNAME")" = "true" ]; then
+    zip_type="gapps"
+  elif [ "$(contains "Debloater" "$ZIPNAME")" = "true" ]; then
+    zip_type="debloater"
+  elif [ "$(contains "15" "$ZIPNAME")" = "true" ] || [ "$(contains "YouTubeMusic" "$ZIPNAME")" = "true" ]; then
+    zip_type="addon_exclusive"
+  elif [ "$(contains "Addon" "$ZIPNAME")" = "true" ]; then
+    zip_type="addon"
+  elif [ "$(contains "package" "$ZIPNAME")" = "true" ]; then
+    zip_type="sideload"
+  else
+    zip_type="unknown"
+  fi
+  addToLog "- Zip Type is $zip_type"
 }
 
 # package_extract_file <file> <destination_file>
@@ -107,11 +132,25 @@ setup_variables() {
   logDir="/tmp/NikGapps/logs"
   nikGappsDir="/sdcard/NikGapps"
   dynamic_partitions="false"
-  system=/system
+  system="/system"
+  product=""
+  system_ext=""
+  ZIPDIR=$(dirname "$ZIPFILE")
+  ZIPNAME="$(basename "$ZIPFILE")"
+  system_ext_size=0
+  product_size=0
+  system_size=0
+
   test "$ANDROID_ROOT" || ANDROID_ROOT=/system;
 }
 
+# show_progress <amount> <time>
+show_progress() { echo "progress $1 $2" >>"$OUTFD"; }
+# set_progress <amount>
+set_progress() { echo "set_progress $1" >>"$OUTFD"; }
+
 #-----------------------------------Execution Starts---------------------------------#
+nikGappsLogo
 setup_variables
 package_extract_file "tools/busybox" "$COMMONDIR/busybox"
 
@@ -127,8 +166,8 @@ decrypt "file_size" "$COMMONDIR/file_size"
 
 rm -f "$COMMONDIR/busybox"
 
-nikGappsLogo
 setup_flashable
+find_zip_type
 # Find Device Details
 . $COMMONDIR/device_details.sh
 # Mount the partitions

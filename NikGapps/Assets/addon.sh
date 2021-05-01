@@ -14,6 +14,7 @@ else
 fi
 # Setup variables
 recoveryLog=$T/recovery.log
+recovery_tmp_log=/tmp/recovery.log
 nikGappsDir="/sdcard/NikGapps"
 addonLogsDir="$nikGappsDir/addonLogs"
 NikGappsLog="$addonLogsDir/logfiles/NikGapps.log"
@@ -21,6 +22,7 @@ NikGappsLog="$addonLogsDir/logfiles/NikGapps.log"
 NikGappsTmpAddonDir=$T/addon.d/nikgapps
 NikGappsAddonDir="$S/addon.d/nikgapps"
 argument="$*"
+execute_config=1
 test "$ANDROID_ROOT" || ANDROID_ROOT=/system;
 # Make Directories
 mkdir -p "$NikGappsAddonDir"
@@ -71,7 +73,7 @@ copy_logs() {
   nikGappsLogFile="NikGapps_addon_logs_$datetime.tar.gz"
   CopyFile "/etc/recovery.fstab" "$logDir/fstab/recovery.fstab"
   cd $addonLogsDir
-  tar -cz -f "$T/$nikGappsLogFile" ./*
+  tar -cz -f "$T/$nikGappsLogFile" *
   cd /
   mkdir -p "$nikGappsDir"/logs
   CopyFile $T/"$nikGappsLogFile" "$nikGappsDir/logs/$nikGappsLogFile"
@@ -82,7 +84,7 @@ execute_addon() {
   if [ -d "$NikGappsAddonDir" ]; then
     if [ "$execute_config" = "1" ]; then
       ui_print "Executing $* in NikGapps addon"
-      test "$execute_config" = "1" && test "$mount_config" = "1" && test "$addon_version_config" = "2" && mount_partitions "product"
+      [ ! $BOOTMODE ] && test "$execute_config" = "1" && test "$mount_config" = "1" && test "$addon_version_config" = "2" && mount_partitions "product"
       test "$execute_config" = "1" && run_stage "$@"
       addToLog "- Copying recovery log at $argument"
       CopyFile "$recoveryLog" "$addonLogsDir/logfiles/recovery.log"
@@ -111,6 +113,17 @@ find_config() {
   fi
 }
 
+find_slot() {
+  slot=$(getprop ro.boot.slot_suffix 2>/dev/null)
+  test "$slot" || slot=$(grep -o 'androidboot.slot_suffix=.*$' /proc/cmdline | cut -d\  -f1 | cut -d= -f2)
+  if [ ! "$slot" ]; then
+    slot=$(getprop ro.boot.slot 2>/dev/null)
+    test "$slot" || slot=$(grep -o 'androidboot.slot=.*$' /proc/cmdline | cut -d\  -f1 | cut -d= -f2)
+    test "$slot" && slot=_$slot
+  fi
+  test "$slot" && echo "$slot"
+}
+
 grep_cmdline() {
   local REGEX="s/^$1=//p"
   cat /proc/cmdline | tr '[:space:]' '\n' | sed -n "$REGEX" 2>/dev/null
@@ -135,7 +148,7 @@ is_mounted_rw() {
 mount_partitions() {
   local partitions="$*"
   # find the slot
-  local slot=$(getprop ro.boot.slot_suffix 2>/dev/null);
+  slot=$(find_slot)
   # the partition is not yet mounted as rw
   local part_mounted_rw=false
   local device_ab=$(getprop ro.build.ab_update 2>/dev/null);
@@ -208,6 +221,7 @@ ReadConfigValue() {
 
 # Execute $NikGappsAddonDir/*.sh scripts with $1 parameter
 run_stage() {
+  [ $BOOTMODE ] && return
   if [ -d "$NikGappsTmpAddonDir"/ ]; then
     for script in $(find "$NikGappsTmpAddonDir"/ -name '*.sh' |sort -n); do
       $script "$1" "true"
@@ -237,6 +251,7 @@ setup_env() {
 }
 
 umount_all() {
+  [ $BOOTMODE ] && return
   (if [ ! -d /postinstall/tmp ]; then
     ui_print "- Unmounting /system"
     umount /system;
@@ -307,7 +322,7 @@ case "$1" in
   ;;
   backup)
     execute_addon "$@"
-    test "$execute_config" = "1" && test "$addon_version_config" = "2" && umount /product
+    [ ! $BOOTMODE ] && test "$execute_config" = "1" && test "$addon_version_config" = "2" && umount /product
   ;;
   post-backup)
     # Stub
@@ -319,7 +334,7 @@ case "$1" in
     execute_addon "$@"
     addToLog "- Restoring NikGapps addon scripts"
     test "$execute_config" = "1" && cp -a $T/addon.d/nikgapps/* $S/addon.d/nikgapps/
-    test "$execute_config" = "1" && test "$unmount_config" = "1" && umount_all
+    [ ! $BOOTMODE ] && test "$execute_config" = "1" && test "$unmount_config" = "1" && umount_all
   ;;
   post-restore)
     test "$execute_config" = "1" && copy_logs

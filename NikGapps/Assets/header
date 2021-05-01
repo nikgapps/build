@@ -2,7 +2,10 @@
 # Addon.d script created from AFZC tool by Nikhil Menghani
 #
 
-[ -z "$2" ] && exit
+ps | grep zygote | grep -v grep >/dev/null && BOOTMODE=true || BOOTMODE=false
+$BOOTMODE || ps -A 2>/dev/null | grep zygote | grep -v grep >/dev/null && BOOTMODE=true
+
+[ ! $BOOTMODE ] && [ -z "$2" ] && exit
 V1_FUNCS=/tmp/backuptool.functions
 V2_FUNCS=/postinstall/system/bin/backuptool_ab.functions
 V3_FUNCS=/postinstall/tmp/backuptool.functions

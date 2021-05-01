@@ -15,6 +15,7 @@ class Release:
     def zip(build_package_list, sent_message=None):
         for pkg_type in build_package_list:
             print("Currently Working on " + pkg_type)
+            os.environ['pkg_type'] = str(pkg_type)
             if str(pkg_type).__contains__("addons"):
                 for app_set in NikGappsPackages.get_packages(pkg_type):
                     print("Building for " + str(app_set.title))
@@ -69,6 +70,12 @@ class Release:
                             Logs.get_current_time()) + ".config")
                     else:
                         print("Failed to create zip!")
+            elif pkg_type == "debloater":
+                if Config.CREATE_DEBLOATER_ZIP:
+                    file_name = Constants.release_directory + Constants.dir_sep + "Debloater.zip"
+                    z = Export(file_name)
+                    pkg_build_list = []
+                    z.zip(pkg_build_list, sent_message)
             else:
                 if pkg_type in Config.BUILD_PACKAGE_LIST:
                     file_name = Constants.release_directory
@@ -94,6 +101,7 @@ class Release:
                                                 + Constants.dir_sep + "addons" + Constants.dir_sep + "NikGapps-Addon-"
                                                 + Constants.android_version_folder + "-" + app_set.title + ".zip",
                                                 [app_set])
+            os.environ['pkg_type'] = ''
 
     @staticmethod
     def get_config_packages(file_path):
