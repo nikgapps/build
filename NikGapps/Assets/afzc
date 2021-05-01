@@ -117,6 +117,8 @@ copyLogs() {
   rm -rf "$nikgapps_config_dir"/nikgapps_logs
   mkdir -p "$nikgapps_config_dir"/nikgapps_logs
   CopyFile /tmp/"$nikGappsLogFile" "$nikgapps_config_dir"/nikgapps_logs/"$nikGappsLogFile"
+  mkdir -p "/storage/emulated/NikGapps/logs"
+  CopyFile /tmp/"$nikGappsLogFile" "/storage/emulated/NikGapps"/logs/"$nikGappsLogFile"
   cd /
 }
 
