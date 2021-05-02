@@ -208,6 +208,8 @@ exit_install() {
 }
 
 find_config() {
+  ui_print " "
+  ui_print "--> Finding config files"
   if [ -f "/tmp/nikgapps.config" ]; then
     nikgapps_config_file_name="/tmp/nikgapps.config"
   elif [ -f "$ZIPDIR/nikgapps.config" ]; then
@@ -218,6 +220,10 @@ find_config() {
     nikgapps_config_file_name="/sdcard1/NikGapps/nikgapps.config"
   elif [ -f "/sdcard/nikgapps.config" ]; then
     nikgapps_config_file_name="/sdcard/nikgapps.config"
+  elif [ -f "/storage/emulated/NikGapps/nikgapps.config" ]; then
+    nikgapps_config_file_name="/storage/emulated/NikGapps/nikgapps.config"
+  elif [ -f "/storage/emulated/nikgapps.config" ]; then
+    nikgapps_config_file_name="/storage/emulated/nikgapps.config"
   else
     nikgapps_config_file_name="$nikGappsDir/nikgapps.config"
   fi
@@ -227,7 +233,7 @@ find_config() {
   else
     debloater_config_file_name="/sdcard/NikGapps/debloater.config"
   fi
-  addToLog "- nikgapps.config found in $nikgapps_config_file_name"
+  ui_print "- nikgapps.config found in $nikgapps_config_file_name"
   addToLog "- debloater.config found in $debloater_config_file_name"
 }
 
@@ -411,10 +417,12 @@ SetupTools() {
   debloaterConfig="/sdcard/NikGapps/debloater.config"
   if [ ! -f $nikgappsConfig ]; then
     copy_file "$ZIPFILE" "afzc/nikgapps.config" "/sdcard/NikGapps/nikgapps.config"
+    copy_file "$ZIPFILE" "afzc/nikgapps.config" "/storage/emulated/NikGapps/nikgapps.config"
     addToLog "nikgapps.config is copied to $nikgappsConfig"
   fi
   if [ ! -f $debloaterConfig ]; then
     copy_file "$ZIPFILE" "afzc/debloater.config" "/sdcard/NikGapps/debloater.config"
+    copy_file "$ZIPFILE" "afzc/debloater.config" "/storage/emulated/NikGapps/debloater.config"
     addToLog "debloater.config is copied to $debloaterConfig"
   fi
   find_config

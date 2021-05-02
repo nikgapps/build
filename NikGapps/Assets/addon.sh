@@ -108,6 +108,10 @@ find_config() {
     nikgapps_config_file_name="/sdcard1/NikGapps/nikgapps.config"
   elif [ -f "/sdcard/nikgapps.config" ]; then
     nikgapps_config_file_name="/sdcard/nikgapps.config"
+  elif [ -f "/storage/emulated/NikGapps/nikgapps.config" ]; then
+    nikgapps_config_file_name="/storage/emulated/NikGapps/nikgapps.config"
+  elif [ -f "/storage/emulated/nikgapps.config" ]; then
+    nikgapps_config_file_name="/storage/emulated/nikgapps.config"
   else
     nikgapps_config_file_name="$nikGappsDir/nikgapps.config"
   fi
