@@ -85,7 +85,7 @@ class Export:
                     file_sizes = file_sizes + str(pkg.package_title) + "=" + str(pkg_size) + "\n"
                 app_set_index = app_set_index + 1
             # Writing additional script files to the zip
-            self.z.writestringtozip(self.get_updater_script(total_packages, app_set_list), Constants.meta_inf_dir + "updater-script")
+            self.z.writestringtozip(self.get_updater_script(total_packages, app_set_list, self.file_name), Constants.meta_inf_dir + "updater-script")
             self.z.writefiletozip(Assets.update_binary_busybox_path, Constants.meta_inf_dir + "update-binary")
             self.z.writestringtozip(self.get_nikgapps_config(), "afzc/nikgapps.config")
             debloater_config_lines = ""
@@ -228,9 +228,12 @@ class Export:
         return nikgapps_config_lines
 
     @staticmethod
-    def get_updater_script(total_packages, app_set_list):
-        updater_script_path_string = ""
+    def get_updater_script(total_packages, app_set_list, file_name):
+        updater_script_path_string = "#!/sbin/sh\n"
+        updater_script_path_string += "# Shell Script EDIFY Replacement\n"
+        updater_script_path_string += "actual_file_name=" + os.path.basename(os.path.splitext(file_name)[0]) + "\n"
         lines = Assets.get_string_resource(Assets.update_script_path)
+        lines[0] = ""
         for line in lines:
             updater_script_path_string += line
         progress_max = 0.9

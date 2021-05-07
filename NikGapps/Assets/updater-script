@@ -1,5 +1,4 @@
 #!/sbin/sh
-# Shell Script EDIFY Replacement
 
 #Variables
 OUTFD=/proc/self/fd/$2;
@@ -36,20 +35,25 @@ ui_print() {
 
 find_zip_type() {
   addToLog "- Finding zip type"
-  if [ "$(contains "-arm64-" "$ZIPNAME")" = "true" ]; then
+  if [ "$(contains "-arm64-" "$actual_file_name")" = "true" ]; then
     zip_type="gapps"
-  elif [ "$(contains "Debloater" "$ZIPNAME")" = "true" ]; then
+  elif [ "$(contains "Debloater" "$actual_file_name")" = "true" ]; then
     zip_type="debloater"
-  elif [ "$(contains "15" "$ZIPNAME")" = "true" ] || [ "$(contains "YouTubeMusic" "$ZIPNAME")" = "true" ]; then
+  elif [ "$(contains "15" "$actual_file_name")" = "true" ] || [ "$(contains "YouTubeMusic" "$actual_file_name")" = "true" ]; then
     zip_type="addon_exclusive"
-  elif [ "$(contains "Addon" "$ZIPNAME")" = "true" ]; then
+  elif [ "$(contains "Addon" "$actual_file_name")" = "true" ]; then
     zip_type="addon"
-  elif [ "$(contains "package" "$ZIPNAME")" = "true" ]; then
+  elif [ "$(contains "package" "$actual_file_name")" = "true" ]; then
     zip_type="sideload"
   else
     zip_type="unknown"
   fi
+  sideloading=false
+  if [ "$(contains "package" "$ZIPNAME")" = "true" ]; then
+    sideloading=true
+  fi
   addToLog "- Zip Type is $zip_type"
+  addToLog "- Sideloading is $sideloading"
 }
 
 # package_extract_file <file> <destination_file>
@@ -169,6 +173,7 @@ decrypt "file_size" "$COMMONDIR/file_size"
 rm -f "$COMMONDIR/busybox"
 
 setup_flashable
+[ -n "$actual_file_name" ] && ui_print "- File Name: $actual_file_name"
 find_zip_type
 # Find Device Details
 . $COMMONDIR/device_details.sh
