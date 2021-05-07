@@ -103,9 +103,11 @@ copyLogs() {
   ls -alR /product >"$logDir/partitions/Product_Files_After.txt"
   CopyFile "$COMMONDIR/System_Files_Before.txt" "$logDir/partitions/System_Files_Before.txt"
   CopyFile "$COMMONDIR/Product_Files_Before.txt" "$logDir/partitions/Product_Files_Before.txt"
+  for f in $PROPFILES; do
+    CopyFile "$f" "$logDir/propfiles/$f"
+  done
   CopyFile "$recoveryLog" "$logDir/logfiles/recovery.log"
   CopyFile "$nikGappsLog" "$logDir/logfiles/NikGapps.log"
-  CopyFile "$system/build.prop" "$logDir/propfiles/build.prop"
   CopyFile "$debloater_config_file_name" "$logDir/configfiles/debloater.config"
   CopyFile "$nikgapps_config_file_name" "$logDir/configfiles/nikgapps.config"
   CopyFile "$system/etc/ng.prop" "$logDir/propfiles/ng.prop"
@@ -276,6 +278,24 @@ get_file_prop() {
   grep -m1 "^$2=" "$1" | cut -d= -f2
 }
 
+get_prop() {
+  #check known .prop files using get_file_prop
+  local propfile propval
+  for propfile in $PROPFILES; do
+    if [ "$propval" ]; then
+      break
+    else
+      propval="$(get_file_prop $propfile $1 2>/dev/null)"
+    fi
+  done
+  #if propval is no longer empty output current result; otherwise try to use recovery's built-in getprop method
+  if [ "$propval" ]; then
+    echo "$propval"
+  else
+    getprop "$1"
+  fi
+}
+
 grep_prop() {
   local REGEX="s/^$1=//p"
   shift
@@ -355,8 +375,15 @@ ReadConfigValue() {
 show_device_info() {
   ui_print " "
   ui_print "--> Fetching Device Information"
-  for field in ro.product.device ro.build.product ro.product.name; do
-    device_name="$(grep_prop "$field")"
+  sdkVersion=$(get_file_prop "$system/build.prop" "ro.build.version.sdk")
+  ui_print "- SDK Version: $sdkVersion"
+  androidVersion=$(get_file_prop "$system/build.prop" "ro.build.version.release")
+  ui_print "- Android Version: $androidVersion"
+  model=$(get_file_prop "$system/build.prop" "ro.product.system.model")
+  addToLog "- Model: $model"
+  for field in ro.product.device ro.build.product ro.product.name ro.product.model; do
+    device_name="$(get_prop "$field")"
+    addToLog "- Field Name: $field"
     addToLog "- Device name: $device_name"
     if [ "${#device_name}" -ge "2" ]; then
       break
@@ -371,12 +398,6 @@ show_device_info() {
     fi
   fi
   ui_print "- Device: $device"
-  sdkVersion=$(get_file_prop "$system/build.prop" "ro.build.version.sdk")
-  ui_print "- SDK Version: $sdkVersion"
-  androidVersion=$(get_file_prop "$system/build.prop" "ro.build.version.release")
-  ui_print "- Android Version: $androidVersion"
-  model=$(get_file_prop "$system/build.prop" "ro.product.system.model")
-  addToLog "- Model: $model"
   if [ "$device_ab" = "true" ]; then
     ui_print "- A/B Device Found"
   else

@@ -140,6 +140,8 @@ setup_variables() {
   system_ext_size=0
   product_size=0
   system_size=0
+  # from opengapps script
+  PROPFILES="/system/default.prop /system/build.prop /system/product/build.prop /vendor/build.prop /product/build.prop /system_root/default.prop /system_root/build.prop /system_root/product/build.prop /data/local.prop /default.prop /build.prop"
 
   test "$ANDROID_ROOT" || ANDROID_ROOT=/system;
 }
