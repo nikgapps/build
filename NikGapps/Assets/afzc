@@ -103,9 +103,11 @@ copyLogs() {
   ls -alR /product >"$logDir/partitions/Product_Files_After.txt"
   CopyFile "$COMMONDIR/System_Files_Before.txt" "$logDir/partitions/System_Files_Before.txt"
   CopyFile "$COMMONDIR/Product_Files_Before.txt" "$logDir/partitions/Product_Files_Before.txt"
+  for f in $PROPFILES; do
+    CopyFile "$f" "$logDir/propfiles/$f"
+  done
   CopyFile "$recoveryLog" "$logDir/logfiles/recovery.log"
   CopyFile "$nikGappsLog" "$logDir/logfiles/NikGapps.log"
-  CopyFile "$system/build.prop" "$logDir/propfiles/build.prop"
   CopyFile "$debloater_config_file_name" "$logDir/configfiles/debloater.config"
   CopyFile "$nikgapps_config_file_name" "$logDir/configfiles/nikgapps.config"
   CopyFile "$system/etc/ng.prop" "$logDir/propfiles/ng.prop"
@@ -208,6 +210,8 @@ exit_install() {
 }
 
 find_config() {
+  ui_print " "
+  ui_print "--> Finding config files"
   if [ -f "/tmp/nikgapps.config" ]; then
     nikgapps_config_file_name="/tmp/nikgapps.config"
   elif [ -f "$ZIPDIR/nikgapps.config" ]; then
@@ -218,6 +222,10 @@ find_config() {
     nikgapps_config_file_name="/sdcard1/NikGapps/nikgapps.config"
   elif [ -f "/sdcard/nikgapps.config" ]; then
     nikgapps_config_file_name="/sdcard/nikgapps.config"
+  elif [ -f "/storage/emulated/NikGapps/nikgapps.config" ]; then
+    nikgapps_config_file_name="/storage/emulated/NikGapps/nikgapps.config"
+  elif [ -f "/storage/emulated/nikgapps.config" ]; then
+    nikgapps_config_file_name="/storage/emulated/nikgapps.config"
   else
     nikgapps_config_file_name="$nikGappsDir/nikgapps.config"
   fi
@@ -227,7 +235,7 @@ find_config() {
   else
     debloater_config_file_name="/sdcard/NikGapps/debloater.config"
   fi
-  addToLog "- nikgapps.config found in $nikgapps_config_file_name"
+  ui_print "- nikgapps.config found in $nikgapps_config_file_name"
   addToLog "- debloater.config found in $debloater_config_file_name"
 }
 
@@ -268,6 +276,24 @@ find_gapps_size() {
 
 get_file_prop() {
   grep -m1 "^$2=" "$1" | cut -d= -f2
+}
+
+get_prop() {
+  #check known .prop files using get_file_prop
+  local propfile propval
+  for propfile in $PROPFILES; do
+    if [ "$propval" ]; then
+      break
+    else
+      propval="$(get_file_prop $propfile $1 2>/dev/null)"
+    fi
+  done
+  #if propval is no longer empty output current result; otherwise try to use recovery's built-in getprop method
+  if [ "$propval" ]; then
+    echo "$propval"
+  else
+    getprop "$1"
+  fi
 }
 
 grep_prop() {
@@ -349,8 +375,15 @@ ReadConfigValue() {
 show_device_info() {
   ui_print " "
   ui_print "--> Fetching Device Information"
-  for field in ro.product.device ro.build.product ro.product.name; do
-    device_name="$(grep_prop "$field")"
+  sdkVersion=$(get_file_prop "$system/build.prop" "ro.build.version.sdk")
+  ui_print "- SDK Version: $sdkVersion"
+  androidVersion=$(get_file_prop "$system/build.prop" "ro.build.version.release")
+  ui_print "- Android Version: $androidVersion"
+  model=$(get_file_prop "$system/build.prop" "ro.product.system.model")
+  addToLog "- Model: $model"
+  for field in ro.product.device ro.build.product ro.product.name ro.product.model; do
+    device_name="$(get_prop "$field")"
+    addToLog "- Field Name: $field"
     addToLog "- Device name: $device_name"
     if [ "${#device_name}" -ge "2" ]; then
       break
@@ -365,12 +398,6 @@ show_device_info() {
     fi
   fi
   ui_print "- Device: $device"
-  sdkVersion=$(get_file_prop "$system/build.prop" "ro.build.version.sdk")
-  ui_print "- SDK Version: $sdkVersion"
-  androidVersion=$(get_file_prop "$system/build.prop" "ro.build.version.release")
-  ui_print "- Android Version: $androidVersion"
-  model=$(get_file_prop "$system/build.prop" "ro.product.system.model")
-  addToLog "- Model: $model"
   if [ "$device_ab" = "true" ]; then
     ui_print "- A/B Device Found"
   else
@@ -411,10 +438,12 @@ SetupTools() {
   debloaterConfig="/sdcard/NikGapps/debloater.config"
   if [ ! -f $nikgappsConfig ]; then
     copy_file "$ZIPFILE" "afzc/nikgapps.config" "/sdcard/NikGapps/nikgapps.config"
+    copy_file "$ZIPFILE" "afzc/nikgapps.config" "/storage/emulated/NikGapps/nikgapps.config"
     addToLog "nikgapps.config is copied to $nikgappsConfig"
   fi
   if [ ! -f $debloaterConfig ]; then
     copy_file "$ZIPFILE" "afzc/debloater.config" "/sdcard/NikGapps/debloater.config"
+    copy_file "$ZIPFILE" "afzc/debloater.config" "/storage/emulated/NikGapps/debloater.config"
     addToLog "debloater.config is copied to $debloaterConfig"
   fi
   find_config
