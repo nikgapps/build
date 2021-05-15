@@ -129,9 +129,6 @@ contains() {
 
 copy_logs() {
   ui_print " "
-  copy_file "$recoveryLog" "$logDir/logfiles/recovery.log"
-  copy_file "$nikGappsLog" "$logDir/logfiles/NikGapps.log"
-  copy_file "$busyboxLog" "$logDir/logfiles/busybox.log"
   copy_file "$system/build.prop" "$logDir/propfiles/build.prop"
   # Store the size of partitions after installation starts
   df >"$COMMONDIR/size_after.txt"
@@ -142,9 +139,16 @@ copy_logs() {
   copy_file "$COMMONDIR/size_before_readable.txt" "$logDir/partitions/size_before_readable.txt"
   copy_file "$COMMONDIR/size_after.txt" "$logDir/partitions/size_after.txt"
   copy_file "$COMMONDIR/size_after_readable.txt" "$logDir/partitions/size_after_readable.txt"
-  ls -alZR /system >"$COMMONDIR/System_Files_After.txt"
-  copy_file "$COMMONDIR/System_Files_After.txt" "$logDir/partitions/System_Files_After.txt"
-  copy_file "$COMMONDIR/System_Files_After.txt" "$logDir/partitions/System_Files_Before.txt"
+  ls -alR /system >"$logDir/partitions/System_Files_After.txt"
+  ls -alR /product >"$logDir/partitions/Product_Files_After.txt"
+  for f in $PROPFILES; do
+    copy_file "$f" "$logDir/propfiles/$f"
+  done
+  copy_file "$debloater_config_file_name" "$logDir/configfiles/debloater.config"
+  copy_file "$nikgapps_config_file_name" "$logDir/configfiles/nikgapps.config"
+  copy_file "$recoveryLog" "$logDir/logfiles/recovery.log"
+  copy_file "$nikGappsLog" "$logDir/logfiles/NikGapps.log"
+  copy_file "$busyboxLog" "$logDir/logfiles/busybox.log"
   cd $logDir || return
   rm -rf $nikGappsDir/logs
   tar -cz -f "$TMPDIR/$nikGappsLogFile" *

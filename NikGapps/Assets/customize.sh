@@ -67,11 +67,6 @@ unpack() {
   chmod 755 "$2";
 }
 
-#ui_print "- $nikGappsLogFile"
-#mount -o rw,remount /system || mount /system || mount -o rw,remount -t auto /system || mount -o rw,remount / || abort "- Abort mounting system"
-#rm -rf /system/product/priv-app/Eleven
-
-
 unpack "common/nikgapps_functions.sh" "$COMMONDIR/nikgapps_functions.sh"
 unpack "common/unmount.sh" "$COMMONDIR/unmount.sh"
 unpack "common/mount.sh" "$COMMONDIR/mount.sh"
@@ -111,6 +106,8 @@ find_partition_type
 test "$zip_type" == "gapps" && find_install_type
 # check if partitions are mounted as rw or not
 check_if_partitions_are_mounted_rw
+ls -alR /system >"$logDir/partitions/System_Files_Before.txt"
+ls -alR /product >"$logDir/partitions/Product_Files_Before.txt"
 # fetch available system size
 find_system_size
 # find the size required to install gapps
