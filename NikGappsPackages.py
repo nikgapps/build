@@ -74,7 +74,7 @@ class NikGappsPackages:
                         echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.dialer.support.xml
                         set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.dialer.support.xml"
                         installPath=$product_prefix"etc/permissions/com.google.android.dialer.support.xml"
-                        echo "install=$installPath" >> /tmp/addon/$packagePath
+                        echo "install=$installPath" >> $TMPDIR/addon/$packagePath
                         if [ -f "$install_partition/etc/permissions/com.google.android.dialer.support.xml" ]; then
                           addToLog "- $install_partition/etc/permissions/com.google.android.dialer.support.xml Successfully Written!"
                         fi"""
@@ -86,7 +86,7 @@ class NikGappsPackages:
                         echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.maps.xml
                         set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.maps.xml"
                         installPath=$product_prefix"etc/permissions/com.google.android.maps.xml"
-                        echo "install=$installPath" >> /tmp/addon/$packagePath
+                        echo "install=$installPath" >> $TMPDIR/addon/$packagePath
                         if [ -f "$install_partition/etc/permissions/com.google.android.maps.xml" ]; then
                           addToLog "- $install_partition/etc/permissions/com.google.android.maps.xml Successfully Written!"
                         fi"""
@@ -98,7 +98,7 @@ class NikGappsPackages:
                                 echo -e "$script_text" > $install_partition/etc/permissions/com.google.widevine.software.drm.xml
                                 set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.widevine.software.drm.xml"
                                 installPath=$product_prefix"etc/permissions/com.google.widevine.software.drm.xml"
-                                echo "install=$installPath" >> /tmp/addon/$packagePath
+                                echo "install=$installPath" >> $TMPDIR/addon/$packagePath
                                 if [ -f "$install_partition/etc/permissions/com.google.widevine.software.drm.xml" ]; then
                                   addToLog "- $install_partition/etc/permissions/com.google.widevine.software.drm.xml Successfully Written!"
                                 fi"""
@@ -111,7 +111,7 @@ class NikGappsPackages:
                                 echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.media.effects.xml
                                 set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.media.effects.xml"
                                 installPath=$product_prefix"etc/permissions/com.google.android.media.effects.xml"
-                                echo "install=$installPath" >> /tmp/addon/$packagePath
+                                echo "install=$installPath" >> $TMPDIR/addon/$packagePath
                                 if [ -f "$install_partition/etc/permissions/com.google.android.media.effects.xml" ]; then
                                   addToLog "- $install_partition/etc/permissions/com.google.android.media.effects.xml Successfully Written!"
                                 fi"""
@@ -140,7 +140,8 @@ class NikGappsPackages:
         phonesky = Package("Phonesky", "com.android.vending", Constants.is_priv_app, "GooglePlayStore")
         core_go.add_package(phonesky)
 
-        googleservicesframework = Package("GoogleServicesFramework", "com.google.android.gsf", Constants.is_priv_app)
+        googleservicesframework = Package("GoogleServicesFramework", "com.google.android.gsf", Constants.is_priv_app,
+                                          partition="system_ext")
         core_go.add_package(googleservicesframework)
 
         googlecontactssyncadapter = Package("GoogleContactsSyncAdapter", "com.google.android.syncadapters.contacts",
@@ -196,7 +197,7 @@ class NikGappsPackages:
                 echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.dialer.support.xml
                 set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.dialer.support.xml"
                 installPath=$product_prefix"etc/permissions/com.google.android.dialer.support.xml"
-                echo "install=$installPath" >> /tmp/addon/$packagePath
+                echo "install=$installPath" >> $TMPDIR/addon/$packagePath
                 if [ -f "$install_partition/etc/permissions/com.google.android.dialer.support.xml" ]; then
                   addToLog "- $install_partition/etc/permissions/com.google.android.dialer.support.xml Successfully Written!"
                 fi"""
@@ -208,7 +209,7 @@ class NikGappsPackages:
                 echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.maps.xml
                 set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.maps.xml"
                 installPath=$product_prefix"etc/permissions/com.google.android.maps.xml"
-                echo "install=$installPath" >> /tmp/addon/$packagePath
+                echo "install=$installPath" >> $TMPDIR/addon/$packagePath
                 if [ -f "$install_partition/etc/permissions/com.google.android.maps.xml" ]; then
                   addToLog "- $install_partition/etc/permissions/com.google.android.maps.xml Successfully Written!"
                 fi"""
@@ -220,7 +221,7 @@ class NikGappsPackages:
                         echo -e "$script_text" > $install_partition/etc/permissions/com.google.widevine.software.drm.xml
                         set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.widevine.software.drm.xml"
                         installPath=$product_prefix"etc/permissions/com.google.widevine.software.drm.xml"
-                        echo "install=$installPath" >> /tmp/addon/$packagePath
+                        echo "install=$installPath" >> $TMPDIR/addon/$packagePath
                         if [ -f "$install_partition/etc/permissions/com.google.widevine.software.drm.xml" ]; then
                           addToLog "- $install_partition/etc/permissions/com.google.widevine.software.drm.xml Successfully Written!"
                         fi"""
@@ -233,7 +234,7 @@ class NikGappsPackages:
                         echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.media.effects.xml
                         set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.media.effects.xml"
                         installPath=$product_prefix"etc/permissions/com.google.android.media.effects.xml"
-                        echo "install=$installPath" >> /tmp/addon/$packagePath
+                        echo "install=$installPath" >> $TMPDIR/addon/$packagePath
                         if [ -f "$install_partition/etc/permissions/com.google.android.media.effects.xml" ]; then
                           addToLog "- $install_partition/etc/permissions/com.google.android.media.effects.xml Successfully Written!"
                         fi"""
@@ -258,7 +259,8 @@ sed -i '/allow-ignore-location-settings package=\"com.google.android.gms\"/d' $i
 addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml!\"
         """
         phonesky = Package("Phonesky", "com.android.vending", Constants.is_priv_app, "GooglePlayStore")
-        googleservicesframework = Package("GoogleServicesFramework", "com.google.android.gsf", Constants.is_priv_app)
+        googleservicesframework = Package("GoogleServicesFramework", "com.google.android.gsf", Constants.is_priv_app,
+                                          partition="system_ext")
         googlecontactssyncadapter = Package("GoogleContactsSyncAdapter", "com.google.android.syncadapters.contacts",
                                             Constants.is_system_app)
         googlecalendarsync = Package("GoogleCalendarSyncAdapter", "com.google.android.syncadapters.calendar",
@@ -308,7 +310,7 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
                         echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.dialer.support.xml
                         set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.dialer.support.xml"
                         installPath=$product_prefix"etc/permissions/com.google.android.dialer.support.xml"
-                        echo "install=$installPath" >> /tmp/addon/$packagePath
+                        echo "install=$installPath" >> $TMPDIR/addon/$packagePath
                         if [ -f "$install_partition/etc/permissions/com.google.android.dialer.support.xml" ]; then
                           addToLog "- $install_partition/etc/permissions/com.google.android.dialer.support.xml Successfully Written!"
                         fi
@@ -441,9 +443,10 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
         google_markup = Package("MarkupGoogle", "com.google.android.markup", Constants.is_system_app)
         app_set_list.append(AppSet("MarkupGoogle", [google_markup]))
         google_wallpaper = Package("WallpaperPickerGooglePrebuilt", "com.google.android.apps.wallpaper",
-                                   Constants.is_priv_app, "GoogleWallpaper")
+                                   Constants.is_priv_app, "GoogleWallpaper", partition="system_ext")
         app_set_list.append(AppSet("GoogleWallpaper", [google_wallpaper]))
-        google_feedback = Package("GoogleFeedback", "com.google.android.feedback", Constants.is_priv_app)
+        google_feedback = Package("GoogleFeedback", "com.google.android.feedback", Constants.is_priv_app,
+                                  partition="system_ext")
         app_set_list.append(AppSet("GoogleFeedback", [google_feedback]))
         google_partner_setup = Package("PartnerSetupPrebuilt", "com.google.android.partnersetup", Constants.is_priv_app,
                                        "GooglePartnerSetup")
@@ -500,7 +503,7 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
         google_files.predefined_file_list.append(
             "overlay/PixelDocumentsUIGoogleOverlay/PixelDocumentsUIGoogleOverlay.apk")
         storage_manager_google = Package("StorageManagerGoogle", "com.google.android.storagemanager",
-                                         Constants.is_priv_app, "StorageManager")
+                                         Constants.is_priv_app, "StorageManager", partition="system_ext")
         app_set_list = AppSet("GoogleFiles", [google_files, storage_manager_google])
         return app_set_list
 
@@ -529,7 +532,8 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
             google_webview = Package("WebViewGoogle", "com.google.android.webview", Constants.is_system_app)
             google_webview.predefined_file_list.append("overlay/GoogleWebViewOverlay.apk")
             google_webview.delete("webview")
-            trichromelibrary = Package("TrichromeLibrary", "com.google.android.trichromelibrary", Constants.is_system_app)
+            trichromelibrary = Package("TrichromeLibrary", "com.google.android.trichromelibrary",
+                                       Constants.is_system_app)
             app_set_list.add_package(google_webview)
             app_set_list.add_package(trichromelibrary)
         return app_set_list
@@ -558,7 +562,7 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
         setup_wizard_set.add_package(google_restore)
         if TARGET_ANDROID_VERSION >= 10:
             google_one_time_initializer = Package("GoogleOneTimeInitializer", "com.google.android.onetimeinitializer",
-                                                  Constants.is_priv_app)
+                                                  Constants.is_priv_app, partition="system_ext")
             setup_wizard_set.add_package(google_one_time_initializer)
         return setup_wizard_set
 
@@ -569,7 +573,7 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
         pixel_setup_wizard_aod_overlay = Package("PixelSetupWizardAodOverlay",
                                                  "com.google.android.pixel.setupwizard.overlay.aod",
                                                  Constants.is_system_app)
-        pixel_setup_wizard = Package("PixelSetupWizard", "com.google.android.pixel.setupwizard", Constants.is_priv_app)
+        pixel_setup_wizard = Package("PixelSetupWizard", "com.google.android.pixel.setupwizard", Constants.is_priv_app, partition="system_ext")
         android_migrate_prebuilt = Package("AndroidMigratePrebuilt", "com.google.android.apps.pixelmigrate",
                                            Constants.is_priv_app)
         pixel_tips = Package("TipsPrebuilt", "com.google.android.apps.tips", Constants.is_priv_app, "PixelTips")
@@ -599,7 +603,7 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
     @staticmethod
     def get_pixel_launcher():
         pixel_launcher = Package("NexusLauncherPrebuilt", "com.google.android.apps.nexuslauncher",
-                                 Constants.is_priv_app, "PixelLauncher")
+                                 Constants.is_priv_app, "PixelLauncher", partition="system_ext")
         pixel_launcher.priv_app_permissions.append("android.permission.PACKAGE_USAGE_STATS")
         pixel_launcher.delete("TrebuchetQuickStep")
         # pixel_launcher.delete("Launcher3QuickStep")

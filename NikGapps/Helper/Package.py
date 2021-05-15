@@ -8,12 +8,15 @@ from .FileOp import FileOp
 
 
 class Package:
-    def __init__(self, title, package_name, app_type, package_title=None):
+    def __init__(self, title, package_name, app_type, package_title=None, partition=None):
         self.package_name = package_name
         self.title = title
         self.package_title = package_title
         if package_title is None:
             self.package_title = title
+        self.partition = partition
+        if partition is None:
+            self.partition = "product"
         self.app_type = app_type  # Whether the Package is system app or private app
         # target_folder is the folder where the package will be installed
         if app_type == Constants.is_priv_app:
@@ -68,6 +71,8 @@ class Package:
             str_data += line
 
         str_data += "# Initialize the variables\n"
+        str_data += "default_partition=\"" + self.partition + "\"\n"
+        str_data += "find_Install_partition\n"
         str_data += "title=\"" + self.title + "\"\n"
         str_data += "package_title=\"" + self.package_title + "\"\n"
         if self.package_name is not None:
@@ -124,28 +129,28 @@ class Package:
         str_data += "\n"
         str_data += "   # Copy the files and set the permissions\n"
         str_data += "   for i in $file_list; do\n"
-        str_data += "       InstallFile \"$i\"\n"
+        str_data += "       install_file \"$i\"\n"
         str_data += "   done\n"
         str_data += "\n"
         if not str(self.additional_installer_script).__eq__(""):
             str_data += self.additional_installer_script
             str_data += "\n"
-        str_data += "   chmod 755 \"/tmp/AFZCScripts/addon\";\n"
-        str_data += "   . /tmp/AFZCScripts/addon \"$OFD\" \"" + self.package_title + "\" \"/tmp/addon/$packagePath\"" \
-                    + " \"/tmp/addon/$deleteFilesPath\"" + " \"\"" + " \"/tmp/addon/$deleteFilesFromRomPath\"\n"
-        str_data += "   CopyFile \"$NikGappsAddonDir/" + self.package_title + ".sh\" \"$logDir/addonscripts/" + self.package_title + ".sh\"\n"
-        str_data += "   CopyFile \"/tmp/addon/$packagePath\" \"$logDir/addonfiles/" + "$packagePath" + ".addon\"\n"
-        str_data += "   rm -rf \"/tmp/addon/$packagePath\"\n"
-        str_data += "   CopyFile \"/tmp/addon/$deleteFilesPath\" \"$logDir/addonfiles/" + "$deleteFilesPath" + ".addon\"\n"
-        str_data += "   CopyFile \"/tmp/addon/$deleteFilesFromRomPath\" \"$logDir/addonfiles/" + "$deleteFilesFromRomPath" + ".addon\"\n"
-        str_data += "   rm -rf \"/tmp/addon/$deleteFilesPath\"\n"
-        str_data += "   rm -rf \"/tmp/addon/$deleteFilesFromRomPath\"\n"
+        str_data += "   chmod 755 \"$COMMONDIR/addon\";\n"
+        str_data += "   . $COMMONDIR/addon \"$OFD\" \"" + self.package_title + "\" \"$TMPDIR/addon/$packagePath\"" \
+                    + " \"$TMPDIR/addon/$deleteFilesPath\"" + " \"\"" + " \"$TMPDIR/addon/$deleteFilesFromRomPath\"\n"
+        str_data += "   copy_file \"$NikGappsAddonDir/" + self.package_title + ".sh\" \"$logDir/addonscripts/" + self.package_title + ".sh\"\n"
+        str_data += "   copy_file \"$TMPDIR/addon/$packagePath\" \"$logDir/addonfiles/" + "$packagePath" + ".addon\"\n"
+        str_data += "   rm -rf \"$TMPDIR/addon/$packagePath\"\n"
+        str_data += "   copy_file \"$TMPDIR/addon/$deleteFilesPath\" \"$logDir/addonfiles/" + "$deleteFilesPath" + ".addon\"\n"
+        str_data += "   copy_file \"$TMPDIR/addon/$deleteFilesFromRomPath\" \"$logDir/addonfiles/" + "$deleteFilesFromRomPath" + ".addon\"\n"
+        str_data += "   rm -rf \"$TMPDIR/addon/$deleteFilesPath\"\n"
+        str_data += "   rm -rf \"$TMPDIR/addon/$deleteFilesFromRomPath\"\n"
         str_data += "}\n"
         str_data += "\n"
         str_data += "uninstall_package() {\n"
         str_data += "   # Remove the files when we're uninstalling NiKGapps\n"
         str_data += "   for i in $file_list; do\n"
-        str_data += "       UninstallFile \"$i\"\n"
+        str_data += "       uninstall_file \"$i\"\n"
         str_data += "   done\n"
         str_data += "}\n"
         str_data += "\n"
