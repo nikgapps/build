@@ -362,6 +362,7 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
         google_clock = Package("PrebuiltDeskClockGoogle", "com.google.android.deskclock", Constants.is_system_app,
                                "GoogleClock")
         google_clock.delete("DeskClock")
+        google_clock.clean_flash_only = True
         app_set_list.append(AppSet("GoogleClock", [google_clock]))
         return app_set_list
 
@@ -428,6 +429,7 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
                 set_prop "ro.com.google.ime.system_lm_dir" "$install_partition/usr/share/ime/google/d3_lms" "$install_partition/build.prop"
         """
         google_board.delete("LatinIME")
+        google_board.clean_flash_only = True
         app_set_list.append(AppSet("GBoard", [google_board]))
         app_set_list.append(NikGappsPackages.get_pixel_launcher())
         if TARGET_ANDROID_VERSION == 11:
