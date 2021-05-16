@@ -268,6 +268,10 @@ find_config() {
 }
 
 find_install_mode() {
+  if [ "$clean_flash_only" = "true" ] && [ "$install_type" = "dirty" ]; then
+    test "$zip_type" = "gapps" && ui_print "- Can't dirty flash $package_title" && return
+    test "$zip_type" = "addon" && abort "- Can't dirty flash $package_title, please clean flash!"
+  fi
   mode=$(ReadConfigValue "mode" "$nikgapps_config_file_name")
   [ -z "$mode" ] && mode="install"
   addToLog "- Install mode is $mode"

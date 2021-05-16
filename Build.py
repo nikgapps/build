@@ -68,6 +68,7 @@ class Build:
                 pkg = Package(title, package_name, app_type, package_title)
                 pkg.install_list = install_list
                 pkg.partition = pkg_to_build.partition
+                pkg.clean_flash_only = pkg_to_build.clean_flash_only
                 pkg.file_dict = file_dict
                 pkg.folder_dict = folder_dict
                 pkg.additional_installer_script = pkg_to_build.additional_installer_script

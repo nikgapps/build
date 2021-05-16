@@ -35,6 +35,7 @@ class Package:
         self.priv_app_permissions = []  # Stores the priv-app whitelist permissions for the package
         self.enabled = 1
         self.validated = True
+        self.clean_flash_only = False
         self.additional_installer_script = ""
         self.failure_logs = ""
 
@@ -72,6 +73,7 @@ class Package:
 
         str_data += "# Initialize the variables\n"
         str_data += "default_partition=\"" + self.partition + "\"\n"
+        str_data += "clean_flash_only=\"" + str(self.clean_flash_only).lower() + "\"\n"
         str_data += "find_Install_partition\n"
         str_data += "title=\"" + self.title + "\"\n"
         str_data += "package_title=\"" + self.package_title + "\"\n"

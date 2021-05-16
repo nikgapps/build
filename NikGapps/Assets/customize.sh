@@ -103,7 +103,7 @@ show_device_info
 # find if the device has dedicated partition or it's symlinked
 find_partition_type
 # find whether the install type is dirty or clean
-test "$zip_type" == "gapps" && find_install_type
+test "$zip_type" != "debloater" && find_install_type
 # check if partitions are mounted as rw or not
 check_if_partitions_are_mounted_rw
 ls -alR /system >"$logDir/partitions/System_Files_Before.txt"
