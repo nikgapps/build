@@ -45,6 +45,10 @@ class NikGappsPackages:
                 for app_set in NikGappsPackages.get_full_package():
                     if str(app_set.title).lower() == str(package_type).lower():
                         return [app_set]
+                    elif len(app_set.package_list) > 1:
+                        for package in app_set.package_list:
+                            if str(package.package_title).lower() == str(package_type).lower():
+                                return [AppSet(package.package_title, [package])]
                 return [None]
             else:
                 return addon_set_list
