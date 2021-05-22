@@ -438,8 +438,10 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
         app_set_list.append(NikGappsPackages.get_pixel_launcher())
         if TARGET_ANDROID_VERSION == 11:
             app_set_list.append(NikGappsPackages.get_google_files())
-        play_games = Package("PlayGames", "com.google.android.play.games", Constants.is_system_app)
-        app_set_list.append(AppSet("PlayGames", [play_games]))
+        google_recorder = Package("RecorderPrebuilt", "com.google.android.apps.recorder", Constants.is_priv_app,
+                                  "GoogleRecorder")
+        google_recorder.delete("QtiSoundRecorder")
+        app_set_list.append(AppSet("GoogleRecorder", [google_recorder]))
         google_calendar = Package("CalendarGooglePrebuilt", "com.google.android.calendar", Constants.is_priv_app,
                                   "GoogleCalendar")
         google_calendar.delete("Calendar")
@@ -481,10 +483,8 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
         youtube_music.delete("SnapdragonMusic")
         youtube_music.delete("GooglePlayMusic")
         app_set_list.append(AppSet("YouTubeMusic", [youtube_music]))
-        google_recorder = Package("RecorderPrebuilt", "com.google.android.apps.recorder", Constants.is_priv_app,
-                                  "GoogleRecorder")
-        google_recorder.delete("QtiSoundRecorder")
-        app_set_list.append(AppSet("GoogleRecorder", [google_recorder]))
+        play_games = Package("PlayGames", "com.google.android.play.games", Constants.is_system_app)
+        app_set_list.append(AppSet("PlayGames", [play_games]))
         google_tts = Package("GoogleTTS", "com.google.android.tts", Constants.is_system_app)
         google_tts.delete("PicoTts")
         app_set_list.append(AppSet("GoogleTTS", [google_tts]))
