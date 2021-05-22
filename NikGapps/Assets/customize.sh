@@ -121,5 +121,6 @@ test "$zip_type" = "debloater" && ui_print "--> Starting the debloat process"
 
 if [ "$zip_type" != "debloater" ]; then
   ui_print "--> Starting the install process"
-  . "$COMMONDIR/install.sh"
 fi
+
+. "$COMMONDIR/install.sh"
