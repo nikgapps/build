@@ -440,6 +440,7 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
             app_set_list.append(NikGappsPackages.get_google_files())
         google_recorder = Package("RecorderPrebuilt", "com.google.android.apps.recorder", Constants.is_priv_app,
                                   "GoogleRecorder")
+        google_recorder.delete("Recorder")
         google_recorder.delete("QtiSoundRecorder")
         app_set_list.append(AppSet("GoogleRecorder", [google_recorder]))
         google_calendar = Package("CalendarGooglePrebuilt", "com.google.android.calendar", Constants.is_priv_app,
