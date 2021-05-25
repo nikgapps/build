@@ -22,6 +22,7 @@ find_Install_partition() {
     val=$(ReadConfigValue "InstallPartition" "$nikgapps_config_file_name")
     addToLog "- Config Value for InstallPartition is $val"
     case "$val" in
+      "default") addToLog "- InstallPartition is default" ;;
       "system") install_partition=$system ;;
       "product") install_partition=$product ;;
       "system_ext") install_partition=$system_ext ;;
