@@ -193,11 +193,11 @@ header() {
 }
 find_config
 if [ -z "$nikgapps_config_file_name" ]; then
-  version=2
+  version=3
 else
   addon_version_config=$(ReadConfigValue "addon_version.d" "$nikgapps_config_file_name")
   [ -n "$addon_version_config" ] && version=$addon_version_config
-  [ -z "$addon_version_config" ] && version=2
+  [ -z "$addon_version_config" ] && version=3
 fi
 
 rm -rf "$dest"
