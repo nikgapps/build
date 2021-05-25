@@ -11,17 +11,21 @@ get_available_size() {
 
 get_block_for_mount_point() {
   fstab_file_path="/vendor/etc/fstab.$(getprop ro.boot.hardware)"
-#  [ ! -f "$fstab_file_path" ] && fstab_file_path="/etc/recovery.fstab"
-  grep -v "^#" "$fstab_file_path" | grep " $1 " | tail -n1 | tr -s ' ' | cut -d' ' -f1
+  [ -n "$2" ] && fstab_file_path="$2"
+  grep -v "^#" "$fstab_file_path" | grep "$1" | tail -n1 | tr -s ' ' | cut -d' ' -f1
 }
 
-find_my_block() {
+find_block() {
   local name="$1"
   local fstab_entry=$(get_block_for_mount_point "/$name")
   # P-SAR hacks
   [ -z "$fstab_entry" ] && [ "$name" = "system" ] && fstab_entry=$(get_block_for_mount_point "/")
   [ -z "$fstab_entry" ] && [ "$name" = "system" ] && fstab_entry=$(get_block_for_mount_point "/system_root")
-  addToLog "- fstab_entry is $fstab_entry of $name with BLK_PATH $BLK_PATH"
+  addToLog "- fstab_entry of $name is $fstab_entry with BLK_PATH $BLK_PATH"
+  # if $fstab_entry is blank, we shall try to find the block in recovery fstab
+  [ -z "$fstab_entry" ] && fstab_entry=$(get_block_for_mount_point "/$name" "/etc/recovery.fstab") \
+    && addToLog "- recovery fstab_entry of $name is $fstab_entry"
+
   local dev
   if [ "$DYNAMIC_PARTITIONS" = "true" ]; then
     if [ -n "$fstab_entry" ]; then
@@ -37,7 +41,7 @@ find_my_block() {
     fi
   fi
   if [ -b "$dev" ]; then
-    addToLog "Block Dev: $dev"
+    addToLog "- Block Dev: $dev"
     echo "$dev"
   fi
 }
@@ -75,29 +79,30 @@ find_slot() {
 find_system_size() {
   ui_print " "
   ui_print "--> Fetching system size"
-  system_size=$(get_available_size "system")
-  [ "$system_size" != "Used" ] && ui_print "- /system available size: $system_size KB"
-  [ "$system_size" = "Used" ] && system_size=0
-
+  [ "$system_size" != "0" ] && ui_print "- /system available size: $system_size KB"
   [ "$product_size" != "0" ] && ui_print "- /product available size: $product_size KB"
-
   [ "$system_ext_size" != "0" ] && ui_print "- /system_ext available size: $system_ext_size KB"
-
   total_size=$((system_size+product_size+system_ext_size))
-
   addToLog "- Total available size: $total_size KB"
 }
 
 find_partition_type() {
-  for partition in "product" "system_ext"; do
+  for partition in "system" "product" "system_ext"; do
+    addToLog "----------------------------------------------------------------------------"
     addToLog "- Finding partition type for /$partition"
     mnt_point="/$partition"
     mountpoint "$mnt_point" >/dev/null 2>&1 && addToLog "- $mnt_point already mounted!"
-    [ -L "$mnt_point" ] && addToLog "- $mnt_point symlinked!"
-    blk_dev=$(find_my_block "$partition")
+    [ "$mnt_point" != "/system" ] && [ -L "$system/$mnt_point" ] && addToLog "- $system/$mnt_point symlinked!"
+    blk_dev=$(find_block "$partition")
     if [ -n "$blk_dev" ]; then
       addToLog "- Found block for $mnt_point"
       case "$partition" in
+        "system")
+          system="/system"
+          system_size=$(get_available_size "system")
+          [ "$system_size" != "Used" ] && addToLog "- /system available size: $system_size KB"
+          [ "$system_size" = "Used" ] && system_size=0
+        ;;
         "product")
           product="/product"
           product_size=$(get_available_size "product")
@@ -114,11 +119,29 @@ find_partition_type() {
       ui_print "- /$partition is mounted as dedicated partition"
     else
       case "$partition" in
+        "system") system="/system" ;;
         "product") product="/system/product" ;;
         "system_ext") system_ext="/system/system_ext" ;;
       esac
       ui_print "- /$partition is symlinked to /system/$partition"
     fi
+    case "$partition" in
+        "system")
+          is_system_writable="$(is_mounted_rw "$system" 2>/dev/null)"
+          [ ! "$is_system_writable" ] && system=""
+          addToLog "- system=$system is writable? $is_system_writable"
+         ;;
+        "product")
+          is_product_writable="$(is_mounted_rw "$product" 2>/dev/null)"
+          [ ! "$is_product_writable" ] && product=""
+          addToLog "- product=$product is writable? $is_product_writable"
+         ;;
+        "system_ext")
+          is_system_ext_writable="$(is_mounted_rw "$system_ext" 2>/dev/null)"
+          [ ! "$is_system_ext_writable" ] && system_ext=""
+          addToLog "- system_ext=$system_ext is writable? $is_system_ext_writable"
+         ;;
+      esac
   done
 }
 
@@ -137,6 +160,8 @@ mount_system_source() {
 }
 
 show_device_info() {
+  ui_print " "
+  ui_print "--> Fetching Device Information"
   mount_system_source
   sdkVersion=$(get_prop "ro.build.version.sdk")
   androidVersion=$(get_prop "ro.build.version.release")
@@ -181,8 +206,6 @@ show_device_info() {
       SLOT_SUFFIX="_a"
     fi
   fi
-  ui_print " "
-  ui_print "--> Fetching Device Information"
   ui_print "- SDK Version: $sdkVersion"
   ui_print "- Android Version: $androidVersion"
   addToLog "- Model: $model"
