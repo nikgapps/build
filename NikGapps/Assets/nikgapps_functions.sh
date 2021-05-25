@@ -387,8 +387,7 @@ install_file() {
     install_location="$install_partition/$file_location"
     # Make sure the directory exists, if not, copying the file would fail
     mkdir -p "$(dirname "$install_location")"
-    # It's important to set selinux policy
-#    ch_con system "$(dirname "$install_location")"
+    set_perm 0 0 0755 "$(dirname "$install_location")"
     # unpacking of package
     addToLog "- Unzipping $pkgFile"
     addToLog "  -> copying $1"
@@ -397,6 +396,7 @@ install_file() {
     # post unpack operations
     if [ -f "$install_location" ]; then
       addToLog "- File Successfully Written!"
+      # It's important to set selinux policy
       case $install_location in
       *) ch_con system "$install_location" ;;
       esac
@@ -477,13 +477,8 @@ RemoveFromRomWithGapps() {
 }
 
 set_perm() {
-  uid=$1
-  gid=$2
-  mod=$3
-  shift 3
-  chown "$uid.$gid" "$@"
-  chown "$uid:$gid" "$@"
-  chmod "$mod" "$@"
+  chown "$1:$2" "$4"
+  chmod "$3" "$4"
 }
 
 set_prop() {
