@@ -44,15 +44,6 @@ ch_con() {
 check_if_partitions_are_mounted_rw() {
   addToLog "- Bootmode: $BOOTMODE"
   $BOOTMODE and return
-  is_system_writable="$(is_mounted_rw "$system" 2>/dev/null)"
-  [ ! "$is_system_writable" ] && system=""
-  addToLog "- system=$system is $is_system_writable"
-  is_product_writable="$(is_mounted_rw "$product" 2>/dev/null)"
-  [ ! "$is_product_writable" ] && product=""
-  addToLog "- product=$product is $is_product_writable"
-  is_system_ext_writable="$(is_mounted_rw "$system_ext" 2>/dev/null)"
-  [ ! "$is_system_ext_writable" ] && system_ext=""
-  addToLog "- system_ext=$system_ext is $is_system_ext_writable"
   addToLog "- Android version: $androidVersion"
   case "$androidVersion" in
     "11")
@@ -135,6 +126,7 @@ copy_logs() {
   df -h >"$COMMONDIR/size_after_readable.txt"
   copy_file "/vendor/etc/fstab.qcom" "$logDir/fstab/fstab.qcom"
   copy_file "/etc/recovery.fstab" "$logDir/fstab/recovery.fstab"
+  copy_file "/etc/fstab" "$logDir/fstab/fstab"
   copy_file "$COMMONDIR/size_before.txt" "$logDir/partitions/size_before.txt"
   copy_file "$COMMONDIR/size_before_readable.txt" "$logDir/partitions/size_before_readable.txt"
   copy_file "$COMMONDIR/size_after.txt" "$logDir/partitions/size_after.txt"
@@ -144,6 +136,7 @@ copy_logs() {
   for f in $PROPFILES; do
     copy_file "$f" "$logDir/propfiles/$f"
   done
+  calculate_space "system" "product" "system_ext"
   copy_file "$debloater_config_file_name" "$logDir/configfiles/debloater.config"
   copy_file "$nikgapps_config_file_name" "$logDir/configfiles/nikgapps.config"
   copy_file "$recoveryLog" "$logDir/logfiles/recovery.log"
