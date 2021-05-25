@@ -114,7 +114,7 @@ find_system_size
 find_gapps_size
 # run the debloater
 test "$zip_type" = "debloater" && debloat
-calculate_space "system" "product"
+calculate_space "system" "product" "system_ext"
 ui_print " "
 test "$zip_type" == "addon_exclusive" || test "$zip_type" == "addon" && is_on_top_of_nikgapps
 test "$zip_type" = "debloater" && ui_print "--> Starting the debloat process"
