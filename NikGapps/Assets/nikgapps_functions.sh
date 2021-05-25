@@ -127,8 +127,6 @@ copy_logs() {
   copy_file "/vendor/etc/fstab.qcom" "$logDir/fstab/fstab.qcom"
   copy_file "/etc/recovery.fstab" "$logDir/fstab/recovery.fstab"
   copy_file "/etc/fstab" "$logDir/fstab/fstab"
-  copy_file "$COMMONDIR/size_before.txt" "$logDir/partitions/size_before.txt"
-  copy_file "$COMMONDIR/size_before_readable.txt" "$logDir/partitions/size_before_readable.txt"
   copy_file "$COMMONDIR/size_after.txt" "$logDir/partitions/size_after.txt"
   copy_file "$COMMONDIR/size_after_readable.txt" "$logDir/partitions/size_after_readable.txt"
   ls -alR /system >"$logDir/partitions/System_Files_After.txt"
