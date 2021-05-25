@@ -247,7 +247,6 @@ exit_install() {
     rm -rf "/data/dalvik-cache"
   fi
   ui_print "- Finished Installation"
-  calculate_space "system" "product"
   ui_print " "
   copy_logs
   restore_env
