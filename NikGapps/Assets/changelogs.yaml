@@ -1,3 +1,17 @@
+- date: 25th May 2021 (Android R and Q Release)
+  changes:
+      - item: Swap Google Recorder (moved to stock) and Google Play Games (moved to full)
+      - item: Remove LOS Recorder with installing Google Recorder
+- date: 16th May 2021 (Android R and Q Release)
+  changes:
+      - item: Update how Busybox is installed
+      - item: Add support for system_ext partition (hopefully helps with storage full issue)
+      - item: Rebase the installer script (optimized to a great extent)
+      - item: Dynamically choose which partition to install gapps to (the installer will pick the partition which is writable)
+      - item: Prevent GBoard and GoogleClock addons from flashing before first boot (this needs to be flashed before first boot)
+- date: 1st May 2021 (Android R and Q Release)
+  changes:
+      - item: Fix bootloop with OTA update on A/B devices
 - date: 24th April 2021 (Android R and Q Release)
   changes:
       - item: Update Google Setup Wizard associated apps (R)
