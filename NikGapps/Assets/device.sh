@@ -208,8 +208,8 @@ show_device_info() {
   fi
   ui_print "- SDK Version: $sdkVersion"
   ui_print "- Android Version: $androidVersion"
-  addToLog "- Model: $model"
-  ui_print "- Device: $device"
+  [ -n "$model" ] && ui_print "- Device: $model"
+  [ -z "$model" ] && ui_print "- Device: $device"
   [ -z "$SLOT" ] || ui_print "- Current boot slot: $SLOT"
   if [ "$device_ab" = "true" ]; then
     ui_print "- A/B Device Found"
