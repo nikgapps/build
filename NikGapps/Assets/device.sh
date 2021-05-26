@@ -27,7 +27,7 @@ find_block() {
     && addToLog "- recovery fstab_entry of $name is $fstab_entry"
 
   local dev
-  if [ "$DYNAMIC_PARTITIONS" = "true" ]; then
+  if [ "$dynamic_partitions" = "true" ]; then
     if [ -n "$fstab_entry" ]; then
       dev="${BLK_PATH}/${fstab_entry}${SLOT_SUFFIX}"
     else
@@ -40,6 +40,7 @@ find_block() {
       dev="${BLK_PATH}/${name}${SLOT_SUFFIX}"
     fi
   fi
+  addToLog "- checking if $dev is block"
   if [ -b "$dev" ]; then
     addToLog "- Block Dev: $dev"
     echo "$dev"
@@ -187,12 +188,12 @@ show_device_info() {
   device_ab=$(getprop ro.build.ab_update 2>/dev/null)
   dynamic_partitions=$(getprop ro.boot.dynamic_partitions)
   [ -z "$dynamic_partitions" ] && dynamic_partitions="false"
-
+  addToLog "- variable dynamic_partitions = $dynamic_partitions"
   BLK_PATH=/dev/block/bootdevice/by-name
-  [ "$dynamic_partitions" = "true" ] && BLK_PATH="/dev/block/mapper"
-
   if [ -d /dev/block/mapper ]; then
-    addToLog "- Device with dynamic partitions Found"
+    dynamic_partitions="true"
+    BLK_PATH="/dev/block/mapper"
+    addToLog "- Directory method! Device with dynamic partitions Found"
   else
     addToLog "- Device doesn't have dynamic partitions"
   fi
