@@ -1,3 +1,9 @@
+- date: 26th May 2021 (Android R and Q Release)
+  changes:
+      - item: Script improvements
+      - item: set InstallPartition=default as defailt value to make it simpler
+      - item: Update nikgapps.config to v14
+      - item: Ability to include addons as part of your custom build in config-releases
 - date: 25th May 2021 (Android R and Q Release)
   changes:
       - item: Swap Google Recorder (moved to stock) and Google Play Games (moved to full)
