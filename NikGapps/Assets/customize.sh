@@ -49,12 +49,12 @@ ensure_config() {
   debloaterConfig="$sdcard/NikGapps/debloater.config"
   if [ ! -f $nikgappsConfig ]; then
     unpack "afzc/nikgapps.config" "/sdcard/NikGapps/nikgapps.config"
-    unpack "afzc/nikgapps.config" "/storage/emulated/NikGapps/nikgapps.config"
+    [ ! -f "/sdcard/NikGapps/nikgapps.config" ] && unpack "afzc/nikgapps.config" "/storage/emulated/NikGapps/nikgapps.config"
     addToLog "nikgapps.config is copied to $nikgappsConfig"
   fi
   if [ ! -f $debloaterConfig ]; then
     unpack "afzc/debloater.config" "/sdcard/NikGapps/debloater.config"
-    unpack "afzc/debloater.config" "/storage/emulated/NikGapps/debloater.config"
+    [ ! -f "/sdcard/NikGapps/debloater.config" ] && unpack "afzc/debloater.config" "/storage/emulated/NikGapps/debloater.config"
     addToLog "debloater.config is copied to $debloaterConfig"
   fi
 }
