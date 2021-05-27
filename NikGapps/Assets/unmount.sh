@@ -2,14 +2,14 @@
 
 begin_unmounting() {
   $BOOTMODE && return 1;
+  ui_print " "
+  ui_print "--> Unmounting partitions for fresh install"
   $BB mount -o bind /dev/urandom /dev/random;
   if [ -L /etc ]; then
     setup_mountpoint /etc;
     $BB cp -af /etc_link/* /etc;
     $BB sed -i 's; / ; /system_root ;' /etc/fstab;
   fi;
-  ui_print " "
-  ui_print "--> Unmounting partitions for fresh install"
   umount_all;
 }
 

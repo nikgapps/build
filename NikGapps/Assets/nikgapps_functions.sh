@@ -24,6 +24,7 @@ calculate_space() {
     addToLog "--> Calculating space in /$partition"
     # Read and save system partition size details
     df=$(df -k /"$partition" | tail -n 1)
+    addToLog "$df"
     case $df in
     /dev/block/*) df=$(echo "$df" | awk '{ print substr($0, index($0,$2)) }') ;;
     esac
@@ -288,6 +289,7 @@ find_install_mode() {
   elif [ "$mode" = "install" ]; then
     ui_print "- Installing $package_title"
     install_package
+    delete_recursive "$pkgFile"
   fi
 }
 
