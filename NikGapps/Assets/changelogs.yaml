@@ -1,13 +1,13 @@
-- date: 26th May 2021 (Android R and Q Release)
+- date: 27th May 2021 (Android R and Q Release)
   changes:
       - item: Script improvements
       - item: set InstallPartition=default as defailt value to make it simpler
       - item: Update nikgapps.config to v14
       - item: Ability to include addons as part of your custom build in config-releases
-- date: 25th May 2021 (Android R and Q Release)
-  changes:
       - item: Swap Google Recorder (moved to stock) and Google Play Games (moved to full)
       - item: Remove LOS Recorder with installing Google Recorder
+      - item: Clean up /dev/tmp to prevent recovery from crashing in middle of the installation
+      - item: Fix finding block on dynamic_partitions
 - date: 16th May 2021 (Android R and Q Release)
   changes:
       - item: Update how Busybox is installed
