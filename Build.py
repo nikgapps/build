@@ -21,6 +21,7 @@ class Build:
             app_set_path = Constants.path.join(dir_path, name)
             package_list = []
             for package in app_set.package_list:
+                package: Package
                 pkg_to_build = package
                 package_title = pkg_to_build.package_title
                 pkg_path = Constants.path.join(app_set_path, package_title)
@@ -66,6 +67,8 @@ class Build:
                     title = package_title
                 pkg = Package(title, package_name, app_type, package_title)
                 pkg.install_list = install_list
+                pkg.partition = pkg_to_build.partition
+                pkg.clean_flash_only = pkg_to_build.clean_flash_only
                 pkg.file_dict = file_dict
                 pkg.folder_dict = folder_dict
                 pkg.additional_installer_script = pkg_to_build.additional_installer_script

@@ -85,27 +85,27 @@ class Export:
                     file_sizes = file_sizes + str(pkg.package_title) + "=" + str(pkg_size) + "\n"
                 app_set_index = app_set_index + 1
             # Writing additional script files to the zip
-            self.z.writestringtozip(self.get_updater_script(total_packages, app_set_list, self.file_name), Constants.meta_inf_dir + "updater-script")
-            self.z.writefiletozip(Assets.update_binary_busybox_path, Constants.meta_inf_dir + "update-binary")
+            self.z.writestringtozip(self.get_updater_script(total_packages, app_set_list), "common/install.sh")
+            self.z.writestringtozip("#MAGISK", Constants.meta_inf_dir + "updater-script")
+            self.z.writefiletozip(Assets.magisk_update_binary, Constants.meta_inf_dir + "update-binary")
             self.z.writestringtozip(self.get_nikgapps_config(), "afzc/nikgapps.config")
             debloater_config_lines = ""
             for line in Assets.get_string_resource(Assets.debloater_config):
                 debloater_config_lines += line
             self.z.writestringtozip(debloater_config_lines, "afzc/debloater.config")
             self.z.writefiletozip(Assets.changelog, "changelog.yaml")
-            zpkg = ZipOp(Constants.temp_packages_directory + Constants.dir_sep + "afzc.zip")
-            zpkg.writefiletozip(Assets.afzc_path, "nikgapps_installer")
-            zpkg.writefiletozip(Assets.busybox, "busybox")
-            zpkg.writefiletozip(Assets.addon_path, "addon")
-            zpkg.writefiletozip(Assets.ak3mount_path, "ak3mount")
-            zpkg.writefiletozip(Assets.nikmount_path, "nikmount.sh")
-            zpkg.writefiletozip(Assets.device_details_path, "device_details.sh")
-            zpkg.writefiletozip(Assets.addon_sh_path, "nikgapps.sh")
-            zpkg.writefiletozip(Assets.header_path, "header")
-            zpkg.writefiletozip(Assets.functions_path, "functions")
-            zpkg.writestringtozip(file_sizes, "file_size")
-            zpkg.close()
-            self.z.writefiletozip(Constants.temp_packages_directory + Constants.dir_sep + "afzc.zip", "tools/busybox")
+            self.z.writefiletozip(Assets.addon_path, "common/addon")
+            self.z.writefiletozip(Assets.addon_sh_path, "common/nikgapps.sh")
+            self.z.writefiletozip(Assets.header_path, "common/header")
+            self.z.writefiletozip(Assets.functions_path, "common/functions")
+            self.z.writestringtozip(file_sizes, "common/file_size")
+            self.z.writefiletozip(Assets.nikgapps_functions, "common/nikgapps_functions.sh")
+            self.z.writefiletozip(Assets.mount_path, "common/mount.sh")
+            self.z.writefiletozip(Assets.unmount_path, "common/unmount.sh")
+            self.z.writefiletozip(Assets.device_path, "common/device.sh")
+            self.z.writestringtozip(self.get_customize_sh(self.file_name), "customize.sh")
+            self.z.writefiletozip(Assets.module_path, "module.prop")
+            self.z.writefiletozip(Assets.busybox, "busybox")
             zip_execution_status = True
             print('The zip ' + self.file_name + ' is created successfully!')
             if sent_message is not None:
@@ -228,14 +228,9 @@ class Export:
         return nikgapps_config_lines
 
     @staticmethod
-    def get_updater_script(total_packages, app_set_list, file_name):
+    def get_updater_script(total_packages, app_set_list):
         updater_script_path_string = "#!/sbin/sh\n"
-        updater_script_path_string += "# Shell Script EDIFY Replacement\n"
-        updater_script_path_string += "actual_file_name=" + os.path.basename(os.path.splitext(file_name)[0]) + "\n"
-        lines = Assets.get_string_resource(Assets.update_script_path)
-        lines[0] = ""
-        for line in lines:
-            updater_script_path_string += line
+        updater_script_path_string += "# Shell Script EDIFY Replacement\n\n"
         progress_max = 0.9
         progress_per_package = 0
         if total_packages > 0:
@@ -269,3 +264,11 @@ class Export:
         updater_script_path_string += "\nset_progress 1.00" + "\n\n"
         updater_script_path_string += "exit_install" + "\n\n"
         return updater_script_path_string
+
+    @staticmethod
+    def get_customize_sh(file_name):
+        customize_path_string = "actual_file_name=" + os.path.basename(os.path.splitext(file_name)[0]) + "\n"
+        lines = Assets.get_string_resource(Assets.customize_path)
+        for line in lines:
+            customize_path_string += line
+        return customize_path_string

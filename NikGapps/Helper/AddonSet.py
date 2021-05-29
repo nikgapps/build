@@ -76,7 +76,7 @@ class AddonSet:
     @staticmethod
     def get_pixel_launcher():
         pixel_launcher = Package("NexusLauncherPrebuilt", "com.google.android.apps.nexuslauncher",
-                                 Constants.is_priv_app, "PixelLauncher")
+                                 Constants.is_priv_app, "PixelLauncher", partition="system_ext")
         pixel_launcher.priv_app_permissions.append("android.permission.PACKAGE_USAGE_STATS")
         pixel_launcher.delete("TrebuchetQuickStep")
         # pixel_launcher.delete("Launcher3QuickStep")
@@ -249,7 +249,7 @@ class AddonSet:
         pixel_setup_wizard_aod_overlay = Package("PixelSetupWizardAodOverlay",
                                                  "com.google.android.pixel.setupwizard.overlay.aod",
                                                  Constants.is_system_app)
-        pixel_setup_wizard = Package("PixelSetupWizard", "com.google.android.pixel.setupwizard", Constants.is_priv_app)
+        pixel_setup_wizard = Package("PixelSetupWizard", "com.google.android.pixel.setupwizard", Constants.is_priv_app, partition="system_ext")
         android_migrate_prebuilt = Package("AndroidMigratePrebuilt", "com.google.android.apps.pixelmigrate",
                                            Constants.is_priv_app)
         pixel_tips = Package("TipsPrebuilt", "com.google.android.apps.tips", Constants.is_priv_app, "PixelTips")
@@ -264,7 +264,7 @@ class AddonSet:
         setup_wizard_set.add_package(google_restore)
         if TARGET_ANDROID_VERSION >= 10:
             google_one_time_initializer = Package("GoogleOneTimeInitializer", "com.google.android.onetimeinitializer",
-                                                  Constants.is_priv_app)
+                                                  Constants.is_priv_app, partition="system_ext")
             setup_wizard_set.add_package(google_one_time_initializer)
         if TARGET_ANDROID_VERSION == 10:
             setup_wizard_set.add_package(pixel_setup_wizard_overlay)

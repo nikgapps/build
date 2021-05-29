@@ -339,9 +339,9 @@ case "$1" in
     addToLog "- Restoring NikGapps addon scripts"
     test "$execute_config" = "1" && cp -a $T/addon.d/nikgapps/* $S/addon.d/nikgapps/
     [ ! $BOOTMODE ] && test "$execute_config" = "1" && test "$unmount_config" = "1" && umount_all
-  ;;
-  post-restore)
     test "$execute_config" = "1" && copy_logs
     rm -rf $addonLogsDir
+  ;;
+  post-restore)
   ;;
 esac

@@ -1,91 +1,29 @@
 #!/sbin/sh
-#
-# ak3mount script to perform various operations created by Nikhil Menghani
-#
-# inspired from topjohnwu's (@xda) magisk
-# inspired from xXx's (@xda) no limits module
-# inspired from osm0sis's (@xda) universal shell script functions and anykernel3 scripts (reference below)
-# https://github.com/osm0sis/AnyKernel3
-# inspired from opengapps installer script (reference below)
-# https://github.com/opengapps/opengapps/blob/master/scripts/inc.installer.sh
-#
 
-abort_while_mounting() {
+begin_mounting() {
+  $BOOTMODE && return 1;
   ui_print " "
-  ui_print "------------------------------------------"
-  ui_print "Error: $*";
-  ui_print "------------------------------------------"
-  ui_print " "
-  addToLog "Aborting while mounting $*"
-  copyLogs_mounting;
-  restore_env;
-  exit 1;
-}
-
-beginswith() {
-  case $2 in
-    "$1"*) echo true ;;
-    *) echo false ;;
-  esac
-}
-
-# This is meant to copy the files safely from source to destination
-CopyFile() {
-  if [ -f "$1" ]; then
-    mkdir -p "$(dirname "$2")"
-    cp -f "$1" "$2"
-  else
-    addToLog "- File $1 does not exist!"
-  fi
-}
-
-copyLogs_mounting() {
-  CopyFile "$recoveryLog" "$logDir/logfiles/recovery.log"
-  CopyFile "$nikGappsLog" "$logDir/logfiles/NikGapps.log"
-  CopyFile "$system/build.prop" "$logDir/propfiles/build.prop"
-  CopyFile "/vendor/etc/fstab.qcom" "$logDir/partitions/fstab.qcom"
-  CopyFile "/etc/recovery.fstab" "$logDir/fstab/recovery.fstab"
-  CopyFile "/sdcard/NikGapps/debloater.config" "$logDir/configfiles/debloater.config"
-  CopyFile "/sdcard/NikGapps/nikgapps.config" "$logDir/configfiles/nikgapps.config"
-  cd "$logDir" || return
-  rm -rf "$nikGappsDir"/logs
-  tar -cz -f "/tmp/$nikGappsLogFile" ./*
-  mkdir -p "$nikGappsDir"/logs
-  CopyFile /tmp/"$nikGappsLogFile" "$nikGappsDir"/logs/"$nikGappsLogFile"
-  [ -z "$nikgapps_config_dir" ] && nikgapps_config_dir=/sdcard/NikGapps
-  rm -rf "$nikgapps_config_dir"/nikgapps_logs
-  mkdir -p "$nikgapps_config_dir"/nikgapps_logs
-  CopyFile /tmp/"$nikGappsLogFile" "$nikgapps_config_dir"/nikgapps_logs/"$nikGappsLogFile"
-  cd /
-}
-
-file_getprop() { $BB grep "^$2=" "$1" | $BB cut -d= -f2-; }
-
-if [ ! "$(getprop 2>/dev/null)" ]; then
-  getprop() {
-    local propdir propfile propval
-    for propdir in / /system_root /system /vendor /odm /product; do
-      for propfile in default.prop build.prop; do
-        test "$propval" && break 2 || propval="$(file_getprop $propdir/$propfile "$1" 2>/dev/null)"
-      done
-    done
-    test "$propval" && echo "$propval" || echo ""
-  }
-elif [ ! "$(getprop ro.build.type 2>/dev/null)" ]; then
-  getprop() {
-    ($(which getprop) | $BB grep "$1" | $BB cut -d[ -f3 | $BB cut -d] -f1) 2>/dev/null
-  }
-fi
-
-grep_cmdline() {
-  local REGEX="s/^$1=//p"
-  cat /proc/cmdline | tr '[:space:]' '\n' | sed -n "$REGEX" 2>/dev/null
-}
-
-# Check if the partition is mounted
-is_mounted() {
-  addToLog "- Checking if $1 is mounted"
-  $BB mount | $BB grep -q " $1 ";
+  ui_print "--> Mounting partitions"
+  mount_all;
+  OLD_LD_PATH=$LD_LIBRARY_PATH;
+  OLD_LD_PRE=$LD_PRELOAD;
+  OLD_LD_CFG=$LD_CONFIG_FILE;
+  unset LD_LIBRARY_PATH LD_PRELOAD LD_CONFIG_FILE;
+  if [ ! "$(getprop 2>/dev/null)" ]; then
+    getprop() {
+      local propdir propfile propval;
+      for propdir in / /system_root /system /vendor /odm /product; do
+        for propfile in default.prop build.prop; do
+          test "$propval" && break 2 || propval="$(file_getprop $propdir/$propfile "$1" 2>/dev/null)";
+        done;
+      done;
+      test "$propval" && echo "$propval" || echo "";
+    }
+  elif [ ! "$(getprop ro.build.type 2>/dev/null)" ]; then
+    getprop() {
+      ($(which getprop) | $BB grep "$1" | $BB cut -d[ -f3 | $BB cut -d] -f1) 2>/dev/null;
+    }
+  fi;
 }
 
 is_mounted_rw() {
@@ -116,6 +54,7 @@ mount_all() {
     $BB mount -o ro -t auto "/$partition" 2>/dev/null;
   done) 2>/dev/null
   addToLog "----------------------------------------------------------------------------"
+  ui_print "- Mounting $ANDROID_ROOT"
   addToLog "- Setting up mount point $ANDROID_ROOT"
   addToLog "- ANDROID_ROOT=$ANDROID_ROOT"
   setup_mountpoint "$ANDROID_ROOT"
@@ -146,20 +85,18 @@ mount_all() {
           test -e /dev/block/mapper/system || local slot=$(find_slot)
           addToLog "- Mounting /system$slot as read only"
           mount -o ro -t auto /dev/block/mapper/system"$slot" /system_root
-          addToLog "- Mounting /vendor$slot as read only"
-          mount -o ro -t auto /dev/block/mapper/vendor"$slot" /vendor 2>/dev/null
-          addToLog "- Mounting /product$slot as read only"
-          mount -o ro -t auto /dev/block/mapper/product"$slot" /product 2>/dev/null
-          addToLog "- Mounting /system_ext$slot as read only"
-          mount -o ro -t auto /dev/block/mapper/system_ext"$slot" /system_ext 2>/dev/null
+          for partition in "vendor" "product" "system_ext"; do
+            addToLog "- Mounting /$partition$slot as read only"
+            mount -o ro -t auto /dev/block/mapper/$partition"$slot" /partition 2>/dev/null
+          done
         else
           test -e /dev/block/bootdevice/by-name/system || local slot=$(find_slot)
-          (mount -o ro -t auto /dev/block/bootdevice/by-name/vendor"$slot" /vendor
-          mount -o ro -t auto /dev/block/bootdevice/by-name/product"$slot" /product
-          mount -o ro -t auto /dev/block/bootdevice/by-name/system_ext"$slot" /system_ext
-          mount -o ro -t auto /dev/block/bootdevice/by-name/persist"$slot" /persist) 2>/dev/null
           addToLog "- Device doesn't have dynamic partitions, mounting /system$slot as ro"
           mount -o ro -t auto /dev/block/bootdevice/by-name/system"$slot" /system_root
+          (for partition in "vendor" "product" "persist system_ext"; do
+            ui_print "- Mounting /$partition as read only"
+            mount -o ro -t auto /dev/block/bootdevice/by-name/"$partition$slot" /"$partition"
+          done) 2>/dev/null
         fi
       else
          addToLog "- $ret should be equals to 0"
@@ -182,7 +119,7 @@ mount_all() {
     addToLog "- /system is mounted"
   else
     addToLog "- Could not mount /system"
-    abort_while_mounting "- Could not mount /system, try changing recovery!"
+    abort "- Could not mount /system, try changing recovery!"
   fi;
   addToLog "----------------------------------------------------------------------------"
   system=/system
@@ -195,7 +132,6 @@ mount_all() {
     done
   addToLog "----------------------------------------------------------------------------"
   fi
-  addToLog "- Remounting /system as read write"
   mount -o rw,remount -t auto /system || mount -o rw,remount -t auto /
   for partition in "vendor" "product" "system_ext"; do
     addToLog "- Remounting /$partition as read write"
@@ -247,71 +183,3 @@ mount_apex() {
   done;
   $($BB grep -o 'export .* /.*' /system_root/init.environ.rc | $BB sed 's; /;=/;'); unset export;
 }
-
-restore_env() {
-  $BOOTMODE && return 1;
-  local dir;
-  unset -f getprop;
-  [ "$OLD_LD_PATH" ] && export LD_LIBRARY_PATH=$OLD_LD_PATH;
-  [ "$OLD_LD_PRE" ] && export LD_PRELOAD=$OLD_LD_PRE;
-  [ "$OLD_LD_CFG" ] && export LD_CONFIG_FILE=$OLD_LD_CFG;
-  unset OLD_LD_PATH OLD_LD_PRE OLD_LD_CFG;
-  umount_all;
-  [ -L /etc_link ] && $BB rm -rf /etc/*;
-  (for dir in /apex /system /system_root /etc; do
-    if [ -L "${dir}_link" ]; then
-      rmdir $dir;
-      $BB mv -f ${dir}_link $dir;
-    fi;
-  done;
-  $BB umount -l /dev/random) 2>/dev/null;
-}
-
-setup_env() {
-  ui_print " "
-  ui_print "--> Mounting partitions"
-  mount_all;
-  OLD_LD_PATH=$LD_LIBRARY_PATH;
-  OLD_LD_PRE=$LD_PRELOAD;
-  OLD_LD_CFG=$LD_CONFIG_FILE;
-  unset LD_LIBRARY_PATH LD_PRELOAD LD_CONFIG_FILE;
-  if [ ! "$(getprop 2>/dev/null)" ]; then
-    getprop() {
-      local propdir propfile propval;
-      for propdir in / /system_root /system /vendor /odm /product; do
-        for propfile in default.prop build.prop; do
-          test "$propval" && break 2 || propval="$(file_getprop $propdir/$propfile "$1" 2>/dev/null)";
-        done;
-      done;
-      test "$propval" && echo "$propval" || echo "";
-    }
-  elif [ ! "$(getprop ro.build.type 2>/dev/null)" ]; then
-    getprop() {
-      ($(which getprop) | $BB grep "$1" | $BB cut -d[ -f3 | $BB cut -d] -f1) 2>/dev/null;
-    }
-  fi;
-}
-
-# Unmount apex partition upon recovery cleanup
-umount_apex() {
-  [ -d /apex/com.android.runtime ] || return 1;
-  local dest loop var;
-  for var in $($BB grep -o 'export .* /.*' /system_root/init.environ.rc | $BB awk '{ print $2 }'); do
-    if [ "$(eval echo \$OLD_$var)" ]; then
-      eval $var=\$OLD_${var};
-    else
-      eval unset $var;
-    fi;
-    unset OLD_${var};
-  done;
-  for dest in $($BB find /apex -type d -mindepth 1 -maxdepth 1); do
-    if [ -f $dest.img ]; then
-      loop=$($BB mount | $BB grep $dest | $BB cut -d\  -f1);
-    fi;
-    ($BB umount -l $dest;
-    $BB losetup -d $loop) 2>/dev/null;
-  done;
-  $BB rm -rf /apex 2>/dev/null;
-}
-
-setup_env

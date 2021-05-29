@@ -25,18 +25,20 @@ class Assets:
     functions_path = cwd + "functions.sh"
     addon_sh_path = cwd + "addon.sh"
     busybox = cwd + "busybox"
-    afzc_path = cwd + "afzc"
     file_sizes_path = cwd + "file_size.txt"
-    ak3mount_path = cwd + "ak3mount"
-    nikmount_path = cwd + "nikmount.sh"
-    device_details_path = cwd + "device_details.sh"
-    update_binary_busybox_path = cwd + "update-binary-busybox"
+    mount_path = cwd + "mount.sh"
+    unmount_path = cwd + "unmount.sh"
+    device_path = cwd + "device.sh"
+    nikgapps_functions = cwd + "nikgapps_functions.sh"
     update_script_path = cwd + "updater-script"
     nikgapps_config = cwd + "nikgapps.config"
     debloater_config = cwd + "debloater.config"
     installer_path = cwd + "installer"
     changelog = cwd + "changelogs.yaml"
     sign_jar = os.path.join(assets_folder, "NikGappsZipSigner.jar")
+    customize_path = cwd + "customize.sh"
+    module_path = cwd + "module.prop"
+    magisk_update_binary = cwd + "magisk-update-binary.sh"
 
     @staticmethod
     def get_string_resource(file_path):

@@ -159,12 +159,26 @@ class Cmd:
 
     def get_package_name(self, apk_path):
         self.COMMAND_AAPT_DUMP_BADGING[3] = apk_path
-        temp_file = "temp.txt"  # A temporary file where the output will be stored
+        # A temporary file where the output will be stored
+        temp_file = Constants.temp_packages_directory + Constants.dir_sep + "temp.txt"
         self.COMMAND_AAPT_DUMP_BADGING[5] = temp_file
         if DEBUG_MODE:
             print("Executing: " + str(self.COMMAND_AAPT_DUMP_BADGING))
-        self.execute_cmd(self.COMMAND_AAPT_DUMP_BADGING)
-        return_list = FileOp.read_package_name(temp_file)
+        output_list = self.execute_cmd(self.COMMAND_AAPT_DUMP_BADGING)
+        if FileOp.file_exists(temp_file):
+            return_list = FileOp.read_package_name(temp_file)
+        elif output_list.__len__() >= 1 and output_list[0].startswith("package: name="):
+            text = output_list[0]
+            if text.startswith("package:"):
+                index1 = text.find("'")
+                text = text[index1 + 1: -1]
+                index1 = text.find("'")
+                text = text[0: index1]
+            else:
+                text = "Exception: Package Not Found"
+            return text
+        else:
+            return_list = "Exception: File Not Found"
         return return_list
 
     def get_package_version(self, apk_path):
