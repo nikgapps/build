@@ -108,7 +108,7 @@ if FileOp.dir_exists(Constants.website_directory):
 
 date_today = datetime.now(pytz.timezone('Europe/London')).strftime("%a, %m/%d/%Y")
 body = "The deployment has been completed!"
-subject = f"NikGapps {Config.RELEASE_TYPE} deployment - {date_today}"
+subject = f"NikGapps {Config.RELEASE_TYPE} deployment - {str(Config.TARGET_ANDROID_VERSION)} - {date_today}"
 n = NikMail(subject, body)
 
 Constants.end_of_function(start_time, "Total time taken by the program")
