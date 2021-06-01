@@ -156,8 +156,9 @@ class NikGappsPackages:
                                      Constants.is_system_app)
         core_go.add_package(googlecalendarsync)
 
-        youtube = Package("YouTube", "com.google.android.youtube", Constants.is_system_app)
-        core_go.add_package(youtube)
+        vanced_manager = Package("VancedManager", "com.vanced.manager", Constants.is_system_app)
+        vanced_manager.enabled = 0
+        core_go.add_package(vanced_manager)
 
         pixel_launcher_set = NikGappsPackages.get_pixel_launcher()
         for pkg in pixel_launcher_set.package_list:

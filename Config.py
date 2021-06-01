@@ -17,11 +17,8 @@ environment_type = os.environ.get('ENVIRONMENT_TYPE')
 if environment_type is not None:
     ENVIRONMENT_TYPE = environment_type
 
-# Possible Values are ['core', 'basic', 'omni', 'stock', 'full', 'addons', 'addonsets']
-BUILD_PACKAGE_LIST = ['core', 'basic', 'omni', 'stock', 'full', 'addons', 'addonsets']
-
-if TARGET_ANDROID_VERSION == 10:
-    BUILD_PACKAGE_LIST.append("go")
+# Possible Values are ['go', 'core', 'basic', 'omni', 'stock', 'full', 'addons', 'addonsets']
+BUILD_PACKAGE_LIST = ['go', 'core', 'basic', 'omni', 'stock', 'full', 'addons', 'addonsets']
 
 # Send the zip to device after creation, Possible values are True and False
 SEND_ZIP_DEVICE = True
