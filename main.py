@@ -8,6 +8,7 @@ from NikGapps.Helper.Git import Git
 from NikGapps.Helper.SystemStat import SystemStat
 import pytz
 from datetime import datetime
+from NikGapps.Helper.NikMail import NikMail
 
 print("Start of the Program")
 
@@ -104,5 +105,6 @@ if FileOp.dir_exists(Constants.website_directory):
     if website_repo is not None:
         commit_datetime = website_repo.get_latest_commit_date()
         website_repo.update_changelog()
+
 Constants.end_of_function(start_time, "Total time taken by the program")
 print("End of the Program")

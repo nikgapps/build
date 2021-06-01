@@ -26,3 +26,9 @@ Here are some feature highlights:
 
 ## Total Downloads  
 <img alt="SourceForge" src="https://img.shields.io/sourceforge/dt/nikgapps?label=Total%20Downloads&color=red"> <img alt="SourceForge" src="https://img.shields.io/sourceforge/dd/nikgapps?label=Downloads%20Per%20Day&color=blue">
+
+<!--
+sudo apt install binfmt-support qemu qemu-user-static
+
+to run arm executable on arm64 devices
+>

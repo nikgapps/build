@@ -26,6 +26,8 @@ class NikGappsPackages:
             all_package_list = []
             for app_set in NikGappsPackages.get_full_package():
                 all_package_list.append(app_set)
+            for app_set in NikGappsPackages.get_go_package():
+                all_package_list.append(app_set)
             for app_set in AddonSet.get_addon_packages():
                 all_package_list.append(app_set)
             return all_package_list
@@ -156,8 +158,9 @@ class NikGappsPackages:
                                      Constants.is_system_app)
         core_go.add_package(googlecalendarsync)
 
-        youtube = Package("YouTube", "com.google.android.youtube", Constants.is_system_app)
-        core_go.add_package(youtube)
+        vanced_manager = Package("VancedManager", "com.vanced.manager", Constants.is_system_app)
+        vanced_manager.enabled = 0
+        core_go.add_package(vanced_manager)
 
         pixel_launcher_set = NikGappsPackages.get_pixel_launcher()
         for pkg in pixel_launcher_set.package_list:

@@ -1,5 +1,7 @@
-- date: 27th May 2021 (Android R and Q Release)
+- date: 1st June 2021 (Android R and Q Release)
   changes:
+      - item: Add support for android 11 go packages
+      - item: Add support for go packages in config releases
       - item: Script improvements
       - item: set InstallPartition=default as defailt value to make it simpler
       - item: Update nikgapps.config to v14
