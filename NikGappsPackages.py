@@ -37,7 +37,11 @@ class NikGappsPackages:
         if str(package_type).lower() == "addonsets":
             addon_set_list = []
             for app_set in NikGappsPackages.get_full_package():
-                if app_set in ['Core', 'CoreGo']:
+                if app_set.title in ['Core']:
+                    continue
+                addon_set_list.append(app_set)
+            for app_set in NikGappsPackages.get_go_package():
+                if app_set.title in ['CoreGo']:
                     continue
                 addon_set_list.append(app_set)
             return addon_set_list
