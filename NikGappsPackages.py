@@ -37,7 +37,7 @@ class NikGappsPackages:
         if str(package_type).lower() == "addonsets":
             addon_set_list = []
             for app_set in NikGappsPackages.get_full_package():
-                if app_set.title in ['Core']:
+                if app_set.title in ['Core', 'Pixelize']:
                     continue
                 addon_set_list.append(app_set)
             for app_set in NikGappsPackages.get_go_package():
