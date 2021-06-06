@@ -23,6 +23,7 @@ NikGappsTmpAddonDir=$T/addon.d/nikgapps
 NikGappsAddonDir="$S/addon.d/nikgapps"
 argument="$*"
 execute_config=1
+master_addon_file="50-nikgapps-addon.sh"
 test "$ANDROID_ROOT" || ANDROID_ROOT=/system;
 # Make Directories
 mkdir -p "$NikGappsAddonDir"
@@ -44,7 +45,7 @@ $BOOTMODE || ps -A 2>/dev/null | grep zygote | grep -v grep >/dev/null && BOOTMO
     [ -z $OUTFD ] && OUTFD=$(ps | grep -v 'grep' | grep -oE 'status_fd=[0-9]+' | cut -d= -f2)
     [ -z $OUTFD ] && OUTFD=$(ps -Af | grep -v 'grep' | grep -oE 'status_fd=[0-9]+' | cut -d= -f2)
   fi
-ui_print() { $BOOTMODE && log -t Magisk -- "$1" || echo -e "ui_print $1\nui_print" >> /proc/self/fd/$OUTFD; }
+ui_print() { echo -e "ui_print $1\nui_print" >> /proc/self/fd/$OUTFD; }
 
 beginswith() {
   case $2 in
@@ -288,19 +289,19 @@ addon_version_config=$(ReadConfigValue "addon_version.d" "$nikgapps_config_file_
 addToLog "- addon_version_config = $addon_version_config"
 
 if [ "$execute_config" = "0" ]; then
-  rm -rf $S/addon.d/nikgapps-addon.sh
+  rm -rf $S/addon.d/$master_addon_file
   rm -rf $S/addon.d/nikgapps
-  rm -rf $T/addon.d/nikgapps-addon.sh
+  rm -rf $T/addon.d/$master_addon_file
   rm -rf $T/addon.d/nikgapps
   exit 1
 fi
 
 # Copy the addon file to ensure
-if [ ! -f "$S/addon.d/nikgapps-addon.sh" ]; then
-  addToLog "- Copying $0 to $S/addon.d/nikgapps-addon.sh at $argument"
-  test "$execute_config" = "1" && CopyFile "$0" "$S/addon.d/nikgapps-addon.sh"
+if [ ! -f "$S/addon.d/$master_addon_file" ]; then
+  addToLog "- Copying $0 to $S/addon.d/$master_addon_file at $argument"
+  test "$execute_config" = "1" && CopyFile "$0" "$S/addon.d/$master_addon_file"
 else
-  test "$execute_config" = "1" && addToLog "- $S/addon.d/nikgapps-addon.sh already present at $argument"
+  test "$execute_config" = "1" && addToLog "- $S/addon.d/$master_addon_file already present at $argument"
 fi
 
 # Store the current storage details of partitions
