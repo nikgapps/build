@@ -6,9 +6,9 @@
 
 shift 1
 destDir=$system/addon.d
-NikGappsDir=$destDir/nikgapps
+NikGappsDir=$destDir
 destDir=$NikGappsDir
-dest=$destDir/$1".sh"
+dest=$destDir/50-$1".sh"
 fileName=$1
 shift 1
 installSource=$1
@@ -77,29 +77,19 @@ list_files() {
 backup() {
   echo " backup)"
   echo "   ui_print \"- Backing up $fileName\""
-#  echo "   addToLog \"Starting the backup\""
   echo "   list_files | while read FILE DUMMY; do"
   echo "     backup_file \$S/\"\$FILE\""
-#  echo "     addToLog \"Backing up \$S/\"\$FILE\"\""
   echo "   done"
   echo " ;;"
 }
 
 restore() {
   echo " restore)"
-#  echo "   addToLog \"Starting the restore\""
   echo "   ui_print \"- Restoring $fileName\""
-#  echo "   addToLog \"Restoring $fileName\""
   echo "   list_files | while read FILE REPLACEMENT; do"
   echo "     R=\"\""
   echo "     [ -n \"\$REPLACEMENT\" ] && R=\"\$S/\$REPLACEMENT\""
-#  echo "     addToLog \"Restoring \$S/\$FILE\""
   echo "     [ -f \"\$C/\$S/\$FILE\" ] && restore_file \$S/\"\$FILE\" \"\$R\""
-#  echo "     if [ -f \"\$S/\$FILE\" ]; then"
-#  echo "      addToLog \"- Successfully Restored!\""
-#  echo "     else"
-#  echo "      addToLog \"- Restoration Failed!\""
-#  echo "     fi"
   echo "   done"
   delete_from_aosp
   delete_from_rom
@@ -162,6 +152,20 @@ debloat_files() {
 }
 
 run() {
+  echo " "
+  echo "if [ \"\$execute_config\" = \"0\" ]; then"
+  echo "  if [ -f \"\$S/addon.d/50-$fileName.sh\" ]; then"
+  echo "    ui_print \"- Deleting up $fileName.sh\""
+  echo "    rm -rf \$S/addon.d/50-$fileName.sh"
+  echo "    rm -rf \$T/addon.d/50-$fileName.sh"
+  echo "  fi"
+  echo "  exit 1"
+  echo "fi"
+  echo " "
+  echo "if [ ! -f \"\$S/addon.d/\$fileName.sh\" ]; then"
+  echo "  test \"\$execute_config\" = \"1\" && CopyFile \"\$0\" \"\$S/addon.d/\$fileName.sh\""
+  echo "fi"
+  echo " "
   echo "case \"\$1\" in"
   echo " pre-backup)"
   echo "   rm -rf \"$nikGappsAddonLogFile\""

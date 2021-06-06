@@ -5,7 +5,7 @@
 ps | grep zygote | grep -v grep >/dev/null && BOOTMODE=true || BOOTMODE=false
 $BOOTMODE || ps -A 2>/dev/null | grep zygote | grep -v grep >/dev/null && BOOTMODE=true
 
-[ ! $BOOTMODE ] && [ -z "$2" ] && exit
+# [ ! $BOOTMODE ] && [ -z "$2" ] && exit
 V1_FUNCS=/tmp/backuptool.functions
 V2_FUNCS=/postinstall/system/bin/backuptool_ab.functions
 V3_FUNCS=/postinstall/tmp/backuptool.functions
@@ -25,7 +25,8 @@ else
   P="$S"
 fi
 
-mkdir -p /sdcard/NikGapps/addonLogs
+nikGappsDir="/sdcard/NikGapps"
+mkdir -p $nikGappsDir/addonLogs
 
 initialize() {
   ps | grep zygote | grep -v grep >/dev/null && BOOTMODE=true || BOOTMODE=false

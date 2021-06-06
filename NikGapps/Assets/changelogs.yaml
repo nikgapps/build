@@ -1,3 +1,6 @@
+- date: 7th June 2021 (Android R and Q Release)
+  changes:
+      - item: Fix NikGapps addon.d execution conflicting with Magisk addon.d execution
 - date: 1st June 2021 (Android R and Q Release)
   changes:
       - item: Add support for android 11 go packages

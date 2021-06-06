@@ -36,6 +36,7 @@ nikGappsLog=$TMPDIR/NikGapps.log
 busyboxLog=$TMPDIR/busybox.log
 addonDir="$TMPDIR/addon"
 sdcard="/sdcard"
+master_addon_file="50-nikgapps-addon.sh"
 
 addToLog() {
   echo "$1" >>"$nikGappsLog"

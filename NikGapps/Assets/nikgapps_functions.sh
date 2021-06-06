@@ -233,13 +233,13 @@ extract_file() {
 }
 
 exit_install() {
-  rm -rf "$system/addon.d/nikgapps-addon.sh"
+  rm -rf "$system/addon.d/$master_addon_file"
   addon_version_config=$(ReadConfigValue "addon_version.d" "$nikgapps_config_file_name")
   [ -n "$addon_version_config" ] && version=$addon_version_config
   [ -z "$addon_version_config" ] && version=3
-  echo "#!/sbin/sh" > "$system/addon.d/nikgapps-addon.sh"
-  echo "# ADDOND_VERSION=$version" >> "$system/addon.d/nikgapps-addon.sh"
-  cat "$COMMONDIR/nikgapps.sh" >> "$system/addon.d/nikgapps-addon.sh"
+#  echo "#!/sbin/sh" > "$system/addon.d/$master_addon_file"
+#  echo "# ADDOND_VERSION=$version" >> "$system/addon.d/$master_addon_file"
+#  cat "$COMMONDIR/nikgapps.sh" >> "$system/addon.d/$master_addon_file"
   ui_print " "
   wipedalvik=$(ReadConfigValue "WipeDalvikCache" "$nikgapps_config_file_name")
   addToLog "- WipeDalvikCache value: $wipedalvik"
