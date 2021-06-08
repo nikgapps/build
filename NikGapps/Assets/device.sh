@@ -11,8 +11,9 @@ get_available_size() {
 
 get_block_for_mount_point() {
   fstab_file_path="/vendor/etc/fstab.$(getprop ro.boot.hardware)"
+  [ ! -f "$fstab_file_path" ] && fstab_file_path="/etc/recovery.fstab" && addToLog "- Vendor fstab doesn't exist!"
   [ -n "$2" ] && fstab_file_path="$2"
-  grep -v "^#" "$fstab_file_path" | grep "$1" | tail -n1 | tr -s ' ' | cut -d' ' -f1
+  grep -v "^#" "$fstab_file_path" | grep " $1 " | tail -n1 | tr -s ' ' | cut -d' ' -f1
 }
 
 find_block() {
@@ -93,7 +94,7 @@ find_partition_type() {
     addToLog "- Finding partition type for /$partition"
     mnt_point="/$partition"
     mountpoint "$mnt_point" >/dev/null 2>&1 && addToLog "- $mnt_point already mounted!"
-    [ "$mnt_point" != "/system" ] && [ -L "$system/$mnt_point" ] && addToLog "- $system/$mnt_point symlinked!"
+    [ "$mnt_point" != "/system" ] && [ -L "$system$mnt_point" ] && addToLog "- $system$mnt_point symlinked!"
     blk_dev=$(find_block "$partition")
     if [ -n "$blk_dev" ]; then
       addToLog "- Found block for $mnt_point"
