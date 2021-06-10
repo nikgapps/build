@@ -1,6 +1,6 @@
 import os
 
-from . import Package, AppSet
+from . import Package, AppSet, AddonSet
 from .FileOp import FileOp
 from NikGappsPackages import NikGappsPackages
 
@@ -36,6 +36,9 @@ class NikGappsConfig:
         config_dict = self.get_config_dictionary()
         print(config_dict)
         app_set_list = []
+        pre_defined_addons = []
+        for addons in AddonSet.get_addon_packages():
+            pre_defined_addons.append(addons.title)
         for app_set in NikGappsPackages.get_packages("all"):
             app_set: AppSet
             if app_set.title not in config_dict:
@@ -47,6 +50,9 @@ class NikGappsConfig:
                 for pkg in app_set.package_list:
                     pkg: Package
                     if str(">>" + pkg.package_title) not in config_dict:
+                        if app_set.title in pre_defined_addons:
+                            # these will be the addons who can be directly added
+                            new_app_set.add_package(pkg)
                         continue
                     if config_dict[str(">>" + pkg.package_title)] == "1":
                         new_app_set.add_package(pkg)
