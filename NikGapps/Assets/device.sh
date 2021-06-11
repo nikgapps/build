@@ -10,10 +10,7 @@ get_available_size() {
 }
 
 get_block_for_mount_point() {
-  fstab_file_path="/vendor/etc/fstab.$(getprop ro.boot.hardware)"
-  [ ! -f "$fstab_file_path" ] && fstab_file_path="/etc/recovery.fstab" && addToLog "- Vendor fstab doesn't exist!"
-  [ -n "$2" ] && fstab_file_path="$2"
-  grep -v "^#" "$fstab_file_path" | grep " $1 " | tail -n1 | tr -s ' ' | cut -d' ' -f1
+  grep -v "^#" /etc/recovery.fstab | grep " $1 " | tail -n1 | tr -s ' ' | cut -d' ' -f1
 }
 
 find_block() {
@@ -22,10 +19,6 @@ find_block() {
   # P-SAR hacks
   [ -z "$fstab_entry" ] && [ "$name" = "system" ] && fstab_entry=$(get_block_for_mount_point "/")
   [ -z "$fstab_entry" ] && [ "$name" = "system" ] && fstab_entry=$(get_block_for_mount_point "/system_root")
-  addToLog "- fstab_entry of $name is $fstab_entry with BLK_PATH $BLK_PATH"
-  # if $fstab_entry is blank, we shall try to find the block in recovery fstab
-  [ -z "$fstab_entry" ] && fstab_entry=$(get_block_for_mount_point "/$name" "/etc/recovery.fstab") \
-    && addToLog "- recovery fstab_entry of $name is $fstab_entry"
 
   local dev
   if [ "$dynamic_partitions" = "true" ]; then
@@ -132,16 +125,33 @@ find_partition_type() {
           is_system_writable="$(is_mounted_rw "$system" 2>/dev/null)"
           [ ! "$is_system_writable" ] && system=""
           addToLog "- system=$system is writable? $is_system_writable"
+          if [ -f "/system/build.prop" ]; then
+            addToLog "- /system/build.prop exists"
+          fi
          ;;
         "product")
           is_product_writable="$(is_mounted_rw "$product" 2>/dev/null)"
           [ ! "$is_product_writable" ] && product=""
           addToLog "- product=$product is writable? $is_product_writable"
+          if [ -f "/product/build.prop" ]; then
+            addToLog "- /product/build.prop exists"
+          elif [ -f "/system/product/build.prop" ]; then
+            addToLog "- /system/product/build.prop exists"
+          else
+            addToLog "- product build.prop doesn't exists"
+          fi
          ;;
         "system_ext")
           is_system_ext_writable="$(is_mounted_rw "$system_ext" 2>/dev/null)"
           [ ! "$is_system_ext_writable" ] && system_ext=""
           addToLog "- system_ext=$system_ext is writable? $is_system_ext_writable"
+          if [ -f "/system_ext/build.prop" ]; then
+            addToLog "- /system_ext/build.prop exists"
+          elif [ -f "/system/system_ext/build.prop" ]; then
+            addToLog "- /system/system_ext/build.prop exists"
+          else
+            addToLog "- system_ext build.prop doesn't exists"
+          fi
          ;;
       esac
   done
@@ -183,29 +193,6 @@ show_device_info() {
     device=$device_name
     if [ -z "$device" ]; then
       abort "NikGapps not supported for your device yet!"
-    fi
-  fi
-
-  device_ab=$(getprop ro.build.ab_update 2>/dev/null)
-  dynamic_partitions=$(getprop ro.boot.dynamic_partitions)
-  [ -z "$dynamic_partitions" ] && dynamic_partitions="false"
-  addToLog "- variable dynamic_partitions = $dynamic_partitions"
-  BLK_PATH=/dev/block/bootdevice/by-name
-  if [ -d /dev/block/mapper ]; then
-    dynamic_partitions="true"
-    BLK_PATH="/dev/block/mapper"
-    addToLog "- Directory method! Device with dynamic partitions Found"
-  else
-    addToLog "- Device doesn't have dynamic partitions"
-  fi
-
-  SLOT=$(find_slot)
-  if [ -n "$SLOT" ]; then
-    if [ "$SLOT" = "_a" ]; then
-      # Opposite slot
-      SLOT_SUFFIX="_b"
-    else
-      SLOT_SUFFIX="_a"
     fi
   fi
   ui_print "- SDK Version: $sdkVersion"
