@@ -153,8 +153,21 @@ class Cmd:
         self.COMMAND_AAPT_DUMP_BADGING[5] = temp_file
         if DEBUG_MODE:
             print("Executing: " + str(self.COMMAND_AAPT_DUMP_BADGING))
-        self.execute_cmd(self.COMMAND_AAPT_DUMP_BADGING)
-        return_list = FileOp.read_priv_app_temp_file(temp_file)
+        output_list = self.execute_cmd(self.COMMAND_AAPT_DUMP_BADGING)
+        return_list = []
+        if FileOp.file_exists(temp_file):
+            return_list = FileOp.read_priv_app_temp_file(temp_file)
+        elif output_list.__len__() >= 1 and output_list[0].startswith("package: name="):
+            for line in output_list:
+                if line.startswith("uses-permission:"):
+                    try:
+                        permissions = line.split('\'')
+                        if permissions.__len__() > 1:
+                            return_list.append(permissions[1])
+                    except Exception as e:
+                        return_list = ["Exception: " + str(e.message)]
+        else:
+            return_list = "Exception: File Not Found"
         return return_list
 
     def get_package_name(self, apk_path):
