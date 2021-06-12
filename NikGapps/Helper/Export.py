@@ -142,14 +142,15 @@ class Export:
             if SEND_ZIP_DEVICE:
                 start_time = Constants.start_of_function()
                 cmd = Cmd()
-                message = "Sending the zip to device: " + Constants.get_base_name(file_name)
+                device_path = "/sdcard/Afzc-" + str(
+                    Constants.android_version_folder) + "/" + Constants.current_time + "/" + Constants.get_base_name(
+                    file_name)
+                message = f"Sending {Constants.get_base_name(file_name)} to device at: " + device_path
                 print(message)
                 if sent_message is not None:
                     sent_message.edit_text(message)
-                cmd.push_package(file_name,
-                                 "/sdcard/Afzc-" + str(
-                                     Constants.android_version_folder) + "/" + Constants.current_time + "/"
-                                 + Constants.get_base_name(file_name))
+
+                cmd.push_package(file_name, device_path)
                 if sent_message is not None:
                     sent_message.edit_text("Sent the zip!")
                 Constants.end_of_function(start_time, "Total time taken to send the zip to device")
