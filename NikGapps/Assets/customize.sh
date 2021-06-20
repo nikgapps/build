@@ -88,10 +88,6 @@ unpack "common/nikgapps.sh" "$COMMONDIR/nikgapps.sh"
 # mount all the partitions
 . "$COMMONDIR/mount.sh"
 
-df > "$COMMONDIR/size_before.txt"
-df -h > "$COMMONDIR/size_before_readable.txt"
-copy_file "$COMMONDIR/size_before.txt" "$logDir/partitions/size_before.txt"
-copy_file "$COMMONDIR/size_before_readable.txt" "$logDir/partitions/size_before_readable.txt"
 nikGappsLogo
 addToLog "- stock busybox version: $(busybox | head -1)"
 setup_flashable

@@ -169,25 +169,37 @@ mount_all() {
     addToLog "- Remounting /$partition as read write"
     mount -o rw,remount -t auto "/$partition" 2>/dev/null
   done
-  addToLog "----------------------------------------------------------------------------"
   if [ -n "$PRODUCT_BLOCK" ]; then
-    mkdir /product || true
-    if mount -o rw "$PRODUCT_BLOCK" /product; then
-      addToLog "- /product mounted"
+    if ! is_mounted /product; then
+      mkdir /product || true
+      if mount -o rw "$PRODUCT_BLOCK" /product; then
+        addToLog "- /product mounted"
+      else
+        addToLog "- Could not mount /product"
+      fi
     else
-      addToLog "- Could not mount /product"
+      addToLog "- /product already mounted"
     fi
   fi
   if [ -n "$SYSTEM_EXT_BLOCK" ]; then
-    mkdir /system_ext || true
-    if mount -o rw "$SYSTEM_EXT_BLOCK" /system_ext; then
-      addToLog "- /system_ext mounted"
+    if ! is_mounted /system_ext; then
+      mkdir /system_ext || true
+      if mount -o rw "$SYSTEM_EXT_BLOCK" /system_ext; then
+        addToLog "- /system_ext mounted"
+      else
+        addToLog "- Could not mount /system_ext"
+      fi
     else
-      addToLog "- Could not mount /system_ext"
+      addToLog "- /product already mounted"
     fi
   fi
+  addToLog "----------------------------------------------------------------------------"
   ls -alR /system > "$COMMONDIR/System_Files_Before.txt"
   ls -alR /product > "$COMMONDIR/Product_Files_Before.txt"
+  df > "$COMMONDIR/size_before.txt"
+  df -h > "$COMMONDIR/readable_size_before.txt"
+  copy_file "$COMMONDIR/size_before.txt" "$logDir/partitions/size_before.txt"
+  copy_file "$COMMONDIR/readable_size_before.txt" "$logDir/partitions/readable_size_before.txt"
 }
 
 # More info on Apex here -> https://www.xda-developers.com/android-q-apex-biggest-tdynamic_partitionshing-since-project-treble/
