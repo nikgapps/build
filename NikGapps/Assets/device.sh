@@ -5,8 +5,10 @@ get_available_size() {
     case $df in
         /dev/block/*) df=$(echo "$df" | awk '{ print substr($0, index($0,$2)) }');;
     esac
-    free_system_size_kb=$(echo "$df" | awk '{ print $3 }')
-    echo "$free_system_size_kb"
+    free_size_kb=$(echo "$df" | awk '{ print $3 }')
+    size_of_partition=$(echo "$df" | awk '{ print $5 }')
+    addToLog "- free_size_kb: $free_size_kb for $size_of_partition which should be $1"
+    echo "$free_size_kb"
 }
 
 get_block_for_mount_point() {
@@ -79,82 +81,6 @@ find_system_size() {
   [ "$system_ext_size" != "0" ] && ui_print "- /system_ext available size: $system_ext_size KB"
   total_size=$((system_size+product_size+system_ext_size))
   addToLog "- Total available size: $total_size KB"
-}
-
-find_partition_type() {
-  for partition in "system" "product" "system_ext"; do
-    addToLog "----------------------------------------------------------------------------"
-    addToLog "- Finding partition type for /$partition"
-    mnt_point="/$partition"
-    mountpoint "$mnt_point" >/dev/null 2>&1 && addToLog "- $mnt_point already mounted!"
-    [ "$mnt_point" != "/system" ] && [ -L "$system$mnt_point" ] && addToLog "- $system$mnt_point symlinked!"
-    blk_dev=$(find_block "$partition")
-    if [ -n "$blk_dev" ]; then
-      addToLog "- Found block for $mnt_point"
-      case "$partition" in
-        "system")
-          system="/system"
-          system_size=$(get_available_size "system")
-          [ "$system_size" != "Used" ] && addToLog "- /system available size: $system_size KB"
-          [ "$system_size" = "Used" ] && system_size=0
-        ;;
-        "product")
-          product="/product"
-          product_size=$(get_available_size "product")
-          [ "$product_size" != "Used" ] && addToLog "- /product available size: $product_size KB"
-          [ "$product_size" = "Used" ] && product_size=0
-        ;;
-        "system_ext")
-          system_ext="/system_ext"
-          system_ext_size=$(get_available_size "system_ext")
-          [ "$system_ext_size" != "Used" ] && addToLog "- /system_ext available size: $system_ext_size KB"
-          [ "$system_ext_size" = "Used" ] && system_ext_size=0
-        ;;
-      esac
-      ui_print "- /$partition is mounted as dedicated partition"
-    else
-      case "$partition" in
-        "system") system="/system" ;;
-        "product") product="/system/product" ;;
-        "system_ext") system_ext="/system/system_ext" ;;
-      esac
-      ui_print "- /$partition is symlinked to /system/$partition"
-    fi
-    case "$partition" in
-        "system")
-          is_system_writable="$(is_mounted_rw "$system" 2>/dev/null)"
-          [ ! "$is_system_writable" ] && system=""
-          addToLog "- system=$system is writable? $is_system_writable"
-          if [ -f "/system/build.prop" ]; then
-            addToLog "- /system/build.prop exists"
-          fi
-         ;;
-        "product")
-          is_product_writable="$(is_mounted_rw "$product" 2>/dev/null)"
-          [ ! "$is_product_writable" ] && product=""
-          addToLog "- product=$product is writable? $is_product_writable"
-          if [ -f "/product/build.prop" ]; then
-            addToLog "- /product/build.prop exists"
-          elif [ -f "/system/product/build.prop" ]; then
-            addToLog "- /system/product/build.prop exists"
-          else
-            addToLog "- product build.prop doesn't exists"
-          fi
-         ;;
-        "system_ext")
-          is_system_ext_writable="$(is_mounted_rw "$system_ext" 2>/dev/null)"
-          [ ! "$is_system_ext_writable" ] && system_ext=""
-          addToLog "- system_ext=$system_ext is writable? $is_system_ext_writable"
-          if [ -f "/system_ext/build.prop" ]; then
-            addToLog "- /system_ext/build.prop exists"
-          elif [ -f "/system/system_ext/build.prop" ]; then
-            addToLog "- /system/system_ext/build.prop exists"
-          else
-            addToLog "- system_ext build.prop doesn't exists"
-          fi
-         ;;
-      esac
-  done
 }
 
 mount_system_source() {
