@@ -32,6 +32,13 @@ class AddonSet:
         return None
 
     @staticmethod
+    def get_snap_camera():
+        snap = Package("Snap", "org.lineageos.snap", Constants.is_priv_app)
+        snap.delete("GoogleCameraGo")
+        snap.delete("ScreenRecorder")
+        return AppSet("Snap", [snap])
+
+    @staticmethod
     def get_google_docs():
         google_docs = Package("GoogleDocs", "com.google.android.apps.docs.editors.docs", Constants.is_system_app)
         return AppSet("GoogleDocs", [google_docs])
