@@ -193,7 +193,7 @@ class Export:
 
     @staticmethod
     def get_nikgapps_config():
-        nikgapps_config_lines = ""
+        nikgapps_config_lines = "# NikGapps configuration file v15\n"
         for line in Assets.get_string_resource(Assets.nikgapps_config):
             nikgapps_config_lines += line
         for app_set in NikGappsPackages.get_packages("full"):
