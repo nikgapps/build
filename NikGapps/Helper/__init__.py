@@ -14,4 +14,5 @@ from .Git import Git
 from .NikGappsConfig import NikGappsConfig
 from .SystemStat import SystemStat
 from .NikMail import NikMail
+from .Download import Download
 
