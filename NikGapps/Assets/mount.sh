@@ -57,6 +57,91 @@ find_device_block() {
   addToLog "- System_Ext_Block=$SYSTEM_EXT_BLOCK"
 }
 
+find_partition_type() {
+  addToLog "----------------------------------------------------------------------------"
+  addToLog "- Finding partition type for /system"
+  blk_dev=$(find_block "system")
+  if [ -n "$blk_dev" ]; then
+      addToLog "- Found block for /system"
+      system="/system"
+      system_size=$(get_available_size "system")
+      [ "$system_size" != "Used" ] && addToLog "- /system available size: $system_size KB"
+      [ "$system_size" = "Used" ] && system_size=0
+      ui_print "- /system is mounted as dedicated partition"
+  fi
+  is_system_writable="$(is_mounted_rw "$system" 2>/dev/null)"
+  [ ! "$is_system_writable" ] && system=""
+  addToLog "- system=$system is writable? $is_system_writable"
+  if [ -f "/system/build.prop" ]; then
+    addToLog "- /system/build.prop exists"
+  fi
+  for partition in "product" "system_ext"; do
+    addToLog "----------------------------------------------------------------------------"
+    addToLog "- Finding partition type for /$partition"
+    mnt_point="/$partition"
+    already_mounted=false
+    already_symlinked=false
+    mountpoint "$mnt_point" >/dev/null 2>&1 && already_mounted=true && addToLog "- $mnt_point already mounted!"
+    [ -L "$system$mnt_point" ] && already_symlinked=true && addToLog "- $system$mnt_point symlinked!"
+    blk_dev=$(find_block "$partition")
+    if [ "$already_mounted" = "false" ] || [ -z "$blk_dev" ] ||
+     [ "$already_symlinked" = "true" ] || [ "$dynamic_partitions" = "false" ]; then
+      case "$partition" in
+        "product") product="$system/product" ;;
+        "system_ext") system_ext="$system/system_ext" ;;
+      esac
+      ui_print "- /$partition is symlinked to $system/$partition"
+    elif [ "$dynamic_partitions" = "true" ]; then
+      if [ -n "$blk_dev" ]; then
+        addToLog "- Found block for $mnt_point"
+        case "$partition" in
+          "product")
+            product="/product"
+            product_size=$(get_available_size "product")
+            [ "$product_size" != "Used" ] && addToLog "- /product available size: $product_size KB"
+            [ "$product_size" = "Used" ] && product_size=0
+          ;;
+          "system_ext")
+            system_ext="/system_ext"
+            system_ext_size=$(get_available_size "system_ext")
+            [ "$system_ext_size" != "Used" ] && addToLog "- /system_ext available size: $system_ext_size KB"
+            [ "$system_ext_size" = "Used" ] && system_ext_size=0
+          ;;
+        esac
+        ui_print "- /$partition is mounted as dedicated partition"
+      else
+        addToLog "- /$partition block not found in dynamic_partitions device"
+      fi
+    fi
+    case "$partition" in
+      "product")
+        is_product_writable="$(is_mounted_rw "$product" 2>/dev/null)"
+        [ ! "$is_product_writable" ] && product=""
+        addToLog "- product=$product is writable? $is_product_writable"
+        if [ -f "/product/build.prop" ]; then
+          addToLog "- /product/build.prop exists"
+        elif [ -f "/system/product/build.prop" ]; then
+          addToLog "- /system/product/build.prop exists"
+        else
+          addToLog "- product build.prop doesn't exists"
+        fi
+        ;;
+      "system_ext")
+        is_system_ext_writable="$(is_mounted_rw "$system_ext" 2>/dev/null)"
+        [ ! "$is_system_ext_writable" ] && system_ext=""
+        addToLog "- system_ext=$system_ext is writable? $is_system_ext_writable"
+        if [ -f "/system_ext/build.prop" ]; then
+          addToLog "- /system_ext/build.prop exists"
+        elif [ -f "/system/system_ext/build.prop" ]; then
+          addToLog "- /system/system_ext/build.prop exists"
+        else
+          addToLog "- system_ext build.prop doesn't exists"
+        fi
+        ;;
+    esac
+  done
+}
+
 is_mounted_rw() {
   local mounted_rw=false
   local startswith=$(beginswith / "$1")
@@ -169,25 +254,39 @@ mount_all() {
     addToLog "- Remounting /$partition as read write"
     mount -o rw,remount -t auto "/$partition" 2>/dev/null
   done
-  addToLog "----------------------------------------------------------------------------"
   if [ -n "$PRODUCT_BLOCK" ]; then
-    mkdir /product || true
-    if mount -o rw "$PRODUCT_BLOCK" /product; then
-      addToLog "- /product mounted"
+    if ! is_mounted /product; then
+      mkdir /product || true
+      if mount -o rw "$PRODUCT_BLOCK" /product; then
+        addToLog "- /product mounted"
+      else
+        addToLog "- Could not mount /product"
+      fi
     else
-      addToLog "- Could not mount /product"
+      addToLog "- /product already mounted"
     fi
   fi
   if [ -n "$SYSTEM_EXT_BLOCK" ]; then
-    mkdir /system_ext || true
-    if mount -o rw "$SYSTEM_EXT_BLOCK" /system_ext; then
-      addToLog "- /system_ext mounted"
+    if ! is_mounted /system_ext; then
+      mkdir /system_ext || true
+      if mount -o rw "$SYSTEM_EXT_BLOCK" /system_ext; then
+        addToLog "- /system_ext mounted"
+      else
+        addToLog "- Could not mount /system_ext"
+      fi
     else
-      addToLog "- Could not mount /system_ext"
+      addToLog "- /product already mounted"
     fi
   fi
+  addToLog "----------------------------------------------------------------------------"
   ls -alR /system > "$COMMONDIR/System_Files_Before.txt"
   ls -alR /product > "$COMMONDIR/Product_Files_Before.txt"
+  df > "$COMMONDIR/size_before.txt"
+  df -h > "$COMMONDIR/readable_size_before.txt"
+  copy_file "$COMMONDIR/size_before.txt" "$logDir/partitions/size_before.txt"
+  copy_file "$COMMONDIR/readable_size_before.txt" "$logDir/partitions/readable_size_before.txt"
+  # find if the device has dedicated partition or it's symlinked
+  find_partition_type
 }
 
 # More info on Apex here -> https://www.xda-developers.com/android-q-apex-biggest-tdynamic_partitionshing-since-project-treble/

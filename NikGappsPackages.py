@@ -150,8 +150,7 @@ class NikGappsPackages:
         phonesky = Package("Phonesky", "com.android.vending", Constants.is_priv_app, "GooglePlayStore")
         core_go.add_package(phonesky)
 
-        googleservicesframework = Package("GoogleServicesFramework", "com.google.android.gsf", Constants.is_priv_app,
-                                          partition="system_ext")
+        googleservicesframework = Package("GoogleServicesFramework", "com.google.android.gsf", Constants.is_priv_app)
         core_go.add_package(googleservicesframework)
 
         googlecontactssyncadapter = Package("GoogleContactsSyncAdapter", "com.google.android.syncadapters.contacts",
@@ -270,8 +269,7 @@ sed -i '/allow-ignore-location-settings package=\"com.google.android.gms\"/d' $i
 addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml!\"
         """
         phonesky = Package("Phonesky", "com.android.vending", Constants.is_priv_app, "GooglePlayStore")
-        googleservicesframework = Package("GoogleServicesFramework", "com.google.android.gsf", Constants.is_priv_app,
-                                          partition="system_ext")
+        googleservicesframework = Package("GoogleServicesFramework", "com.google.android.gsf", Constants.is_priv_app)
         googlecontactssyncadapter = Package("GoogleContactsSyncAdapter", "com.google.android.syncadapters.contacts",
                                             Constants.is_system_app)
         googlecalendarsync = Package("GoogleCalendarSyncAdapter", "com.google.android.syncadapters.calendar",

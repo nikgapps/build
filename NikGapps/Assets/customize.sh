@@ -88,10 +88,6 @@ unpack "common/nikgapps.sh" "$COMMONDIR/nikgapps.sh"
 # mount all the partitions
 . "$COMMONDIR/mount.sh"
 
-df > "$COMMONDIR/size_before.txt"
-df -h > "$COMMONDIR/size_before_readable.txt"
-copy_file "$COMMONDIR/size_before.txt" "$logDir/partitions/size_before.txt"
-copy_file "$COMMONDIR/size_before_readable.txt" "$logDir/partitions/size_before_readable.txt"
 nikGappsLogo
 addToLog "- stock busybox version: $(busybox | head -1)"
 setup_flashable
@@ -103,8 +99,6 @@ ensure_config
 find_config
 # find device information
 show_device_info
-# find if the device has dedicated partition or it's symlinked
-find_partition_type
 # find whether the install type is dirty or clean
 test "$zip_type" != "debloater" && find_install_type
 # check if partitions are mounted as rw or not
