@@ -1,6 +1,10 @@
-- date: 7th June 2021 (Android R and Q Release)
+- date: 27th June 2021 (Android R and Q Release)
   changes:
       - item: Fix NikGapps addon.d execution conflicting with Magisk addon.d execution
+      - item: Fix Potential Crashes with Google Playstore
+      - item: Fixes with Mounting product and system_ext partitions
+      - item: Update GoogleWallpaper
+      - item: Update nikgapps.config to reflect version (v15 being the latest)
 - date: 1st June 2021 (Android R and Q Release)
   changes:
       - item: Add support for android 11 go packages
