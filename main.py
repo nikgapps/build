@@ -8,7 +8,6 @@ from NikGapps.Helper.Git import Git
 from NikGapps.Helper.SystemStat import SystemStat
 import pytz
 from datetime import datetime
-from NikGapps.Helper.NikMail import NikMail
 
 print("Start of the Program")
 
@@ -77,6 +76,16 @@ for android_version in android_versions:
             new_release = True
         if new_release or apk_source_datetime > release_datetime or source_last_commit_datetime > release_datetime:
             new_release = True
+        apk_source_datetime_ago = release_datetime - apk_source_datetime
+        if str(apk_source_datetime_ago).startswith("-"):
+            print("Last Release was " + str(apk_source_datetime_ago * -1) + " before apk update")
+        else:
+            print("Last Apk update was " + str(apk_source_datetime_ago) + " before release")
+        source_last_commit_datetime_ago = release_datetime - source_last_commit_datetime
+        if str(source_last_commit_datetime_ago).startswith("-"):
+            print("Last Release was " + str(source_last_commit_datetime_ago * -1) + " before source update")
+        else:
+            print("Last source update was " + str(source_last_commit_datetime_ago) + " before release")
     else:
         new_release = True
     if Config.OVERRIDE_RELEASE or new_release:
