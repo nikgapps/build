@@ -229,7 +229,7 @@ extract_file() {
   addToLog "- Unzipping $1"
   addToLog "  -> copying $2"
   addToLog "  -> to $3"
-  unzip -o "$1" "$2" -p >"$3"
+  $BB unzip -o "$1" "$2" -p >"$3"
 }
 
 exit_install() {
@@ -412,7 +412,7 @@ install_file() {
     addToLog "- Unzipping $pkgFile"
     addToLog "  -> copying $1"
     addToLog "  -> to $install_location"
-    unzip -o "$pkgFile" "$1" -p >"$install_location"
+    $BB unzip -o "$pkgFile" "$1" -p >"$install_location"
     # post unpack operations
     if [ -f "$install_location" ]; then
       addToLog "- File Successfully Written!"
