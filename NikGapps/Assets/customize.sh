@@ -29,6 +29,7 @@ TMPDIR=/dev/tmp
 NikGappsAddonDir="/system/addon.d/nikgapps"
 datetime=$(date +%Y_%m_%d_%H_%M_%S)
 nikGappsLogFile="NikGapps_logs_$datetime.tar.gz"
+nikGappsLogFile="Logs-"$actual_file_name.tar.gz
 recoveryLog=/tmp/recovery.log
 logDir="$TMPDIR/NikGapps/logs"
 nikGappsDir="/sdcard/NikGapps"
@@ -165,6 +166,8 @@ ensure_config
 find_config
 # find device information
 show_device_info
+# Name NikGapps log file
+nikGappsLogFile="Logs-$device-"$actual_file_name.tar.gz
 # find whether the install type is dirty or clean
 test "$zip_type" != "debloater" && find_install_type
 # check if partitions are mounted as rw or not

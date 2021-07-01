@@ -141,15 +141,15 @@ copy_logs() {
   copy_file "$recoveryLog" "$logDir/logfiles/recovery.log"
   copy_file "$nikGappsLog" "$logDir/logfiles/NikGapps.log"
   copy_file "$busyboxLog" "$logDir/logfiles/busybox.log"
-  cd $logDir || return
-  rm -rf $nikGappsDir/logs
+  cd "$logDir" || return
+  rm -rf "$nikGappsDir"/logs
   tar -cz -f "$TMPDIR/$nikGappsLogFile" *
-  mkdir -p $nikGappsDir/logs
+  mkdir -p "$nikGappsDir"/logs
   copy_file "$TMPDIR/$nikGappsLogFile" "$nikGappsDir/logs/$nikGappsLogFile"
   [ -z "$nikgapps_config_dir" ] && nikgapps_config_dir=/sdcard/NikGapps
   rm -rf "$nikgapps_config_dir"/nikgapps_logs
   mkdir -p "$nikgapps_config_dir"/nikgapps_logs
-  copy_file $TMPDIR/"$nikGappsLogFile" "$nikgapps_config_dir"/nikgapps_logs/"$nikGappsLogFile"
+  copy_file "$TMPDIR/$nikGappsLogFile" "$nikgapps_config_dir"/nikgapps_logs/"$nikGappsLogFile"
   ui_print "- Copying Logs at $nikGappsDir/logs/$nikGappsLogFile"
   ui_print " "
   cd /
