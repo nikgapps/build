@@ -455,20 +455,6 @@ is_mounted() {
   $BB mount | $BB grep -q " $1 ";
 }
 
-nikGappsLogo() {
-  ui_print " "
-  ui_print "------------------------------------------"
-  ui_print "*   * * *  * *****   *   ***** ***** *****"
-  ui_print "**  * * * *  *      * *  *   * *   * *    "
-  ui_print "* * * * **   * *** *   * ***** ***** *****"
-  ui_print "*  ** * * *  *   * ***** *     *         *"
-  ui_print "*   * * *  * ***** *   * *     *     *****"
-  ui_print " "
-  ui_print "-->     Created by Nikhil Menghani     <--"
-  ui_print "------------------------------------------"
-  ui_print " "
-}
-
 # Read the config file from (Thanks to xXx @xda)
 ReadConfigValue() {
   value=$(sed -e '/^[[:blank:]]*#/d;s/[\t\n\r ]//g;/^$/d' "$2" | grep "^$1=" | cut -d'=' -f 2)
@@ -514,54 +500,6 @@ set_prop() {
     addToLog "- Adding ${property} to ${value} in ${file_location}"
     echo "${property}=${value}" >>"${file_location}"
   fi
-}
-
-setup_flashable() {
-  #  $BOOTMODE && return
-  MAGISKTMP=/sbin/.magisk
-  MAGISKBIN=/data/adb/magisk
-  [ -z "$TMPDIR" ] && TMPDIR=/dev/tmp
-  ui_print "--> Setting up Environment"
-  if [ -x "$MAGISKTMP"/busybox/busybox ]; then
-    BB=$MAGISKTMP/busybox/busybox
-    [ -z "$BBDIR" ] && BBDIR=$MAGISKTMP/busybox
-    ui_print "- Busybox exists at $BB"
-  elif [ -x $TMPDIR/bin/busybox ]; then
-    BB=$TMPDIR/bin/busybox
-    ui_print "- Busybox exists at $BB"
-    [ -z "$BBDIR" ] && BBDIR=$TMPDIR/bin
-  else
-    # Construct the PATH
-    [ -z $BBDIR ] && BBDIR=$TMPDIR/bin
-    mkdir -p $BBDIR
-    if [ -x $MAGISKBIN/busybox ]; then
-      BBInstaller=$MAGISKBIN/busybox
-      ui_print "- Busybox exists at $BBInstaller"
-    elif [ -f "$BBDIR/busybox" ]; then
-        BBInstaller=$BBDIR/busybox
-        ui_print "- Busybox file exists at $BBInstaller"
-    else
-      unpack "busybox" "$COMMONDIR/busybox"
-      ui_print "- Unpacking $COMMONDIR/busybox"
-      BBInstaller=$COMMONDIR/busybox
-    fi
-    addToLog "- Installing Busybox at $BBDIR from $BBInstaller"
-    ln -s "$BBInstaller" $BBDIR/busybox
-    $BBInstaller --install -s $BBDIR
-    if [ $? != 0 ] || [ -z "$(ls $BBDIR)" ]; then
-      abort "Busybox setup failed. Aborting..."
-    else
-      ls $BBDIR > "$busyboxLog"
-    fi
-    BB=$BBDIR/busybox
-    ui_print "- Installed Busybox at $BB"
-  fi
-  version=$($BB | head -1)
-  addToLog "- version $version"
-  [ -z "$version" ] && version=$(busybox | head -1) && BB=busybox
-  [ -z "$version" ] && abort "- Cannot find busybox, Installation Failed!"
-  addToLog "- Busybox found in $BB"
-  echo "$PATH" | grep -q "^$BBDIR" || export PATH=$BBDIR:$PATH
 }
 
 # show_progress <amount> <time>
