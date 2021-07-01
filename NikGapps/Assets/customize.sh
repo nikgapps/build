@@ -184,6 +184,8 @@ test "$zip_type" = "debloater" && ui_print "--> Starting the debloat process"
 
 if [ "$zip_type" != "debloater" ]; then
   ui_print "--> Starting the install process"
+  install_partition_val=$(ReadConfigValue "InstallPartition" "$nikgapps_config_file_name")
+  addToLog "- Config Value for InstallPartition is $install_partition_val"
 fi
 
 . "$COMMONDIR/install.sh"
