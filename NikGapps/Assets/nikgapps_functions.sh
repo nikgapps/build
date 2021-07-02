@@ -280,7 +280,7 @@ find_install_mode() {
   addToLog "- calculating space while working on $package_title"
   calculate_space "system" "product" "system_ext"
   addToLog "----------------------------------------------------------------------------"
-  if [ "$clean_flash_only" = "true" ] && [ "$install_type" = "dirty" ]; then
+  if [ "$clean_flash_only" = "true" ] && [ "$install_type" = "dirty" ] && [ ! -f "$install_partition/etc/permissions/$package_title.prop" ]; then
     test "$zip_type" = "gapps" && ui_print "- Can't dirty flash $package_title" && return
     test "$zip_type" = "addon" && abort "- Can't dirty flash $package_title, please clean flash!"
   fi

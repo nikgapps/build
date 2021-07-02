@@ -133,6 +133,7 @@ class Package:
         str_data += "   for i in $file_list; do\n"
         str_data += "       install_file \"$i\"\n"
         str_data += "   done\n"
+        str_data += "   install_file \"___etc___permissions/" + self.package_title + ".prop\"\n"
         str_data += "\n"
         if not str(self.additional_installer_script).__eq__(""):
             str_data += self.additional_installer_script
