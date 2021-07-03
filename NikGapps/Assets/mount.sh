@@ -63,12 +63,11 @@ find_partition_type() {
   blk_dev=$(find_block "system")
   if [ -n "$blk_dev" ]; then
       addToLog "- Found block for /system"
-      system="/system"
-      system_size=$(get_available_size "system")
-      [ "$system_size" != "0" ] && addToLog "- /system available size: $system_size KB"
-      [ "$system_size" = "0" ] && system_size=0
-      ui_print "- /system is mounted as dedicated partition"
   fi
+  system="/system"
+  system_size=$(get_available_size "system")
+  [ "$system_size" != "0" ] && addToLog "- /system available size: $system_size KB" && ui_print "- /system is mounted as dedicated partition"
+  [ "$system_size" = "0" ] && system_size=0
   is_system_writable="$(is_mounted_rw "$system" 2>/dev/null)"
   [ ! "$is_system_writable" ] && system=""
   addToLog "- system=$system is writable? $is_system_writable"
