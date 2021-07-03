@@ -11,9 +11,11 @@ class Upload:
 
     def __init__(self):
         self.release_dir = Constants.sourceforge_release_directory
-        sf_pwd = os.environ.get('SF_PWD')
-        if sf_pwd is None:
-            sf_pwd = ""
+        self.sf_pwd = os.environ.get('SF_PWD')
+        if self.sf_pwd is None or self.sf_pwd.__eq__(""):
+            self.sf_pwd = ""
+            self.successful_connection = False
+            return
         tz_london = pytz.timezone('Europe/London')
         datetime_london = datetime.now(tz_london)
         self.release_date = str(datetime_london.strftime("%d-%b-%Y"))
@@ -25,17 +27,17 @@ class Upload:
             print("Timeout has occurred, let's try one more time")
             self.child.sendcontrol('c')
             self.child = pexpect.spawn('sftp nikhilmenghani@frs.sourceforge.net')
-            i = self.child.expect(["Password", "yes/no"])
+            i = self.child.expect(["Password", "yes/no", pexpect.TIMEOUT, pexpect.EOF])
         if i == 1:
             self.child.sendline("yes")
             self.child.expect("Password")
-            self.child.sendline(str(sf_pwd))
+            self.child.sendline(str(self.sf_pwd))
             status = self.child.expect(["Connected to frs.sourceforge.net", "sftp> ", "Password"])
             if status == 0 or status == 1:
                 self.successful_connection = True
                 print("Connection was successful")
         elif i == 0:
-            self.child.sendline(str(sf_pwd))
+            self.child.sendline(str(self.sf_pwd))
             status = self.child.expect(["Connected to frs.sourceforge.net", "sftp> ", "Password"])
             if status == 0 or status == 1:
                 self.successful_connection = True
@@ -43,7 +45,10 @@ class Upload:
         else:
             print("Connection failed")
             self.child.sendline("bye")
-            self.child.interact()
+            try:
+                self.child.interact()
+            except BaseException as e:
+                print("Exception while interacting: " + str(e))
 
     def get_cd_with_date(self, android_version, file_type, input_date=None):
         if input_date is not None:
@@ -98,5 +103,6 @@ class Upload:
         time.sleep(1)
 
     def close(self):
-        self.child.sendline("bye")
-        self.child.close()
+        if not str(self.sf_pwd).__eq__(""):
+            self.child.sendline("bye")
+            self.child.close()
