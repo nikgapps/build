@@ -65,8 +65,8 @@ find_partition_type() {
       addToLog "- Found block for /system"
       system="/system"
       system_size=$(get_available_size "system")
-      [ "$system_size" != "Used" ] && addToLog "- /system available size: $system_size KB"
-      [ "$system_size" = "Used" ] && system_size=0
+      [ "$system_size" != "0" ] && addToLog "- /system available size: $system_size KB"
+      [ "$system_size" = "0" ] && system_size=0
       ui_print "- /system is mounted as dedicated partition"
   fi
   is_system_writable="$(is_mounted_rw "$system" 2>/dev/null)"
@@ -98,14 +98,14 @@ find_partition_type() {
           "product")
             product="/product"
             product_size=$(get_available_size "product")
-            [ "$product_size" != "Used" ] && addToLog "- /product available size: $product_size KB"
-            [ "$product_size" = "Used" ] && product_size=0
+            [ "$product_size" != "0" ] && addToLog "- /product available size: $product_size KB"
+            [ "$product_size" = "0" ] && product_size=0
           ;;
           "system_ext")
             system_ext="/system_ext"
             system_ext_size=$(get_available_size "system_ext")
-            [ "$system_ext_size" != "Used" ] && addToLog "- /system_ext available size: $system_ext_size KB"
-            [ "$system_ext_size" = "Used" ] && system_ext_size=0
+            [ "$system_ext_size" != "0" ] && addToLog "- /system_ext available size: $system_ext_size KB"
+            [ "$system_ext_size" = "0" ] && system_ext_size=0
           ;;
         esac
         ui_print "- /$partition is mounted as dedicated partition"

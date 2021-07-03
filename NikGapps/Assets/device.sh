@@ -8,6 +8,7 @@ get_available_size() {
     free_size_kb=$(echo "$df" | awk '{ print $3 }')
     size_of_partition=$(echo "$df" | awk '{ print $5 }')
     addToLog "- free_size_kb: $free_size_kb for $size_of_partition which should be $1"
+    [ "$free_size_kb" = "Used" ] && free_size_kb=0
     echo "$free_size_kb"
 }
 
@@ -80,7 +81,8 @@ find_system_size() {
   [ "$product_size" != "0" ] && ui_print "- /product available size: $product_size KB"
   [ "$system_ext_size" != "0" ] && ui_print "- /system_ext available size: $system_ext_size KB"
   total_size=$((system_size+product_size+system_ext_size))
-  addToLog "- Total available size: $total_size KB"
+  ui_print "- Total available size: $total_size KB"
+  [ "$total_size" = "0" ] && abort "No space left on device"
 }
 
 mount_system_source() {

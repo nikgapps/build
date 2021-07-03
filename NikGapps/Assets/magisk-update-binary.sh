@@ -47,6 +47,25 @@ if $BOOTMODE; then
   exit 0
 else
   mkdir -p "$COMMONDIR"
-  unzip -o "$ZIPFILE" customize.sh -d $COMMONDIR >&2
+  stock_busybox_version=$(busybox | head -1)
+  unzip -o "$ZIPFILE" busybox -d $COMMONDIR >&2
+  BBInstaller=$COMMONDIR/busybox
+  if [ -f $BBInstaller ]; then
+    chmod +x $BBInstaller
+    export BB=$BBInstaller
+  fi
+  [ -z "$BBDIR" ] && BBDIR=$TMPDIR/bin
+  mkdir -p $BBDIR
+  ln -s "$BBInstaller" $BBDIR/busybox
+  $BBInstaller --install -s $BBDIR
+  if [ $? != 0 ] || [ -z "$(ls $BBDIR)" ]; then
+    abort "Busybox setup failed. Aborting..."
+  fi
+  BB=$BBDIR/busybox
+  version=$($BB | head -1)
+  [ -z "$version" ] && version=$(busybox | head -1) && BB=busybox
+  [ -z "$version" ] && abort "- Cannot find busybox, Installation Failed!"
+  echo "$PATH" | grep -q "^$BBDIR" || export PATH=$BBDIR:$PATH
+  $BB unzip -o "$ZIPFILE" customize.sh -d $COMMONDIR >&2
   [ -f $COMMONDIR/customize.sh ] && . $COMMONDIR/customize.sh
 fi

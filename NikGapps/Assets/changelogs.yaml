@@ -1,6 +1,17 @@
-- date: 7th June 2021 (Android R and Q Release)
+- date: 3rd July 2021 (Android R and Q Release)
+  changes:
+      - item: Fix unzip command failing to recognize '-p' arg and eventually failing the installation (thanks to @glx33807 and @OneWayGamer)
+      - item: Allow dirty flashing Gboard/Clock upon dirty flashing Rom
+      - item: Script Optimization (comparatively faster installation)!
+      - item: Rename NikGapps log name to reflect device and file name
+      - item: Abort the installation when system available size is 0
+- date: 27th June 2021 (Android R and Q Release)
   changes:
       - item: Fix NikGapps addon.d execution conflicting with Magisk addon.d execution
+      - item: Fix Potential Crashes with Google Playstore
+      - item: Fixes with Mounting product and system_ext partitions
+      - item: Update GoogleWallpaper
+      - item: Update nikgapps.config to reflect version (v15 being the latest)
 - date: 1st June 2021 (Android R and Q Release)
   changes:
       - item: Add support for android 11 go packages

@@ -29,6 +29,7 @@ TMPDIR=/dev/tmp
 NikGappsAddonDir="/system/addon.d/nikgapps"
 datetime=$(date +%Y_%m_%d_%H_%M_%S)
 nikGappsLogFile="NikGapps_logs_$datetime.tar.gz"
+nikGappsLogFile="Logs-"$actual_file_name.tar.gz
 recoveryLog=/tmp/recovery.log
 logDir="$TMPDIR/NikGapps/logs"
 nikGappsDir="/sdcard/NikGapps"
@@ -60,13 +61,82 @@ ensure_config() {
   fi
 }
 
+nikGappsLogo() {
+  ui_print " "
+  ui_print "------------------------------------------"
+  ui_print "*   * * *  * *****   *   ***** ***** *****"
+  ui_print "**  * * * *  *      * *  *   * *   * *    "
+  ui_print "* * * * **   * *** *   * ***** ***** *****"
+  ui_print "*  ** * * *  *   * ***** *     *         *"
+  ui_print "*   * * *  * ***** *   * *     *     *****"
+  ui_print " "
+  ui_print "-->     Created by Nikhil Menghani     <--"
+  ui_print "------------------------------------------"
+  ui_print " "
+}
+
+setup_flashable() {
+  $BOOTMODE && return
+  MAGISKTMP=/sbin/.magisk
+  MAGISKBIN=/data/adb/magisk
+  [ -z "$TMPDIR" ] && TMPDIR=/dev/tmp
+  ui_print "--> Setting up Environment"
+  if [ -x "$MAGISKTMP"/busybox/busybox ]; then
+    BB=$MAGISKTMP/busybox/busybox
+    [ -z "$BBDIR" ] && BBDIR=$MAGISKTMP/busybox
+    ui_print "- Busybox exists at $BB"
+  elif [ -x $TMPDIR/bin/busybox ]; then
+    BB=$TMPDIR/bin/busybox
+    ui_print "- Busybox exists at $BB"
+    [ -z "$BBDIR" ] && BBDIR=$TMPDIR/bin
+    # we already went through the installation process, if we are here, that means busybox is installed so return!
+    return
+  else
+    # Construct the PATH
+    [ -z $BBDIR ] && BBDIR=$TMPDIR/bin
+    mkdir -p $BBDIR
+    if [ -x $MAGISKBIN/busybox ]; then
+      BBInstaller=$MAGISKBIN/busybox
+      ui_print "- Busybox exists at $BBInstaller"
+    elif [ -f "$BBDIR/busybox" ]; then
+        BBInstaller=$BBDIR/busybox
+        ui_print "- Busybox file exists at $BBInstaller"
+    else
+      unpack "busybox" "$COMMONDIR/busybox"
+      ui_print "- Unpacking $COMMONDIR/busybox"
+      BBInstaller=$COMMONDIR/busybox
+    fi
+    addToLog "- Installing Busybox at $BBDIR from $BBInstaller"
+    ln -s "$BBInstaller" $BBDIR/busybox
+    $BBInstaller --install -s $BBDIR
+    if [ $? != 0 ] || [ -z "$(ls $BBDIR)" ]; then
+      abort "Busybox setup failed. Aborting..."
+    else
+      ls $BBDIR > "$busyboxLog"
+    fi
+    BB=$BBDIR/busybox
+    ui_print "- Installed Busybox at $BB"
+  fi
+  version=$($BB | head -1)
+  addToLog "- Version $version"
+  [ -z "$version" ] && version=$(busybox | head -1) && BB=busybox
+  [ -z "$version" ] && abort "- Cannot find busybox, Installation Failed!"
+  addToLog "- Busybox found in $BB"
+  echo "$PATH" | grep -q "^$BBDIR" || export PATH=$BBDIR:$PATH
+}
+
 unpack() {
   mkdir -p "$(dirname "$2")"
   addToLog "- unpacking $1"
   addToLog "  -> to $2"
-  unzip -o "$ZIPFILE" "$1" -p >"$2"
+  $BB unzip -o "$ZIPFILE" "$1" -p >"$2"
   chmod 755 "$2";
 }
+
+nikGappsLogo
+setup_flashable
+addToLog "- Stock busybox version: $stock_busybox_version"
+addToLog "- Installed Busybox $version"
 
 unpack "common/nikgapps_functions.sh" "$COMMONDIR/nikgapps_functions.sh"
 unpack "common/unmount.sh" "$COMMONDIR/unmount.sh"
@@ -88,9 +158,6 @@ unpack "common/nikgapps.sh" "$COMMONDIR/nikgapps.sh"
 # mount all the partitions
 . "$COMMONDIR/mount.sh"
 
-nikGappsLogo
-addToLog "- stock busybox version: $(busybox | head -1)"
-setup_flashable
 [ -n "$actual_file_name" ] && ui_print "- File Name: $actual_file_name"
 find_zip_type
 begin_unmounting
@@ -99,6 +166,8 @@ ensure_config
 find_config
 # find device information
 show_device_info
+# Name NikGapps log file
+nikGappsLogFile="Logs-$device-"$actual_file_name.tar.gz
 # find whether the install type is dirty or clean
 test "$zip_type" != "debloater" && find_install_type
 # check if partitions are mounted as rw or not
@@ -118,6 +187,8 @@ test "$zip_type" = "debloater" && ui_print "--> Starting the debloat process"
 
 if [ "$zip_type" != "debloater" ]; then
   ui_print "--> Starting the install process"
+  install_partition_val=$(ReadConfigValue "InstallPartition" "$nikgapps_config_file_name")
+  addToLog "- Config Value for InstallPartition is $install_partition_val"
 fi
 
 . "$COMMONDIR/install.sh"

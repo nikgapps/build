@@ -21,6 +21,9 @@ calculate_space() {
   local partitions="$*"
   for partition in $partitions; do
     addToLog " "
+    if ! is_mounted "/$partition"; then
+      continue
+    fi
     addToLog "--> Calculating space in /$partition"
     # Read and save system partition size details
     df=$(df -k /"$partition" | tail -n 1)
@@ -141,15 +144,15 @@ copy_logs() {
   copy_file "$recoveryLog" "$logDir/logfiles/recovery.log"
   copy_file "$nikGappsLog" "$logDir/logfiles/NikGapps.log"
   copy_file "$busyboxLog" "$logDir/logfiles/busybox.log"
-  cd $logDir || return
-  rm -rf $nikGappsDir/logs
+  cd "$logDir" || return
+  rm -rf "$nikGappsDir"/logs
   tar -cz -f "$TMPDIR/$nikGappsLogFile" *
-  mkdir -p $nikGappsDir/logs
+  mkdir -p "$nikGappsDir"/logs
   copy_file "$TMPDIR/$nikGappsLogFile" "$nikGappsDir/logs/$nikGappsLogFile"
   [ -z "$nikgapps_config_dir" ] && nikgapps_config_dir=/sdcard/NikGapps
   rm -rf "$nikgapps_config_dir"/nikgapps_logs
   mkdir -p "$nikgapps_config_dir"/nikgapps_logs
-  copy_file $TMPDIR/"$nikGappsLogFile" "$nikgapps_config_dir"/nikgapps_logs/"$nikGappsLogFile"
+  copy_file "$TMPDIR/$nikGappsLogFile" "$nikgapps_config_dir"/nikgapps_logs/"$nikGappsLogFile"
   ui_print "- Copying Logs at $nikGappsDir/logs/$nikGappsLogFile"
   ui_print " "
   cd /
@@ -229,7 +232,7 @@ extract_file() {
   addToLog "- Unzipping $1"
   addToLog "  -> copying $2"
   addToLog "  -> to $3"
-  unzip -o "$1" "$2" -p >"$3"
+  $BB unzip -o "$1" "$2" -p >"$3"
 }
 
 exit_install() {
@@ -276,11 +279,7 @@ find_config() {
 }
 
 find_install_mode() {
-  addToLog "----------------------------------------------------------------------------"
-  addToLog "- calculating space while working on $package_title"
-  calculate_space "system" "product" "system_ext"
-  addToLog "----------------------------------------------------------------------------"
-  if [ "$clean_flash_only" = "true" ] && [ "$install_type" = "dirty" ]; then
+  if [ "$clean_flash_only" = "true" ] && [ "$install_type" = "dirty" ] && [ ! -f "$install_partition/etc/permissions/$package_title.prop" ]; then
     test "$zip_type" = "gapps" && ui_print "- Can't dirty flash $package_title" && return
     test "$zip_type" = "addon" && abort "- Can't dirty flash $package_title, please clean flash!"
   fi
@@ -291,9 +290,26 @@ find_install_mode() {
     ui_print "- Uninstalling $package_title"
     uninstall_package
   elif [ "$mode" = "install" ]; then
+    addToLog "----------------------------------------------------------------------------"
+    addToLog "- calculating space while working on $package_title"
+    case "$install_partition" in
+      "/product") product_size_left=$(get_available_size "product"); addToLog "- product_size_left=$product_size_left" ;;
+      "/system_ext") system_ext_size_left=$(get_available_size "system_ext"); addToLog "- system_ext_size_left=$system_ext_size_left" ;;
+      "/system"*) system_size_left=$(get_available_size "system"); addToLog "- system_size_left=$system_size_left"  ;;
+    esac
+    addToLog "----------------------------------------------------------------------------"
     ui_print "- Installing $package_title"
     install_package
     delete_recursive "$pkgFile"
+    addToLog "----------------------------------------------------------------------------"
+    addToLog "- calculating space after installing $package_title"
+    total_size=$((system_size+product_size+system_ext_size))
+    case "$install_partition" in
+      "/product") product_size_after=$(get_available_size "product"); addToLog "- product_size ($pkg_size) spent=$((product_size_left-product_size_after))"; ;;
+      "/system_ext") system_ext_size_after=$(get_available_size "system_ext"); addToLog "- system_ext_size ($pkg_size) spent=$((system_ext_size_left-system_ext_size_after))"; ;;
+      "/system"*) system_size_after=$(get_available_size "system"); addToLog "- system_size ($pkg_size) spent=$((system_size_left-system_size_after))"; ;;
+    esac
+    addToLog "----------------------------------------------------------------------------"
   fi
 }
 
@@ -412,7 +428,7 @@ install_file() {
     addToLog "- Unzipping $pkgFile"
     addToLog "  -> copying $1"
     addToLog "  -> to $install_location"
-    unzip -o "$pkgFile" "$1" -p >"$install_location"
+    $BB unzip -o "$pkgFile" "$1" -p >"$install_location"
     # post unpack operations
     if [ -f "$install_location" ]; then
       addToLog "- File Successfully Written!"
@@ -453,20 +469,6 @@ is_on_top_of_nikgapps() {
 is_mounted() {
   addToLog "- Checking if $1 is mounted"
   $BB mount | $BB grep -q " $1 ";
-}
-
-nikGappsLogo() {
-  ui_print " "
-  ui_print "------------------------------------------"
-  ui_print "*   * * *  * *****   *   ***** ***** *****"
-  ui_print "**  * * * *  *      * *  *   * *   * *    "
-  ui_print "* * * * **   * *** *   * ***** ***** *****"
-  ui_print "*  ** * * *  *   * ***** *     *         *"
-  ui_print "*   * * *  * ***** *   * *     *     *****"
-  ui_print " "
-  ui_print "-->     Created by Nikhil Menghani     <--"
-  ui_print "------------------------------------------"
-  ui_print " "
 }
 
 # Read the config file from (Thanks to xXx @xda)
@@ -514,54 +516,6 @@ set_prop() {
     addToLog "- Adding ${property} to ${value} in ${file_location}"
     echo "${property}=${value}" >>"${file_location}"
   fi
-}
-
-setup_flashable() {
-  #  $BOOTMODE && return
-  MAGISKTMP=/sbin/.magisk
-  MAGISKBIN=/data/adb/magisk
-  [ -z "$TMPDIR" ] && TMPDIR=/dev/tmp
-  ui_print "--> Setting up Environment"
-  if [ -x "$MAGISKTMP"/busybox/busybox ]; then
-    BB=$MAGISKTMP/busybox/busybox
-    [ -z "$BBDIR" ] && BBDIR=$MAGISKTMP/busybox
-    ui_print "- Busybox exists at $BB"
-  elif [ -x $TMPDIR/bin/busybox ]; then
-    BB=$TMPDIR/bin/busybox
-    ui_print "- Busybox exists at $BB"
-    [ -z "$BBDIR" ] && BBDIR=$TMPDIR/bin
-  else
-    # Construct the PATH
-    [ -z $BBDIR ] && BBDIR=$TMPDIR/bin
-    mkdir -p $BBDIR
-    if [ -x $MAGISKBIN/busybox ]; then
-      BBInstaller=$MAGISKBIN/busybox
-      ui_print "- Busybox exists at $BBInstaller"
-    elif [ -f "$BBDIR/busybox" ]; then
-        BBInstaller=$BBDIR/busybox
-        ui_print "- Busybox file exists at $BBInstaller"
-    else
-      unpack "busybox" "$COMMONDIR/busybox"
-      ui_print "- Unpacking $COMMONDIR/busybox"
-      BBInstaller=$COMMONDIR/busybox
-    fi
-    addToLog "- Installing Busybox at $BBDIR from $BBInstaller"
-    ln -s "$BBInstaller" $BBDIR/busybox
-    $BBInstaller --install -s $BBDIR
-    if [ $? != 0 ] || [ -z "$(ls $BBDIR)" ]; then
-      abort "Busybox setup failed. Aborting..."
-    else
-      ls $BBDIR > "$busyboxLog"
-    fi
-    BB=$BBDIR/busybox
-    ui_print "- Installed Busybox at $BB"
-  fi
-  version=$($BB | head -1)
-  addToLog "- version $version"
-  [ -z "$version" ] && version=$(busybox | head -1) && BB=busybox
-  [ -z "$version" ] && abort "- Cannot find busybox, Installation Failed!"
-  addToLog "- Busybox found in $BB"
-  echo "$PATH" | grep -q "^$BBDIR" || export PATH=$BBDIR:$PATH
 }
 
 # show_progress <amount> <time>
