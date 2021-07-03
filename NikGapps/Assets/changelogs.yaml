@@ -1,3 +1,10 @@
+- date: 3rd July 2021 (Android R and Q Release)
+  changes:
+      - item: Fix unzip command failing to recognize '-p' arg and eventually failing the installation (thanks to @glx33807 and @OneWayGamer)
+      - item: Allow dirty flashing Gboard/Clock upon dirty flashing Rom
+      - item: Script Optimization (comparatively faster installation)!
+      - item: Rename NikGapps log name to reflect device and file name
+      - item: Abort the installation when system available size is 0
 - date: 27th June 2021 (Android R and Q Release)
   changes:
       - item: Fix NikGapps addon.d execution conflicting with Magisk addon.d execution
