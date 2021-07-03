@@ -8,6 +8,7 @@ get_available_size() {
     free_size_kb=$(echo "$df" | awk '{ print $3 }')
     size_of_partition=$(echo "$df" | awk '{ print $5 }')
     addToLog "- free_size_kb: $free_size_kb for $size_of_partition which should be $1"
+    [ "$free_size_kb" = "Used" ] && free_size_kb=0
     echo "$free_size_kb"
 }
 

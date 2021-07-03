@@ -21,6 +21,9 @@ calculate_space() {
   local partitions="$*"
   for partition in $partitions; do
     addToLog " "
+    if ! is_mounted "/$partition"; then
+      continue
+    fi
     addToLog "--> Calculating space in /$partition"
     # Read and save system partition size details
     df=$(df -k /"$partition" | tail -n 1)
@@ -276,10 +279,6 @@ find_config() {
 }
 
 find_install_mode() {
-  addToLog "----------------------------------------------------------------------------"
-  addToLog "- calculating space while working on $package_title"
-  calculate_space "system" "product" "system_ext"
-  addToLog "----------------------------------------------------------------------------"
   if [ "$clean_flash_only" = "true" ] && [ "$install_type" = "dirty" ] && [ ! -f "$install_partition/etc/permissions/$package_title.prop" ]; then
     test "$zip_type" = "gapps" && ui_print "- Can't dirty flash $package_title" && return
     test "$zip_type" = "addon" && abort "- Can't dirty flash $package_title, please clean flash!"
@@ -291,9 +290,26 @@ find_install_mode() {
     ui_print "- Uninstalling $package_title"
     uninstall_package
   elif [ "$mode" = "install" ]; then
+    addToLog "----------------------------------------------------------------------------"
+    addToLog "- calculating space while working on $package_title"
+    case "$install_partition" in
+      "/product") product_size_left=$(get_available_size "product"); addToLog "- product_size_left=$product_size_left" ;;
+      "/system_ext") system_ext_size_left=$(get_available_size "system_ext"); addToLog "- system_ext_size_left=$system_ext_size_left" ;;
+      "/system"*) system_size_left=$(get_available_size "system"); addToLog "- system_size_left=$system_size_left"  ;;
+    esac
+    addToLog "----------------------------------------------------------------------------"
     ui_print "- Installing $package_title"
     install_package
     delete_recursive "$pkgFile"
+    addToLog "----------------------------------------------------------------------------"
+    addToLog "- calculating space after installing $package_title"
+    total_size=$((system_size+product_size+system_ext_size))
+    case "$install_partition" in
+      "/product") product_size_after=$(get_available_size "product"); addToLog "- product_size ($pkg_size) spent=$((product_size_left-product_size_after))"; ;;
+      "/system_ext") system_ext_size_after=$(get_available_size "system_ext"); addToLog "- system_ext_size ($pkg_size) spent=$((system_ext_size_left-system_ext_size_after))"; ;;
+      "/system"*) system_size_after=$(get_available_size "system"); addToLog "- system_size ($pkg_size) spent=$((system_size_left-system_size_after))"; ;;
+    esac
+    addToLog "----------------------------------------------------------------------------"
   fi
 }
 

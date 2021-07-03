@@ -65,7 +65,7 @@ class Package:
         self.file_dict[import_path] = "etc/permissions/" + str(self.package_name) + ".xml"
         XmlOp(self.package_name, permissions_list, import_path)
 
-    def get_installer_script(self):
+    def get_installer_script(self, pkg_size):
         lines = Assets.get_string_resource(Assets.installer_path)
         str_data = ""
         for line in lines:
@@ -77,6 +77,7 @@ class Package:
         str_data += "find_Install_partition\n"
         str_data += "title=\"" + self.title + "\"\n"
         str_data += "package_title=\"" + self.package_title + "\"\n"
+        str_data += "pkg_size=\"" + pkg_size + "\"\n"
         if self.package_name is not None:
             str_data += "package_name=\"" + self.package_name + "\"\n"
         else:
