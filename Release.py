@@ -44,7 +44,7 @@ class Release:
                     config_package_list = config_obj.get_config_packages()
                     # Generate a file name for the zip
                     file_name = Constants.release_directory
-                    config_file_name = os.path.splitext(os.path.basename(config_files))[0]
+                    config_file_name = os.path.splitext(os.path.basename(config_files))[0].replace(" ", "")
                     file_name = file_name + Constants.dir_sep + Logs.get_file_name(config_file_name,
                                                                                    str(Config.TARGET_ANDROID_VERSION))
                     # Build the packages from the directory
