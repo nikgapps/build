@@ -17,6 +17,8 @@ class NikGappsConfig:
             return 10
         elif str(self.config_path).__contains__(os.path.sep + "11" + os.path.sep):
             return 11
+        else:
+            return 0
 
     def get_config_dictionary(self):
         lines = {}
