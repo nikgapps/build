@@ -22,7 +22,7 @@ class GitApi:
             headers = {'Authorization': f'token {Config.git_token_admin}'}
         else:
             headers = {'Accept': 'application/vnd.github.v3+json'}
-        return requests.get(url, data=json.dumps(params), headers=headers)
+        return requests.put(url, data=json.dumps(params), headers=headers)
 
     @staticmethod
     def get_open_pull_requests(authenticate=False):
