@@ -14,7 +14,8 @@ class GitApi:
         else:
             headers = {'Accept': 'application/vnd.github.v3+json'}
         r = requests.get(url, data=json.dumps(params), headers=headers)
-        print(json.dumps(r.json(), indent=4, sort_keys=True))
+        if Config.display_response:
+            print(json.dumps(r.json(), indent=4, sort_keys=True))
         print(r.status_code)
         return r
 
@@ -28,7 +29,8 @@ class GitApi:
         else:
             headers = {'Accept': 'application/vnd.github.v3+json'}
         r = requests.put(url, data=json.dumps(params), headers=headers)
-        print(json.dumps(r.json(), indent=4, sort_keys=True))
+        if Config.display_response:
+            print(json.dumps(r.json(), indent=4, sort_keys=True))
         print(r.status_code)
         return r
 
