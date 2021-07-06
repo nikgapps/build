@@ -25,7 +25,10 @@ for request in requests:
     else:
         print("Validation Successful!")
         print("Requesting a merge")
-        GitApi.merge_pull_request(pr_number)
+        if GitApi.merge_pull_request(pr_number):
+            print("Successfully merged!")
+        else:
+            print("Failed to merge!")
     print()
 
 print("end of program")

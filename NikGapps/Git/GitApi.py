@@ -44,6 +44,7 @@ class GitApi:
         execution_status = False
         try:
             r = GitApi.post_to_url(query_url, params, authenticate=True)
+            print(json.dumps(r.json(), indent=4, sort_keys=True))
             if r.status_code.__eq__("200"):
                 execution_status = True
         except Exception as e:
