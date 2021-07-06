@@ -6,23 +6,31 @@ import requests
 class GitApi:
     @staticmethod
     def read_from_url(url, params=None, authenticate=False):
+        print("Getting from " + str(url))
         if params is None:
             params = {"": ""}
         if authenticate:
             headers = {'Authorization': f'token {Config.git_token_admin}'}
         else:
             headers = {'Accept': 'application/vnd.github.v3+json'}
-        return requests.get(url, data=json.dumps(params), headers=headers)
+        r = requests.get(url, data=json.dumps(params), headers=headers)
+        print(json.dumps(r.json(), indent=4, sort_keys=True))
+        print(r.status_code)
+        return r
 
     @staticmethod
     def post_to_url(url, params=None, authenticate=False):
+        print("Posting to " + str(url))
         if params is None:
             params = {"": ""}
         if authenticate:
             headers = {'Authorization': f'token {Config.git_token_admin}'}
         else:
             headers = {'Accept': 'application/vnd.github.v3+json'}
-        return requests.put(url, data=json.dumps(params), headers=headers)
+        r = requests.put(url, data=json.dumps(params), headers=headers)
+        print(json.dumps(r.json(), indent=4, sort_keys=True))
+        print(r.status_code)
+        return r
 
     @staticmethod
     def get_open_pull_requests(authenticate=False):
