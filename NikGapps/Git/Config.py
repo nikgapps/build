@@ -7,7 +7,7 @@ if git_token_admin is None:
 owner = "nikgapps"
 repo = "config"
 
-display_response = os.environ['DISPLAY_RESPONSE']
+display_response = os.environ.get('DISPLAY_RESPONSE')
 if display_response is None:
     display_response = ""
 elif str(display_response).__eq__("1"):
