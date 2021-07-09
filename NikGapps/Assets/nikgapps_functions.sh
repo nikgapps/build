@@ -498,6 +498,11 @@ RemoveFromRomWithGapps() {
   echo "delete=$deletePath" >>$TMPDIR/addon/"$deleteFilesFromRomPath"
 }
 
+rmv() {
+  addToLog "- Removing $1"
+  rm -rf "$1"
+}
+
 set_perm() {
   chown "$1:$2" "$4"
   chmod "$3" "$4"
