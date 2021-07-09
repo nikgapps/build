@@ -4,7 +4,7 @@ from NikGapps.Git.PullRequest import PullRequest
 
 print("Finding the open pull requests")
 try:
-    requests = GitApi.get_open_pull_requests()
+    requests = GitApi.get_open_pull_requests(authenticate=True)
 except Exception as e:
     print(str(e))
     try:
