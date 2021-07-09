@@ -14,7 +14,7 @@ class GitApi:
         else:
             headers = {'Accept': 'application/vnd.github.v3+json'}
         r = requests.get(url, data=json.dumps(params), headers=headers)
-        if Config.display_response:
+        if Config.display_response or (not r.status_code.__eq__("200")):
             print(json.dumps(r.json(), indent=4, sort_keys=True))
         else:
             print("Only Capturing Status Code")
@@ -31,7 +31,7 @@ class GitApi:
         else:
             headers = {'Accept': 'application/vnd.github.v3+json'}
         r = requests.put(url, data=json.dumps(params), headers=headers)
-        if Config.display_response:
+        if Config.display_response or (not r.status_code.__eq__("200")):
             print(json.dumps(r.json(), indent=4, sort_keys=True))
         else:
             print("Only Capturing Status Code")
