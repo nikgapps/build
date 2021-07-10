@@ -1,4 +1,4 @@
-import NikGapps.Git.Config as Config
+import NikGapps.Git.GitConfig as Config
 import json
 import requests
 
