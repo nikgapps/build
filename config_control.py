@@ -39,10 +39,10 @@ if Config.BUILD_CONFIG:
                     if FileOp.dir_exists(repo_dir):
                         print(f"{repo_dir} already exists, deleting for a fresh clone!")
                         FileOp.remove_dir(repo_dir)
-                    print(f"git clone -b {branch} https://gitlab.com/nikgapps/{android_version}.git")
+                    print(f"git clone -b --depth=1 {branch} https://gitlab.com/nikgapps/{android_version}.git")
                     repo = git.Repo.clone_from(f"https://gitlab.com/nikgapps/{android_version}.git",
                                                repo_dir,
-                                               branch=branch)
+                                               branch=branch, depth=1)
                     assert repo.__class__ is Repo  # clone an existing repository
                     assert Repo.init(repo_dir).__class__ is Repo
                 except Exception as e:
