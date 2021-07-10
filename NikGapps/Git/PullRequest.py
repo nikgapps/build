@@ -1,4 +1,4 @@
-import NikGapps.Git.Config as Config
+import NikGapps.Git.GitConfig as Config
 from NikGapps.Git.GitApi import GitApi
 
 
