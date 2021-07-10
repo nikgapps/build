@@ -16,6 +16,7 @@ class Constants:
     local_datetime = datetime.now()
     # current_local_time = local_datetime.strftime("%Y-%m-%d %H:%M:%S")
     cwd = os.getcwd()
+    pwd = str(Path(cwd).parent)
     meta_inf_dir = "META-INF/com/google/android/"
     dir_sep = os.path.sep
     is_system_app = 1
