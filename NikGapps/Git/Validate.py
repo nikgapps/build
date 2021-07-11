@@ -16,6 +16,9 @@ class Validate:
             print("Validating: " + file_name)
             print("-------------------------------------------------------------------------------------")
             print("- checking file name")
+            if file_name.__contains__("#") or file_name.__contains__("!"):
+                failure_reason.append(f"{file_name} contains symbols in the name which are not allowed. "
+                                      f"Only alphanumeric names are allowed!")
             if not file_name.endswith(".config"):
                 failure_reason.append(f"{file_name} doesn't have .config extension, we only accept config files!")
             print("- checking if android version is present")
@@ -28,6 +31,6 @@ class Validate:
             file_status = str(files_changed[i]["status"])
             if not file_status.__eq__("added"):
                 failure_reason.append(
-                    f"We cannot merge the changes automatically since {file_name} is either modified or removed, "
+                    f"Cannot merge the changes automatically since {file_name} is either modified or removed, "
                     "Wait for someone to manually review!")
         return failure_reason
