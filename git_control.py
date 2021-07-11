@@ -13,7 +13,10 @@ except Exception as e:
         print(str(e))
         requests = []
 
+print("Total Open Pull Requests: " + str(len(requests)))
+
 for request in requests:
+    print("-------------------------------------------------------------------------------------")
     pr_number = request["number"]
     pr = PullRequest(pr_number, request)
     pr_url = request["url"]
@@ -21,7 +24,19 @@ for request in requests:
     failure_reason = Validate.pull_request(pr)
     print()
     if len(failure_reason) > 0:
-        print("Validation Failed with reason(s): " + str(failure_reason))
+        print("Checking if comments already made")
+        comments = GitApi.get_comments_from_pull_request(pr_number, authenticate=True)
+        comments_len = len(comments)
+        print("Total comments already made: " + str(comments_len))
+        if comments_len > 0:
+            last_commenter = comments[comments_len - 1]["user"]["login"]
+            comment_body = comments[comments_len - 1]["body"]
+            if str(last_commenter).__eq__("nikgapps") or str(last_commenter).__eq__("nikhilmenghani"):
+                print("Comment already made")
+                print(comment_body)
+                print("Moving on!")
+                continue
+        GitApi.comment_on_pull_request(pr_number, failure_reason)
     else:
         print("Validation Successful!")
         print("Requesting a merge")
