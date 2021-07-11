@@ -7,7 +7,7 @@ class Validate:
     @staticmethod
     def pull_request(pr: PullRequest):
         failure_reason = []
-        files_changed = pr.get_files_changed()
+        files_changed = pr.get_files_changed(True)
         total = len(files_changed)
         print("Total files changed: " + str(total))
         for i in range(0, total):

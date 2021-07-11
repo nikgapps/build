@@ -18,7 +18,7 @@ print("Total Open Pull Requests: " + str(len(requests)))
 for request in requests:
     print("-------------------------------------------------------------------------------------")
     pr_number = request["number"]
-    pr = PullRequest(pr_number, request)
+    pr = PullRequest(pr_number, request, authenticate=True)
     pr_url = request["url"]
     print("Validating pull request " + str(pr_url))
     failure_reason = Validate.pull_request(pr)

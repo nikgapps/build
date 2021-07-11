@@ -6,7 +6,6 @@ import requests
 class GitApi:
     @staticmethod
     def read_from_url(url, params=None, authenticate=False):
-        print("Getting from " + str(url))
         if params is None:
             params = {"": ""}
         if authenticate:
@@ -14,16 +13,15 @@ class GitApi:
         else:
             headers = {'Accept': 'application/vnd.github.v3+json'}
         r = requests.get(url, data=json.dumps(params), headers=headers)
-        print("-------------------------------------------------------------------------------------")
-        print(f"Response {str(r.status_code)} while hitting {url}")
+        print("--------------------------------------------------------------------------------")
+        print(f"Response {str(r.status_code)} while reading from {url}")
         if not r.status_code.__eq__(200):
             print(json.dumps(r.json(), indent=4, sort_keys=True))
-        print("-------------------------------------------------------------------------------------")
+        print("--------------------------------------------------------------------------------")
         return r
 
     @staticmethod
     def put_to_url(url, params=None, authenticate=False):
-        print("Putting to " + str(url))
         if params is None:
             params = {"": ""}
         if authenticate:
@@ -32,16 +30,15 @@ class GitApi:
         else:
             headers = {'Accept': 'application/vnd.github.v3+json'}
         r = requests.put(url, data=json.dumps(params), headers=headers)
-        print("-------------------------------------------------------------------------------------")
-        print(f"Response {str(r.status_code)} while hitting {url}")
+        print("--------------------------------------------------------------------------------")
+        print(f"Response {str(r.status_code)} while putting to {url}")
         if not r.status_code.__eq__(200):
             print(json.dumps(r.json(), indent=4, sort_keys=True))
-        print("-------------------------------------------------------------------------------------")
+        print("--------------------------------------------------------------------------------")
         return r
 
     @staticmethod
     def post_to_url(url, params=None, authenticate=False):
-        print("Posting to " + str(url))
         if params is None:
             params = {"": ""}
         if authenticate:
@@ -51,7 +48,7 @@ class GitApi:
             headers = {'Accept': 'application/vnd.github.v3+json'}
         r = requests.post(url, data=json.dumps(params), headers=headers)
         print("-------------------------------------------------------------------------------------")
-        print(f"Response {str(r.status_code)} while hitting {url}")
+        print(f"Response {str(r.status_code)} while posting to {url}")
         if not r.status_code.__eq__(201):
             print(json.dumps(r.json(), indent=4, sort_keys=True))
         print("-------------------------------------------------------------------------------------")
