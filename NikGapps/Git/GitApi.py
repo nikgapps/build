@@ -52,7 +52,7 @@ class GitApi:
         r = requests.post(url, data=json.dumps(params), headers=headers)
         print("-------------------------------------------------------------------------------------")
         print(f"Response {str(r.status_code)} while hitting {url}")
-        if not r.status_code.__eq__(200):
+        if not r.status_code.__eq__(201):
             print(json.dumps(r.json(), indent=4, sort_keys=True))
         print("-------------------------------------------------------------------------------------")
         return r
