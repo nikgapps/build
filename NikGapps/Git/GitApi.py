@@ -1,3 +1,5 @@
+import time
+
 import NikGapps.Git.GitConfig as Config
 import json
 import requests
@@ -106,6 +108,10 @@ class GitApi:
         execution_status = False
         try:
             r = GitApi.put_to_url(query_url, params, authenticate=True)
+            if r.status_code.__eq__(405):
+                print("Base branch was modified. Trying the merge again")
+                time.sleep(60)
+                r = GitApi.put_to_url(query_url, params, authenticate=True)
             if r.status_code.__eq__(200):
                 print(json.dumps(r.json(), indent=4, sort_keys=True))
                 execution_status = True
