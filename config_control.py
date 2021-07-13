@@ -7,7 +7,7 @@ from Release import Release
 from NikGapps.Helper.Constants import Constants
 from NikGapps.Helper.FileOp import FileOp
 
-start_time = Constants.start_of_function()
+actual_start_time = Constants.start_of_function()
 
 if Config.BUILD_CONFIG:
     arg_len = len(sys.argv)
@@ -61,4 +61,4 @@ if Config.BUILD_CONFIG:
     else:
         print(Constants.config_directory + " doesn't exist!")
 
-Constants.end_of_function(start_time, "Total time taken by the program to build custom builds")
+Constants.end_of_function(actual_start_time, "Total time taken by the program to build custom builds")
