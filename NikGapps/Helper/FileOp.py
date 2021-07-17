@@ -47,6 +47,28 @@ class FileOp:
         return False
 
     @staticmethod
+    def convert_unit(size_in_bytes, unit):
+        """ Convert the size from bytes to other units like KB, MB or GB"""
+        if unit == "KB":
+            return size_in_bytes / 1024
+        elif unit == "MB":
+            return size_in_bytes / (1024 * 1024)
+        elif unit == "GB":
+            return size_in_bytes / (1024 * 1024 * 1024)
+        else:
+            return size_in_bytes
+
+    @staticmethod
+    def get_file_size(file_name, size_type="MB"):
+        """ Get file in size in given unit like KB, MB or GB"""
+        try:
+            size = os.path.getsize(file_name)
+        except Exception as e:
+            size = 0
+            print("Exception occurred while calculating file size: " + str(e))
+        return FileOp.convert_unit(size, size_type)
+
+    @staticmethod
     def get_dir_list(file_path):
         return_list = []
         dir_list = ""
