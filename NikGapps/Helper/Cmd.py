@@ -34,6 +34,7 @@ class Cmd:
     COMMAND_LIST_PACKAGES_SYSTEM = adb_path + ["shell", "pm", "list", "packages", "-s"]
     COMMAND_PATH_PACKAGES = adb_path + ["shell", "pm", "path", "package"]
     COMMAND_AAPT_DUMP_BADGING = aapt_path + ["dump", "badging", "apkFilePath", ">>", "temp_file"]
+    COMMAND_AAPT_DUMP_PACKAGENAME = aapt_path + ["dump", "packagename", "apkFilePath", ">>", "temp_file"]
     COMMAND_AAPT_DUMP_PERMISSIONS = aapt_path + ["dump", "permissions", "apkFilePath", ">>", "temp_file"]
     COMMAND_LIST_FILES_SU = adb_path + ["ls", "/data/app"]
     COMMAND_ADB_SHELL_SU = adb_path + ["shell", "su"]
@@ -172,20 +173,20 @@ class Cmd:
         return return_list
 
     def get_package_name(self, apk_path):
-        self.COMMAND_AAPT_DUMP_BADGING[3] = apk_path
+        self.COMMAND_AAPT_DUMP_PERMISSIONS[3] = apk_path
         # A temporary file where the output will be stored
         temp_file = Constants.temp_packages_directory + Constants.dir_sep + "temp.txt"
-        self.COMMAND_AAPT_DUMP_BADGING[5] = temp_file
+        self.COMMAND_AAPT_DUMP_PERMISSIONS[5] = temp_file
         if DEBUG_MODE:
-            print("Executing: " + str(self.COMMAND_AAPT_DUMP_BADGING))
-        output_list = self.execute_cmd(self.COMMAND_AAPT_DUMP_BADGING)
+            print("Executing: " + str(self.COMMAND_AAPT_DUMP_PERMISSIONS))
+        output_list = self.execute_cmd(self.COMMAND_AAPT_DUMP_PERMISSIONS)
         if FileOp.file_exists(temp_file):
             return_list = FileOp.read_package_name(temp_file)
-        elif output_list.__len__() >= 1 and output_list[0].startswith("package: name="):
+        elif output_list.__len__() >= 1 and output_list[0].startswith("package:"):
             text = output_list[0]
             if text.startswith("package:"):
-                index1 = text.find("'")
-                text = text[index1 + 1: -1]
+                index1 = text.find(":")
+                text = text[index1 + 2:]
                 index1 = text.find("'")
                 text = text[0: index1]
             else:
