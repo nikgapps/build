@@ -34,6 +34,7 @@ class Cmd:
     COMMAND_LIST_PACKAGES_SYSTEM = adb_path + ["shell", "pm", "list", "packages", "-s"]
     COMMAND_PATH_PACKAGES = adb_path + ["shell", "pm", "path", "package"]
     COMMAND_AAPT_DUMP_BADGING = aapt_path + ["dump", "badging", "apkFilePath", ">>", "temp_file"]
+    COMMAND_AAPT_DUMP_PERMISSIONS = aapt_path + ["dump", "permissions", "apkFilePath", ">>", "temp_file"]
     COMMAND_LIST_FILES_SU = adb_path + ["ls", "/data/app"]
     COMMAND_ADB_SHELL_SU = adb_path + ["shell", "su"]
     COMMAND_ANDROID_VERSION = adb_path + ["shell", "getprop", "ro.build.version.release"]
@@ -148,16 +149,16 @@ class Cmd:
         return exists
 
     def get_white_list_permissions(self, apk_path):
-        self.COMMAND_AAPT_DUMP_BADGING[3] = apk_path
+        self.COMMAND_AAPT_DUMP_PERMISSIONS[3] = apk_path
         temp_file = "temp.txt"  # A temporary file where the output will be stored
-        self.COMMAND_AAPT_DUMP_BADGING[5] = temp_file
+        self.COMMAND_AAPT_DUMP_PERMISSIONS[5] = temp_file
         if DEBUG_MODE:
-            print("Executing: " + str(self.COMMAND_AAPT_DUMP_BADGING))
-        output_list = self.execute_cmd(self.COMMAND_AAPT_DUMP_BADGING)
+            print("Executing: " + str(self.COMMAND_AAPT_DUMP_PERMISSIONS))
+        output_list = self.execute_cmd(self.COMMAND_AAPT_DUMP_PERMISSIONS)
         return_list = []
         if FileOp.file_exists(temp_file):
             return_list = FileOp.read_priv_app_temp_file(temp_file)
-        elif output_list.__len__() >= 1 and output_list[0].startswith("package: name="):
+        elif output_list.__len__() >= 1 and output_list[0].startswith("package:"):
             for line in output_list:
                 if line.startswith("uses-permission:"):
                     try:
