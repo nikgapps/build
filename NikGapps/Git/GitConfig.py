@@ -6,3 +6,4 @@ if git_token_admin is None:
 
 owner = "nikgapps"
 repo = "config"
+deploy_repo = "deploy"

@@ -57,6 +57,21 @@ class GitApi:
         return r
 
     @staticmethod
+    def get_running_workflows(authenticate=False):
+        query_url = f"https://api.github.com/repos/{Config.owner}/{Config.deploy_repo}/actions/runs"
+        workflows = []
+        data_json = GitApi.read_from_url(query_url, authenticate=authenticate).json()
+        if len(data_json) > 0:
+            data_json = data_json["workflow_runs"]
+            data_size = len(data_json)
+            if data_size > 0:
+                for i in range(0, data_size):
+                    status = data_json[i]["status"]
+                    if status == "queued" or status == "in_progress":
+                        workflows.append(data_json[i])
+        return workflows
+
+    @staticmethod
     def get_open_pull_requests(authenticate=False):
         query_url = f"https://api.github.com/repos/{Config.owner}/{Config.repo}/pulls"
         pull_requests = []
