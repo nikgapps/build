@@ -187,8 +187,6 @@ class Cmd:
             if text.startswith("package:"):
                 index1 = text.find(":")
                 text = text[index1 + 2:]
-                index1 = text.find("'")
-                text = text[0: index1]
             else:
                 text = "Exception: Package Not Found"
             return text
