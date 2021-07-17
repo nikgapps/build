@@ -165,9 +165,9 @@ class Cmd:
                         if permissions.__len__() > 1:
                             return_list.append(permissions[1])
                     except Exception as e:
-                        return_list = ["Exception: " + str(e.message)]
+                        return_list = ["Exception: " + str(e)]
         else:
-            return_list = "Exception: File Not Found"
+            return_list = ["Exception: File Not Found"]
         return return_list
 
     def get_package_name(self, apk_path):
