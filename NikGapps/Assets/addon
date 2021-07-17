@@ -214,3 +214,6 @@ cat "$COMMONDIR/header" >> "$dest"
   run
 } >>"$dest"
 chmod 755 "$dest"
+mkdir -p "$addon_scripts_logDir"
+rm -rf "$addon_scripts_logDir/50-$fileName.sh"
+cat "$dest" > "$addon_scripts_logDir/50-$fileName.sh"

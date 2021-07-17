@@ -138,6 +138,9 @@ copy_logs() {
   for f in $PROPFILES; do
     copy_file "$f" "$logDir/propfiles/$f"
   done
+  for f in $addon_scripts_logDir; do
+    copy_file "$f" "$logDir/addonscripts/$f"
+  done
   calculate_space "system" "product" "system_ext"
   copy_file "$debloater_config_file_name" "$logDir/configfiles/debloater.config"
   copy_file "$nikgapps_config_file_name" "$logDir/configfiles/nikgapps.config"

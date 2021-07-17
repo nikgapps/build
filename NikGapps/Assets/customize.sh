@@ -32,6 +32,7 @@ nikGappsLogFile="NikGapps_logs_$datetime.tar.gz"
 nikGappsLogFile="Logs-"$actual_file_name.tar.gz
 recoveryLog=/tmp/recovery.log
 logDir="$TMPDIR/NikGapps/logs"
+addon_scripts_logDir="$logDir/addonscripts"
 nikGappsDir="/sdcard/NikGapps"
 nikGappsLog=$TMPDIR/NikGapps.log
 busyboxLog=$TMPDIR/busybox.log
@@ -47,6 +48,7 @@ ensure_config() {
   mkdir -p "$nikGappsDir"
   mkdir -p "$addonDir"
   mkdir -p "$logDir"
+  mkdir -p "$addon_scripts_logDir"
   nikgappsConfig="$sdcard/NikGapps/nikgapps.config"
   debloaterConfig="$sdcard/NikGapps/debloater.config"
   if [ ! -f $nikgappsConfig ]; then
