@@ -16,7 +16,7 @@ except Exception as e:
 
 print("Total Open Workflows: " + str(len(workflows)))
 
-if len(workflows) > 0:
+if len(workflows) > 1:
     print("Open workflows detected, Let's wait for open workflows to finish")
     exit(0)
 
