@@ -15,11 +15,12 @@ class GitApi:
         else:
             headers = {'Accept': 'application/vnd.github.v3+json'}
         r = requests.get(url, data=json.dumps(params), headers=headers)
-        print("--------------------------------------------------------------------------------")
-        print(f"Response {str(r.status_code)} while reading from {url}")
+
         if not r.status_code.__eq__(200):
+            print("--------------------------------------------------------------------------------")
+            print(f"Response {str(r.status_code)} while reading from {url}")
             print(json.dumps(r.json(), indent=4, sort_keys=True))
-        print("--------------------------------------------------------------------------------")
+            print("--------------------------------------------------------------------------------")
         return r
 
     @staticmethod
@@ -32,11 +33,12 @@ class GitApi:
         else:
             headers = {'Accept': 'application/vnd.github.v3+json'}
         r = requests.put(url, data=json.dumps(params), headers=headers)
-        print("--------------------------------------------------------------------------------")
-        print(f"Response {str(r.status_code)} while putting to {url}")
+
         if not r.status_code.__eq__(200):
+            print("--------------------------------------------------------------------------------")
+            print(f"Response {str(r.status_code)} while putting to {url}")
             print(json.dumps(r.json(), indent=4, sort_keys=True))
-        print("--------------------------------------------------------------------------------")
+            print("--------------------------------------------------------------------------------")
         return r
 
     @staticmethod
