@@ -3,12 +3,30 @@ from pathlib import Path
 import Config
 import git
 from git import Repo
+
+from NikGapps.Git.GitApi import GitApi
 from Release import Release
 from NikGapps.Helper.Constants import Constants
 from NikGapps.Helper.FileOp import FileOp
 
-start_time = Constants.start_of_function()
+actual_start_time = Constants.start_of_function()
+print("Checking if there is any existing workflow in progress")
 
+try:
+    workflows = GitApi.get_running_workflows(authenticate=False)
+except Exception as e:
+    print(str(e))
+    try:
+        workflows = GitApi.get_running_workflows(authenticate=True)
+    except Exception as e:
+        print(str(e))
+        workflows = []
+
+print("Total Open Workflows: " + str(len(workflows)))
+
+if len(workflows) > 1:
+    print("Open workflows detected, Let's wait for open workflows to finish")
+    exit(0)
 if Config.BUILD_CONFIG:
     arg_len = len(sys.argv)
     android_versions = [Config.TARGET_ANDROID_VERSION]
@@ -61,4 +79,4 @@ if Config.BUILD_CONFIG:
     else:
         print(Constants.config_directory + " doesn't exist!")
 
-Constants.end_of_function(start_time, "Total time taken by the program to build custom builds")
+Constants.end_of_function(actual_start_time, "Total time taken by the program to build custom builds")

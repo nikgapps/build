@@ -189,7 +189,11 @@ class Export:
                     print("The Connection Failed!")
                 # make sure we close the connection
                 u.close()
-                Constants.end_of_function(start_time, "Total time taken to upload the file")
+                file_size_kb = round(FileOp.get_file_size(file_name, "KB"), 2)
+                file_size_mb = round(FileOp.get_file_size(file_name), 2)
+                Constants.end_of_function(start_time,
+                                          f"Total time taken to upload file with size {file_size_mb} MB ("
+                                          f"{file_size_kb} Kb)")
             return zip_execution_status
 
     @staticmethod

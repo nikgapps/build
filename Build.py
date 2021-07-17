@@ -46,7 +46,8 @@ class Build:
                     pkg_files_path = str(pkg_files)
                     pkg_files_path = pkg_files_path[pkg_files_path.find("___") + 3:]
                     if pkg_to_build.package_name is not None and str(pkg_files_path).endswith(".apk") and not str(
-                            pkg_files).__contains__("split_") and not str(pkg_files).__contains__("___m___"):
+                            pkg_files).__contains__("split_") and not str(pkg_files).__contains__("___m___") \
+                            and not str(pkg_files).__contains__("___overlay"):
                         primary_app_location = pkg_files.absolute()
                         package_name = cmd.get_package_name(primary_app_location)
                         # print("File: " + package_name)
