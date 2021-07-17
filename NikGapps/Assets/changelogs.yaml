@@ -1,3 +1,7 @@
+- date: 18th July 2021 (Android R and Q Release)
+  changes:
+      - item: Fix priv-app permissions not being generated when the application manifest was broken
+      - item: Playstore updates (Android R) (18th July)
 - date: 4th July 2021 (Android R and Q Release)
   changes:
       - item: Fix unzip command failing to recognize '-p' arg and eventually failing the installation (thanks to @glx33807 and @OneWayGamer)
