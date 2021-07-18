@@ -54,7 +54,7 @@ class Cmd:
         else:
             exception_msg = "Exception occurred while executing " + str(command_to_execute) + " " + \
                             p.stderr.split("\n")[0]
-            return [exception_msg]
+            return [exception_msg, p.stdout]
 
     def adb_has_root_permissions(self):
         print("Checking for root permissions")
@@ -198,9 +198,24 @@ class Cmd:
         self.COMMAND_AAPT_DUMP_BADGING[3] = apk_path
         temp_file = "temp.txt"  # A temporary file where the output will be stored
         self.COMMAND_AAPT_DUMP_BADGING[5] = temp_file
-        # print("Executing: " + str(self.COMMAND_AAPT_DUMP_BADGING))
-        self.execute_cmd(self.COMMAND_AAPT_DUMP_BADGING)
-        return_list = FileOp.read_package_version(temp_file)
+        output_list = self.execute_cmd(self.COMMAND_AAPT_DUMP_BADGING)
+        if FileOp.file_exists(temp_file):
+            return_list = FileOp.read_package_version(temp_file)
+        elif output_list.__len__() >= 1:
+            if output_list[0].startswith("Exception") and len(output_list) == 2:
+                text = output_list[1]
+            else:
+                text = output_list[0]
+            if text.__contains__("versionName="):
+                index1 = text.find("versionName='")
+                text = text[index1 + 13: -1]
+                index1 = text.find("'")
+                text = text[0: index1]
+            else:
+                text = "Exception: Version Not found!"
+            return text
+        else:
+            return_list = "Exception: Version Not Found"
         return return_list
 
     def sign_zip_file(self, zip_path):
