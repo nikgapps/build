@@ -14,10 +14,13 @@ except Exception as e:
         print(str(e))
         workflows = []
 
-print("Total Open Workflows: " + str(len(workflows)))
+if len(workflows) > 0:
+    print("Total Open Workflows: " + str(len(workflows)) + f", most recent being {workflows[0]['run_number']}")
 
 if len(workflows) > 1:
-    print("Open workflows detected, Let's wait for open workflows to finish")
+    print(f"Open workflows detected, Let's wait for open workflows to finish")
+    for workflow in workflows:
+        print(workflow["run_number"])
     exit(0)
 
 print("Finding the open pull requests")
