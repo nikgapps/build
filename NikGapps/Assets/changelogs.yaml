@@ -1,3 +1,8 @@
+- date: 04th Aug 2021 (Android R and Q Release)
+  changes:
+      - item: Update GoogleChrome to v90
+      - item: Delete AOSP Files with installation of GoogleFiles
+      - item: nikgapps.config version updated to 16 (recommend to use this to build custom gapps builds)
 - date: 18th July 2021 (Android R and Q Release)
   changes:
       - item: Fix priv-app permissions not being generated when the application manifest was broken
