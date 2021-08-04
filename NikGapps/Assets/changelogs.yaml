@@ -1,8 +1,10 @@
 - date: 04th Aug 2021 (Android R and Q Release)
   changes:
-      - item: Update GoogleChrome to v90
+      - item: Update GoogleChrome to v90 (Android R)
       - item: Delete AOSP Files with installation of GoogleFiles
       - item: nikgapps.config version updated to 16 (recommend to use this to build custom gapps builds)
+      - item: Update YouTube Vanced to v16.20.35, Vanced Music to v4.30.51, Vanced manager to v2.6.0
+      - item: Playstore updates (4th August)
 - date: 18th July 2021 (Android R and Q Release)
   changes:
       - item: Fix priv-app permissions not being generated when the application manifest was broken
