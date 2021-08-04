@@ -142,7 +142,9 @@ copy_logs() {
     copy_file "$f" "$logDir/addonscripts/$f"
   done
   calculate_space "system" "product" "system_ext"
+  addToLog "- copying $debloater_config_file_name to log directory"
   copy_file "$debloater_config_file_name" "$logDir/configfiles/debloater.config"
+  addToLog "- copying $nikgapps_config_file_name to log directory"
   copy_file "$nikgapps_config_file_name" "$logDir/configfiles/nikgapps.config"
   copy_file "$recoveryLog" "$logDir/logfiles/recovery.log"
   copy_file "$nikGappsLog" "$logDir/logfiles/NikGapps.log"

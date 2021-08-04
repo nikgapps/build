@@ -7,3 +7,5 @@ if git_token_admin is None:
 owner = "nikgapps"
 repo = "config"
 deploy_repo = "deploy"
+
+hours_before_close_pr = 24

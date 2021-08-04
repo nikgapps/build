@@ -42,6 +42,24 @@ class GitApi:
         return r
 
     @staticmethod
+    def patch_to_url(url, params=None, authenticate=False):
+        if params is None:
+            params = {"": ""}
+        if authenticate:
+            headers = {'Content-Type': 'application/json',
+                       'Authorization': f'token {Config.git_token_admin}'}
+        else:
+            headers = {'Accept': 'application/vnd.github.v3+json'}
+        r = requests.patch(url, data=json.dumps(params), headers=headers)
+
+        if not r.status_code.__eq__(200):
+            print("--------------------------------------------------------------------------------")
+            print(f"Response {str(r.status_code)} while putting to {url}")
+            print(json.dumps(r.json(), indent=4, sort_keys=True))
+            print("--------------------------------------------------------------------------------")
+        return r
+
+    @staticmethod
     def post_to_url(url, params=None, authenticate=False):
         if params is None:
             params = {"": ""}
@@ -94,12 +112,15 @@ class GitApi:
         return comments
 
     @staticmethod
-    def comment_on_pull_request(pull_number, failure_reason):
+    def comment_on_pull_request(pull_number, failure_reason, closing=False):
         query_url = f"https://api.github.com/repos/{Config.owner}/{Config.repo}/issues/{pull_number}/comments"
-        comment = "We cannot merge the pull request due to following reasons\n\n"
-        for reason in failure_reason:
-            comment += "- " + reason + "\n"
-        comment += "\nKindly make the changes and send the pull request again!"
+        if closing:
+            comment = failure_reason[0]
+        else:
+            comment = "We cannot merge the pull request due to following reasons\n\n"
+            for reason in failure_reason:
+                comment += "- " + reason + "\n"
+            comment += "\nKindly make the changes and send the pull request again!"
         print(comment)
         params = {
             "body": comment
@@ -109,6 +130,25 @@ class GitApi:
             r = GitApi.post_to_url(query_url, params=params, authenticate=True)
             if r.status_code.__eq__(201):
                 print("Comment successfully made!")
+                execution_status = True
+        except Exception as e:
+            print(str(e))
+        return execution_status
+
+    @staticmethod
+    def close_pull_request(pull_number, message=None):
+        execution_status = False
+        if message is not None:
+            if not GitApi.comment_on_pull_request(pull_number, [message], closing=True):
+                print("Failed to comment on the post, not closing, may be next time!")
+                return execution_status
+        query_url = f"https://api.github.com/repos/{Config.owner}/{Config.repo}/pulls/{pull_number}"
+        params = {
+            "state": "closed"
+        }
+        try:
+            r = GitApi.patch_to_url(query_url, params, authenticate=True)
+            if r.status_code.__eq__(200):
                 execution_status = True
         except Exception as e:
             print(str(e))

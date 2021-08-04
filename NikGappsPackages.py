@@ -516,7 +516,9 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
             "overlay/PixelDocumentsUIGoogleOverlay/PixelDocumentsUIGoogleOverlay.apk")
         storage_manager_google = Package("StorageManagerGoogle", "com.google.android.storagemanager",
                                          Constants.is_priv_app, "StorageManager", partition="system_ext")
-        app_set_list = AppSet("GoogleFiles", [google_files, storage_manager_google])
+        documents_ui_google = Package("DocumentsUIGoogle", "com.google.android.documentsui", Constants.is_priv_app)
+        documents_ui_google.delete("DocumentsUI")
+        app_set_list = AppSet("GoogleFiles", [google_files, storage_manager_google, documents_ui_google])
         return app_set_list
 
     @staticmethod
@@ -585,7 +587,8 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
         pixel_setup_wizard_aod_overlay = Package("PixelSetupWizardAodOverlay",
                                                  "com.google.android.pixel.setupwizard.overlay.aod",
                                                  Constants.is_system_app)
-        pixel_setup_wizard = Package("PixelSetupWizard", "com.google.android.pixel.setupwizard", Constants.is_priv_app, partition="system_ext")
+        pixel_setup_wizard = Package("PixelSetupWizard", "com.google.android.pixel.setupwizard", Constants.is_priv_app,
+                                     partition="system_ext")
         android_migrate_prebuilt = Package("AndroidMigratePrebuilt", "com.google.android.apps.pixelmigrate",
                                            Constants.is_priv_app)
         pixel_tips = Package("TipsPrebuilt", "com.google.android.apps.tips", Constants.is_priv_app, "PixelTips")
