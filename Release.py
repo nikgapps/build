@@ -24,7 +24,8 @@ class Release:
                     Release.zip_package(sent_message,
                                         Constants.release_directory + Constants.dir_sep + str(
                                             "addons") + Constants.dir_sep + "NikGapps-Addon-"
-                                        + Constants.android_version_folder + "-" + app_set.title + ".zip", [app_set])
+                                        + Constants.android_version_folder + "-" + app_set.title + "-" + str(
+                                            Logs.get_current_time()) + ".zip", [app_set])
             elif pkg_type == "config":
                 config_repo = Git(Constants.config_directory)
                 for config_files in Path(Constants.config_directory).rglob("*"):
@@ -73,7 +74,7 @@ class Release:
             elif pkg_type == "debloater":
                 if Config.CREATE_DEBLOATER_ZIP:
                     file_name = Constants.release_directory + Constants.dir_sep + "Debloater-" + str(
-                            Logs.get_current_time()) + ".zip"
+                        Logs.get_current_time()) + ".zip"
                     z = Export(file_name)
                     pkg_build_list = []
                     z.zip(pkg_build_list, sent_message)
@@ -100,8 +101,8 @@ class Release:
                                 sent_message.edit_text("Building for " + str(app_set.title))
                             Release.zip_package(sent_message, Constants.release_directory
                                                 + Constants.dir_sep + "addons" + Constants.dir_sep + "NikGapps-Addon-"
-                                                + Constants.android_version_folder + "-" + app_set.title + ".zip",
-                                                [app_set])
+                                                + Constants.android_version_folder + "-" + app_set.title + "-"
+                                                + str(Logs.get_current_time()) + ".zip", [app_set])
             os.environ['pkg_type'] = ''
 
     @staticmethod
