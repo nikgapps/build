@@ -152,13 +152,13 @@ copy_logs() {
   cd "$logDir" || return
   rm -rf "$nikGappsDir"/logs
   tar -cz -f "$TMPDIR/$nikGappsLogFile" *
-  mkdir -p "$nikGappsDir"/logs
-  copy_file "$TMPDIR/$nikGappsLogFile" "$nikGappsDir/logs/$nikGappsLogFile"
+  rm -rf "$nikgapps_log_dir/nikgapps_logs"
+  rm -rf "$nikgapps_config_dir/nikgapps_logs"
   [ -z "$nikgapps_config_dir" ] && nikgapps_config_dir=/sdcard/NikGapps
-  rm -rf "$nikgapps_config_dir"/nikgapps_logs
-  mkdir -p "$nikgapps_config_dir"/nikgapps_logs
-  copy_file "$TMPDIR/$nikGappsLogFile" "$nikgapps_config_dir"/nikgapps_logs/"$nikGappsLogFile"
-  ui_print "- Copying Logs at $nikGappsDir/logs/$nikGappsLogFile"
+  copy_file "$TMPDIR/$nikGappsLogFile" "$nikGappsDir/logs/$nikGappsLogFile"
+  copy_file "$TMPDIR/$nikGappsLogFile" "$nikgapps_config_dir/nikgapps_logs/$nikGappsLogFile"
+  copy_file "$TMPDIR/$nikGappsLogFile" "$nikgapps_log_dir/$nikGappsLogFile"
+  ui_print "- Copying Logs at $nikgapps_log_dir/$nikGappsLogFile"
   ui_print " "
   cd /
 }
@@ -332,6 +332,14 @@ find_install_type() {
     fi;
   done
   ui_print "- Install Type is $install_type"
+}
+
+find_log_directory() {
+  value=$(ReadConfigValue "LogDirectory" "$nikgapps_config_file_name")
+  addToLog "- LogDirectory=$value"
+  [ "$value" = "default" ] && value="$nikGappsDir"
+  [ -z "$value" ] && value="$nikGappsDir"
+  nikgapps_log_dir="$value/nikgapps_logs"
 }
 
 find_zip_type() {

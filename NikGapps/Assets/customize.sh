@@ -168,6 +168,7 @@ begin_unmounting
 begin_mounting
 ensure_config
 find_config
+find_log_directory
 # find device information
 show_device_info
 # Name NikGapps log file
@@ -186,7 +187,7 @@ find_gapps_size
 test "$zip_type" = "debloater" && debloat
 calculate_space "system" "product" "system_ext"
 ui_print " "
-test "$zip_type" == "addon_exclusive" || test "$zip_type" == "addon" && is_on_top_of_nikgapps
+test "$zip_type" = "addon_exclusive" || test "$zip_type" = "addon" && is_on_top_of_nikgapps
 test "$zip_type" = "debloater" && ui_print "--> Starting the debloat process"
 
 if [ "$zip_type" != "debloater" ]; then
