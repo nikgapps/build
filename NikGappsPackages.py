@@ -488,6 +488,7 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
                                 "YouTubeMusic")
         youtube_music.delete("SnapdragonMusic")
         youtube_music.delete("GooglePlayMusic")
+        youtube_music.delete("Eleven")
         app_set_list.append(AppSet("YouTubeMusic", [youtube_music]))
         play_games = Package("PlayGames", "com.google.android.play.games", Constants.is_system_app)
         app_set_list.append(AppSet("PlayGames", [play_games]))
