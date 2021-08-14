@@ -265,7 +265,7 @@ find_config() {
   ui_print " "
   ui_print "--> Finding config files"
   nikgapps_config_file_name="$nikGappsDir/nikgapps.config"
-  for location in "/tmp" "$TMPDIR" "$ZIPDIR" "/sdcard1" "/sdcard1/NikGapps" "/sdcard" "/storage/emulated" "$COMMONDIR" "/storage/emulated/NikGapps"; do
+  for location in "/tmp" "$TMPDIR" "$ZIPDIR" "/sdcard1" "/sdcard1/NikGapps" "/sdcard" "/sdcard/NikGapps" "/storage/emulated" "/storage/emulated/NikGapps" "$COMMONDIR" ; do
     if [ -f "$location/nikgapps.config" ]; then
       nikgapps_config_file_name="$location/nikgapps.config"
       break;
@@ -273,7 +273,7 @@ find_config() {
   done
   nikgapps_config_dir=$(dirname "$nikgapps_config_file_name")
   debloater_config_file_name="/sdcard/NikGapps/debloater.config"
-  for location in "/tmp" "$TMPDIR" "$ZIPDIR" "/sdcard1" "/sdcard1/NikGapps" "/sdcard" "/storage/emulated" "$COMMONDIR" "/storage/emulated/NikGapps"; do
+  for location in "/tmp" "$TMPDIR" "$ZIPDIR" "/sdcard1" "/sdcard1/NikGapps" "/sdcard" "/sdcard/NikGapps" "/storage/emulated" "/storage/emulated/NikGapps" "$COMMONDIR"; do
     if [ -f "$location/debloater.config" ]; then
       debloater_config_file_name="$location/debloater.config"
       break;
