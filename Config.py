@@ -64,3 +64,14 @@ GIT_CHECK = True
 
 # Enabling this will enable the feature of building NikGapps using config file
 BUILD_CONFIG = True
+
+# Possible Values are ['fetch', 'build']
+PROJECT_MODE = "fetch"
+
+# This will help fetch the files which requires root access such as overlay files
+ADB_ROOT_ENABLED = False
+
+# Fetch Package is the package you wish to pull from your device
+# Possible Values are ['core', 'basic', 'omni', 'stock', 'full', 'ultra', 'addons', 'addonsets', '<addon>'
+# (for e.g 'YouTube')]
+FETCH_PACKAGE = "core"

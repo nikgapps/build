@@ -52,11 +52,13 @@ ensure_config() {
   nikgappsConfig="$sdcard/NikGapps/nikgapps.config"
   debloaterConfig="$sdcard/NikGapps/debloater.config"
   if [ ! -f $nikgappsConfig ]; then
+    unpack "afzc/nikgapps.config" "$COMMONDIR/nikgapps.config"
     unpack "afzc/nikgapps.config" "/sdcard/NikGapps/nikgapps.config"
     [ ! -f "/sdcard/NikGapps/nikgapps.config" ] && unpack "afzc/nikgapps.config" "/storage/emulated/NikGapps/nikgapps.config"
     addToLog "nikgapps.config is copied to $nikgappsConfig"
   fi
   if [ ! -f $debloaterConfig ]; then
+    unpack "afzc/debloater.config" "$COMMONDIR/debloater.config"
     unpack "afzc/debloater.config" "/sdcard/NikGapps/debloater.config"
     [ ! -f "/sdcard/NikGapps/debloater.config" ] && unpack "afzc/debloater.config" "/storage/emulated/NikGapps/debloater.config"
     addToLog "debloater.config is copied to $debloaterConfig"
@@ -166,6 +168,7 @@ begin_unmounting
 begin_mounting
 ensure_config
 find_config
+find_log_directory
 # find device information
 show_device_info
 # Name NikGapps log file
@@ -184,7 +187,6 @@ find_gapps_size
 test "$zip_type" = "debloater" && debloat
 calculate_space "system" "product" "system_ext"
 ui_print " "
-test "$zip_type" == "addon_exclusive" || test "$zip_type" == "addon" && is_on_top_of_nikgapps
 test "$zip_type" = "debloater" && ui_print "--> Starting the debloat process"
 
 if [ "$zip_type" != "debloater" ]; then

@@ -228,6 +228,7 @@ class AddonSet:
         youtube_music.delete("GooglePlayMusic")
         youtube_music.delete("SnapdragonMusic")
         youtube_music.delete("YouTubeMusicPrebuilt")
+        youtube_music.delete("Eleven")
         vanced_gms = Package("VancedGms", "com.mgoogle.android.gms", Constants.is_system_app)
         return AppSet("YouTubeVancedMusic", [youtube_music, vanced_gms])
 

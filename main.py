@@ -8,6 +8,8 @@ from NikGapps.Helper.Git import Git
 from NikGapps.Helper.SystemStat import SystemStat
 import pytz
 from datetime import datetime
+from Config import FETCH_PACKAGE
+from Config import PROJECT_MODE
 
 print("Start of the Program")
 
@@ -38,82 +40,92 @@ print("---------------------------------------")
 # # override when we don't want to execute anything
 # android_versions = []
 
-release_repo = None
-source_last_commit_datetime = None
-if Config.GIT_CHECK:
-    if FileOp.dir_exists(Constants.release_history_directory):
-        release_repo = Git(Constants.release_history_directory)
+if PROJECT_MODE.__eq__("fetch"):
+    pkg_list = Release.package(FETCH_PACKAGE)
+    if pkg_list.__len__() > 0:
+        message = "Packages Successfully Fetched"
+        print(message)
     else:
-        print(Constants.release_history_directory + " doesn't exist!")
-    source_repo = Git(Constants.cwd)
-    source_last_commit_datetime = source_repo.get_latest_commit_date(repo="main")
-    if Config.RELEASE_TYPE.__eq__("canary"):
-        print("Last Canary Source Commit: " + str(source_last_commit_datetime))
-    else:
-        print("Last Source Commit: " + str(source_last_commit_datetime))
-
-for android_version in android_versions:
-    Config.TARGET_ANDROID_VERSION = int(android_version)
-    apk_source_datetime = None
-    release_datetime = None
-    new_release = False
+        message = "Fetching Failed"
+        print(message)
+else:
+    release_repo = None
+    source_last_commit_datetime = None
     if Config.GIT_CHECK:
-        if release_repo is not None:
-            release_datetime = release_repo.get_latest_commit_date(filter_key=str(Config.TARGET_ANDROID_VERSION))
-            print("Last Release: " + str(release_datetime))
-        if FileOp.dir_exists(Constants.apk_source_directly):
-            branch = "master"
-            if Config.RELEASE_TYPE.__eq__("canary"):
-                branch = "canary"
-            apk_source_repo = Git(Constants.apk_source_directly + str(Config.TARGET_ANDROID_VERSION))
-            if apk_source_repo is not None:
-                apk_source_datetime = apk_source_repo.get_latest_commit_date(repo=branch)
-                # if last commit was before release date, the release was already made so we don't need a new release
-                print("Last Apk Repo (" + str(Config.TARGET_ANDROID_VERSION) + ") Commit: " + str(apk_source_datetime))
+        if FileOp.dir_exists(Constants.release_history_directory):
+            release_repo = Git(Constants.release_history_directory)
         else:
-            print(Constants.apk_source_directly + " doesn't exist!")
-        if apk_source_datetime is None or source_last_commit_datetime is None or release_datetime is None:
-            new_release = True
-        if new_release or apk_source_datetime > release_datetime or source_last_commit_datetime > release_datetime:
-            new_release = True
-        apk_source_datetime_ago = release_datetime - apk_source_datetime
-        if str(apk_source_datetime_ago).startswith("-"):
-            print("Last Release was " + str(apk_source_datetime_ago * -1) + " before apk update")
-        else:
-            print("Last Apk update was " + str(apk_source_datetime_ago) + " before release")
-        source_last_commit_datetime_ago = release_datetime - source_last_commit_datetime
-        if str(source_last_commit_datetime_ago).startswith("-"):
-            print("Last Release was " + str(source_last_commit_datetime_ago * -1) + " before source update")
-        else:
-            print("Last source update was " + str(source_last_commit_datetime_ago) + " before release")
-    else:
-        new_release = True
-    if Config.OVERRIDE_RELEASE or new_release:
-        if Config.TARGET_ANDROID_VERSION == 10 and "go" not in Config.BUILD_PACKAGE_LIST:
-            Config.BUILD_PACKAGE_LIST.append("go")
-        Constants.update_android_version_dependencies()
-        today = datetime.now(pytz.timezone('Europe/London')).strftime("%a")
+            print(Constants.release_history_directory + " doesn't exist!")
+        source_repo = Git(Constants.cwd)
+        source_last_commit_datetime = source_repo.get_latest_commit_date(repo="main")
         if Config.RELEASE_TYPE.__eq__("canary"):
-            Constants.update_sourceforge_release_directory("canary")
+            print("Last Canary Source Commit: " + str(source_last_commit_datetime))
         else:
-            Constants.update_sourceforge_release_directory("")
-        Release.zip(package_list)
-        if release_repo is not None:
-            release_repo.git_push(str(android_version) + ": " + str(commit_message))
+            print("Last Source Commit: " + str(source_last_commit_datetime))
 
-if Config.BUILD_CONFIG:
-    if FileOp.dir_exists(Constants.config_directory):
-        Constants.update_sourceforge_release_directory("config")
-        zip_status = Release.zip(['config'])
-    else:
-        print(Constants.config_directory + " doesn't exist!")
+    for android_version in android_versions:
+        Config.TARGET_ANDROID_VERSION = int(android_version)
+        apk_source_datetime = None
+        release_datetime = None
+        new_release = False
+        if Config.GIT_CHECK:
+            if release_repo is not None:
+                release_datetime = release_repo.get_latest_commit_date(filter_key=str(Config.TARGET_ANDROID_VERSION))
+                print("Last Release: " + str(release_datetime))
+            if FileOp.dir_exists(Constants.apk_source_directly):
+                branch = "master"
+                if Config.RELEASE_TYPE.__eq__("canary"):
+                    branch = "canary"
+                apk_source_repo = Git(Constants.apk_source_directly + str(Config.TARGET_ANDROID_VERSION))
+                if apk_source_repo is not None:
+                    apk_source_datetime = apk_source_repo.get_latest_commit_date(repo=branch)
+                    # if last commit was before release date, the release was already made so we don't need a new release
+                    print("Last Apk Repo (" + str(Config.TARGET_ANDROID_VERSION) + ") Commit: " + str(
+                        apk_source_datetime))
+            else:
+                print(Constants.apk_source_directly + " doesn't exist!")
+            if apk_source_datetime is None or source_last_commit_datetime is None or release_datetime is None:
+                new_release = True
+            if new_release or apk_source_datetime > release_datetime or source_last_commit_datetime > release_datetime:
+                new_release = True
+            apk_source_datetime_ago = release_datetime - apk_source_datetime
+            if str(apk_source_datetime_ago).startswith("-"):
+                print("Last Release was " + str(apk_source_datetime_ago * -1) + " before apk update")
+            else:
+                print("Last Apk update was " + str(apk_source_datetime_ago) + " before release")
+            source_last_commit_datetime_ago = release_datetime - source_last_commit_datetime
+            if str(source_last_commit_datetime_ago).startswith("-"):
+                print("Last Release was " + str(source_last_commit_datetime_ago * -1) + " before source update")
+            else:
+                print("Last source update was " + str(source_last_commit_datetime_ago) + " before release")
+        else:
+            new_release = True
+        if Config.OVERRIDE_RELEASE or new_release:
+            if Config.TARGET_ANDROID_VERSION == 10 and "go" not in Config.BUILD_PACKAGE_LIST:
+                Config.BUILD_PACKAGE_LIST.append("go")
+            Constants.update_android_version_dependencies()
+            today = datetime.now(pytz.timezone('Europe/London')).strftime("%a")
+            if Config.RELEASE_TYPE.__eq__("canary"):
+                Constants.update_sourceforge_release_directory("canary")
+            else:
+                Constants.update_sourceforge_release_directory("")
+            Release.zip(package_list)
+            if release_repo is not None:
+                release_repo.git_push(str(android_version) + ": " + str(commit_message))
 
-website_repo = None
-if FileOp.dir_exists(Constants.website_directory):
-    website_repo = Git(Constants.website_directory)
-    if website_repo is not None:
-        commit_datetime = website_repo.get_latest_commit_date()
-        website_repo.update_changelog()
+    if Config.BUILD_CONFIG:
+        if FileOp.dir_exists(Constants.config_directory):
+            Constants.update_sourceforge_release_directory("config")
+            zip_status = Release.zip(['config'])
+        else:
+            print(Constants.config_directory + " doesn't exist!")
+
+    website_repo = None
+    if FileOp.dir_exists(Constants.website_directory):
+        website_repo = Git(Constants.website_directory)
+        if website_repo is not None:
+            commit_datetime = website_repo.get_latest_commit_date()
+            website_repo.update_changelog()
 
 Constants.end_of_function(start_time, "Total time taken by the program")
 print("End of the Program")

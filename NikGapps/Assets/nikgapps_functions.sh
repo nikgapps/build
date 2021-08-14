@@ -152,13 +152,13 @@ copy_logs() {
   cd "$logDir" || return
   rm -rf "$nikGappsDir"/logs
   tar -cz -f "$TMPDIR/$nikGappsLogFile" *
-  mkdir -p "$nikGappsDir"/logs
-  copy_file "$TMPDIR/$nikGappsLogFile" "$nikGappsDir/logs/$nikGappsLogFile"
+  rm -rf "$nikgapps_log_dir/nikgapps_logs"
+  rm -rf "$nikgapps_config_dir/nikgapps_logs"
   [ -z "$nikgapps_config_dir" ] && nikgapps_config_dir=/sdcard/NikGapps
-  rm -rf "$nikgapps_config_dir"/nikgapps_logs
-  mkdir -p "$nikgapps_config_dir"/nikgapps_logs
-  copy_file "$TMPDIR/$nikGappsLogFile" "$nikgapps_config_dir"/nikgapps_logs/"$nikGappsLogFile"
-  ui_print "- Copying Logs at $nikGappsDir/logs/$nikGappsLogFile"
+  copy_file "$TMPDIR/$nikGappsLogFile" "$nikGappsDir/logs/$nikGappsLogFile"
+  copy_file "$TMPDIR/$nikGappsLogFile" "$nikgapps_config_dir/nikgapps_logs/$nikGappsLogFile"
+  copy_file "$TMPDIR/$nikGappsLogFile" "$nikgapps_log_dir/$nikGappsLogFile"
+  ui_print "- Copying Logs at $nikgapps_log_dir/$nikGappsLogFile"
   ui_print " "
   cd /
 }
@@ -265,7 +265,7 @@ find_config() {
   ui_print " "
   ui_print "--> Finding config files"
   nikgapps_config_file_name="$nikGappsDir/nikgapps.config"
-  for location in "/tmp" "$TMPDIR" "$ZIPDIR" "/sdcard1" "/sdcard1/NikGapps" "/sdcard" "/storage/emulated/NikGapps" "/storage/emulated"; do
+  for location in "/tmp" "$TMPDIR" "$ZIPDIR" "/sdcard1" "/sdcard1/NikGapps" "/sdcard" "/sdcard/NikGapps" "/storage/emulated" "/storage/emulated/NikGapps" "$COMMONDIR" ; do
     if [ -f "$location/nikgapps.config" ]; then
       nikgapps_config_file_name="$location/nikgapps.config"
       break;
@@ -273,7 +273,7 @@ find_config() {
   done
   nikgapps_config_dir=$(dirname "$nikgapps_config_file_name")
   debloater_config_file_name="/sdcard/NikGapps/debloater.config"
-  for location in "/tmp" "$TMPDIR" "$ZIPDIR" "/sdcard1" "/sdcard1/NikGapps" "/sdcard" "/storage/emulated/NikGapps" "/storage/emulated"; do
+  for location in "/tmp" "$TMPDIR" "$ZIPDIR" "/sdcard1" "/sdcard1/NikGapps" "/sdcard" "/sdcard/NikGapps" "/storage/emulated" "/storage/emulated/NikGapps" "$COMMONDIR"; do
     if [ -f "$location/debloater.config" ]; then
       debloater_config_file_name="$location/debloater.config"
       break;
@@ -332,6 +332,14 @@ find_install_type() {
     fi;
   done
   ui_print "- Install Type is $install_type"
+}
+
+find_log_directory() {
+  value=$(ReadConfigValue "LogDirectory" "$nikgapps_config_file_name")
+  addToLog "- LogDirectory=$value"
+  [ "$value" = "default" ] && value="$nikGappsDir"
+  [ -z "$value" ] && value="$nikGappsDir"
+  nikgapps_log_dir="$value/nikgapps_logs"
 }
 
 find_zip_type() {
