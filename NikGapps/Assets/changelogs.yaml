@@ -1,3 +1,10 @@
+- date: 15th Aug 2021 (Android R and Q Release)
+  changes:
+      - item: Ability to flash Addons on top of other gapps and Roms with prebuilt gapps
+      - item: Fix modified nikgapps.config being overridden by stock nikgapps.config in some cases
+      - item: Ability to modify nikgapps.config from the zip file to customize the installation (for those who sideload zip)
+      - item: nikgapps.config version updated to 17 (recommend to use this to build custom gapps builds)
+      - item: Remove Eleven with installation of YouTube Music (both stock and vanced)
 - date: 04th Aug 2021 (Android R and Q Release)
   changes:
       - item: Update GoogleChrome to v90 (Android R)
