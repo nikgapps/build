@@ -12,7 +12,7 @@ if release_type is not None:
 
 # Environment type differentiates the experimental and stable features
 # Possible values are [ 'production', 'development' ]
-ENVIRONMENT_TYPE = "development"
+ENVIRONMENT_TYPE = "production"
 environment_type = os.environ.get('ENVIRONMENT_TYPE')
 if environment_type is not None:
     ENVIRONMENT_TYPE = environment_type
@@ -66,7 +66,7 @@ GIT_CHECK = True
 BUILD_CONFIG = True
 
 # Possible Values are ['fetch', 'build']
-PROJECT_MODE = "fetch"
+PROJECT_MODE = "build"
 
 # This will help fetch the files which requires root access such as overlay files
 ADB_ROOT_ENABLED = False
