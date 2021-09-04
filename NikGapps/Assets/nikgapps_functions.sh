@@ -276,12 +276,18 @@ exit_install() {
 }
 
 find_config() {
+  mkdir -p "$nikGappsDir"
+  mkdir -p "$addonDir"
+  mkdir -p "$logDir"
+  mkdir -p "$addon_scripts_logDir"
   ui_print " "
   ui_print "--> Finding config files"
   nikgapps_config_file_name="$nikGappsDir/nikgapps.config"
   for location in "/tmp" "$TMPDIR" "$ZIPDIR" "/sdcard1" "/sdcard1/NikGapps" "/sdcard" "/sdcard/NikGapps" "/storage/emulated" "/storage/emulated/NikGapps" "$COMMONDIR" ; do
     if [ -f "$location/nikgapps.config" ]; then
       nikgapps_config_file_name="$location/nikgapps.config"
+      addToLog "- Found custom location of nikgapps.config"
+      copy_file "$location/nikgapps.config" "$nikGappsDir/nikgapps.config"
       break;
     fi
   done
@@ -290,9 +296,27 @@ find_config() {
   for location in "/tmp" "$TMPDIR" "$ZIPDIR" "/sdcard1" "/sdcard1/NikGapps" "/sdcard" "/sdcard/NikGapps" "/storage/emulated" "/storage/emulated/NikGapps" "$COMMONDIR"; do
     if [ -f "$location/debloater.config" ]; then
       debloater_config_file_name="$location/debloater.config"
+      addToLog "- Found custom location of debloater.config"
+      copy_file "$location/debloater.config" "$nikGappsDir/debloater.config"
       break;
     fi
   done
+
+  nikgappsConfig="$sdcard/NikGapps/nikgapps.config"
+  debloaterConfig="$sdcard/NikGapps/debloater.config"
+  if [ ! -f $nikgappsConfig ]; then
+    unpack "afzc/nikgapps.config" "$COMMONDIR/nikgapps.config"
+    unpack "afzc/nikgapps.config" "/sdcard/NikGapps/nikgapps.config"
+    [ ! -f "/sdcard/NikGapps/nikgapps.config" ] && unpack "afzc/nikgapps.config" "/storage/emulated/NikGapps/nikgapps.config"
+    addToLog "nikgapps.config is copied to $nikgappsConfig"
+  fi
+  if [ ! -f $debloaterConfig ]; then
+    unpack "afzc/debloater.config" "$COMMONDIR/debloater.config"
+    unpack "afzc/debloater.config" "/sdcard/NikGapps/debloater.config"
+    [ ! -f "/sdcard/NikGapps/debloater.config" ] && unpack "afzc/debloater.config" "/storage/emulated/NikGapps/debloater.config"
+    addToLog "debloater.config is copied to $debloaterConfig"
+  fi
+
   test "$zip_type" != "debloater" && ui_print "- nikgapps.config found in $nikgapps_config_file_name"
   test "$zip_type" = "debloater" && ui_print "- debloater.config found in $debloater_config_file_name"
 }

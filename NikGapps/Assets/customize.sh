@@ -44,27 +44,6 @@ addToLog() {
   echo "$1" >>"$nikGappsLog"
 }
 
-ensure_config() {
-  mkdir -p "$nikGappsDir"
-  mkdir -p "$addonDir"
-  mkdir -p "$logDir"
-  mkdir -p "$addon_scripts_logDir"
-  nikgappsConfig="$sdcard/NikGapps/nikgapps.config"
-  debloaterConfig="$sdcard/NikGapps/debloater.config"
-  if [ ! -f $nikgappsConfig ]; then
-    unpack "afzc/nikgapps.config" "$COMMONDIR/nikgapps.config"
-    unpack "afzc/nikgapps.config" "/sdcard/NikGapps/nikgapps.config"
-    [ ! -f "/sdcard/NikGapps/nikgapps.config" ] && unpack "afzc/nikgapps.config" "/storage/emulated/NikGapps/nikgapps.config"
-    addToLog "nikgapps.config is copied to $nikgappsConfig"
-  fi
-  if [ ! -f $debloaterConfig ]; then
-    unpack "afzc/debloater.config" "$COMMONDIR/debloater.config"
-    unpack "afzc/debloater.config" "/sdcard/NikGapps/debloater.config"
-    [ ! -f "/sdcard/NikGapps/debloater.config" ] && unpack "afzc/debloater.config" "/storage/emulated/NikGapps/debloater.config"
-    addToLog "debloater.config is copied to $debloaterConfig"
-  fi
-}
-
 nikGappsLogo() {
   ui_print " "
   ui_print "------------------------------------------"
@@ -166,7 +145,6 @@ unpack "common/nikgapps.sh" "$COMMONDIR/nikgapps.sh"
 find_zip_type
 begin_unmounting
 begin_mounting
-ensure_config
 find_config
 find_log_directory
 # find device information
