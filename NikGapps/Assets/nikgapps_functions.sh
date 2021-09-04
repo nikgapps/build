@@ -29,11 +29,11 @@ calculate_space() {
     df=$(df -k /"$partition" | tail -n 1)
     addToLog "$df"
     case $df in
-    /dev/block/*) df=$(echo "$df" | awk '{ print substr($0, index($0,$2)) }') ;;
+    /dev/block/*) df=$(echo "$df" | $BB awk '{ print substr($0, index($0,$2)) }') ;;
     esac
-    total_system_size_kb=$(echo "$df" | awk '{ print $1 }')
-    used_system_size_kb=$(echo "$df" | awk '{ print $2 }')
-    free_system_size_kb=$(echo "$df" | awk '{ print $3 }')
+    total_system_size_kb=$(echo "$df" | $BB awk '{ print $1 }')
+    used_system_size_kb=$(echo "$df" | $BB awk '{ print $2 }')
+    free_system_size_kb=$(echo "$df" | $BB awk '{ print $3 }')
     addToLog "- Total System Size (KB) $total_system_size_kb"
     addToLog "- Used System Space (KB) $used_system_size_kb"
     addToLog "- Current Free Space (KB) $free_system_size_kb"
@@ -127,8 +127,8 @@ get_available_size_again() {
   input_data=$1
   df | grep -vE '^Filesystem|tmpfs|cdrom' | while read output;
   do
-    mounted_on=$(echo $output | awk '{ print $5 }' )
-    available=$(echo $output | awk '{ print $3 }' )
+    mounted_on=$(echo $output | $BB awk '{ print $5 }' )
+    available=$(echo $output | $BB awk '{ print $3 }' )
     if [ "$mounted_on" = "$1" ] || ([ "/system" = "$input_data" ] && [ "$mounted_on" = "/system_root" ]); then
       addToLog "- $mounted_on $available $input_data"
       break

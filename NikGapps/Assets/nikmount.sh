@@ -3,9 +3,9 @@
 get_available_size() {
     df=$(df -k /"$1" | tail -n 1)
     case $df in
-        /dev/block/*) df=$(echo "$df" | awk '{ print substr($0, index($0,$2)) }');;
+        /dev/block/*) df=$(echo "$df" | $BB awk '{ print substr($0, index($0,$2)) }');;
     esac
-    free_system_size_kb=$(echo "$df" | awk '{ print $3 }')
+    free_system_size_kb=$(echo "$df" | $BB awk '{ print $3 }')
     echo "$free_system_size_kb"
 }
 

@@ -83,6 +83,7 @@ find_system_size() {
   total_size=$((system_size+product_size+system_ext_size))
   ui_print "- Total available size: $total_size KB"
   [ "$total_size" = "0" ] && addToLog "No space left on device"
+  [ "$total_size" = "0" ] && ui_print "- Unable to calculate space"
 }
 
 mount_system_source() {
