@@ -221,8 +221,8 @@ debloat() {
     done
     if [ $debloaterRan = 1 ]; then
       . $COMMONDIR/addon "$OFD" "Debloater" "" "" "$TMPDIR/addon/$debloaterFilesPath" ""
-      CopyFile "$system/addon.d/nikgapps/Debloater.sh" "$logDir/addonscripts/Debloater.sh"
-      CopyFile "$TMPDIR/addon/$debloaterFilesPath" "$logDir/addonfiles/Debloater.addon"
+      copy_file "$system/addon.d/nikgapps/Debloater.sh" "$logDir/addonscripts/Debloater.sh"
+      copy_file "$TMPDIR/addon/$debloaterFilesPath" "$logDir/addonfiles/Debloater.addon"
       rmv "$TMPDIR/addon/$debloaterFilesPath"
     fi
   else
