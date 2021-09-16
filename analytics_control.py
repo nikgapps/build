@@ -7,7 +7,7 @@ from git import Repo
 
 from NikGapps.Helper import Constants, FileOp, Git
 
-repo_name = "https://github.com/nikgapps/config.git"
+repo_name = "git@github.com:nikgapps/config.git"
 repo_dir = Constants.pwd + Constants.dir_sep + "config"
 branch = "main"
 analytics_dict = {}
@@ -42,7 +42,7 @@ else:
 
 print("Download count from archive directory: " + str(analytics_dict))
 
-repo_name = "https://github.com/nikgapps/tracker.git"
+repo_name = "git@github.com:nikgapps/tracker.git"
 repo_dir = Constants.pwd + Constants.dir_sep + "tracker"
 print()
 print("Repo Dir: " + repo_dir)
