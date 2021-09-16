@@ -29,14 +29,15 @@ calculate_space() {
     df=$(df -k /"$partition" | tail -n 1)
     addToLog "$df"
     case $df in
-    /dev/block/*) df=$(echo "$df" | awk '{ print substr($0, index($0,$2)) }') ;;
+    /dev/block/*) df=$(echo "$df" | $BB awk '{ print substr($0, index($0,$2)) }') ;;
     esac
-    total_system_size_kb=$(echo "$df" | awk '{ print $1 }')
-    used_system_size_kb=$(echo "$df" | awk '{ print $2 }')
-    free_system_size_kb=$(echo "$df" | awk '{ print $3 }')
+    total_system_size_kb=$(echo "$df" | $BB awk '{ print $1 }')
+    used_system_size_kb=$(echo "$df" | $BB awk '{ print $2 }')
+    free_system_size_kb=$(echo "$df" | $BB awk '{ print $3 }')
     addToLog "- Total System Size (KB) $total_system_size_kb"
     addToLog "- Used System Space (KB) $used_system_size_kb"
     addToLog "- Current Free Space (KB) $free_system_size_kb"
+    get_available_size_again "/$partition"
   done
 }
 
@@ -120,6 +121,26 @@ contains() {
     *"$1"*) echo true ;;
     *) echo false ;;
   esac
+}
+
+get_available_size_again() {
+  input_data=$1
+  df | grep -vE '^Filesystem|tmpfs|cdrom' | while read output;
+  do
+    mounted_on=$(echo $output | $BB awk '{ print $5 }' )
+    available=$(echo $output | $BB awk '{ print $3 }' )
+    case $mounted_on in
+      *"%"*)
+      mounted_on=$(echo $output | $BB awk '{ print $6 }' )
+      available=$(echo $output | $BB awk '{ print $4 }' )
+      ;;
+      *) echo false ;;
+    esac
+    if [ "$mounted_on" = "$1" ] || ([ "/system" = "$input_data" ] && [ "$mounted_on" = "/system_root" ]); then
+      addToLog "- $mounted_on $available $input_data"
+      break
+    fi
+  done
 }
 
 copy_logs() {
@@ -207,8 +228,8 @@ debloat() {
     done
     if [ $debloaterRan = 1 ]; then
       . $COMMONDIR/addon "$OFD" "Debloater" "" "" "$TMPDIR/addon/$debloaterFilesPath" ""
-      CopyFile "$system/addon.d/nikgapps/Debloater.sh" "$logDir/addonscripts/Debloater.sh"
-      CopyFile "$TMPDIR/addon/$debloaterFilesPath" "$logDir/addonfiles/Debloater.addon"
+      copy_file "$system/addon.d/nikgapps/Debloater.sh" "$logDir/addonscripts/Debloater.sh"
+      copy_file "$TMPDIR/addon/$debloaterFilesPath" "$logDir/addonfiles/Debloater.addon"
       rmv "$TMPDIR/addon/$debloaterFilesPath"
     fi
   else
@@ -262,12 +283,18 @@ exit_install() {
 }
 
 find_config() {
+  mkdir -p "$nikGappsDir"
+  mkdir -p "$addonDir"
+  mkdir -p "$logDir"
+  mkdir -p "$addon_scripts_logDir"
   ui_print " "
   ui_print "--> Finding config files"
   nikgapps_config_file_name="$nikGappsDir/nikgapps.config"
   for location in "/tmp" "$TMPDIR" "$ZIPDIR" "/sdcard1" "/sdcard1/NikGapps" "/sdcard" "/sdcard/NikGapps" "/storage/emulated" "/storage/emulated/NikGapps" "$COMMONDIR" ; do
     if [ -f "$location/nikgapps.config" ]; then
       nikgapps_config_file_name="$location/nikgapps.config"
+      addToLog "- Found custom location of nikgapps.config"
+      copy_file "$location/nikgapps.config" "$nikGappsDir/nikgapps.config"
       break;
     fi
   done
@@ -276,9 +303,27 @@ find_config() {
   for location in "/tmp" "$TMPDIR" "$ZIPDIR" "/sdcard1" "/sdcard1/NikGapps" "/sdcard" "/sdcard/NikGapps" "/storage/emulated" "/storage/emulated/NikGapps" "$COMMONDIR"; do
     if [ -f "$location/debloater.config" ]; then
       debloater_config_file_name="$location/debloater.config"
+      addToLog "- Found custom location of debloater.config"
+      copy_file "$location/debloater.config" "$nikGappsDir/debloater.config"
       break;
     fi
   done
+
+  nikgappsConfig="$sdcard/NikGapps/nikgapps.config"
+  debloaterConfig="$sdcard/NikGapps/debloater.config"
+  if [ ! -f $nikgappsConfig ]; then
+    unpack "afzc/nikgapps.config" "$COMMONDIR/nikgapps.config"
+    unpack "afzc/nikgapps.config" "/sdcard/NikGapps/nikgapps.config"
+    [ ! -f "/sdcard/NikGapps/nikgapps.config" ] && unpack "afzc/nikgapps.config" "/storage/emulated/NikGapps/nikgapps.config"
+    addToLog "nikgapps.config is copied to $nikgappsConfig"
+  fi
+  if [ ! -f $debloaterConfig ]; then
+    unpack "afzc/debloater.config" "$COMMONDIR/debloater.config"
+    unpack "afzc/debloater.config" "/sdcard/NikGapps/debloater.config"
+    [ ! -f "/sdcard/NikGapps/debloater.config" ] && unpack "afzc/debloater.config" "/storage/emulated/NikGapps/debloater.config"
+    addToLog "debloater.config is copied to $debloaterConfig"
+  fi
+
   test "$zip_type" != "debloater" && ui_print "- nikgapps.config found in $nikgapps_config_file_name"
   test "$zip_type" = "debloater" && ui_print "- debloater.config found in $debloater_config_file_name"
 }
@@ -298,9 +343,9 @@ find_install_mode() {
     addToLog "----------------------------------------------------------------------------"
     addToLog "- calculating space while working on $package_title"
     case "$install_partition" in
-      "/product") product_size_left=$(get_available_size "product"); addToLog "- product_size_left=$product_size_left" ;;
-      "/system_ext") system_ext_size_left=$(get_available_size "system_ext"); addToLog "- system_ext_size_left=$system_ext_size_left" ;;
-      "/system"*) system_size_left=$(get_available_size "system"); addToLog "- system_size_left=$system_size_left"  ;;
+      "/product") product_size_left=$(get_available_size "product"); get_available_size_again "/product"; addToLog "- product_size_left=$product_size_left" ;;
+      "/system_ext") system_ext_size_left=$(get_available_size "system_ext"); get_available_size_again "/system_ext"; addToLog "- system_ext_size_left=$system_ext_size_left" ;;
+      "/system"*) system_size_left=$(get_available_size "system"); get_available_size_again "/system"; addToLog "- system_size_left=$system_size_left"  ;;
     esac
     addToLog "----------------------------------------------------------------------------"
     ui_print "- Installing $package_title"
@@ -310,9 +355,12 @@ find_install_mode() {
     addToLog "- calculating space after installing $package_title"
     total_size=$((system_size+product_size+system_ext_size))
     case "$install_partition" in
-      "/product") product_size_after=$(get_available_size "product"); addToLog "- product_size ($pkg_size) spent=$((product_size_left-product_size_after))"; ;;
-      "/system_ext") system_ext_size_after=$(get_available_size "system_ext"); addToLog "- system_ext_size ($pkg_size) spent=$((system_ext_size_left-system_ext_size_after))"; ;;
-      "/system"*) system_size_after=$(get_available_size "system"); addToLog "- system_size ($pkg_size) spent=$((system_size_left-system_size_after))"; ;;
+      "/product") product_size_after=$(get_available_size "product");
+      addToLog "- product_size ($product_size_left-$product_size_after) spent=$((product_size_left-product_size_after)) vs ($pkg_size)"; ;;
+      "/system_ext") system_ext_size_after=$(get_available_size "system_ext");
+      addToLog "- system_ext_size ($system_ext_size_left-$system_ext_size_after) spent=$((system_ext_size_left-system_ext_size_after)) vs ($pkg_size)"; ;;
+      "/system"*) system_size_after=$(get_available_size "system");
+      addToLog "- system_size ($system_size_left-$system_size_after) spent=$((system_size_left-system_size_after)) vs ($pkg_size)"; ;;
     esac
     addToLog "----------------------------------------------------------------------------"
   fi

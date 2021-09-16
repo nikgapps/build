@@ -55,7 +55,6 @@ class Release:
                     print("Building for " + str(config_files))
                     if sent_message is not None:
                         sent_message.edit_text("Building for " + str(pkg_type))
-
                     # Create a zip out of filtered packages
                     zip_status = Release.zip_package(sent_message, file_name, config_package_list)
                     # move the config file to archive
@@ -72,6 +71,13 @@ class Release:
                             Config.TARGET_ANDROID_VERSION) + os.path.sep + config_file_name + ".config to archive" + os.path.sep + str(
                             Config.TARGET_ANDROID_VERSION) + os.path.sep + config_file_name + "_" + str(
                             Logs.get_current_time()) + ".config")
+                    elif zip_status is None:
+                        print("Delete the config file")
+                        FileOp.remove_file(config_files)
+                        # commit the changes
+                        config_repo.update_config_changes("Deleting " + str(
+                            Config.TARGET_ANDROID_VERSION) + os.path.sep + config_file_name
+                                                          + ".config since it doesn't follow defined protocols")
                     else:
                         print("Failed to create zip!")
             elif pkg_type == "debloater":
@@ -186,4 +192,3 @@ class Release:
             print("Failure Summary:")
             print(failure_summary)
         return updated_pkg_list
-
