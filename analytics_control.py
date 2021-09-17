@@ -60,11 +60,11 @@ except Exception as e:
     Constants.end_of_function(start_time, f"Time taken to clone -b {branch} {repo_name}")
 if FileOp.dir_exists(repo_dir):
     print(f"{repo_dir} exists!")
-    custom_builds_json = repo_dir + Constants.dir_sep + "custom_builds.json"
-    if FileOp.file_exists(custom_builds_json):
+    custom_builds_count_json = repo_dir + Constants.dir_sep + "count.json"
+    if FileOp.file_exists(custom_builds_count_json):
         print("File Exists!")
         custom_builds_json_string = ""
-        for line in FileOp.read_string_file(custom_builds_json):
+        for line in FileOp.read_string_file(custom_builds_count_json):
             custom_builds_json_string += line
         print(custom_builds_json_string)
         print()
@@ -74,18 +74,17 @@ if FileOp.dir_exists(repo_dir):
             print(f"Update download count for {key}")
             if decoded_hand.get(key) is not None:
                 # get the download count of the key
-                download_count_before = decoded_hand[key].get("download_count")
-                decoded_hand[key]["download_count"] = str(analytics_dict[key])
+                download_count_before = decoded_hand[key]
+                decoded_hand[key] = str(analytics_dict[key])
                 print(f"Download count for {key} updated from {download_count_before} to {str(analytics_dict[key])}")
             else:
-                entry = {'download_count': str(analytics_dict[key])}
-                print(f"key doesn't exist.. so creating {entry}")
-                decoded_hand[key] = entry
+                print(f"key doesn't exist.. so creating {str(analytics_dict[key])}")
+                decoded_hand[key] = str(analytics_dict[key])
             print()
 
         print(decoded_hand)
 
-        with open(custom_builds_json, "w") as file:
+        with open(custom_builds_count_json, "w") as file:
             json.dump(decoded_hand, file)
         try:
             print("Updating the download count in tracker repository")
