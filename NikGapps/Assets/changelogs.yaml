@@ -1,3 +1,13 @@
+- date: 18th Sept 2021 (Android R and Q Release)
+  changes:
+      - item: Update Gmail, Calculator and Google Clock with Android 12's Material You design
+      - item: Add changes to support unlimited backup with google photos
+      - item: Find the available size of /system correctly on devices like OnePlus7T
+      - item: Fix the addon.d implementation of Debloater
+      - item: Fix some instances of modified nikgapps.config not being recognized
+      - item: Don't abort when system size is 0
+      - item: Improve how partition is identified during size calculations
+      - item: Playstore Updates (18th Sept)
 - date: 15th Aug 2021 (Android R and Q Release)
   changes:
       - item: Ability to flash Addons on top of other gapps and Roms with prebuilt gapps

@@ -541,6 +541,7 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
         google_chrome.delete("BLUOpera")
         google_chrome.delete("BLUOperaPreinstall")
         google_chrome.delete("ViaBrowser")
+        google_chrome.delete("Duckduckgo")
         app_set_list = AppSet("GoogleChrome")
         app_set_list.add_package(google_chrome)
         if TARGET_ANDROID_VERSION >= 10:
