@@ -1,6 +1,6 @@
 - date: 18th Sept 2021 (Android R and Q Release)
   changes:
-      - item: Update Gmail, Calculator and Google Clock with Android 12's Material You design
+      - item: Update Google Photos, Calendar, Duo, Gmail, Calculator and Clock with Android 12's Material You design
       - item: Add changes to support unlimited backup with google photos
       - item: Find the available size of /system correctly on devices like OnePlus7T
       - item: Fix the addon.d implementation of Debloater
