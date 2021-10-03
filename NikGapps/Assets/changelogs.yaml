@@ -1,3 +1,6 @@
+- date: 4th Oct 2021 (Android R and Q Release)
+  changes:
+      - item: Fix GoogleFiles deleting DocumentsUI on android 10 when it shouldn't delete it
 - date: 18th Sept 2021 (Android R and Q Release)
   changes:
       - item: Update Google Photos, Calendar, Duo, Gmail, Calculator and Clock with Android 12's Material You design

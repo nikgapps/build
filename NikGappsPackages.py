@@ -510,16 +510,20 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
 
     @staticmethod
     def get_google_files():
+        app_set_list = AppSet("GoogleFiles")
         google_files = Package("FilesPrebuilt", "com.google.android.apps.nbu.files", Constants.is_priv_app,
                                "GoogleFiles")
         google_files.predefined_file_list.append("overlay/FilesOverlay/FilesOverlay.apk")
         google_files.predefined_file_list.append(
             "overlay/PixelDocumentsUIGoogleOverlay/PixelDocumentsUIGoogleOverlay.apk")
+        app_set_list.add_package(google_files)
         storage_manager_google = Package("StorageManagerGoogle", "com.google.android.storagemanager",
                                          Constants.is_priv_app, "StorageManager", partition="system_ext")
-        documents_ui_google = Package("DocumentsUIGoogle", "com.google.android.documentsui", Constants.is_priv_app)
-        documents_ui_google.delete("DocumentsUI")
-        app_set_list = AppSet("GoogleFiles", [google_files, storage_manager_google, documents_ui_google])
+        app_set_list.add_package(storage_manager_google)
+        if TARGET_ANDROID_VERSION >= 11:
+            documents_ui_google = Package("DocumentsUIGoogle", "com.google.android.documentsui", Constants.is_priv_app)
+            documents_ui_google.delete("DocumentsUI")
+            app_set_list.add_package(documents_ui_google)
         return app_set_list
 
     @staticmethod
