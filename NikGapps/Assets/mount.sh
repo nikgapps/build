@@ -166,17 +166,14 @@ mount_all() {
       addToLog "- Command Execution Status: $ret"
       if [ $ret -ne 0 ]; then
         addToLog "- Unmounting and Remounting /system as /system_root"
-        (umount /system;
-        umount -l /system) 2>/dev/null
+        ($BB umount /system;
+        $BB umount -l /system) 2>/dev/null
         $BB mount -o ro -t auto /dev/block/$byname/system$slot /system_root;
       else
          addToLog "- $ret should be equals to 0"
       fi
     ;;
   esac;
-  addToLog "----------------------------------------------------------------------------"
-  addToLog "- Checking if /system_root is mounted.."
-  addToLog "----------------------------------------------------------------------------"
   [ -f /system_root/system/build.prop ] && system=/system;
   for mount in /vendor /product /system_ext; do
       if ! is_mounted $mount && [ -L /system$mount -o -L /system_root$system$mount ]; then
@@ -184,6 +181,9 @@ mount_all() {
         $BB mount -o ro -t auto /dev/block/$byname$mount$slot $mount;
       fi;
   done;
+  addToLog "----------------------------------------------------------------------------"
+  addToLog "- Checking if /system_root is mounted.."
+  addToLog "----------------------------------------------------------------------------"
   if is_mounted /system_root; then
     mount_apex;
     $BB mount -o bind /system_root$system /system;
@@ -234,7 +234,7 @@ mount_all() {
         addToLog "- Could not mount /system_ext"
       fi
     else
-      addToLog "- /product already mounted"
+      addToLog "- /system_ext already mounted"
     fi
   fi
   addToLog "----------------------------------------------------------------------------"
