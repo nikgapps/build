@@ -12,7 +12,7 @@ begin_mounting() {
   if [ ! "$(getprop 2>/dev/null)" ]; then
     getprop() {
       local propdir propfile propval;
-      for propdir in / /system_root /system /vendor /odm /product; do
+      for propdir in / /system_root /system /vendor /product /system_ext /odm; do
         for propfile in default.prop build.prop; do
           test "$propval" && break 2 || propval="$(file_getprop $propdir/$propfile "$1" 2>/dev/null)";
         done;
@@ -179,23 +179,22 @@ mount_all() {
   addToLog "----------------------------------------------------------------------------"
   if is_mounted /system_root; then
     mount_apex;
-    [ -f /system_root/system/build.prop ] && system=/system;
-    for mount in /vendor /product /system_ext do
-      if ! is_mounted $mount && [ -L /system_root$system$mount ]; then
+    for mount in /vendor /product /system_ext; do
+      if ! is_mounted $mount && [ -L /system$mount -o -L /system_root$mount ]; then
         setup_mountpoint $mount;
         $BB mount -o ro -t auto /dev/block/$byname$mount$slot $mount;
       fi;
     done;
-    if ! is_mounted /persist && [ -e /dev/block/bootdevice/by-name/persist ]; then
-      setup_mountpoint /persist;
-      $BB mount -o ro -t auto /dev/block/bootdevice/by-name/persist;
-    fi;
-    $BB mount -o bind /system_root$system /system;
+    $BB mount -o bind /system_root /system;
   elif is_mounted /system; then
     addToLog "- /system is mounted"
   else
     addToLog "- Could not mount /system"
     abort "- Could not mount /system, try changing recovery!"
+  fi;
+  if ! is_mounted /persist && [ -e /dev/block/bootdevice/by-name/persist ]; then
+    setup_mountpoint /persist;
+    $BB mount -o ro -t auto /dev/block/bootdevice/by-name/persist;
   fi;
   addToLog "----------------------------------------------------------------------------"
   system=/system

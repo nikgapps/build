@@ -609,7 +609,7 @@ restore_env() {
   unset OLD_LD_PATH OLD_LD_PRE OLD_LD_CFG;
   umount_all;
   [ -L /etc_link ] && $BB rm -rf /etc/*;
-  (for dir in /apex /system /system_root /etc; do
+  (for dir in /etc /apex /system_root /system /vendor /product /system_ext /persist; do
     if [ -L "${dir}_link" ]; then
       rmdir $dir;
       $BB mv -f ${dir}_link $dir;
