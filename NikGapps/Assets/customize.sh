@@ -143,6 +143,7 @@ unpack "common/nikgapps.sh" "$COMMONDIR/nikgapps.sh"
 
 [ -n "$actual_file_name" ] && ui_print "- File Name: $actual_file_name"
 find_zip_type
+find_device_block
 begin_unmounting
 begin_mounting
 find_config
