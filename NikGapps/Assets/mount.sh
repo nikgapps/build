@@ -177,15 +177,16 @@ mount_all() {
   addToLog "----------------------------------------------------------------------------"
   addToLog "- Checking if /system_root is mounted.."
   addToLog "----------------------------------------------------------------------------"
-  if is_mounted /system_root; then
-    mount_apex;
-    for mount in /vendor /product /system_ext; do
-      if ! is_mounted $mount && [ -L /system$mount -o -L /system_root$mount ]; then
+  [ -f /system_root/system/build.prop ] && system=/system;
+  for mount in /vendor /product /system_ext; do
+      if ! is_mounted $mount && [ -L /system$mount -o -L /system_root$system$mount ]; then
         setup_mountpoint $mount;
         $BB mount -o ro -t auto /dev/block/$byname$mount$slot $mount;
       fi;
-    done;
-    $BB mount -o bind /system_root /system;
+  done;
+  if is_mounted /system_root; then
+    mount_apex;
+    $BB mount -o bind /system_root$system /system;
   elif is_mounted /system; then
     addToLog "- /system is mounted"
   else
@@ -194,7 +195,7 @@ mount_all() {
   fi;
   if ! is_mounted /persist && [ -e /dev/block/bootdevice/by-name/persist ]; then
     setup_mountpoint /persist;
-    $BB mount -o ro -t auto /dev/block/bootdevice/by-name/persist;
+    $BB mount -o ro -t auto /dev/block/bootdevice/by-name/persist /persist;
   fi;
   addToLog "----------------------------------------------------------------------------"
   system=/system
