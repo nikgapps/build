@@ -27,6 +27,10 @@ class Validate:
                     failure_reason.append(f"You cannot modify archived file {file_name}")
                 else:
                     failure_reason.append(f"{file_name} must be part of Android Version folder, not outside of it!")
+            print("- checking if filename is alphanumeric")
+            if not (file_name.isalnum()):
+                failure_reason.append(
+                    f"{file_name} is not an aphanumeric name, make sure the name of config file is between A-Z and 0-9")
             print("- checking file status")
             file_status = str(files_changed[i]["status"])
             if not file_status.__eq__("added"):
