@@ -134,7 +134,6 @@ get_available_size_again() {
       mounted_on=$(echo $output | $BB awk '{ print $6 }' )
       available=$(echo $output | $BB awk '{ print $4 }' )
       ;;
-      *) echo false ;;
     esac
     if [ "$mounted_on" = "$1" ] || ([ "/system" = "$input_data" ] && [ "$mounted_on" = "/system_root" ]); then
       addToLog "- $mounted_on $available $input_data"
