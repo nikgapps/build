@@ -25,6 +25,8 @@ class NikGappsConfig:
         for line in FileOp.read_string_file(self.config_path):
             if line.__eq__('') or line.__eq__('\n') or line.startswith('#') \
                     or line.startswith("mode=") \
+                    or line.startswith("LogDirectory=") \
+                    or line.startswith("Version=") \
                     or line.__contains__(".d=") \
                     or line.startswith("File Not Found") \
                     or line.startswith("WipeRuntimePermissions=") \
