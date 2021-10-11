@@ -226,7 +226,11 @@ class Export:
                 nikgapps_config_lines += "# Set " + app_set.title + "=0 if you want to skip installing all " \
                                                                     "packages belonging to " \
                                                                     "" + app_set.title + " Package\n"
-            nikgapps_config_lines += app_set.title + "=" + str(1) + "\n"
+                nikgapps_config_lines += app_set.title + "=" + str(1) + "\n\n"
+                nikgapps_config_lines += "# Setting CoreGo=0 will not skip following packages," \
+                                         " set them to 0 if you want to skip them  \n"
+            else:
+                nikgapps_config_lines += app_set.title + "=" + str(1) + "\n"
         nikgapps_config_lines += "\n"
         nikgapps_config_lines += "# Following are the Addon packages NikGapps supports\n"
         for app_set in AddonSet.get_addon_packages():
