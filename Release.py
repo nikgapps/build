@@ -31,11 +31,9 @@ class Release:
                                             Logs.get_current_time()) + ".zip", [app_set])
             elif pkg_type == "config":
                 config_repo = Git(Constants.config_directory)
-                for config_files in Path(Constants.config_directory).rglob("*"):
-                    if Path(config_files).is_dir() or str(config_files).__contains__(".git") \
-                            or str(config_files).endswith("placeholder") \
-                            or str(config_files).endswith(".gitattributes") or str(config_files).endswith("README.md") \
-                            or str(config_files).__contains__(os.path.sep + "archive" + os.path.sep):
+                for config_files in Path(Constants.config_directory).rglob("*.config"):
+                    if Path(config_files).is_dir() or str(config_files).__contains__(
+                            os.path.sep + "archive" + os.path.sep):
                         continue
                     # Create config obj to handle config operations
                     config_obj = NikGappsConfig(config_files)
