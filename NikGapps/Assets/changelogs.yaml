@@ -1,6 +1,11 @@
-- date: 4th Oct 2021 (Android R and Q Release)
+- date: 12th Oct 2021 (Android R and Q Release)
   changes:
+      - item: Android 12 bring up
+      - item: a lot of mount fixes (thanks to osm0sis)
       - item: Fix GoogleFiles deleting DocumentsUI on android 10 when it shouldn't delete it
+      - item: config releases - add more validations to ensure the config files are not breaking the workflows
+      - item: config releases - speed up the execution
+      - item: drop Flipendo from gapps (addon will still be available) and Pixelize (gotta stick to google stuff, pixel isn't for every device/rom) AppSet
 - date: 18th Sept 2021 (Android R and Q Release)
   changes:
       - item: Update Google Photos, Calendar, Duo, Gmail, Calculator and Clock with Android 12's Material You design
