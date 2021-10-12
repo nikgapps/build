@@ -283,8 +283,6 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
         app_set_list = NikGappsPackages.get_core_package()
         digital_wellbeing = Package("WellbeingPreBuilt", "com.google.android.apps.wellbeing", Constants.is_priv_app,
                                     "DigitalWellbeing")
-        if TARGET_ANDROID_VERSION == 10:
-            digital_wellbeing.predefined_file_list.append("overlay/WellbeingOverlay.apk")
         vanced_manager = Package("VancedManager", "com.vanced.manager", Constants.is_system_app)
         vanced_manager.enabled = 0
         app_set_list.append(AppSet("DigitalWellbeing", [digital_wellbeing]))
@@ -299,10 +297,6 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
         app_set_list.append(AppSet("GoogleMessages", [google_messages]))
 
         google_dialer = Package("GoogleDialer", "com.google.android.dialer", Constants.is_priv_app)
-        if TARGET_ANDROID_VERSION == 10:
-            google_dialer.predefined_file_list.append("overlay/PhoneOverlay.apk")
-            google_dialer.predefined_file_list.append("overlay/TelecomOverlay.apk")
-            google_dialer.predefined_file_list.append("overlay/DefaultDialerOverlay.apk")
         google_dialer.predefined_file_list.append("framework/com.google.android.dialer.support.jar")
         google_dialer.delete("Dialer")
         google_dialer.additional_installer_script = """script_text="<permissions>
@@ -379,8 +373,7 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
     def get_omni_package():
         app_set_list = NikGappsPackages.get_basic_package()
         app_set_list.append(NikGappsPackages.get_setup_wizard())
-        if TARGET_ANDROID_VERSION >= 10:
-            app_set_list.append(NikGappsPackages.get_pixelize_set())
+        # Dropping pixelize support, need to keep it stock
         calculator = Package("CalculatorGooglePrebuilt", "com.google.android.calculator", Constants.is_system_app,
                              "GoogleCalculator")
         calculator.delete("ExactCalculator")
@@ -391,7 +384,7 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
         google_maps = Package("GoogleMaps", "com.google.android.apps.maps", Constants.is_priv_app)
         google_maps.delete_in_rom("Maps")
         app_set_list.append(AppSet("GoogleMaps", [google_maps]))
-        if TARGET_ANDROID_VERSION == 11:
+        if TARGET_ANDROID_VERSION >= 11:
             google_location_history = Package("LocationHistoryPrebuilt", "com.google.android.gms.location.history",
                                               Constants.is_system_app, "GoogleLocationHistory")
             google_location_history.delete_in_rom("LocationHistoryPrebuilt")
@@ -415,9 +408,7 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
         google_turbo = Package("Turbo", "com.google.android.apps.turbo", Constants.is_priv_app, "DeviceHealthServices")
         google_turbo.delete_in_rom("TurboPrebuilt")
         app_set_list.append(AppSet("DeviceHealthServices", [google_turbo]))
-        if TARGET_ANDROID_VERSION == 11:
-            flipendo = Package("Flipendo", "com.google.android.flipendo", Constants.is_system_app)
-            app_set_list.append(AppSet("Flipendo", [flipendo]))
+
         return app_set_list
 
     @staticmethod
@@ -427,15 +418,15 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
         google_velvet.priv_app_permissions.append("android.permission.WRITE_APN_SETTINGS")
         google_velvet.priv_app_permissions.append("android.permission.BLUETOOTH_PRIVILEGED")
         google_velvet.additional_installer_script = """
-                set_prop "ro.opa.eligible_device" "true" "$install_partition/build.prop"
+    set_prop "ro.opa.eligible_device" "true" "$install_partition/build.prop"
                         """
         app_set_list.append(AppSet("Velvet", [google_velvet]))
         google_board = Package("LatinIMEGooglePrebuilt", "com.google.android.inputmethod.latin",
                                Constants.is_system_app, "GBoard")
         google_board.additional_installer_script = """
-                set_prop "ro.com.google.ime.bs_theme" "true" "$install_partition/build.prop"
-                set_prop "ro.com.google.ime.theme_id" "5" "$install_partition/build.prop"
-                set_prop "ro.com.google.ime.system_lm_dir" "$install_partition/usr/share/ime/google/d3_lms" "$install_partition/build.prop"
+   set_prop "ro.com.google.ime.bs_theme" "true" "$install_partition/build.prop"
+   set_prop "ro.com.google.ime.theme_id" "5" "$install_partition/build.prop"
+   set_prop "ro.com.google.ime.system_lm_dir" "$install_partition/usr/share/ime/google/d3_lms" "$install_partition/build.prop"
         """
         google_board.delete("LatinIME")
         google_board.clean_flash_only = True
@@ -513,14 +504,11 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
         app_set_list = AppSet("GoogleFiles")
         google_files = Package("FilesPrebuilt", "com.google.android.apps.nbu.files", Constants.is_priv_app,
                                "GoogleFiles")
-        google_files.predefined_file_list.append("overlay/FilesOverlay/FilesOverlay.apk")
-        google_files.predefined_file_list.append(
-            "overlay/PixelDocumentsUIGoogleOverlay/PixelDocumentsUIGoogleOverlay.apk")
         app_set_list.add_package(google_files)
         storage_manager_google = Package("StorageManagerGoogle", "com.google.android.storagemanager",
                                          Constants.is_priv_app, "StorageManager", partition="system_ext")
         app_set_list.add_package(storage_manager_google)
-        if TARGET_ANDROID_VERSION >= 11:
+        if TARGET_ANDROID_VERSION == 11:
             documents_ui_google = Package("DocumentsUIGoogle", "com.google.android.documentsui", Constants.is_priv_app)
             documents_ui_google.delete("DocumentsUI")
             app_set_list.add_package(documents_ui_google)
@@ -550,7 +538,6 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
         app_set_list.add_package(google_chrome)
         if TARGET_ANDROID_VERSION >= 10:
             google_webview = Package("WebViewGoogle", "com.google.android.webview", Constants.is_system_app)
-            google_webview.predefined_file_list.append("overlay/GoogleWebViewOverlay.apk")
             google_webview.delete("webview")
             trichromelibrary = Package("TrichromeLibrary", "com.google.android.trichromelibrary",
                                        Constants.is_system_app)
@@ -613,7 +600,7 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
         if TARGET_ANDROID_VERSION == 10:
             pixelize_set.add_package(pixel_setup_wizard_overlay)
             pixelize_set.add_package(pixel_setup_wizard_aod_overlay)
-        if TARGET_ANDROID_VERSION >= 10:
+        if TARGET_ANDROID_VERSION in (10, 11):
             pixelize_set.add_package(pixel_setup_wizard)
             pixelize_set.add_package(android_migrate_prebuilt)
             pixelize_set.add_package(pixel_tips)
@@ -628,25 +615,13 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
         pixel_launcher.priv_app_permissions.append("android.permission.PACKAGE_USAGE_STATS")
         pixel_launcher.delete("TrebuchetQuickStep")
         # pixel_launcher.delete("Launcher3QuickStep")
-        if TARGET_ANDROID_VERSION <= 10:
-            pixel_launcher.predefined_file_list.append("overlay/PixelLauncherOverlay.apk")
-        if TARGET_ANDROID_VERSION == 11:
-            pixel_launcher.predefined_file_list.append("overlay/PixelConfigOverlayCommon.apk")
-            pixel_launcher.predefined_file_list.append("etc/permissions/com.android.launcher3.xml")
-            pixel_launcher.predefined_file_list.append(
-                "etc/sysconfig/hiddenapi-whitelist-com.google.android.apps.nexuslauncher.xml")
-            pixel_launcher.predefined_file_list.append(
-                "etc/permissions/privapp-permissions-com.google.android.apps.nexuslauncher.xml")
         device_personalization_services = Package("MatchmakerPrebuiltPixel4", "com.google.android.as",
                                                   Constants.is_priv_app, "DevicePersonalizationServices")
         gapps_list = [pixel_launcher]
         if TARGET_ANDROID_VERSION >= 9:
-            if TARGET_ANDROID_VERSION == 10:
-                device_personalization_services.predefined_file_list.append(
-                    "overlay/DevicePersonalizationServicesConfig.apk")
             device_personalization_services.delete_in_rom("DevicePersonalizationPrebuiltPixel4")
             gapps_list.append(device_personalization_services)
-        if TARGET_ANDROID_VERSION == 11:
+        if TARGET_ANDROID_VERSION >= 11:
             quick_access_wallet = Package("QuickAccessWallet", "com.android.systemui.plugin.globalactions.wallet",
                                           Constants.is_priv_app)
             gapps_list.append(quick_access_wallet)

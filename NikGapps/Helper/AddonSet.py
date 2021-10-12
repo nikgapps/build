@@ -14,7 +14,6 @@ class AddonSet:
             AddonSet.get_youtube_dark_15(),
             AddonSet.get_youtube_black_15(),
             AddonSet.get_youtube_music(),
-            AddonSet.get_pixel_setup_wizard(),
             AddonSet.get_google_fi(),
             AddonSet.get_google_duo(),
             AddonSet.get_google_docs(),
@@ -23,6 +22,10 @@ class AddonSet:
             AddonSet.get_youtube(),
             AddonSet.get_poke_pix_live_wallpapers()
         ]
+        if TARGET_ANDROID_VERSION in (10, 11):
+            addon_set_list.append(AddonSet.get_pixel_setup_wizard())
+        if TARGET_ANDROID_VERSION == 11:
+            addon_set_list.append(AddonSet.get_flipendo())
         if addon_name is None:
             return addon_set_list
         else:
@@ -36,7 +39,13 @@ class AddonSet:
         snap = Package("Snap", "org.lineageos.snap", Constants.is_priv_app)
         snap.delete("GoogleCameraGo")
         snap.delete("ScreenRecorder")
-        return AppSet("Snap", [snap])
+        return AppSet("Snap", [snap])\
+
+
+    @staticmethod
+    def get_flipendo():
+        flipendo = Package("Flipendo", "com.google.android.flipendo", Constants.is_system_app)
+        return AppSet("Flipendo", [flipendo])
 
     @staticmethod
     def get_google_docs():
@@ -88,25 +97,13 @@ class AddonSet:
         pixel_launcher.priv_app_permissions.append("android.permission.PACKAGE_USAGE_STATS")
         pixel_launcher.delete("TrebuchetQuickStep")
         # pixel_launcher.delete("Launcher3QuickStep")
-        if TARGET_ANDROID_VERSION <= 10:
-            pixel_launcher.predefined_file_list.append("overlay/PixelLauncherOverlay.apk")
-        if TARGET_ANDROID_VERSION == 11:
-            pixel_launcher.predefined_file_list.append("overlay/PixelConfigOverlayCommon.apk")
-            pixel_launcher.predefined_file_list.append("etc/permissions/com.android.launcher3.xml")
-            pixel_launcher.predefined_file_list.append(
-                "etc/sysconfig/hiddenapi-whitelist-com.google.android.apps.nexuslauncher.xml")
-            pixel_launcher.predefined_file_list.append(
-                "etc/permissions/privapp-permissions-com.google.android.apps.nexuslauncher.xml")
         device_personalization_services = Package("MatchmakerPrebuiltPixel4", "com.google.android.as",
                                                   Constants.is_priv_app, "DevicePersonalizationServices")
         gapps_list = [pixel_launcher]
         if TARGET_ANDROID_VERSION >= 9:
-            if TARGET_ANDROID_VERSION == 10:
-                device_personalization_services.predefined_file_list.append(
-                    "overlay/DevicePersonalizationServicesConfig.apk")
             device_personalization_services.delete_in_rom("DevicePersonalizationPrebuiltPixel4")
             gapps_list.append(device_personalization_services)
-        if TARGET_ANDROID_VERSION == 11:
+        if TARGET_ANDROID_VERSION >= 11:
             quick_access_wallet = Package("QuickAccessWallet", "com.android.systemui.plugin.globalactions.wallet",
                                           Constants.is_priv_app)
             gapps_list.append(quick_access_wallet)
