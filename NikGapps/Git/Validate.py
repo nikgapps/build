@@ -13,9 +13,10 @@ class Validate:
         for i in range(0, total):
             print("-------------------------------------------------------------------------------------")
             file_name = str(files_changed[i]["filename"])
+            raw_file_name = os.path.splitext((os.path.basename(file_name)))[0]
             print("Validating: " + file_name)
             print("-------------------------------------------------------------------------------------")
-            print("- checking file name")
+            print("- checking file name: " + raw_file_name)
             if file_name.__contains__("#") or file_name.__contains__("!"):
                 failure_reason.append(f"{file_name} contains symbols in the name which are not allowed. "
                                       f"Only alphanumeric names are allowed!")
@@ -28,9 +29,11 @@ class Validate:
                 else:
                     failure_reason.append(f"{file_name} must be part of Android Version folder, not outside of it!")
             print("- checking if filename is alphanumeric")
-            if not (file_name.isalnum()):
+            if not (raw_file_name.isalnum()):
                 failure_reason.append(
-                    f"{file_name} is not an aphanumeric name, make sure the name of config file is between A-Z and 0-9")
+                    f"{file_name} is not an aphanumeric name, "
+                    f"make sure the name of config file is between A-Z and 0-9 "
+                    f"any symbols including (, - ' . # ! *) are not accepted in the name")
             print("- checking file status")
             file_status = str(files_changed[i]["status"])
             if not file_status.__eq__("added"):
