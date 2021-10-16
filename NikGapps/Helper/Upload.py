@@ -65,6 +65,8 @@ class Upload:
                 folder_name = "NikGapps-Q"
             elif android_version == 11:
                 folder_name = "NikGapps-R"
+            elif android_version == 12:
+                folder_name = "NikGapps-S"
         elif file_type == "addons":
             if android_version == 9:
                 folder_name = "Addons-P"
@@ -72,6 +74,8 @@ class Upload:
                 folder_name = "Addons-Q"
             elif android_version == 11:
                 folder_name = "Addons-R"
+            elif android_version == 12:
+                folder_name = "Addons-S"
         elif file_type == "debloater":
             folder_name = "Debloater"
         return self.release_dir + "/" + folder_name
