@@ -51,7 +51,7 @@ check_if_partitions_are_mounted_rw() {
   $BOOTMODE and return
   addToLog "- Android version: $androidVersion"
   case "$androidVersion" in
-    "11")
+    "1"*)
       [ ! "$is_system_writable" ] && [ ! "$is_product_writable" ] && [ ! "$is_system_ext_writable" ] && abort "- Partitions not writable!"
     ;;
     "10")
