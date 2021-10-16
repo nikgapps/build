@@ -1,5 +1,6 @@
 import os
 from NikGapps.Git.PullRequest import PullRequest
+import re
 
 
 class Validate:
@@ -9,6 +10,7 @@ class Validate:
         failure_reason = []
         files_changed = pr.get_files_changed(True)
         total = len(files_changed)
+        regex = '[^a-zA-Z0-9_-]'
         print("Total files changed: " + str(total))
         for i in range(0, total):
             print("-------------------------------------------------------------------------------------")
@@ -29,11 +31,14 @@ class Validate:
                 else:
                     failure_reason.append(f"{file_name} must be part of Android Version folder, not outside of it!")
             print("- checking if filename is alphanumeric")
-            if not (raw_file_name.isalnum()):
+            regex_match = re.search(regex, raw_file_name)
+            if regex_match is not None:
                 failure_reason.append(
                     f"{file_name} is not an aphanumeric name, "
                     f"make sure the name of config file is between A-Z and 0-9 "
-                    f"any symbols including (, - ' . # ! *) are not accepted in the name")
+                    f"additionally, accepted symbols are - (dash) or _ (underscore) "
+                    f"any symbols including but not limited to (, ' . # ! *) are not accepted in the name")
+                print(regex_match)
             print("- checking file status")
             file_status = str(files_changed[i]["status"])
             if not file_status.__eq__("added"):
