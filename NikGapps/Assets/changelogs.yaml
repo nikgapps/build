@@ -1,7 +1,8 @@
-- date: 17th Oct 2021 (Android S, R and Q Release)
+- date: 18th Oct 2021 (Android S, R and Q Release)
   changes:
       - item: Android 12 bring up
       - item: a lot of mount fixes (thanks to osm0sis)
+      - item: fix DPS (aslo known as ASI) crashes
       - item: Fix GoogleFiles deleting DocumentsUI on android 10 when it shouldn't delete it
       - item: config releases - add more validations to ensure the config files are not breaking the workflows
       - item: config releases - speed up the execution

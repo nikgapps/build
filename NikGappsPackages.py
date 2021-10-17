@@ -432,7 +432,7 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
         google_board.clean_flash_only = True
         app_set_list.append(AppSet("GBoard", [google_board]))
         app_set_list.append(NikGappsPackages.get_pixel_launcher())
-        if TARGET_ANDROID_VERSION == 11:
+        if TARGET_ANDROID_VERSION >= 11:
             app_set_list.append(NikGappsPackages.get_google_files())
         google_recorder = Package("RecorderPrebuilt", "com.google.android.apps.recorder", Constants.is_priv_app,
                                   "GoogleRecorder")
@@ -508,7 +508,7 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
         storage_manager_google = Package("StorageManagerGoogle", "com.google.android.storagemanager",
                                          Constants.is_priv_app, "StorageManager", partition="system_ext")
         app_set_list.add_package(storage_manager_google)
-        if TARGET_ANDROID_VERSION == 11:
+        if TARGET_ANDROID_VERSION >= 11:
             documents_ui_google = Package("DocumentsUIGoogle", "com.google.android.documentsui", Constants.is_priv_app)
             documents_ui_google.delete("DocumentsUI")
             app_set_list.add_package(documents_ui_google)

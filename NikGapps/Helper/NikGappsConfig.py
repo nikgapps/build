@@ -17,6 +17,8 @@ class NikGappsConfig:
             return 10
         elif str(self.config_path).__contains__(os.path.sep + "11" + os.path.sep):
             return 11
+        elif str(self.config_path).__contains__(os.path.sep + "12" + os.path.sep):
+            return 12
         else:
             return 0
 

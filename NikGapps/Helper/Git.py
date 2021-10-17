@@ -29,7 +29,9 @@ class Git:
             else:
                 commits = list(self.repo.iter_commits('master', max_count=50))
         except git.exc.GitCommandError:
-            commits = list(self.repo.iter_commits('master', max_count=50))
+            if repo is "master":
+                repo = "main"
+            commits = list(self.repo.iter_commits(repo, max_count=50))
 
         for commit in commits:
             commit: Commit
