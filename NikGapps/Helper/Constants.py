@@ -32,6 +32,8 @@ class Constants:
         android_version_folder = "Q"
     elif str(Config.TARGET_ANDROID_VERSION).__eq__("11"):
         android_version_folder = "R"
+    elif str(Config.TARGET_ANDROID_VERSION).__eq__("12"):
+        android_version_folder = "S"
 
     if str(Config.ENVIRONMENT_TYPE).__eq__("production"):
         android_version_folder = str(Config.TARGET_ANDROID_VERSION)
@@ -112,6 +114,8 @@ class Constants:
             Constants.android_version_folder = "Q"
         elif str(Config.TARGET_ANDROID_VERSION).__eq__("11"):
             Constants.android_version_folder = "R"
+        elif str(Config.TARGET_ANDROID_VERSION).__eq__("12"):
+            Constants.android_version_folder = "S"
         if str(Config.ENVIRONMENT_TYPE.lower()) == "production":
             Constants.android_version_folder = str(Config.TARGET_ANDROID_VERSION)
         Constants.export_directory = str(Path(Constants.cwd).parent) + os.path.sep + "Export" + os.path.sep + str(

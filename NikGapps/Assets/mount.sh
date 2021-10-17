@@ -12,7 +12,7 @@ begin_mounting() {
   if [ ! "$(getprop 2>/dev/null)" ]; then
     getprop() {
       local propdir propfile propval;
-      for propdir in / /system_root /system /vendor /odm /product; do
+      for propdir in / /system_root /system /vendor /product /system_ext /odm; do
         for propfile in default.prop build.prop; do
           test "$propval" && break 2 || propval="$(file_getprop $propdir/$propfile "$1" 2>/dev/null)";
         done;
@@ -24,37 +24,6 @@ begin_mounting() {
       ($(which getprop) | $BB grep "$1" | $BB cut -d[ -f3 | $BB cut -d] -f1) 2>/dev/null;
     }
   fi;
-}
-
-find_device_block() {
-  device_ab=$(getprop ro.build.ab_update 2>/dev/null)
-  dynamic_partitions=$(getprop ro.boot.dynamic_partitions)
-  [ -z "$dynamic_partitions" ] && dynamic_partitions="false"
-  addToLog "- variable dynamic_partitions = $dynamic_partitions"
-  BLK_PATH=/dev/block/bootdevice/by-name
-  if [ -d /dev/block/mapper ]; then
-    dynamic_partitions="true"
-    BLK_PATH="/dev/block/mapper"
-    addToLog "- Directory method! Device with dynamic partitions Found"
-  else
-    addToLog "- Device doesn't have dynamic partitions"
-  fi
-
-  SLOT=$(find_slot)
-  if [ -n "$SLOT" ]; then
-    if [ "$SLOT" = "_a" ]; then
-      SLOT_SUFFIX="_a"
-    else
-      SLOT_SUFFIX="_b"
-    fi
-  fi
-  addToLog "- Finding device block"
-  SYSTEM_BLOCK=$(find_block "system")
-  addToLog "- System_Block=$SYSTEM_BLOCK"
-  PRODUCT_BLOCK=$(find_block "product")
-  addToLog "- Product_Block=$PRODUCT_BLOCK"
-  SYSTEM_EXT_BLOCK=$(find_block "system_ext")
-  addToLog "- System_Ext_Block=$SYSTEM_EXT_BLOCK"
 }
 
 find_partition_type() {
@@ -152,9 +121,7 @@ is_mounted_rw() {
 
 # Mount all the partitions
 mount_all() {
-  find_device_block
-  # Check A/B slot
-  [ -z "$SLOT" ] || ui_print "- Current boot slot: $SLOT"
+  local byname mount slot system;
   if ! is_mounted /cache; then
     mount /cache 2>/dev/null && UMOUNT_CACHE=1
   fi
@@ -165,10 +132,11 @@ mount_all() {
     addToLog "- /data already mounted!"
   fi;
 
-  (for partition in "vendor" "product" "persist"; do
-    ui_print "- Mounting /$partition"
-    $BB mount -o ro -t auto "/$partition" 2>/dev/null;
-  done) 2>/dev/null
+  (for mount in /vendor /product /system_ext /persist; do
+    ui_print "- Mounting $mount"
+    $BB mount -o ro -t auto $mount;
+  done) 2>/dev/null;
+
   addToLog "----------------------------------------------------------------------------"
   ui_print "- Mounting $ANDROID_ROOT"
   addToLog "- Setting up mount point $ANDROID_ROOT"
@@ -178,6 +146,10 @@ mount_all() {
     mount -o ro -t auto "$ANDROID_ROOT" 2>/dev/null
   fi
   addToLog "----------------------------------------------------------------------------"
+  byname=bootdevice/by-name;
+  [ -d /dev/block/$byname ] || byname=$($BB find /dev/block/platform -type d -name by-name 2>/dev/null | $BB head -n1 | $BB cut -d/ -f4-);
+  [ -d /dev/block/mapper ] && byname=mapper && addToLog "- Device with dynamic partitions Found";
+  [ -e /dev/block/$byname/system ] || slot=$(find_slot);
   case $ANDROID_ROOT in
     /system_root) setup_mountpoint /system;;
     /system)
@@ -194,48 +166,36 @@ mount_all() {
       addToLog "- Command Execution Status: $ret"
       if [ $ret -ne 0 ]; then
         addToLog "- Unmounting and Remounting /system as /system_root"
-        (umount /system;
-        umount -l /system) 2>/dev/null
-        if [ -d /dev/block/mapper ]; then
-          addToLog "- Device with dynamic partitions Found"
-          test -e /dev/block/mapper/system || local slot=$(find_slot)
-          addToLog "- Mounting /system$slot as read only"
-          mount -o ro -t auto /dev/block/mapper/system"$slot" /system_root
-          for partition in "vendor" "product" "system_ext"; do
-            addToLog "- Mounting /$partition$slot as read only"
-            mount -o ro -t auto /dev/block/mapper/$partition"$slot" /partition 2>/dev/null
-          done
-        else
-          test -e /dev/block/bootdevice/by-name/system || local slot=$(find_slot)
-          addToLog "- Device doesn't have dynamic partitions, mounting /system$slot as ro"
-          mount -o ro -t auto /dev/block/bootdevice/by-name/system"$slot" /system_root
-          (for partition in "vendor" "product" "persist system_ext"; do
-            ui_print "- Mounting /$partition as read only"
-            mount -o ro -t auto /dev/block/bootdevice/by-name/"$partition$slot" /"$partition"
-          done) 2>/dev/null
-        fi
+        ($BB umount /system;
+        $BB umount -l /system) 2>/dev/null
+        $BB mount -o ro -t auto /dev/block/$byname/system$slot /system_root;
       else
          addToLog "- $ret should be equals to 0"
       fi
     ;;
   esac;
+  [ -f /system_root/system/build.prop ] && system=/system;
+  for mount in /vendor /product /system_ext; do
+      if ! is_mounted $mount && [ -L /system$mount -o -L /system_root$system$mount ]; then
+        setup_mountpoint $mount;
+        $BB mount -o ro -t auto /dev/block/$byname$mount$slot $mount;
+      fi;
+  done;
   addToLog "----------------------------------------------------------------------------"
   addToLog "- Checking if /system_root is mounted.."
   addToLog "----------------------------------------------------------------------------"
   if is_mounted /system_root; then
     mount_apex;
-    if [ -f /system_root/build.prop ]; then
-      addToLog "- Binding /system_root as /system"
-      $BB mount -o bind /system_root /system;
-    else
-      addToLog "- Binding /system_root/system as /system"
-      $BB mount -o bind /system_root/system /system;
-    fi;
+    $BB mount -o bind /system_root$system /system;
   elif is_mounted /system; then
     addToLog "- /system is mounted"
   else
     addToLog "- Could not mount /system"
     abort "- Could not mount /system, try changing recovery!"
+  fi;
+  if ! is_mounted /persist && [ -e /dev/block/bootdevice/by-name/persist ]; then
+    setup_mountpoint /persist;
+    $BB mount -o ro -t auto /dev/block/bootdevice/by-name/persist /persist;
   fi;
   addToLog "----------------------------------------------------------------------------"
   system=/system
@@ -274,7 +234,7 @@ mount_all() {
         addToLog "- Could not mount /system_ext"
       fi
     else
-      addToLog "- /product already mounted"
+      addToLog "- /system_ext already mounted"
     fi
   fi
   addToLog "----------------------------------------------------------------------------"

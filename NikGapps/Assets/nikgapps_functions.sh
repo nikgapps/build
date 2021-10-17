@@ -51,7 +51,7 @@ check_if_partitions_are_mounted_rw() {
   $BOOTMODE and return
   addToLog "- Android version: $androidVersion"
   case "$androidVersion" in
-    "11")
+    "1"*)
       [ ! "$is_system_writable" ] && [ ! "$is_product_writable" ] && [ ! "$is_system_ext_writable" ] && abort "- Partitions not writable!"
     ;;
     "10")
@@ -134,7 +134,6 @@ get_available_size_again() {
       mounted_on=$(echo $output | $BB awk '{ print $6 }' )
       available=$(echo $output | $BB awk '{ print $4 }' )
       ;;
-      *) echo false ;;
     esac
     if [ "$mounted_on" = "$1" ] || ([ "/system" = "$input_data" ] && [ "$mounted_on" = "/system_root" ]); then
       addToLog "- $mounted_on $available $input_data"
@@ -609,7 +608,7 @@ restore_env() {
   unset OLD_LD_PATH OLD_LD_PRE OLD_LD_CFG;
   umount_all;
   [ -L /etc_link ] && $BB rm -rf /etc/*;
-  (for dir in /apex /system /system_root /etc; do
+  (for dir in /etc /apex /system_root /system /vendor /product /system_ext /persist; do
     if [ -L "${dir}_link" ]; then
       rmdir $dir;
       $BB mv -f ${dir}_link $dir;

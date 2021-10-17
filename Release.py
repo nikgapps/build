@@ -31,11 +31,9 @@ class Release:
                                             Logs.get_current_time()) + ".zip", [app_set])
             elif pkg_type == "config":
                 config_repo = Git(Constants.config_directory)
-                for config_files in Path(Constants.config_directory).rglob("*"):
-                    if Path(config_files).is_dir() or str(config_files).__contains__(".git") \
-                            or str(config_files).endswith("placeholder") \
-                            or str(config_files).endswith(".gitattributes") or str(config_files).endswith("README.md") \
-                            or str(config_files).__contains__(os.path.sep + "archive" + os.path.sep):
+                for config_files in Path(Constants.config_directory).rglob("*.config"):
+                    if Path(config_files).is_dir() or str(config_files).__contains__(
+                            os.path.sep + "archive" + os.path.sep):
                         continue
                     # Create config obj to handle config operations
                     config_obj = NikGappsConfig(config_files)
@@ -49,6 +47,7 @@ class Release:
                     # Generate a file name for the zip
                     file_name = Constants.release_directory
                     config_file_name = os.path.splitext(os.path.basename(config_files))[0].replace(" ", "")
+                    config_file_name = os.path.splitext(os.path.basename(config_file_name))[0].replace("'", "")
                     file_name = file_name + Constants.dir_sep + Logs.get_file_name(config_file_name,
                                                                                    str(Config.TARGET_ANDROID_VERSION))
                     # Build the packages from the directory

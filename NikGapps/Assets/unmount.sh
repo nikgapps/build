@@ -15,34 +15,26 @@ begin_unmounting() {
 
 # Unmount all partitions on recovery clean up and for a fresh install
 umount_all() {
+  local mount;
   (if [ ! -d /postinstall/tmp ]; then
     ui_print "- Unmounting /system"
     $BB umount /system;
     $BB umount -l /system;
-    $BB umount /mnt/system
-    $BB umount -l /mnt/system
-    umount_apex;
-    if [ -e /system_root ]; then
-      ui_print "- Unmounting /system_root"
-      $BB umount /system_root;
-      $BB umount -l /system_root;
-    fi;
-    $BB umount /mnt/system;
-    $BB umount -l /mnt/system;
+  fi) 2>/dev/null;
+  umount_apex;
+  (if [ ! -d /postinstall/tmp ]; then
+    ui_print "- Unmounting /system_root"
+    $BB umount /system_root;
+    $BB umount -l /system_root;
   fi;
   ui_print "- Unmounting /vendor"
-  $BB umount /vendor;
-  $BB umount -l /vendor;
-  $BB umount /mnt/vendor;
-  $BB umount -l /mnt/vendor;
-  addToLog "- Unmounting /persist"
-  $BB umount /persist
-  $BB umount -l /persist
-  ui_print "- Unmounting /product"
-  $BB umount /product;
-  $BB umount -l /product;
-  $BB umount /mnt/product
-  $BB umount -l /mnt/product
+  umount /vendor; # busybox umount /vendor breaks recovery on some hacky devices
+  umount -l /vendor;
+  for mount in /mnt/system /mnt/vendor /product /mnt/product /system_ext /mnt/system_ext /persist; do
+    addToLog "- Unmounting $mount"
+    $BB umount $mount;
+    $BB umount -l $mount;
+  done;
   if [ "$UMOUNT_DATA" ]; then
     ui_print "- Unmounting /data"
     $BB umount /data;

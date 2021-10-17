@@ -44,6 +44,38 @@ find_block() {
   fi
 }
 
+find_device_block() {
+  device_ab=$(getprop ro.build.ab_update 2>/dev/null)
+  dynamic_partitions=$(getprop ro.boot.dynamic_partitions)
+  [ -z "$dynamic_partitions" ] && dynamic_partitions="false"
+  addToLog "- variable dynamic_partitions = $dynamic_partitions"
+  BLK_PATH=/dev/block/bootdevice/by-name
+  if [ -d /dev/block/mapper ]; then
+    dynamic_partitions="true"
+    BLK_PATH="/dev/block/mapper"
+    addToLog "- Directory method! Device with dynamic partitions Found"
+  else
+    addToLog "- Device doesn't have dynamic partitions"
+  fi
+
+
+  SLOT=$(find_slot)
+  if [ -n "$SLOT" ]; then
+    if [ "$SLOT" = "_a" ]; then
+      SLOT_SUFFIX="_a"
+    else
+      SLOT_SUFFIX="_b"
+    fi
+  fi
+  addToLog "- Finding device block"
+  SYSTEM_BLOCK=$(find_block "system")
+  addToLog "- System_Block=$SYSTEM_BLOCK"
+  PRODUCT_BLOCK=$(find_block "product")
+  addToLog "- Product_Block=$PRODUCT_BLOCK"
+  SYSTEM_EXT_BLOCK=$(find_block "system_ext")
+  addToLog "- System_Ext_Block=$SYSTEM_EXT_BLOCK"
+}
+
 find_gapps_size() {
   file_value=$(cat $COMMONDIR/file_size)
   for i in $file_value; do
