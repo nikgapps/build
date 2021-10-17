@@ -25,7 +25,8 @@ class Validate:
             if not file_name.endswith(".config"):
                 failure_reason.append(f"{file_name} doesn't have .config extension, we only accept config files!")
             print("- checking if android version is present")
-            if not (file_name.startswith("10" + os.path.sep) or file_name.startswith("11" + os.path.sep)):
+            if not (file_name.startswith("10" + os.path.sep) or file_name.startswith("11" + os.path.sep)
+                    or file_name.startswith("12" + os.path.sep)):
                 if file_name.startswith("archive" + os.path.sep):
                     failure_reason.append(f"You cannot modify archived file {file_name}")
                 else:
