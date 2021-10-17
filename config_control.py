@@ -53,10 +53,10 @@ if Config.BUILD_CONFIG:
                 repo_dir = Constants.pwd + Constants.dir_sep + str(android_version)
                 print("Repo Dir: " + repo_dir)
                 start_time = Constants.start_of_function()
+                if FileOp.dir_exists(repo_dir):
+                    print(f"{repo_dir} already exists, deleting for a fresh clone!")
+                    FileOp.remove_dir(repo_dir)
                 try:
-                    if FileOp.dir_exists(repo_dir):
-                        print(f"{repo_dir} already exists, deleting for a fresh clone!")
-                        FileOp.remove_dir(repo_dir)
                     print(f"git clone -b --depth=1 {branch} https://gitlab.com/nikgapps/{android_version}.git")
                     repo = git.Repo.clone_from(f"https://gitlab.com/nikgapps/{android_version}.git",
                                                repo_dir,
@@ -65,7 +65,17 @@ if Config.BUILD_CONFIG:
                     assert Repo.init(repo_dir).__class__ is Repo
                 except Exception as e:
                     print("Exception caught while cloning the repo: " + str(e))
-                    continue
+                    try:
+                        branch = "main"
+                        print(f"git clone -b --depth=1 {branch} https://gitlab.com/nikgapps/{android_version}.git")
+                        repo = git.Repo.clone_from(f"https://gitlab.com/nikgapps/{android_version}.git",
+                                                   repo_dir,
+                                                   branch=branch, depth=1)
+                        assert repo.__class__ is Repo  # clone an existing repository
+                        assert Repo.init(repo_dir).__class__ is Repo
+                    except Exception as e:
+                        print("Exception caught while cloning the repo: " + str(e))
+                        continue
                 Constants.end_of_function(start_time,
                                           f"Time taken to clone -b {branch} gitlab.com/nikgapps/{android_version}.git")
                 Config.TARGET_ANDROID_VERSION = int(android_version)
