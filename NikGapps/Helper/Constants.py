@@ -163,8 +163,9 @@ class Constants:
     def get_import_path(app_set, pkg, install_path, export_directory=None):
         base_name = Constants.get_base_name(install_path)
         dir_name = Constants.get_parent_path(install_path)
-        dir_name = str(dir_name).replace("\\system", "").replace("/system", "").replace(
-            "/product", "").replace("\\product", "")
+        dir_name = str(dir_name).replace("\\system_ext", "").replace("/system_ext", "") \
+            .replace("\\system", "").replace("/system", "") \
+            .replace("\\product", "").replace("/product", "")
         if export_directory is not None:
             output = export_directory + Constants.dir_sep
         else:
