@@ -372,7 +372,7 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
     @staticmethod
     def get_omni_package():
         app_set_list = NikGappsPackages.get_basic_package()
-        app_set_list.append(NikGappsPackages.get_setup_wizard())
+        app_set_list.append(AddonSet.get_pixel_setup_wizard())
         # Dropping pixelize support, need to keep it stock
         calculator = Package("CalculatorGooglePrebuilt", "com.google.android.calculator", Constants.is_system_app,
                              "GoogleCalculator")
@@ -483,12 +483,6 @@ addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml
         app_set_list.append(AppSet("YouTubeMusic", [youtube_music]))
         play_games = Package("PlayGames", "com.google.android.play.games", Constants.is_system_app)
         app_set_list.append(AppSet("PlayGames", [play_games]))
-        google_tts = Package("GoogleTTS", "com.google.android.tts", Constants.is_system_app)
-        google_tts.delete("PicoTts")
-        app_set_list.append(AppSet("GoogleTTS", [google_tts]))
-        talkback = Package("talkback", "com.google.android.marvin.talkback", Constants.is_system_app, "GoogleTalkback")
-        google_talkback = AppSet("GoogleTalkback", [talkback])
-        app_set_list.append(google_talkback)
         if TARGET_ANDROID_VERSION >= 10:
             google_device_setup = Package("OTAConfigPrebuilt", "com.google.android.apps.work.oobconfig",
                                           Constants.is_priv_app, "DeviceSetup")
