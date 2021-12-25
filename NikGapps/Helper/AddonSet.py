@@ -11,8 +11,8 @@ class AddonSet:
         addon_set_list = [
             AddonSet.get_adaway(),
             AddonSet.get_pixel_live_wallpapers(),
-            AddonSet.get_youtube_dark_15(),
-            AddonSet.get_youtube_black_15(),
+            AddonSet.get_youtube_dark(),
+            AddonSet.get_youtube_black(),
             AddonSet.get_youtube_music(),
             AddonSet.get_google_fi(),
             AddonSet.get_google_duo(),
@@ -20,10 +20,11 @@ class AddonSet:
             AddonSet.get_google_slides(),
             AddonSet.get_google_sheets(),
             AddonSet.get_youtube(),
-            AddonSet.get_poke_pix_live_wallpapers()
+            AddonSet.get_poke_pix_live_wallpapers(),
+            AddonSet.get_google_tts()
         ]
-        if TARGET_ANDROID_VERSION in (10, 11):
-            addon_set_list.append(AddonSet.get_pixel_setup_wizard())
+        # if TARGET_ANDROID_VERSION in (10, 11):
+        #     addon_set_list.append(AddonSet.get_pixel_setup_wizard())
         if TARGET_ANDROID_VERSION == 11:
             addon_set_list.append(AddonSet.get_flipendo())
         if addon_name is None:
@@ -35,14 +36,24 @@ class AddonSet:
         return None
 
     @staticmethod
+    def get_google_tts():
+        google_tts = Package("GoogleTTS", "com.google.android.tts", Constants.is_system_app)
+        google_tts.delete("PicoTts")
+        return AppSet("GoogleTTS", [google_tts])
+
+    @staticmethod
+    def get_google_talkback():
+        talkback = Package("talkback", "com.google.android.marvin.talkback", Constants.is_system_app, "GoogleTalkback")
+        return AppSet("GoogleTalkback", [talkback])
+
+    @staticmethod
     def get_snap_camera():
         snap = Package("Snap", "org.lineageos.snap", Constants.is_priv_app)
         snap.delete("GoogleCameraGo")
         snap.delete("ScreenRecorder")
-        return AppSet("Snap", [snap])\
+        return AppSet("Snap", [snap])
 
-
-    @staticmethod
+    @ staticmethod
     def get_flipendo():
         flipendo = Package("Flipendo", "com.google.android.flipendo", Constants.is_system_app)
         return AppSet("Flipendo", [flipendo])
@@ -180,43 +191,27 @@ class AddonSet:
         return pixel_live_wallpaper_set
 
     @staticmethod
-    def get_youtube_black():
-        youtube_vanced_black = Package("YouTube", "com.google.android.youtube", Constants.is_system_app,
-                                       "YouTubeVancedBlack")
-        youtube_vanced_black.delete_in_rom("YouTube")
-        youtube_vanced_black.delete_in_rom("VancedGms")
-        return AppSet("YouTubeVancedBlack", [youtube_vanced_black])
-
-    @staticmethod
-    def get_youtube_dark():
-        youtube_vanced_dark = Package("YouTube", "com.google.android.youtube", Constants.is_system_app,
-                                      "YouTubeVancedDark")
-        youtube_vanced_dark.delete_in_rom("YouTube")
-        youtube_vanced_dark.delete_in_rom("VancedGms")
-        return AppSet("YouTubeVancedDark", [youtube_vanced_dark])
-
-    @staticmethod
     def get_youtube():
         youtube = Package("YouTube", "com.google.android.youtube", Constants.is_system_app)
         return AppSet("YouTube", [youtube])
 
     @staticmethod
-    def get_youtube_black_15():
-        youtube_vanced_black_15 = Package("YouTube", "com.vanced.android.youtube", Constants.is_system_app,
-                                          "YouTubeVancedBlack15")
+    def get_youtube_black():
+        youtube_vanced_black = Package("YouTube", "com.vanced.android.youtube", Constants.is_system_app,
+                                       "YouTubeVancedBlack")
         vanced_gms = Package("VancedGms", "com.mgoogle.android.gms", Constants.is_system_app)
-        youtube_vanced_black_15.delete_in_rom("YouTube")
-        youtube_vanced_black_15.delete_in_rom("VancedGms")
-        return AppSet("YouTubeVancedBlack15", [youtube_vanced_black_15, vanced_gms])
+        youtube_vanced_black.delete_in_rom("YouTube")
+        youtube_vanced_black.delete_in_rom("VancedGms")
+        return AppSet("YouTubeVancedBlack", [youtube_vanced_black, vanced_gms])
 
     @staticmethod
-    def get_youtube_dark_15():
-        youtube_vanced_dark_15 = Package("YouTube", "com.vanced.android.youtube", Constants.is_system_app,
-                                         "YouTubeVancedDark15")
+    def get_youtube_dark():
+        youtube_vanced_dark = Package("YouTube", "com.vanced.android.youtube", Constants.is_system_app,
+                                      "YouTubeVancedDark")
         vanced_gms = Package("VancedGms", "com.mgoogle.android.gms", Constants.is_system_app)
-        youtube_vanced_dark_15.delete_in_rom("YouTube")
-        youtube_vanced_dark_15.delete_in_rom("VancedGms")
-        return AppSet("YouTubeVancedDark15", [youtube_vanced_dark_15, vanced_gms])
+        youtube_vanced_dark.delete_in_rom("YouTube")
+        youtube_vanced_dark.delete_in_rom("VancedGms")
+        return AppSet("YouTubeVancedDark", [youtube_vanced_dark, vanced_gms])
 
     @staticmethod
     def get_youtube_music():
@@ -255,7 +250,9 @@ class AddonSet:
         pixel_setup_wizard_aod_overlay = Package("PixelSetupWizardAodOverlay",
                                                  "com.google.android.pixel.setupwizard.overlay.aod",
                                                  Constants.is_system_app)
-        pixel_setup_wizard = Package("PixelSetupWizard", "com.google.android.pixel.setupwizard", Constants.is_priv_app, partition="system_ext")
+        pixel_setup_wizard = Package("PixelSetupWizard", "com.google.android.pixel.setupwizard", Constants.is_priv_app,
+                                     partition="system_ext")
+        pixel_setup_wizard.delete("LineageSetupWizard")
         android_migrate_prebuilt = Package("AndroidMigratePrebuilt", "com.google.android.apps.pixelmigrate",
                                            Constants.is_priv_app)
         pixel_tips = Package("TipsPrebuilt", "com.google.android.apps.tips", Constants.is_priv_app, "PixelTips")
@@ -277,10 +274,11 @@ class AddonSet:
             setup_wizard_set.add_package(pixel_setup_wizard_aod_overlay)
         if TARGET_ANDROID_VERSION >= 10:
             setup_wizard_set.add_package(pixel_setup_wizard)
-            setup_wizard_set.add_package(android_migrate_prebuilt)
-            setup_wizard_set.add_package(pixel_tips)
-        if TARGET_ANDROID_VERSION == 11:
-            setup_wizard_set.add_package(pixel_config_overlays)
+            if TARGET_ANDROID_VERSION < 12:
+                setup_wizard_set.add_package(android_migrate_prebuilt)
+            # setup_wizard_set.add_package(pixel_tips)
+        # if TARGET_ANDROID_VERSION == 11:
+        # setup_wizard_set.add_package(pixel_config_overlays)
         return setup_wizard_set
 
     @staticmethod

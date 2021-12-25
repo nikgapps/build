@@ -27,7 +27,6 @@ nikGappsAddonLogFile="$addonDir/addonlogfiles/NikGapps_"$fileName"_addon.log"
 nikGappsTestLog="$addonDir/logfiles/NikGapps.log"
 newline='
 '
-nikgapps_config_file_name=""
 
 echo_add_to_log() {
   echo ""
@@ -37,20 +36,6 @@ echo_add_to_log() {
   echo "}"
   echo ""
   echo "addToLog \"Execute Log for $fileName with commands: \$@\""
-}
-
-find_config() {
-  if [ -f "/tmp/nikgapps.config" ]; then
-    nikgapps_config_file_name="/tmp/nikgapps.config"
-  elif [ -f "/sdcard1/nikgapps.config" ]; then
-    nikgapps_config_file_name="/sdcard1/nikgapps.config"
-  elif [ -f "/sdcard1/NikGapps/nikgapps.config" ]; then
-    nikgapps_config_file_name="/sdcard1/NikGapps/nikgapps.config"
-  elif [ -f "/sdcard/nikgapps.config" ]; then
-    nikgapps_config_file_name="/sdcard/nikgapps.config"
-  else
-    nikgapps_config_file_name="$nikGappsDir/nikgapps.config"
-  fi
 }
 
 list_files() {
@@ -195,7 +180,7 @@ header() {
   echo "#"
   echo "# ADDOND_VERSION=$version"
 }
-find_config
+
 if [ -z "$nikgapps_config_file_name" ]; then
   version=3
 else

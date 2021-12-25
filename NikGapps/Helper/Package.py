@@ -167,6 +167,7 @@ class Package:
         cmd = Cmd()
         self.failure_logs = ""
         if self.install_list.__len__() > 0 or self.predefined_file_list.__len__() > 0:
+            print("File(s) to fetch: " + str(len(self.install_list)))
             for file in self.install_list:
                 # Fetch the folder where the app files are located
                 source_folder = str(Path(self.primary_app_location).parent).replace("\\", "/")
@@ -248,6 +249,10 @@ class Package:
                         break
                 if parent_folder is not None:  # Fetch the list of files to pull
                     self.install_list = cmd.get_package_files_recursively(parent_folder, self.install_list)
+            else:
+                self.failure_logs = "Seems as if " + self.package_title + " is not installed in device!"
+                print(self.failure_logs)
+                self.failure_logs += "\n"
         else:
             if self.title != "ExtraFiles" and self.title != "ExtraFilesGo":
                 self.validated = False

@@ -64,7 +64,8 @@ class Export:
                             file_index = file_index + 1
                             pkg_size = pkg_size + Constants.get_file_bytes(x)
                             zpkg.writefiletozip(x, str(x)[str(x).find("___"):].replace("\\", "/"))
-                        zpkg.writestringtozip("", "___etc___permissions/" + pkg.package_title + ".prop")
+                        if pkg.clean_flash_only:
+                            zpkg.writestringtozip("", "___etc___permissions/" + pkg.package_title + ".prop")
                         zpkg.writestringtozip(pkg.get_installer_script(str(pkg_size)), "installer.sh")
                         zpkg.close()
                         if SIGN_PACKAGE:
