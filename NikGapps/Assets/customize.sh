@@ -35,6 +35,7 @@ logDir="$TMPDIR/NikGapps/logs"
 addon_scripts_logDir="$logDir/addonscripts"
 nikGappsDir="/sdcard/NikGapps"
 nikGappsLog=$TMPDIR/NikGapps.log
+installation_size_log=$TMPDIR/installation_size.log
 busyboxLog=$TMPDIR/busybox.log
 addonDir="$TMPDIR/addon"
 sdcard="/sdcard"
@@ -42,6 +43,18 @@ master_addon_file="50-nikgapps-addon.sh"
 
 addToLog() {
   echo "$1" >>"$nikGappsLog"
+}
+
+addSizeToLog() {
+  printf "%18s | %30s | %9s | %9s | %9s | %7s\n" "$1" "$2" "$3" "$4" "$5" "$6" >> "$installation_size_log"
+}
+
+initializeSizeLog(){
+  echo "-------------------------------------------------------------" >> "$installation_size_log"
+  echo "- File Name: $actual_file_name" >> "$installation_size_log"
+  echo "-------------------------------------------------------------" >> "$installation_size_log"
+  addSizeToLog "Partition" "Package" "Before" "After" "Estimated" "Spent"
+  echo "-------------------------------------------------------------" >> "$installation_size_log"
 }
 
 nikGappsLogo() {
@@ -139,7 +152,7 @@ unpack "common/nikgapps.sh" "$COMMONDIR/nikgapps.sh"
 # mount all the partitions
 . "$COMMONDIR/mount.sh"
 
-[ -n "$actual_file_name" ] && ui_print "- File Name: $actual_file_name"
+[ -n "$actual_file_name" ] && ui_print "- File Name: $actual_file_name" && initializeSizeLog
 find_zip_type
 find_device_block
 begin_unmounting

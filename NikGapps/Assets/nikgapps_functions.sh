@@ -169,6 +169,7 @@ copy_logs() {
   copy_file "$recoveryLog" "$logDir/logfiles/recovery.log"
   copy_file "$nikGappsLog" "$logDir/logfiles/NikGapps.log"
   copy_file "$busyboxLog" "$logDir/logfiles/busybox.log"
+  copy_file "$installation_size_log" "$logDir/logfiles/installation_size.log"
   cd "$logDir" || return
   rm -rf "$nikGappsDir"/logs
   tar -cz -f "$TMPDIR/$nikGappsLogFile" *
@@ -448,6 +449,18 @@ find_install_mode() {
       addToLog "- system_size ($system_size_left-$system_size_after) spent=$((system_size_left-system_size_after)) vs ($pkg_size)"; ;;
     esac
     addToLog "----------------------------------------------------------------------------"
+    case "$install_partition" in
+      "/product")
+      addSizeToLog "$install_partition" "$package_title" "$product_size_left" "$product_size_after" "$pkg_size" "$((product_size_left-product_size_after))"
+      ;;
+      "/system_ext")
+      addSizeToLog "$install_partition" "$package_title" "$system_ext_size_left" "$system_ext_size_after" "$pkg_size" "$((system_ext_size_left-system_ext_size_after))"
+      ;;
+      "/system"*)
+      addSizeToLog "$install_partition" "$package_title" "$system_size_left" "$system_size_after" "$pkg_size" "$((system_size_left-system_size_after))"
+      ;;
+    esac
+
   fi
 }
 
