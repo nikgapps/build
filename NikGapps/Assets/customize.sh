@@ -134,8 +134,6 @@ unpack "common/nikgapps.sh" "$COMMONDIR/nikgapps.sh"
 
 # load all NikGapps functions
 . "$COMMONDIR/nikgapps_functions.sh"
-# find device details
-. "$COMMONDIR/device.sh"
 # unmount for a fresh install
 . "$COMMONDIR/unmount.sh"
 # mount all the partitions

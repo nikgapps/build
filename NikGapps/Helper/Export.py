@@ -104,7 +104,6 @@ class Export:
             self.z.writefiletozip(Assets.nikgapps_functions, "common/nikgapps_functions.sh")
             self.z.writefiletozip(Assets.mount_path, "common/mount.sh")
             self.z.writefiletozip(Assets.unmount_path, "common/unmount.sh")
-            self.z.writefiletozip(Assets.device_path, "common/device.sh")
             self.z.writestringtozip(self.get_customize_sh(self.file_name), "customize.sh")
             self.z.writefiletozip(Assets.module_path, "module.prop")
             self.z.writefiletozip(Assets.busybox, "busybox")
