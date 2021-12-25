@@ -44,15 +44,18 @@ class Export:
                     package_progress = round(float(100 * package_index / package_count))
                     pkg_zip_path = Constants.temp_packages_directory + Constants.dir_sep + "Packages" + Constants.dir_sep + str(
                         pkg.package_title) + ".zip"
+                    pkg_txt_path = Constants.temp_packages_directory + Constants.dir_sep + "Packages" + Constants.dir_sep + str(
+                        pkg.package_title) + ".txt"
                     print_value = "AppSet (" + str(
                         app_set_progress) + "%): " + app_set.title + " Zipping (" + str(
                         package_progress) + "%): " + pkg.package_title
                     print(print_value)
                     print_progress = print_progress + "\n" + print_value
                     file_exists = FileOp.file_exists(pkg_zip_path)
+                    txt_file_exists = FileOp.file_exists(pkg_txt_path)
                     old_file = True if (
                             file_exists and Constants.get_mtime(pkg_zip_path) < Constants.local_datetime) else False
-                    if (FRESH_BUILD and old_file) or (not file_exists):
+                    if (FRESH_BUILD and old_file) or (not file_exists) or (not txt_file_exists):
                         zpkg = ZipOp(pkg_zip_path)
                         file_index = 1
                         if sent_message is not None:
@@ -68,6 +71,7 @@ class Export:
                             zpkg.writestringtozip("", "___etc___permissions/" + pkg.package_title + ".prop")
                         zpkg.writestringtozip(pkg.get_installer_script(str(pkg_size)), "installer.sh")
                         zpkg.close()
+                        FileOp.write_string_file(str(pkg_size), pkg_txt_path)
                         if SIGN_PACKAGE:
                             cmd = Cmd()
                             output_list = cmd.sign_zip_file(pkg_zip_path)
@@ -80,6 +84,10 @@ class Export:
                                     if sent_message is not None:
                                         sent_message.edit_text(
                                             "The zip signed successfully: " + Constants.get_base_name(pkg_zip_path))
+                    else:
+                        print(f"Using cached package: {Constants.get_base_name(pkg_zip_path)}")
+                        for size_on_file in FileOp.read_string_file(pkg_txt_path):
+                            pkg_size = size_on_file
                     self.z.writefiletozip(pkg_zip_path,
                                           "AppSet/" + str(app_set.title) + "/" + str(pkg.package_title) + ".zip")
                     package_index = package_index + 1
@@ -104,7 +112,6 @@ class Export:
             self.z.writefiletozip(Assets.nikgapps_functions, "common/nikgapps_functions.sh")
             self.z.writefiletozip(Assets.mount_path, "common/mount.sh")
             self.z.writefiletozip(Assets.unmount_path, "common/unmount.sh")
-            self.z.writefiletozip(Assets.device_path, "common/device.sh")
             self.z.writestringtozip(self.get_customize_sh(self.file_name), "customize.sh")
             self.z.writefiletozip(Assets.module_path, "module.prop")
             self.z.writefiletozip(Assets.busybox, "busybox")

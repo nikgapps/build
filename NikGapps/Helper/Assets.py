@@ -28,7 +28,6 @@ class Assets:
     file_sizes_path = cwd + "file_size.txt"
     mount_path = cwd + "mount.sh"
     unmount_path = cwd + "unmount.sh"
-    device_path = cwd + "device.sh"
     nikgapps_functions = cwd + "nikgapps_functions.sh"
     update_script_path = cwd + "updater-script"
     nikgapps_config = cwd + "nikgapps.config"
