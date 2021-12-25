@@ -3,6 +3,7 @@
       - item: Fixed aosp dialer being unset as default dialer even when GoogleDialer was not flashed (like with core package)
       - item: Fixed installing a few apps such as GoogleWallpaper on android 10
       - item: Introduce use_zip_config value starting nikgapps.config v19 to use nikgapps.config from zip while installing
+      - item: Installer script improvements
       - item: Playstore Updates (25th Dec 2021)
 - date: 18th Oct 2021 (Android S, R and Q Release)
   changes:
