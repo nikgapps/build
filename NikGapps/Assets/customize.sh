@@ -7,7 +7,9 @@ ZIPNAME="$(basename "$ZIPFILE")"
 
 if $BOOTMODE; then
   COMMONDIR=$MODPATH/NikGappsScripts
-  mkdir -p "$COMMONDIR"
+#  mkdir -p "$COMMONDIR"
+  ui_print "- NikGapps cannot be flashed as a module! Flash it via recovery..."
+  exit 0
 fi
 
 # Prop file potential locations
