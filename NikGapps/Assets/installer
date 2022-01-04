@@ -5,16 +5,26 @@ nikgapps_config_file_name="$2"
 find_Install_partition() {
   addToLog "- default_partition=$default_partition"
   install_partition="/system/product"
+  # if partition doesn't exist or it is not mounted as rw, moving to secondary partition
   case $default_partition in
     "system_ext")
-      [ -z "$system_ext" ] && system_ext=$product
-      # if partition doesn't exist or it is not mounted as rw, moving to secondary partition
-      [ -z "$system_ext" ] && system_ext=$system
+      [ -n "$SYSTEM_EXT_BLOCK" ] && [ $system_ext_size = 0 ] && system_ext=""
+      if [ -z "$system_ext" ]; then
+        [ -n "$product" ] && [ -n "$PRODUCT_BLOCK" ] && [ $product_size = 0 ] && product=""
+        system_ext=$product
+        if [ -z "$product" ]; then
+          addToLog "- \$product is empty, hence installing it in $system"
+          system_ext=$system
+        fi
+      fi
       install_partition=$system_ext
     ;;
     "product")
-      # if partition doesn't exist or it is not mounted as rw, moving to secondary partition
-      [ -z "$product" ] && product=$system
+      [ -n "$product" ] && [ -n "$PRODUCT_BLOCK" ] && [ $product_size = 0 ] && product=""
+      if [ -z "$product" ]; then
+        addToLog "- \$product is empty, hence installing it in $system"
+        product=$system
+      fi
       install_partition=$product
     ;;
   esac
