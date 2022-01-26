@@ -1,7 +1,6 @@
-- date: 4th Jan 2021 (Android S, R and Q Release)
+- date: 26th Jan 2021 (Android S, R and Q Release)
   changes:
-      - item: Fixes storage space full for gsi installation when there is actually space in /system
-      - item: Intelligently identify which partition is suitable for installation (Beta)
+      - item: Hotfix Update - Fixes notification delays for some people due to gms optimization
 - date: 25th Dec 2021 (Android S, R and Q Release)
   changes:
       - item: Fixed aosp dialer being unset as default dialer even when GoogleDialer was not flashed (like with core package)
