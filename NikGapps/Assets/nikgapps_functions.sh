@@ -125,25 +125,35 @@ contains() {
 
 get_available_size_again() {
   input_data=$1
-  df | grep -vE '^Filesystem|tmpfs|cdrom' | while read output;
-  do
-    mounted_on=$(echo $output | $BB awk '{ print $5 }' )
-    available=$(echo $output | $BB awk '{ print $3 }' )
-    case $mounted_on in
-      *"%"*)
-      mounted_on=$(echo $output | $BB awk '{ print $6 }' )
-      available=$(echo $output | $BB awk '{ print $4 }' )
-      ;;
-    esac
-    if [ "$mounted_on" = "$1" ] || ([ "/system" = "$input_data" ] && [ "$mounted_on" = "/system_root" ]); then
-      addToLog "- $mounted_on $available $input_data"
-      break
-    fi
-  done
+  tmp_file=$COMMONDIR/available.txt
+  available_size=""
+  if ! is_mounted "$1"; then
+    ui_print "- $1 not mounted!"
+  else
+    df | grep -vE '^Filesystem|tmpfs|cdrom' | while read output;
+    do
+      mounted_on=$(echo $output | $BB awk '{ print $5 }' )
+      available_size=$(echo $output | $BB awk '{ print $3 }' )
+      case $mounted_on in
+        *"%"*)
+        mounted_on=$(echo $output | $BB awk '{ print $6 }' )
+        available_size=$(echo $output | $BB awk '{ print $4 }' )
+        ;;
+      esac
+      if [ "$mounted_on" = "$1" ] || ([ "/system" = "$input_data" ] && [ "$mounted_on" = "/system_root" ]); then
+        addToLog "- $input_data($mounted_on) available size: $available_size KB"
+        echo $available_size > $tmp_file
+        break
+      fi
+    done
+  fi
+  [ -f $tmp_file ] && available_size=$(cat $tmp_file)
+  rm -rf $tmp_file
+  [ -z $available_size ] && available_size=0
+  echo $available_size
 }
 
 copy_logs() {
-  ui_print " "
   copy_file "$system/build.prop" "$logDir/propfiles/build.prop"
   # Store the size of partitions after installation starts
   df >"$COMMONDIR/size_after.txt"
@@ -429,9 +439,23 @@ find_install_mode() {
     addToLog "----------------------------------------------------------------------------"
     addToLog "- calculating space while working on $package_title"
     case "$install_partition" in
-      "/product") product_size_left=$(get_available_size "product"); get_available_size_again "/product"; addToLog "- product_size_left=$product_size_left" ;;
-      "/system_ext") system_ext_size_left=$(get_available_size "system_ext"); get_available_size_again "/system_ext"; addToLog "- system_ext_size_left=$system_ext_size_left" ;;
-      "/system"*) system_size_left=$(get_available_size "system"); get_available_size_again "/system"; addToLog "- system_size_left=$system_size_left"  ;;
+      "/product") product_size_left=$(get_available_size_again "/product"); addToLog "- product_size_left=$product_size_left" ;;
+      "/system_ext") system_ext_size_left=$(get_available_size_again "/system_ext"); addToLog "- system_ext_size_left=$system_ext_size_left" ;;
+      "/system") system_size_left=$(get_available_size_again "/system"); addToLog "- system_size_left=$system_size_left" ;;
+      "/system/product")
+        if [ -n "$PRODUCT_BLOCK" ]; then
+          product_size_left=$(get_available_size_again "/product"); addToLog "- product_size_left=$product_size_left"
+        else
+          system_size_left=$(get_available_size_again "/system"); addToLog "- system_size_left=$system_size_left"
+        fi
+      ;;
+      "/system/system_ext")
+        if [ -n "$SYSTEM_EXT_BLOCK" ]; then
+          system_ext_size_left=$(get_available_size_again "/system_ext"); addToLog "- system_ext_size_left=$system_ext_size_left"
+        else
+          system_size_left=$(get_available_size_again "/system"); addToLog "- system_size_left=$system_size_left"
+        fi
+      ;;
     esac
     addToLog "----------------------------------------------------------------------------"
     ui_print "- Installing $package_title"
@@ -441,26 +465,42 @@ find_install_mode() {
     addToLog "- calculating space after installing $package_title"
     total_size=$((system_size+product_size+system_ext_size))
     case "$install_partition" in
-      "/product") product_size_after=$(get_available_size "product");
-      addToLog "- product_size ($product_size_left-$product_size_after) spent=$((product_size_left-product_size_after)) vs ($pkg_size)"; ;;
-      "/system_ext") system_ext_size_after=$(get_available_size "system_ext");
-      addToLog "- system_ext_size ($system_ext_size_left-$system_ext_size_after) spent=$((system_ext_size_left-system_ext_size_after)) vs ($pkg_size)"; ;;
-      "/system"*) system_size_after=$(get_available_size "system");
-      addToLog "- system_size ($system_size_left-$system_size_after) spent=$((system_size_left-system_size_after)) vs ($pkg_size)"; ;;
+      "/product") product_size_after=$(get_available_size_again "/product");
+        addToLog "- product_size ($product_size_left-$product_size_after) spent=$((product_size_left-product_size_after)) vs ($pkg_size)";
+        addSizeToLog "/product" "$install_partition" "$package_title" "$product_size_left" "$product_size_after" "$pkg_size" "$((product_size_left-product_size_after))"
+      ;;
+      "/system_ext") system_ext_size_after=$(get_available_size_again "/system_ext");
+        addToLog "- system_ext_size ($system_ext_size_left-$system_ext_size_after) spent=$((system_ext_size_left-system_ext_size_after)) vs ($pkg_size)";
+        addSizeToLog "/system_ext" "$install_partition" "$package_title" "$system_ext_size_left" "$system_ext_size_after" "$pkg_size" "$((system_ext_size_left-system_ext_size_after))"
+      ;;
+      "/system") system_size_after=$(get_available_size_again "/system");
+        addToLog "- system_size ($system_size_left-$system_size_after) spent=$((system_size_left-system_size_after)) vs ($pkg_size)";
+        addSizeToLog "/system" "$install_partition" "$package_title" "$system_size_left" "$system_size_after" "$pkg_size" "$((system_size_left-system_size_after))"
+      ;;
+      "/system/product")
+        if [ -n "$PRODUCT_BLOCK" ]; then
+          product_size_after=$(get_available_size_again "/product");
+          addToLog "- product_size ($product_size_left-$product_size_after) spent=$((product_size_left-product_size_after)) vs ($pkg_size)";
+          addSizeToLog "/product" "$install_partition" "$package_title" "$product_size_left" "$product_size_after" "$pkg_size" "$((product_size_left-product_size_after))"
+        else
+          system_size_after=$(get_available_size_again "/system");
+          addToLog "- system_size ($system_size_left-$system_size_after) spent=$((system_size_left-system_size_after)) vs ($pkg_size)";
+          addSizeToLog "/system" "$install_partition" "$package_title" "$system_size_left" "$system_size_after" "$pkg_size" "$((system_size_left-system_size_after))"
+        fi
+      ;;
+      "/system/system_ext")
+        if [ -n "$SYSTEM_EXT_BLOCK" ]; then
+          system_ext_size_after=$(get_available_size_again "/system_ext");
+          addToLog "- system_ext_size ($system_ext_size_left-$system_ext_size_after) spent=$((system_ext_size_left-system_ext_size_after)) vs ($pkg_size)";
+          addSizeToLog "/system_ext" "$install_partition" "$package_title" "$system_ext_size_left" "$system_ext_size_after" "$pkg_size" "$((system_ext_size_left-system_ext_size_after))"
+        else
+          system_size_after=$(get_available_size_again "/system");
+          addToLog "- system_size ($system_size_left-$system_size_after) spent=$((system_size_left-system_size_after)) vs ($pkg_size)";
+          addSizeToLog "/system" "$install_partition" "$package_title" "$system_size_left" "$system_size_after" "$pkg_size" "$((system_size_left-system_size_after))"
+        fi
+      ;;
     esac
     addToLog "----------------------------------------------------------------------------"
-    case "$install_partition" in
-      "/product")
-      addSizeToLog "$install_partition" "$package_title" "$product_size_left" "$product_size_after" "$pkg_size" "$((product_size_left-product_size_after))"
-      ;;
-      "/system_ext")
-      addSizeToLog "$install_partition" "$package_title" "$system_ext_size_left" "$system_ext_size_after" "$pkg_size" "$((system_ext_size_left-system_ext_size_after))"
-      ;;
-      "/system"*)
-      addSizeToLog "$install_partition" "$package_title" "$system_size_left" "$system_size_after" "$pkg_size" "$((system_size_left-system_size_after))"
-      ;;
-    esac
-
   fi
 }
 
@@ -488,6 +528,84 @@ find_log_directory() {
   nikgapps_log_dir="$value/nikgapps_logs"
 }
 
+find_partitions_type() {
+  addToLog "- Finding partition type for /system"
+  SYSTEM_BLOCK=$(find_block "system")
+  [ -n "$SYSTEM_BLOCK" ] && addToLog "- Found block for /system"
+  system="/system"
+  system_size=$(get_available_size_again "/system")
+  [ "$system_size" != "0" ] && ui_print "- /system is mounted as dedicated partition"
+  is_system_writable="$(is_mounted_rw "$system" 2>/dev/null)"
+  [ ! "$is_system_writable" ] && system=""
+  addToLog "- system=$system is writable? $is_system_writable"
+  [ -f "/system/build.prop" ] && addToLog "- /system/build.prop exists"
+
+  for partition in "product" "system_ext"; do
+    addToLog "----------------------------------------------------------------------------"
+    addToLog "- Finding partition type for /$partition"
+    mnt_point="/$partition"
+    already_mounted=false
+    already_symlinked=false
+    mountpoint "$mnt_point" >/dev/null 2>&1 && already_mounted=true && addToLog "- $mnt_point already mounted!"
+    [ -L "$system$mnt_point" ] && already_symlinked=true && addToLog "- $system$mnt_point symlinked!"
+    case "$partition" in
+      "product")
+        # set the partition default to /system/$partition
+        product="$system/product"
+        product_size=0
+        PRODUCT_BLOCK=$(find_block "$partition")
+        # if block exists, set the partition to /$partition and get it's size
+        if [ -n "$PRODUCT_BLOCK" ]; then
+          addToLog "- Found block for $mnt_point"
+          product="/product"
+          product_size=$(get_available_size_again "/product")
+          ui_print "- /$partition is a dedicated partition"
+        else
+          addToLog "- /$partition block not found in this device"
+        fi
+        # check if partition is symlinked, if it is, set the partition back to /system/$partition
+        if [ -L "$system$mnt_point" ]; then
+          addToLog "- $system$mnt_point symlinked!"
+          product=$system$mnt_point
+          ui_print "- /$partition is symlinked to $system$mnt_point"
+        fi
+        # check if the partitions are writable
+        is_product_writable="$(is_mounted_rw "$product" 2>/dev/null)"
+        [ ! "$is_product_writable" ] && product=""
+        addToLog "- product=$product is writable? $is_product_writable"
+      ;;
+      "system_ext")
+        # set the partition default to /system/$partition
+        system_ext="$system/system_ext"
+        system_ext_size=0
+        SYSTEM_EXT_BLOCK=$(find_block "$partition")
+        # if block exists, set the partition to /$partition and get it's size
+        if [ -n "$SYSTEM_EXT_BLOCK" ]; then
+          addToLog "- Found block for $mnt_point"
+          system_ext="/system_ext"
+          system_ext_size=$(get_available_size_again "/system_ext")
+          ui_print "- /$partition is a dedicated partition"
+        else
+          addToLog "- /$partition block not found in this device"
+        fi
+        # check if partition is symlinked, if it is, set the partition back to /system/$partition
+        if [ -L "$system$mnt_point" ]; then
+          addToLog "- $system$mnt_point symlinked!"
+          system_ext=$system$mnt_point
+          ui_print "- /$partition is symlinked to $system$mnt_point"
+        fi
+        # check if the partitions are writable
+        is_system_ext_writable="$(is_mounted_rw "$system_ext" 2>/dev/null)"
+        [ ! "$is_system_ext_writable" ] && system_ext=""
+        addToLog "- system_ext=$system_ext is writable? $is_system_ext_writable"
+      ;;
+    esac
+  done
+  # calculate gapps space and check if default partition has space
+  # set a secondary partition to install if the space runs out
+}
+
+
 find_slot() {
   slot=$(getprop ro.boot.slot_suffix 2>/dev/null)
   test "$slot" || slot=$(grep -o 'androidboot.slot_suffix=.*$' /proc/cmdline | cut -d\  -f1 | cut -d= -f2)
@@ -507,7 +625,7 @@ find_system_size() {
   [ "$system_ext_size" != "0" ] && ui_print "- /system_ext available size: $system_ext_size KB"
   total_size=$((system_size+product_size+system_ext_size))
   ui_print "- Total available size: $total_size KB"
-  [ "$total_size" = "0" ] && addToLog "No space left on device"
+  [ "$total_size" = "0" ] && addToLog "- No space left on device"
   [ "$total_size" = "0" ] && ui_print "- Unable to calculate space"
 }
 
@@ -742,6 +860,7 @@ show_device_info() {
   sdkVersion=$(get_prop "ro.build.version.sdk")
   androidVersion=$(get_prop "ro.build.version.release")
   model=$(get_prop "ro.product.system.model")
+  series=$(get_prop "ro.display.series")
   # Device details
   for field in ro.product.device ro.build.product ro.product.name ro.product.model; do
     device_name="$(get_prop "$field")"
@@ -761,6 +880,7 @@ show_device_info() {
   fi
   ui_print "- SDK Version: $sdkVersion"
   ui_print "- Android Version: $androidVersion"
+  addToLog "- Series: $series"
   [ -n "$model" ] && ui_print "- Device: $model"
   [ -z "$model" ] && ui_print "- Device: $device"
   [ -z "$SLOT" ] || ui_print "- Current boot slot: $SLOT"

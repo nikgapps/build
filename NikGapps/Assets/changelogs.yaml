@@ -1,11 +1,15 @@
+- date: 26th Jan 2021 (Android S, R and Q Release)
+  changes:
+      - item: Hotfix Update - Fixes notification delays for some people due to gms optimization
 - date: 25th Dec 2021 (Android S, R and Q Release)
   changes:
       - item: Fixed aosp dialer being unset as default dialer even when GoogleDialer was not flashed (like with core package)
       - item: Fixed installing a few apps such as GoogleWallpaper on android 10
+      - item: Fixed gapps size being miscalculated in some scenarios
       - item: Introduce use_zip_config value starting nikgapps.config v19 to use nikgapps.config from zip while installing
       - item: Update YouTube Vanced apps to latest versions (Vanced YouTube - 16.29.39, Music - 4.57.52, Manager - 2.6.2)
       - item: Drop PixelTips, GoogleTalkback as those aren't so much useful, Move GoogleTTS from full to separate addons
-      - item: Bring back PixelSetupWizard (and also include it in omni, stock and full)
+      - item: Bring back PixelSetupWizard for now (and also include it in omni, stock and full)
       - item: Installer script improvements
       - item: Playstore Updates (25th Dec 2021)
 - date: 18th Oct 2021 (Android S, R and Q Release)

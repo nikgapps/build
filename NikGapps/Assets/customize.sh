@@ -7,7 +7,9 @@ ZIPNAME="$(basename "$ZIPFILE")"
 
 if $BOOTMODE; then
   COMMONDIR=$MODPATH/NikGappsScripts
-  mkdir -p "$COMMONDIR"
+#  mkdir -p "$COMMONDIR"
+  ui_print "- NikGapps cannot be flashed as a module! Flash it via recovery..."
+  exit 0
 fi
 
 # Prop file potential locations
@@ -46,14 +48,14 @@ addToLog() {
 }
 
 addSizeToLog() {
-  printf "%18s | %30s | %9s | %9s | %9s | %7s\n" "$1" "$2" "$3" "$4" "$5" "$6" >> "$installation_size_log"
+  printf "%18s | %18s | %30s | %9s | %9s | %9s | %7s\n" "$1" "$2" "$3" "$4" "$5" "$6" "$7" >> "$installation_size_log"
 }
 
 initializeSizeLog(){
   echo "-------------------------------------------------------------" >> "$installation_size_log"
   echo "- File Name: $actual_file_name" >> "$installation_size_log"
   echo "-------------------------------------------------------------" >> "$installation_size_log"
-  addSizeToLog "Partition" "Package" "Before" "After" "Estimated" "Spent"
+  addSizeToLog "Partition" "InstallPartition" "Package" "Before" "After" "Estimated" "Spent"
   echo "-------------------------------------------------------------" >> "$installation_size_log"
 }
 
@@ -157,6 +159,8 @@ find_zip_type
 find_device_block
 begin_unmounting
 begin_mounting
+# find if the device has dedicated partition or it's symlinked
+find_partitions_type
 find_config
 find_log_directory
 # find device information
