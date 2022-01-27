@@ -133,18 +133,7 @@ class NikGappsPackages:
         prebuiltgmscore.delete_in_rom("PrebuiltGmsCoreQt")
         prebuiltgmscore.delete_in_rom("PrebuiltGmsCoreRvc")
         prebuiltgmscore.delete_in_rom("GmsCore")
-        prebuiltgmscore.additional_installer_script = """
-        sed -i '/allow-in-power-save package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
-        sed -i '/allow-in-data-usage-save package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
-        sed -i '/allow-unthrottled-location package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
-        sed -i '/allow-ignore-location-settings package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
-        addToLog \"- Battery Optimization Done in $install_partition/etc/permissions/*.xml!\"
-        sed -i '/allow-in-power-save package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
-        sed -i '/allow-in-data-usage-save package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
-        sed -i '/allow-unthrottled-location package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
-        sed -i '/allow-ignore-location-settings package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
-        addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml!\"
-                """
+        prebuiltgmscore.additional_installer_script = ""
         core_go.add_package(prebuiltgmscore)
 
         phonesky = Package("Phonesky", "com.android.vending", Constants.is_priv_app, "GooglePlayStore")
