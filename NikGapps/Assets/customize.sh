@@ -181,6 +181,10 @@ find_gapps_size
 test "$zip_type" = "debloater" && debloat
 calculate_space "system" "product" "system_ext"
 ui_print " "
+mode=$(ReadConfigValue "mode" "$nikgapps_config_file_name")
+[ -z "$mode" ] && mode="install"
+addToLog "- Install mode is $mode"
+
 test "$zip_type" = "debloater" && ui_print "--> Starting the debloat process"
 
 if [ "$zip_type" != "debloater" ]; then

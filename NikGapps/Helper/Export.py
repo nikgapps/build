@@ -69,6 +69,7 @@ class Export:
                             zpkg.writefiletozip(x, str(x)[str(x).find("___"):].replace("\\", "/"))
                         if pkg.clean_flash_only:
                             zpkg.writestringtozip("", "___etc___permissions/" + pkg.package_title + ".prop")
+                        pkg.pkg_size = pkg_size
                         zpkg.writestringtozip(pkg.get_installer_script(str(pkg_size)), "installer.sh")
                         zpkg.close()
                         FileOp.write_string_file(str(pkg_size), pkg_txt_path)
@@ -88,6 +89,7 @@ class Export:
                         print(f"Using cached package: {Constants.get_base_name(pkg_zip_path)}")
                         for size_on_file in FileOp.read_string_file(pkg_txt_path):
                             pkg_size = size_on_file
+                            pkg.pkg_size = pkg_size
                     self.z.writefiletozip(pkg_zip_path,
                                           "AppSet/" + str(app_set.title) + "/" + str(pkg.package_title) + ".zip")
                     package_index = package_index + 1
@@ -247,6 +249,7 @@ class Export:
 
     @staticmethod
     def get_updater_script(total_packages, app_set_list):
+        delem = ","
         updater_script_path_string = "#!/sbin/sh\n"
         updater_script_path_string += "# Shell Script EDIFY Replacement\n\n"
         progress_max = 0.9
@@ -254,30 +257,23 @@ class Export:
         if total_packages > 0:
             progress_per_package = round(progress_max / total_packages, 2)
         install_progress = 0
-        # Script to Install the ApPSets
+        updater_script_path_string += f"ProgressBarValues=\"\n"
         for app_set in app_set_list:
-            if len(app_set.package_list) > 1:
-                updater_script_path_string += "if [ $(initialize_app_set \"" + app_set.title + "\") = \"1\" ]; then\n"
-                # Script to Install the Packages
-                for pkg in app_set.package_list:
-                    install_progress += progress_per_package
-                    if install_progress > 1.0:
-                        install_progress = 1.0
-                    updater_script_path_string += "  install_the_package \"" + str(app_set.title) + "\" \"" + str(
-                        pkg.package_title) + "\"\n"
-                    updater_script_path_string += "  set_progress " + str(round(install_progress, 2)) + "\n"
-                updater_script_path_string += "else\n"
-                updater_script_path_string += "  ui_print \"x Skipping " + str(app_set.title) + "\"\n"
-                updater_script_path_string += "fi\n"
-            else:
-                # Script to Install the Packages
-                for pkg in app_set.package_list:
-                    install_progress += progress_per_package
-                    if install_progress > 1.0:
-                        install_progress = 1.0
-                    updater_script_path_string += "  install_the_package \"" + str(app_set.title) + "\" \"" + str(
-                        pkg.package_title) + "\"\n"
-                    updater_script_path_string += "  set_progress " + str(round(install_progress, 2)) + "\n"
+            for pkg in app_set.package_list:
+                install_progress += progress_per_package
+                if install_progress > 1.0:
+                    install_progress = 1.0
+                updater_script_path_string += f"{pkg.package_title}={str(round(install_progress, 2))}\n"
+        updater_script_path_string += "\"\n\n"
+        for app_set in app_set_list:
+            updater_script_path_string += f"{app_set.title}=\"\n"
+            for pkg in app_set.package_list:
+                updater_script_path_string += f"{pkg.package_title}{delem}{pkg.pkg_size}{delem}{pkg.partition}\n"
+            updater_script_path_string += "\"\n\n"
+
+        for app_set in app_set_list:
+            updater_script_path_string += "install_app_set \"" + app_set.title + "\" " \
+                                                                 "\"$" + app_set.title + "\"\n"
 
         updater_script_path_string += "\nset_progress 1.00" + "\n\n"
         updater_script_path_string += "exit_install" + "\n\n"
