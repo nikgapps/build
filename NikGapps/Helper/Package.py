@@ -153,14 +153,31 @@ class Package:
         str_data += "   rm -rf \"$TMPDIR/addon/$deleteFilesFromRomPath\"\n"
         str_data += "}\n"
         str_data += "\n"
-        str_data += "uninstall_package() {\n"
-        str_data += "   # Remove the files when we're uninstalling NiKGapps\n"
-        str_data += "   for i in $file_list; do\n"
-        str_data += "       uninstall_file \"$i\"\n"
-        str_data += "   done\n"
-        str_data += "}\n"
-        str_data += "\n"
         str_data += "find_install_mode\n"
+        str_data += "\n"
+        return str_data
+
+    def get_uninstaller_script(self):
+        lines = Assets.get_string_resource(Assets.uninstaller_path)
+        str_data = ""
+        for line in lines:
+            str_data += line
+        str_data += "\n\n"
+        str_data += "# Initialize the variables\n"
+        str_data += "clean_flash_only=\"" + str(self.clean_flash_only).lower() + "\"\n"
+        str_data += "title=\"" + self.title + "\"\n"
+        str_data += "package_title=\"" + self.package_title + "\"\n"
+        if self.package_name is not None:
+            str_data += "package_name=\"" + self.package_name + "\"\n"
+        else:
+            str_data += "package_name=\"\"" + "\n"
+        str_data += "\n"
+        str_data += f"file_list=\"\n"
+        for file in self.file_dict:
+            str_data += str(file)[str(file).find("___"):].replace("\\", "/") + "\n"
+        str_data += "\"\n"
+        str_data += "\n"
+        str_data += "uninstall_package"
         str_data += "\n"
         return str_data
 

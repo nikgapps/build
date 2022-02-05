@@ -71,6 +71,7 @@ class Export:
                             zpkg.writestringtozip("", "___etc___permissions/" + pkg.package_title + ".prop")
                         pkg.pkg_size = pkg_size
                         zpkg.writestringtozip(pkg.get_installer_script(str(pkg_size)), "installer.sh")
+                        zpkg.writestringtozip(pkg.get_uninstaller_script(), "uninstaller.sh")
                         zpkg.close()
                         FileOp.write_string_file(str(pkg_size), pkg_txt_path)
                         if SIGN_PACKAGE:
@@ -97,7 +98,7 @@ class Export:
                     file_sizes = file_sizes + str(pkg.package_title) + "=" + str(pkg_size) + "\n"
                 app_set_index = app_set_index + 1
             # Writing additional script files to the zip
-            self.z.writestringtozip(self.get_updater_script(total_packages, app_set_list), "common/install.sh")
+            self.z.writestringtozip(self.get_installer_script(total_packages, app_set_list), "common/install.sh")
             self.z.writestringtozip("#MAGISK", Constants.meta_inf_dir + "updater-script")
             self.z.writefiletozip(Assets.magisk_update_binary, Constants.meta_inf_dir + "update-binary")
             self.z.writestringtozip(self.get_nikgapps_config(), "afzc/nikgapps.config")
@@ -248,36 +249,36 @@ class Export:
         return nikgapps_config_lines
 
     @staticmethod
-    def get_updater_script(total_packages, app_set_list):
+    def get_installer_script(total_packages, app_set_list):
         delem = ","
-        updater_script_path_string = "#!/sbin/sh\n"
-        updater_script_path_string += "# Shell Script EDIFY Replacement\n\n"
+        installer_script_path_string = "#!/sbin/sh\n"
+        installer_script_path_string += "# Shell Script EDIFY Replacement\n\n"
         progress_max = 0.9
         progress_per_package = 0
         if total_packages > 0:
             progress_per_package = round(progress_max / total_packages, 2)
         install_progress = 0
-        updater_script_path_string += f"ProgressBarValues=\"\n"
+        installer_script_path_string += f"ProgressBarValues=\"\n"
         for app_set in app_set_list:
             for pkg in app_set.package_list:
                 install_progress += progress_per_package
                 if install_progress > 1.0:
                     install_progress = 1.0
-                updater_script_path_string += f"{pkg.package_title}={str(round(install_progress, 2))}\n"
-        updater_script_path_string += "\"\n\n"
+                installer_script_path_string += f"{pkg.package_title}={str(round(install_progress, 2))}\n"
+        installer_script_path_string += "\"\n\n"
         for app_set in app_set_list:
-            updater_script_path_string += f"{app_set.title}=\"\n"
+            installer_script_path_string += f"{app_set.title}=\"\n"
             for pkg in app_set.package_list:
-                updater_script_path_string += f"{pkg.package_title}{delem}{pkg.pkg_size}{delem}{pkg.partition}\n"
-            updater_script_path_string += "\"\n\n"
+                installer_script_path_string += f"{pkg.package_title}{delem}{pkg.pkg_size}{delem}{pkg.partition}\n"
+            installer_script_path_string += "\"\n\n"
 
         for app_set in app_set_list:
-            updater_script_path_string += "install_app_set \"" + app_set.title + "\" " \
+            installer_script_path_string += "install_app_set \"" + app_set.title + "\" " \
                                                                  "\"$" + app_set.title + "\"\n"
 
-        updater_script_path_string += "\nset_progress 1.00" + "\n\n"
-        updater_script_path_string += "exit_install" + "\n\n"
-        return updater_script_path_string
+        installer_script_path_string += "\nset_progress 1.00" + "\n\n"
+        installer_script_path_string += "exit_install" + "\n\n"
+        return installer_script_path_string
 
     @staticmethod
     def get_customize_sh(file_name):

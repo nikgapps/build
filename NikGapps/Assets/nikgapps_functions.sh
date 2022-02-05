@@ -836,17 +836,25 @@ install_app_set() {
   addToLog "- Current Appset=$appset_name, value=$value"
   if [ "$value" -eq 0 ]; then
     ui_print "- Skipping $appset_name"
+  elif [ "$value" -eq -1 ]; then
+    addToLog "- $appset_name is disabled"
+    for i in "$2"; do
+      current_package_title=$(echo $i | cut -d',' -f1)
+      uninstall_the_package "$appset_name" "$current_package_title"
+    done
   else
-    package_list=$2
+    package_list="$2"
+    # need a for loop here to check if total available size is greater than total size required by appset
+    # if yes, then only we should proceed ahead with installation of the appset
     for i in $package_list; do
       current_package_title=$(echo $i | cut -d',' -f1)
       package_size=$(echo $i | cut -d',' -f2)
       default_partition=$(echo $i | cut -d',' -f3)
+      #install_partition should be executed only when package is being installed
       install_partition=$(get_install_partition "$default_partition" "$package_size")
       addToLog " "
       addToLog "----------------------------------------------------------------------------"
-      addToLog "- Working for $i"
-      addToLog "- Installing $current_package_title ($package_size Kb) to $install_partition ($default_partition)"
+      addToLog "- Working for $current_package_title ($package_size Kb) to $install_partition ($default_partition)"
       value=1
       if [ -f "$nikgapps_config_file_name" ]; then
         value=$(ReadConfigValue ">>$current_package_title" "$nikgapps_config_file_name")
@@ -1092,21 +1100,38 @@ restore_env() {
 }
 
 uninstall_file() {
-  addToLog "- Inside UninstallFile, mode is $mode"
-  if [ "$mode" = "uninstall" ]; then
-    # $1 will start with ___ which needs to be skipped so replacing it with blank value
-    blank=""
-    file_location=$(echo "$1" | sed "s/___/$blank/" | sed "s/___/\//g")
-    # install_location is dynamic location where package would be installed (usually /system, /system/product)
-    install_location="$install_partition/$file_location"
-    # Remove the file
-    addToLog "- Removing the file $install_location"
-    rm -rf "$install_location"
-    addon_file=$package_title".sh"
-    # Removing the addon sh so it doesn't get backed up and restored
-    addToLog "- Removing $addon_file"
-    rm -rf "/system/addon.d/nikgapps/$addon_file"
-    # Removing the updates and residue
-    [ -n "$package_name" ] && rm -rf "/data/data/$package_name" && rm -rf "/data/app/$package_name*" && rm -rf "/data/app/*/$package_name*"
-  fi
+  addToLog "- Uninstalling $1"
+  # $1 will start with ___ which needs to be skipped so replacing it with blank value
+  blank=""
+  file_location=$(echo "$1" | sed "s/___/$blank/" | sed "s/___/\//g")
+  # For Devices having symlinked product and system_ext partition
+  for sys in "/system"; do
+    for subsys in "/system" "/product" "/system_ext"; do
+      if [ -f "${sys}${subsys}/${file_location}" ]; then
+        addToLog "- deleting ${sys}${subsys}/${file_location}"
+        delete_recursive "${sys}${subsys}/${file_location}"
+      fi;
+    done
+  done
+  # For devices having dedicated product and system_ext partitions
+  for subsys in "/system" "/product" "/system_ext"; do
+    if [ -f "${subsys}/${file_location}" ]; then
+      addToLog "- deleting ${subsys}/${file_location}"
+      delete_recursive "${subsys}/${file_location}"
+    fi
+  done
+}
+
+uninstall_the_package() {
+  extn="zip"
+  package_name="$2"
+  addToLog "- Uninstalling $package_name"
+  pkgFile="$TMPDIR/$package_name.zip"
+  pkgContent="pkgContent"
+  unpack "AppSet/$1/$package_name.$extn" "$pkgFile"
+  extract_file "$pkgFile" "uninstaller.sh" "$TMPDIR/$pkgContent/uninstaller.sh"
+  chmod 755 "$TMPDIR/$pkgContent/uninstaller.sh"
+  # shellcheck source=src/uninstaller.sh
+  . "$TMPDIR/$pkgContent/uninstaller.sh"
+  set_progress $(get_package_progress "$package_name")
 }
