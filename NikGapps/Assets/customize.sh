@@ -3,7 +3,8 @@ SKIPUNZIP=1
 
 # File Defaults
 ZIPDIR=$(dirname "$ZIPFILE")
-ZIPNAME="$(basename "$ZIPFILE")"
+ZIPNAME="$(basename "$ZIPFILE" ".zip")"
+ZIP_NAME_LOWER=$(echo $ZIPNAME | tr '[:upper:]' '[:lower:]')
 
 if $BOOTMODE; then
   COMMONDIR=$MODPATH/NikGappsScripts
@@ -183,6 +184,7 @@ calculate_space "system" "product" "system_ext"
 ui_print " "
 mode=$(ReadConfigValue "mode" "$nikgapps_config_file_name")
 [ -z "$mode" ] && mode="install"
+[ "$ZIP_NAME_LOWER" = "uninstall" ] && mode="uninstall_by_name"
 addToLog "- Install mode is $mode"
 
 test "$zip_type" = "debloater" && ui_print "--> Starting the debloat process"

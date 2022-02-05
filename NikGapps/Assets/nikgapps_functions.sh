@@ -876,6 +876,10 @@ install_app_set() {
         elif [ "$value" -eq 0 ] ; then
           ui_print "- Skipping $current_package_title"
         fi
+      elif [ "$mode" = "uninstall_by_name" ]; then
+        for i in "$2"; do
+          uninstall_the_package "$appset_name" "$current_package_title"
+        done
       else
         ui_print "- Unknown mode $mode"
       fi
