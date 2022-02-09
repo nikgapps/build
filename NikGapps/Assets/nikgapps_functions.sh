@@ -742,43 +742,93 @@ get_file_prop() {
 }
 
 get_install_partition(){
-  size_required=$2
+  chain_partition=$2
+  size_required=$3
   case $1 in
-    system) install_partition="$system";;
-    product) 
-      install_partition="$product"
-      if [ -n "$PRODUCT_BLOCK" ]; then    
+    system)
+      install_partition="" 
+      addToLog "- fetch the system size to check if it's enough"
+      system_available_size=$(get_available_size_again "/system")
+      if [ $system_available_size -gt $size_required ]; then
+        addToLog "- it's big enough"
+        install_partition="$system"
+      else
+        addToLog "- check if chain_partition contains -system"
+        if [ "$(contains "-system" "$chain_partition")" = "true" ]; then
+          addToLog "- we've reached a complete loop, no space available now"
+          install_partition="-1"
+        else
+          addToLog "- system is too big, let's try the system_ext (which will loop through product and system to confirm no partitions are big enough)"
+          if [ -n "$SYSTEM_EXT_BLOCK" ] || [ -n "$PRODUCT_BLOCK" ]; then
+            install_partition="$(get_install_partition system_ext system_ext-$chain_partition $size_required)"
+          else
+            addToLog "- no space available"
+            install_partition="-1"
+          fi
+        fi
+      fi
+    ;;
+    product)
+      install_partition="" 
+      addToLog "- if product is a block, we will check if it's big enough"
+      if [ -n "$PRODUCT_BLOCK" ]; then
         product_available_size=$(get_available_size_again "/product")
-        # product partition does not have size available, check if system is a partition and has size available
-        if [ $product_available_size -le $size_required ]; then
-            install_partition="$system"
+        if [ $product_available_size -gt $size_required ]; then
+          addToLog "- it's big enough, we'll use it"
+          install_partition="$product"
+        else
+          addToLog "- check if chain_partition ends with -product"
+          if [ "$(contains "-product" "$chain_partition")" = "true" ]; then
+            addToLog "- we've reached a complete loop, no space available now"
+            install_partition="-1"
+          else
+            addToLog "- it's not, we'll try system"
+            install_partition="$(get_install_partition system system-$chain_partition $size_required)"
+          fi
+        fi
+      else
+        addToLog "- product is not a block, we'll try system and install to /system/product as it will take up system space"
+        system_available_size=$(get_available_size_again "/system")
+        if [ $system_available_size -gt $size_required ]; then
+          addToLog "- system is big enough, we'll use it"
+          install_partition="/system/product"
+        else
+          addToLog "- if product is not a block and system is not big enough, we're out of options"
+          install_partition="-1"
         fi
       fi
     ;;
     system_ext) 
-      install_partition="$system_ext"
+      install_partition=""
+      addToLog "- if system_ext is a block, we will check if it's big enough"
       if [ -n "$SYSTEM_EXT_BLOCK" ]; then
         system_ext_available_size=$(get_available_size_again "/system_ext")
-        # we want to switch to product partition if available size is equals to or less than required size
-        if [ $system_ext_available_size -le $size_required ]; then
-            # if product is a block, it should have size available, if it doesn't then we install to system
-            # since system_ext is a block, we can't install to /system/system_ext, it has to be /system
-            install_partition="$product" # product will be /system/product if it is not a block, otherwise /product
-            if [ -n "$PRODUCT_BLOCK" ]; then
-                install_partition="$system"
-                product_available_size=$(get_available_size_again "/product")
-                # product is a block, so we can install to /product if it has size
-                if [ $product_available_size -gt $size_required ]; then
-                    install_partition="$product"
-                fi
-            fi
-        fi
-      elif [ -n "$PRODUCT_BLOCK" ]; then
-        # product is a block, so we can install to /product if it has size
-        if [ $product_available_size -gt $size_required ]; then
-            install_partition="$product"
+        if [ $system_ext_available_size -gt $size_required ]; then
+          addToLog "- it's big enough, we'll use it"
+          install_partition="$system_ext"
         else
-            install_partition="$system"
+          addToLog "- check if chain_partition ends with -system_ext"
+          if [ "$(contains "-system_ext" "$chain_partition")" = "true" ]; then
+            addToLog "- we've reached a complete loop, no space available now"
+            install_partition="-1"
+          else
+            install_partition="$(get_install_partition product product-$chain_partition $size_required)"
+          fi
+        fi
+      else
+        addToLog "- system_ext isn't a block, we'll try product and see if it has space"
+        if [ -n "$PRODUCT_BLOCK" ]; then
+          install_partition="$(get_install_partition product product-$chain_partition $size_required)"
+        else
+          addToLog "- product isn't a block, we'll try system and see if it has space"
+          system_available_size=$(get_available_size_again "/system")
+          if [ $system_available_size -gt $size_required ]; then
+            addToLog "- system is big enough, we'll use it"
+            install_partition="/system/system_ext"
+          else
+            addToLog "- if system_ext is not a block and system is not big enough, we're out of options"
+            install_partition="-1"
+          fi
         fi
       fi
     ;;
@@ -848,13 +898,9 @@ install_app_set() {
     # if yes, then only we should proceed ahead with installation of the appset
     for i in $package_list; do
       current_package_title=$(echo $i | cut -d',' -f1)
-      package_size=$(echo $i | cut -d',' -f2)
-      default_partition=$(echo $i | cut -d',' -f3)
-      #install_partition should be executed only when package is being installed
-      install_partition=$(get_install_partition "$default_partition" "$package_size")
       addToLog " "
       addToLog "----------------------------------------------------------------------------"
-      addToLog "- Working for $current_package_title ($package_size Kb) to $install_partition ($default_partition)"
+      addToLog "- Working for $current_package_title"
       value=1
       if [ -f "$nikgapps_config_file_name" ]; then
         value=$(ReadConfigValue ">>$current_package_title" "$nikgapps_config_file_name")
@@ -868,9 +914,17 @@ install_app_set() {
         fi
       elif [ "$mode" = "install" ]; then
         if [ "$value" -ge 1 ] ; then
-          size_before=$(calculate_space_before "$current_package_title" "$install_partition")
-          install_the_package "$appset_name" "$i" "$current_package_title" "$value" "$install_partition"
-          size_after=$(calculate_space_after "$current_package_title" "$install_partition" "$size_before")
+          package_size=$(echo $i | cut -d',' -f2)
+          default_partition=$(echo $i | cut -d',' -f3)
+          install_partition=$(get_install_partition "$default_partition" "$default_partition" "$package_size")
+          addToLog "- $current_package_title required size: $package_size Kb, installing to $install_partition ($default_partition)"
+          if [ "$install_partition" != "-1" ]; then
+            size_before=$(calculate_space_before "$current_package_title" "$install_partition")
+            install_the_package "$appset_name" "$i" "$current_package_title" "$value" "$install_partition"
+            size_after=$(calculate_space_after "$current_package_title" "$install_partition" "$size_before")
+          else
+            ui_print "- Skipping $current_package_title as no space is left"
+          fi
         elif [ "$value" -eq -1 ] ; then
           uninstall_the_package "$appset_name" "$current_package_title"
         elif [ "$value" -eq 0 ] ; then
