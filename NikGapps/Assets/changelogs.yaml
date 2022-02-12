@@ -1,3 +1,11 @@
+- date: 11th Feb 2021 (Android S, R and Q Canary Release)
+  changes:
+      - item: Introduce Smart Installation to address storage full issues
+      - item: Added space check before installing packages to ensure that system is never left into inconsistent state
+      - item: Revamp and improve NikGapps uninstallation mechanism
+      - item: Fix an issue where custom locations for nikgapps.config were not recognized
+      - item: A lot of installer script improvements and fixes under the hood
+      - item: Remove gms optimization (as of now) to address notifications delay issue
 - date: 27th Jan 2021 (Android S, R and Q Release)
   changes:
       - item: Hotfix Update - Fixes notification delays for some people due to gms optimization
