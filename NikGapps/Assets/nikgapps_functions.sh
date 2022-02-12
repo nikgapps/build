@@ -714,8 +714,6 @@ find_zip_type() {
     zip_type="gapps"
   elif [ "$(contains "Debloater" "$actual_file_name")" = "true" ]; then
     zip_type="debloater"
-  elif [ "$(contains "15" "$actual_file_name")" = "true" ] || [ "$(contains "YouTubeMusic" "$actual_file_name")" = "true" ]; then
-    zip_type="addon_exclusive"
   elif [ "$(contains "Addon" "$actual_file_name")" = "true" ]; then
     zip_type="addon"
   elif [ "$(contains "package" "$actual_file_name")" = "true" ]; then
