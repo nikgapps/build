@@ -3,7 +3,8 @@ SKIPUNZIP=1
 
 # File Defaults
 ZIPDIR=$(dirname "$ZIPFILE")
-ZIPNAME="$(basename "$ZIPFILE")"
+ZIPNAME="$(basename "$ZIPFILE" ".zip")"
+ZIP_NAME_LOWER=$(echo $ZIPNAME | tr '[:upper:]' '[:lower:]')
 
 if $BOOTMODE; then
   COMMONDIR=$MODPATH/NikGappsScripts
@@ -28,7 +29,7 @@ dynamic_partitions="false"
 TMPDIR=/dev/tmp
 
 # Logs
-NikGappsAddonDir="/system/addon.d/nikgapps"
+NikGappsAddonDir="/system/addon.d"
 datetime=$(date +%Y_%m_%d_%H_%M_%S)
 nikGappsLogFile="NikGapps_logs_$datetime.tar.gz"
 nikGappsLogFile="Logs-"$actual_file_name.tar.gz
@@ -181,6 +182,11 @@ find_gapps_size
 test "$zip_type" = "debloater" && debloat
 calculate_space "system" "product" "system_ext"
 ui_print " "
+mode=$(ReadConfigValue "mode" "$nikgapps_config_file_name")
+[ -z "$mode" ] && mode="install"
+[ "$ZIP_NAME_LOWER" = "uninstall" ] && mode="uninstall_by_name"
+addToLog "- Install mode is $mode"
+
 test "$zip_type" = "debloater" && ui_print "--> Starting the debloat process"
 
 if [ "$zip_type" != "debloater" ]; then

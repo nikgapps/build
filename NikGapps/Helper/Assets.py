@@ -33,6 +33,7 @@ class Assets:
     nikgapps_config = cwd + "nikgapps.config"
     debloater_config = cwd + "debloater.config"
     installer_path = cwd + "installer"
+    uninstaller_path = cwd + "uninstaller"
     changelog = cwd + "changelogs.yaml"
     sign_jar = os.path.join(assets_folder, "NikGappsZipSigner.jar")
     customize_path = cwd + "customize.sh"

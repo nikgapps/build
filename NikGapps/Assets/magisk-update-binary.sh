@@ -25,6 +25,11 @@ ui_print() {
   fi
 }
 
+# show_progress <amount> <time>
+show_progress() { echo "progress $1 $2" >>"$OUTFD"; }
+# set_progress <amount>
+set_progress() { echo "set_progress $1" >>"$OUTFD"; }
+
 require_new_magisk() {
   ui_print "*******************************"
   ui_print " Please install Magisk v20.4+! "
