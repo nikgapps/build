@@ -526,14 +526,14 @@ class NikGappsPackages:
         setup_wizard.delete("SetupWizard")
         setup_wizard.delete("GoogleRestore")
         setup_wizard.additional_installer_script = """
-   set_prop "setupwizard.feature.baseline_setupwizard_enabled" "true" "$install_partition/build.prop"
-   set_prop "ro.setupwizard.enterprise_mode" "1" "$install_partition/build.prop"
-   set_prop "ro.setupwizard.rotation_locked" "true" "$install_partition/build.prop"
-   set_prop "setupwizard.enable_assist_gesture_training" "true" "$install_partition/build.prop"
-   set_prop "setupwizard.theme" "glif_v3_light" "$install_partition/build.prop"
-   set_prop "setupwizard.feature.skip_button_use_mobile_data.carrier1839" "true" "$install_partition/build.prop"
-   set_prop "setupwizard.feature.show_pai_screen_in_main_flow.carrier1839" "false" "$install_partition/build.prop"
-   set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.prop"
+set_prop "setupwizard.feature.baseline_setupwizard_enabled" "true" "$install_partition/build.prop"
+set_prop "ro.setupwizard.enterprise_mode" "1" "$install_partition/build.prop"
+set_prop "ro.setupwizard.rotation_locked" "true" "$install_partition/build.prop"
+set_prop "setupwizard.enable_assist_gesture_training" "true" "$install_partition/build.prop"
+set_prop "setupwizard.theme" "glif_v3_light" "$install_partition/build.prop"
+set_prop "setupwizard.feature.skip_button_use_mobile_data.carrier1839" "true" "$install_partition/build.prop"
+set_prop "setupwizard.feature.show_pai_screen_in_main_flow.carrier1839" "false" "$install_partition/build.prop"
+set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.prop"
         """
         google_restore = Package("GoogleRestore", "com.google.android.apps.restore", Constants.is_priv_app)
         setup_wizard_set = AppSet("SetupWizard")
