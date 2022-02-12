@@ -221,7 +221,7 @@ get_available_size_again() {
   tmp_file=$COMMONDIR/available.txt
   available_size=""
   if ! is_mounted "$1"; then
-    ui_print "- $1 not mounted!"
+    addToLog "- $1 not mounted!"
   else
     df | grep -vE '^Filesystem|tmpfs|cdrom' | while read output;
     do
@@ -699,7 +699,7 @@ find_system_size() {
   total_size=$((system_size+product_size+system_ext_size))
   ui_print "- Total available size: $total_size KB"
   [ "$total_size" = "0" ] && addToLog "- No space left on device"
-  [ "$total_size" = "0" ] && ui_print "- Unable to calculate space"
+  [ "$total_size" = "0" ] && ui_print "- Unable to find space"
 }
 
 find_zip_type() {
@@ -877,6 +877,18 @@ get_prop() {
   test "$propval" && echo "$propval" || echo ""
 }
 
+get_total_available_size(){
+  system_available_size=0
+  product_available_size=0
+  system_ext_available_size=0
+  [ -n "$SYSTEM_BLOCK" ] && system_available_size=$(get_available_size_again "/system")
+  [ -n "$SYSTEM_EXT_BLOCK" ] && system_ext_available_size=$(get_available_size_again "/system_ext")
+  [ -n "$PRODUCT_BLOCK" ] && product_available_size=$(get_available_size_again "/product")
+  total_available_size=$(($system_available_size + $product_available_size + $system_ext_available_size))
+  addToLog "- total available size = $total_available_size"
+  echo "$total_available_size"
+}
+
 install_app_set() {
   appset_name="$1"
   value=1
@@ -898,8 +910,17 @@ install_app_set() {
     done
   else
     package_list="$2"
-    # need a for loop here to check if total available size is greater than total size required by appset
-    # if yes, then only we should proceed ahead with installation of the appset
+    total_size_required=0
+    for i in $package_list; do
+      package_size=$(echo $i | cut -d',' -f2)
+      total_size_required=$((total_size_required + package_size))
+    done
+    total_available_size=$(get_total_available_size)
+    addToLog "- total size required by $appset_name = $total_size_required"
+    if [ $total_size_required -gt $total_available_size ]; then
+      ui_print "- Skipping $appset_name due to insufficient space"
+      return
+    fi
     for i in $package_list; do
       current_package_title=$(echo $i | cut -d',' -f1)
       addToLog " "
