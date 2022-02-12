@@ -512,7 +512,13 @@ find_gapps_size() {
       gapps_size=$((gapps_size+install_pkg_size))
     fi
   done
-  test "$zip_type" != "debloater" && ui_print "- Gapps Size: $gapps_size KB"
+  if [ "$zip_type" = "addon" ]; then
+    ui_print "- Addon Size: $gapps_size KB"
+  elif [ "$zip_type" = "gapps" ]; then
+    ui_print "- Gapps Size: $gapps_size KB"
+  elif [ "$zip_type" = "sideload" ]; then
+    ui_print "- Package Size: $gapps_size KB"
+  fi
 }
 
 find_install_mode() {
