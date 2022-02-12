@@ -320,6 +320,17 @@ find_block() {
   fi
 }
 
+find_config_path() {
+  local config_dir_list="/tmp:$TMPDIR:$ZIPDIR:/sdcard1:/sdcard1/NikGapps:/sdcard:/sdcard/NikGapps:/storage/emulated:/storage/emulated/NikGapps:$COMMONDIR"
+  local IFS=':'
+  for location in $config_dir_list; do
+    if [ -f "$location/$1" ]; then
+      echo "$location/$1"
+      return
+    fi
+  done
+}
+
 find_config() {
   mkdir -p "$nikGappsDir"
   mkdir -p "$addonDir"
@@ -335,25 +346,20 @@ find_config() {
     ui_print "- Using config file from the zip"
     nikgapps_config_file_name="$COMMONDIR/nikgapps.config"
   else
-    config_dir_list=["/tmp" "$TMPDIR" "$ZIPDIR" "/sdcard1" "/sdcard1/NikGapps" "/sdcard" "/sdcard/NikGapps" "/storage/emulated" "/storage/emulated/NikGapps" "$COMMONDIR"]
-    for location in $config_dir_list ; do
-      if [ -f "$location/nikgapps.config" ]; then
-        nikgapps_config_file_name="$location/nikgapps.config"
-        addToLog "- Found custom location of nikgapps.config"
-        copy_file "$location/nikgapps.config" "$nikGappsDir/nikgapps.config"
-        break;
-      fi
-    done
+    found_config="$(find_config_path nikgapps.config)"
+    if [ "$found_config" ]; then
+      nikgapps_config_file_name="$found_config"
+      addToLog "- Found custom location of nikgapps.config"
+      copy_file "$found_config" "$nikGappsDir/nikgapps.config"
+    fi
     nikgapps_config_dir=$(dirname "$nikgapps_config_file_name")
     debloater_config_file_name="/sdcard/NikGapps/debloater.config"
-    for location in $config_dir_list ; do
-      if [ -f "$location/debloater.config" ]; then
-        debloater_config_file_name="$location/debloater.config"
-        addToLog "- Found custom location of debloater.config"
-        copy_file "$location/debloater.config" "$nikGappsDir/debloater.config"
-        break;
-      fi
-    done
+    found_config="$(find_config_path debloater.config)"
+    if [ "$found_config" ]; then
+      debloater_config_file_name="$found_config"
+      addToLog "- Found custom location of debloater.config"
+      copy_file "$found_config" "$nikGappsDir/debloater.config"
+    fi
     nikgappsConfig="$sdcard/NikGapps/nikgapps.config"
     debloaterConfig="$sdcard/NikGapps/debloater.config"
     if [ ! -f $nikgappsConfig ]; then
