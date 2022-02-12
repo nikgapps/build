@@ -29,7 +29,7 @@ dynamic_partitions="false"
 TMPDIR=/dev/tmp
 
 # Logs
-NikGappsAddonDir="/system/addon.d/nikgapps"
+NikGappsAddonDir="/system/addon.d"
 datetime=$(date +%Y_%m_%d_%H_%M_%S)
 nikGappsLogFile="NikGapps_logs_$datetime.tar.gz"
 nikGappsLogFile="Logs-"$actual_file_name.tar.gz
