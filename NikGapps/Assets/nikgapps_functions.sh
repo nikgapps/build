@@ -176,10 +176,8 @@ clean_recursive() {
   func_result="$(beginswith / "$1")"
   addToLog "- Deleting $1 with func_result: $func_result"
   if [ "$func_result" = "true" ]; then
-    addToLog "- Deleting $1"
     rm -rf "$1"
   else
-    addToLog "- Deleting $1"
     # For Devices having symlinked product and system_ext partition
     for sys in "/system"; do
       for subsys in "/system" "/product" "/system_ext"; do
