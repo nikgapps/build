@@ -36,7 +36,7 @@ class Release:
                             os.path.sep + "archive" + os.path.sep):
                         continue
                     # Create config obj to handle config operations
-                    config_obj = NikGappsConfig(config_files)
+                    config_obj = NikGappsConfig(config_files, use_zip_config=1)
                     # Get Target Android Version so the packages can be created
                     android_version = int(config_obj.get_android_version())
                     if str(android_version) != str(Config.TARGET_ANDROID_VERSION):

@@ -77,6 +77,7 @@ class NikGappsConfig:
         for line in FileOp.read_string_file(self.config_path):
             if line.__eq__('') or line.__eq__('\n') or line.startswith('#') \
                     or line.startswith("File Not Found") \
+                    or line.startswith("use_zip_config=") \
                     or not line.__contains__("="):
                 continue
             lines[line.split('=')[0]] = line.split('=')[1].replace('\n', '')
