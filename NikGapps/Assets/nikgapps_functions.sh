@@ -885,9 +885,11 @@ get_total_available_size(){
   system_available_size=0
   product_available_size=0
   system_ext_available_size=0
-  [ -n "$SYSTEM_BLOCK" ] && system_available_size=$(get_available_size_again "/system")
+  # system would always be block
+  system_available_size=$(get_available_size_again "/system")
   [ -n "$SYSTEM_EXT_BLOCK" ] && system_ext_available_size=$(get_available_size_again "/system_ext")
   [ -n "$PRODUCT_BLOCK" ] && product_available_size=$(get_available_size_again "/product")
+  addToLog "- total_available_size=$system_available_size + $product_available_size + $system_ext_available_size"
   total_available_size=$(($system_available_size + $product_available_size + $system_ext_available_size))
   addToLog "- total available size = $total_available_size"
   echo "$total_available_size"
