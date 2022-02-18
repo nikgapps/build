@@ -966,7 +966,7 @@ install_app_set() {
           uninstall_the_package "$appset_name" "$current_package_title"
         done
       else
-        ui_print "- Unknown mode $mode"
+        abort "- Unknown mode $mode"
       fi
     done
   fi
