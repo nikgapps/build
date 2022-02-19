@@ -1023,7 +1023,9 @@ install_file() {
       addToLog "- InstallPath=$installPath"
       echo "install=$installPath" >>"$TMPDIR/addon/$packagePath"
     else
-      addToLog "- Failed to write $install_location"
+      ui_print "- Failed to write $install_location"
+      ui_print " "
+      find_system_size
       abort "Installation Failed! Looks like Storage space is full!"
     fi
   fi
