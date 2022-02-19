@@ -23,7 +23,7 @@ NikGappsTmpAddonDir=$T/addon.d
 NikGappsAddonDir="$S/addon.d"
 argument="$*"
 execute_config=1
-master_addon_file="50-nikgapps-addon.sh"
+master_addon_file="51-nikgapps-addon.sh"
 test "$ANDROID_ROOT" || ANDROID_ROOT=/system;
 # Make Directories
 mkdir -p "$NikGappsAddonDir"

@@ -8,7 +8,7 @@ shift 1
 destDir=$system/addon.d
 NikGappsDir=$destDir
 destDir=$NikGappsDir
-dest=$destDir/50-$1".sh"
+dest=$destDir/51-$1".sh"
 fileName=$1
 shift 1
 installSource=$1
@@ -139,10 +139,10 @@ debloat_files() {
 run() {
   echo " "
   echo "if [ \"\$execute_config\" = \"0\" ]; then"
-  echo "  if [ -f \"\$S/addon.d/50-$fileName.sh\" ]; then"
+  echo "  if [ -f \"\$S/addon.d/51-$fileName.sh\" ]; then"
   echo "    ui_print \"- Deleting up $fileName.sh\""
-  echo "    rm -rf \$S/addon.d/50-$fileName.sh"
-  echo "    rm -rf \$T/addon.d/50-$fileName.sh"
+  echo "    rm -rf \$S/addon.d/51-$fileName.sh"
+  echo "    rm -rf \$T/addon.d/51-$fileName.sh"
   echo "  fi"
   echo "  exit 1"
   echo "fi"
@@ -201,4 +201,5 @@ cat "$COMMONDIR/header" >> "$dest"
 chmod 755 "$dest"
 mkdir -p "$addon_scripts_logDir"
 rm -rf "$addon_scripts_logDir/50-$fileName.sh"
-cat "$dest" > "$addon_scripts_logDir/50-$fileName.sh"
+rm -rf "$addon_scripts_logDir/51-$fileName.sh"
+cat "$dest" > "$addon_scripts_logDir/51-$fileName.sh"

@@ -7,7 +7,7 @@ uninstall_package() {
         uninstall_file "$i" "$package_name"
     done
 
-    addon_file="50-"$package_title".sh"
+    addon_file="51-"$package_title".sh"
     # Removing the addon sh so it doesn't get backed up and restored
     addToLog "- Removing $addon_file"
     rm -rf "/system/addon.d/$addon_file"
