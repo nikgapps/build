@@ -68,8 +68,12 @@ class NikGappsConfig:
         use_zip_config = ConfigObj("use_zip_config", self.use_zip_config)
         use_zip_config.description = "# if you want to force the installer to use the config from gapps zip file, " \
                                      "set below to 1"
+        gms_optimization = ConfigObj("gms_optimization", self.disabled_mode)
+        gms_optimization.description = "# set this to 1 if you want to enable gms optimization, " \
+                                       "careful while doing it, you may experience issues like delayed notification " \
+                                       "with some Roms"
         config_list = [version, log_directory, install_partition, mode, wipe_dalvik_cache, wipe_runtime_permissions,
-                       execute_d, addon_version, use_zip_config]
+                       execute_d, addon_version, use_zip_config, gms_optimization]
         return config_list
 
     def get_config_dictionary(self):

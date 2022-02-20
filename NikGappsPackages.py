@@ -133,7 +133,24 @@ class NikGappsPackages:
         prebuiltgmscore.delete_in_rom("PrebuiltGmsCoreQt")
         prebuiltgmscore.delete_in_rom("PrebuiltGmsCoreRvc")
         prebuiltgmscore.delete_in_rom("GmsCore")
-        prebuiltgmscore.additional_installer_script = ""
+        prebuiltgmscore.additional_installer_script = """
+    gms_optimization=$(ReadConfigValue "gms_optimization" "$nikgapps_config_file_name")
+    [ -z "$gms_optimization" ] && gms_optimization=0
+    if [ "$gms_optimization" = "1" ]; then
+        sed -i '/allow-in-power-save package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
+        sed -i '/allow-in-data-usage-save package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
+        sed -i '/allow-unthrottled-location package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
+        sed -i '/allow-ignore-location-settings package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
+        addToLog \"- Battery Optimization Done in $install_partition/etc/permissions/*.xml!\"
+        sed -i '/allow-in-power-save package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
+        sed -i '/allow-in-data-usage-save package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
+        sed -i '/allow-unthrottled-location package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
+        sed -i '/allow-ignore-location-settings package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
+        addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml!\"
+    else
+        addToLog "- Battery Optimization not Enabled"
+    fi
+        """
         core_go.add_package(prebuiltgmscore)
 
         phonesky = Package("Phonesky", "com.android.vending", Constants.is_priv_app, "GooglePlayStore")
@@ -245,7 +262,24 @@ class NikGappsPackages:
         prebuiltgmscore.delete_in_rom("PrebuiltGmsCoreQt")
         prebuiltgmscore.delete_in_rom("PrebuiltGmsCoreRvc")
         prebuiltgmscore.delete_in_rom("GmsCore")
-        prebuiltgmscore.additional_installer_script = ""
+        prebuiltgmscore.additional_installer_script = """
+    gms_optimization=$(ReadConfigValue "gms_optimization" "$nikgapps_config_file_name")
+    [ -z "$gms_optimization" ] && gms_optimization=0
+    if [ "$gms_optimization" = "1" ]; then
+        sed -i '/allow-in-power-save package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
+        sed -i '/allow-in-data-usage-save package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
+        sed -i '/allow-unthrottled-location package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
+        sed -i '/allow-ignore-location-settings package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
+        addToLog \"- Battery Optimization Done in $install_partition/etc/permissions/*.xml!\"
+        sed -i '/allow-in-power-save package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
+        sed -i '/allow-in-data-usage-save package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
+        sed -i '/allow-unthrottled-location package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
+        sed -i '/allow-ignore-location-settings package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
+        addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml!\"
+    else
+        addToLog "- Battery Optimization not Enabled"
+    fi
+                """
         phonesky = Package("Phonesky", "com.android.vending", Constants.is_priv_app, "GooglePlayStore")
         googleservicesframework = Package("GoogleServicesFramework", "com.google.android.gsf", Constants.is_priv_app)
         googlecontactssyncadapter = Package("GoogleContactsSyncAdapter", "com.google.android.syncadapters.contacts",
