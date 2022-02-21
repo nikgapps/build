@@ -1,4 +1,4 @@
-- date: 21st Feb 2021 (Android S, R and Q Canary Release)
+- date: 22nd Feb 2021 (Android S, R and Q Release)
   changes:
       - item: Introduce Smart Installation to address storage full issues
       - item: Added space check before installing packages to ensure that system is never left into inconsistent state
