@@ -522,9 +522,19 @@ find_gapps_size() {
 }
 
 find_install_mode() {
-  if [ "$clean_flash_only" = "true" ] && [ "$install_type" = "dirty" ] && [ ! -f "$install_partition/etc/permissions/$package_title.prop" ]; then
-    test "$zip_type" = "gapps" && ui_print "- Can't dirty flash $package_title" && return
-    test "$zip_type" = "addon" && abort "- Can't dirty flash $package_title, please clean flash!"
+  if [ "$clean_flash_only" = "true" ] && [ "$install_type" = "dirty" ]; then
+    prop_file_exists="false"
+    for i in $(find /system /system/product /system/system_ext -iname "$package_title.prop" 2>/dev/null;); do
+      if [ -f "$i" ]; then
+        addToLog "- Found $i"
+        prop_file_exists="true"
+        break
+      fi
+    done
+    if [ "$prop_file_exists" = "false" ]; then
+      test "$zip_type" = "gapps" && ui_print "- Can't dirty flash $package_title" && return
+      test "$zip_type" = "addon" && abort "- Can't dirty flash $package_title, please clean flash!"
+    fi
   fi
   addToLog "----------------------------------------------------------------------------"
   ui_print "- Installing $package_title"
