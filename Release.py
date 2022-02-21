@@ -36,14 +36,12 @@ class Release:
                             os.path.sep + "archive" + os.path.sep):
                         continue
                     # Create config obj to handle config operations
-                    config_obj = NikGappsConfig(config_files)
+                    config_obj = NikGappsConfig(config_files, use_zip_config=1)
                     # Get Target Android Version so the packages can be created
                     android_version = int(config_obj.get_android_version())
                     if str(android_version) != str(Config.TARGET_ANDROID_VERSION):
                         continue
                     Constants.update_android_version_dependencies()
-                    # Build package list from config
-                    config_package_list = config_obj.get_config_packages()
                     # Generate a file name for the zip
                     file_name = Constants.release_directory
                     config_file_name = os.path.splitext(os.path.basename(config_files))[0].replace(" ", "")
@@ -55,7 +53,7 @@ class Release:
                     if sent_message is not None:
                         sent_message.edit_text("Building for " + str(pkg_type))
                     # Create a zip out of filtered packages
-                    zip_status = Release.zip_package(sent_message, file_name, config_package_list)
+                    zip_status = Release.zip_package(sent_message, file_name, app_set_list=None, config_obj=config_obj)
                     # move the config file to archive
                     if zip_status:
                         print("Source: " + str(config_files))
@@ -84,8 +82,8 @@ class Release:
                     file_name = Constants.release_directory + Constants.dir_sep + "Debloater-" + str(
                         Logs.get_current_time()) + ".zip"
                     z = Export(file_name)
-                    pkg_build_list = []
-                    z.zip(pkg_build_list, sent_message)
+                    config_obj = NikGappsConfig()
+                    z.zip(config_obj, sent_message)
             else:
                 if pkg_type in Config.BUILD_PACKAGE_LIST:
                     file_name = Constants.release_directory
@@ -127,15 +125,22 @@ class Release:
         return package_list
 
     @staticmethod
-    def zip_package(sent_message, package_name, app_set_list):
+    def zip_package(sent_message, package_name, app_set_list, config_obj: NikGappsConfig = None):
+        if config_obj is not None:
+            config_obj: NikGappsConfig
+            if config_obj.config_package_list.__len__() > 0:
+                app_set_list = config_obj.config_package_list
+        else:
+            config_obj = NikGappsConfig()
+
         if app_set_list is not None and app_set_list.__len__() > 0:
             file_name = package_name
-            app_set_build_list = Build.build_from_directory(app_set_list)
+            config_obj.config_package_list = Build.build_from_directory(app_set_list)
             print("Exporting " + str(file_name))
             if sent_message is not None:
                 sent_message.edit_text("Exporting " + str(file_name))
             z = Export(file_name)
-            return z.zip(app_set_build_list, sent_message)
+            return z.zip(config_obj, sent_message)
         else:
             print("Package List Empty!")
 

@@ -144,11 +144,12 @@ class Package:
         str_data += "   chmod 755 \"$COMMONDIR/addon\";\n"
         str_data += "   . $COMMONDIR/addon \"$OFD\" \"" + self.package_title + "\" \"$TMPDIR/addon/$packagePath\"" \
                     + " \"$TMPDIR/addon/$deleteFilesPath\"" + " \"\"" + " \"$TMPDIR/addon/$deleteFilesFromRomPath\"\n"
-        str_data += "   copy_file \"$NikGappsAddonDir/" + self.package_title + ".sh\" \"$logDir/addonscripts/" + self.package_title + ".sh\"\n"
         str_data += "   copy_file \"$TMPDIR/addon/$packagePath\" \"$logDir/addonfiles/" + "$packagePath" + ".addon\"\n"
         str_data += "   rm -rf \"$TMPDIR/addon/$packagePath\"\n"
-        str_data += "   copy_file \"$TMPDIR/addon/$deleteFilesPath\" \"$logDir/addonfiles/" + "$deleteFilesPath" + ".addon\"\n"
-        str_data += "   copy_file \"$TMPDIR/addon/$deleteFilesFromRomPath\" \"$logDir/addonfiles/" + "$deleteFilesFromRomPath" + ".addon\"\n"
+        str_data += "   copy_file \"$TMPDIR/addon/$deleteFilesPath\" \"$logDir/addonfiles/" + "$deleteFilesPath" + \
+                    ".addon\"\n"
+        str_data += "   copy_file \"$TMPDIR/addon/$deleteFilesFromRomPath\" \"$logDir/addonfiles/" + \
+                    "$deleteFilesFromRomPath" + ".addon\"\n"
         str_data += "   rm -rf \"$TMPDIR/addon/$deleteFilesPath\"\n"
         str_data += "   rm -rf \"$TMPDIR/addon/$deleteFilesFromRomPath\"\n"
         str_data += "}\n"

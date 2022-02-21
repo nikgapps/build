@@ -221,7 +221,7 @@ get_available_size_again() {
   tmp_file=$COMMONDIR/available.txt
   available_size=""
   if ! is_mounted "$1"; then
-    ui_print "- $1 not mounted!"
+    addToLog "- $1 not mounted!"
   else
     df | grep -vE '^Filesystem|tmpfs|cdrom' | while read output;
     do
@@ -512,13 +512,29 @@ find_gapps_size() {
       gapps_size=$((gapps_size+install_pkg_size))
     fi
   done
-  test "$zip_type" != "debloater" && ui_print "- Gapps Size: $gapps_size KB"
+  if [ "$zip_type" = "addon" ]; then
+    ui_print "- Addon Size: $gapps_size KB"
+  elif [ "$zip_type" = "gapps" ]; then
+    ui_print "- Gapps Size: $gapps_size KB"
+  elif [ "$zip_type" = "sideload" ]; then
+    ui_print "- Package Size: $gapps_size KB"
+  fi
 }
 
 find_install_mode() {
-  if [ "$clean_flash_only" = "true" ] && [ "$install_type" = "dirty" ] && [ ! -f "$install_partition/etc/permissions/$package_title.prop" ]; then
-    test "$zip_type" = "gapps" && ui_print "- Can't dirty flash $package_title" && return
-    test "$zip_type" = "addon" && abort "- Can't dirty flash $package_title, please clean flash!"
+  if [ "$clean_flash_only" = "true" ] && [ "$install_type" = "dirty" ]; then
+    prop_file_exists="false"
+    for i in $(find /system /system/product /system/system_ext -iname "$package_title.prop" 2>/dev/null;); do
+      if [ -f "$i" ]; then
+        addToLog "- Found $i"
+        prop_file_exists="true"
+        break
+      fi
+    done
+    if [ "$prop_file_exists" = "false" ]; then
+      test "$zip_type" = "gapps" && ui_print "- Can't dirty flash $package_title" && return
+      test "$zip_type" = "addon" && abort "- Can't dirty flash $package_title, please clean flash!"
+    fi
   fi
   addToLog "----------------------------------------------------------------------------"
   ui_print "- Installing $package_title"
@@ -699,7 +715,7 @@ find_system_size() {
   total_size=$((system_size+product_size+system_ext_size))
   ui_print "- Total available size: $total_size KB"
   [ "$total_size" = "0" ] && addToLog "- No space left on device"
-  [ "$total_size" = "0" ] && ui_print "- Unable to calculate space"
+  [ "$total_size" = "0" ] && ui_print "- Unable to find space"
 }
 
 find_zip_type() {
@@ -708,8 +724,6 @@ find_zip_type() {
     zip_type="gapps"
   elif [ "$(contains "Debloater" "$actual_file_name")" = "true" ]; then
     zip_type="debloater"
-  elif [ "$(contains "15" "$actual_file_name")" = "true" ] || [ "$(contains "YouTubeMusic" "$actual_file_name")" = "true" ]; then
-    zip_type="addon_exclusive"
   elif [ "$(contains "Addon" "$actual_file_name")" = "true" ]; then
     zip_type="addon"
   elif [ "$(contains "package" "$actual_file_name")" = "true" ]; then
@@ -738,7 +752,7 @@ get_available_size() {
 }
 
 get_block_for_mount_point() {
-  grep -v "^#" /etc/recovery.fstab | grep " $1 " | tail -n1 | tr -s ' ' | cut -d' ' -f1
+  grep -v "^#" /etc/recovery.fstab | grep "[[:blank:]]$1[[:blank:]]" | tail -n1 | tr -s [:blank:] ' ' | cut -d' ' -f1
 }
 
 get_file_prop() {
@@ -877,6 +891,20 @@ get_prop() {
   test "$propval" && echo "$propval" || echo ""
 }
 
+get_total_available_size(){
+  system_available_size=0
+  product_available_size=0
+  system_ext_available_size=0
+  # system would always be block
+  system_available_size=$(get_available_size_again "/system")
+  [ -n "$SYSTEM_EXT_BLOCK" ] && system_ext_available_size=$(get_available_size_again "/system_ext")
+  [ -n "$PRODUCT_BLOCK" ] && product_available_size=$(get_available_size_again "/product")
+  addToLog "- total_available_size=$system_available_size + $product_available_size + $system_ext_available_size"
+  total_available_size=$(($system_available_size + $product_available_size + $system_ext_available_size))
+  addToLog "- total available size = $total_available_size"
+  echo "$total_available_size"
+}
+
 install_app_set() {
   appset_name="$1"
   value=1
@@ -898,8 +926,17 @@ install_app_set() {
     done
   else
     package_list="$2"
-    # need a for loop here to check if total available size is greater than total size required by appset
-    # if yes, then only we should proceed ahead with installation of the appset
+    total_size_required=0
+    for i in $package_list; do
+      package_size=$(echo $i | cut -d',' -f2)
+      total_size_required=$((total_size_required + package_size))
+    done
+    total_available_size=$(get_total_available_size)
+    addToLog "- total size required by $appset_name = $total_size_required"
+    if [ $total_size_required -gt $total_available_size ]; then
+      ui_print "- Skipping $appset_name due to insufficient space"
+      return
+    fi
     for i in $package_list; do
       current_package_title=$(echo $i | cut -d',' -f1)
       addToLog " "
@@ -939,7 +976,7 @@ install_app_set() {
           uninstall_the_package "$appset_name" "$current_package_title"
         done
       else
-        ui_print "- Unknown mode $mode"
+        abort "- Unknown mode $mode"
       fi
     done
   fi
@@ -996,7 +1033,9 @@ install_file() {
       addToLog "- InstallPath=$installPath"
       echo "install=$installPath" >>"$TMPDIR/addon/$packagePath"
     else
-      addToLog "- Failed to write $install_location"
+      ui_print "- Failed to write $install_location"
+      ui_print " "
+      find_system_size
       abort "Installation Failed! Looks like Storage space is full!"
     fi
   fi

@@ -5,7 +5,7 @@ from Config import SEND_ZIP_DEVICE
 from Config import SIGN_PACKAGE
 import Config
 from Config import UPLOAD_FILES
-from .AddonSet import AddonSet
+from . import NikGappsConfig
 from .ZipOp import ZipOp
 from .FileOp import FileOp
 from .Constants import Constants
@@ -23,12 +23,13 @@ class Export:
         self.file_name = file_name
         self.z = ZipOp(file_name)
 
-    def zip(self, app_set_list, sent_message=None):
+    def zip(self, config_obj: NikGappsConfig, sent_message=None):
         total_packages = 0
         print_progress = ""
         start_time = Constants.start_of_function()
         file_sizes = ""
         zip_execution_status = False
+        app_set_list = config_obj.config_package_list
         try:
             app_set_count = len(app_set_list)
             app_set_index = 1
@@ -101,7 +102,7 @@ class Export:
             self.z.writestringtozip(self.get_installer_script(total_packages, app_set_list), "common/install.sh")
             self.z.writestringtozip("#MAGISK", Constants.meta_inf_dir + "updater-script")
             self.z.writefiletozip(Assets.magisk_update_binary, Constants.meta_inf_dir + "update-binary")
-            self.z.writestringtozip(self.get_nikgapps_config(), "afzc/nikgapps.config")
+            self.z.writestringtozip(config_obj.get_nikgapps_config(), "afzc/nikgapps.config")
             debloater_config_lines = ""
             for line in Assets.get_string_resource(Assets.debloater_config):
                 debloater_config_lines += line
@@ -208,47 +209,6 @@ class Export:
             return zip_execution_status
 
     @staticmethod
-    def get_nikgapps_config():
-        nikgapps_config_lines = "# NikGapps configuration file\n"
-        for line in Assets.get_string_resource(Assets.nikgapps_config):
-            nikgapps_config_lines += line
-        for app_set in NikGappsPackages.get_packages("full"):
-            if len(app_set.package_list) > 1:
-                nikgapps_config_lines += "\n# Set " + app_set.title + "=0 if you want to skip installing all " \
-                                                                      "packages belonging to " \
-                                                                      "" + app_set.title + " Package\n"
-                nikgapps_config_lines += app_set.title + "=" + str(1) + "\n"
-                if str(os.environ.get('pkg_type')).__eq__("config"):
-                    for pkg in app_set.package_list:
-                        nikgapps_config_lines += ">>" + pkg.package_title + "=" + str(1) + "\n"
-                else:
-                    for pkg in app_set.package_list:
-                        nikgapps_config_lines += ">>" + pkg.package_title + "=" + str(pkg.enabled) + "\n"
-                nikgapps_config_lines += "\n"
-            else:
-                if str(os.environ.get('pkg_type')).__eq__("config"):
-                    for pkg in app_set.package_list:
-                        nikgapps_config_lines += pkg.package_title + "=" + str(1) + "\n"
-                else:
-                    for pkg in app_set.package_list:
-                        nikgapps_config_lines += pkg.package_title + "=" + str(pkg.enabled) + "\n"
-        for app_set in NikGappsPackages.get_packages("go"):
-            if len(app_set.package_list) > 1:
-                nikgapps_config_lines += "# Set " + app_set.title + "=0 if you want to skip installing all " \
-                                                                    "packages belonging to " \
-                                                                    "" + app_set.title + " Package\n"
-                nikgapps_config_lines += app_set.title + "=" + str(1) + "\n\n"
-                nikgapps_config_lines += "# Setting CoreGo=0 will not skip following packages," \
-                                         " set them to 0 if you want to skip them  \n"
-            else:
-                nikgapps_config_lines += app_set.title + "=" + str(1) + "\n"
-        nikgapps_config_lines += "\n"
-        nikgapps_config_lines += "# Following are the Addon packages NikGapps supports\n"
-        for app_set in AddonSet.get_addon_packages():
-            nikgapps_config_lines += app_set.title + "=" + str(1) + "\n"
-        return nikgapps_config_lines
-
-    @staticmethod
     def get_installer_script(total_packages, app_set_list):
         delem = ","
         installer_script_path_string = "#!/sbin/sh\n"
@@ -274,7 +234,7 @@ class Export:
 
         for app_set in app_set_list:
             installer_script_path_string += "install_app_set \"" + app_set.title + "\" " \
-                                                                 "\"$" + app_set.title + "\"\n"
+                                                                                   "\"$" + app_set.title + "\"\n"
 
         installer_script_path_string += "\nset_progress 1.00" + "\n\n"
         installer_script_path_string += "exit_install" + "\n\n"
