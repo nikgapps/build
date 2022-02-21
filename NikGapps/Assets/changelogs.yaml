@@ -7,7 +7,7 @@
       - item: A lot of installer script improvements and fixes under the hood
       - item: Made gms optimization configurable (using gms_optimization config starting v20)
       - item: Control all the features of nikgapps.config through config builds
-      - item: Fix an issue where dirty flashing Gboard failed even when Gboard was originally clean flashed
+      - item: Fixed an issue where dirty flashing Gboard failed even when Gboard was originally clean flashed
       - item: nikgapps.config bumped up to v20
       - item: Changed addon script name from 50-<package>.sh to 51-<package>.sh to let Rom script execute first
       - item: Abort when unknown mode is detected
