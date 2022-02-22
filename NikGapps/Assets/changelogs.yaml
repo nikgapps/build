@@ -12,6 +12,7 @@
       - item: Changed addon script name from 50-<package>.sh to 51-<package>.sh to let Rom script execute first
       - item: Abort when unknown mode is detected
       - item: Addon.d improvements
+      - item: Revert back to google setup wizard as default (flash PixelSetupWizard addon for pixel setup wizard)
 - date: 27th Jan 2021 (Android S, R and Q Release)
   changes:
       - item: Hotfix Update - Fixes notification delays for some people due to gms optimization
