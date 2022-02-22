@@ -21,7 +21,8 @@ class AddonSet:
             AddonSet.get_google_sheets(),
             AddonSet.get_youtube(),
             AddonSet.get_poke_pix_live_wallpapers(),
-            AddonSet.get_google_tts()
+            AddonSet.get_google_tts(),
+            AddonSet.get_pixel_setup_wizard()
         ]
         # if TARGET_ANDROID_VERSION in (10, 11):
         #     addon_set_list.append(AddonSet.get_pixel_setup_wizard())

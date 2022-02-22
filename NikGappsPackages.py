@@ -384,7 +384,7 @@ class NikGappsPackages:
     @staticmethod
     def get_omni_package():
         app_set_list = NikGappsPackages.get_basic_package()
-        app_set_list.append(AddonSet.get_pixel_setup_wizard())
+        app_set_list.append(NikGappsPackages.get_setup_wizard())
         # Dropping pixelize support, need to keep it stock
         calculator = Package("CalculatorGooglePrebuilt", "com.google.android.calculator", Constants.is_system_app,
                              "GoogleCalculator")
@@ -570,6 +570,8 @@ set_prop "setupwizard.feature.show_pai_screen_in_main_flow.carrier1839" "false" 
 set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.prop"
         """
         google_restore = Package("GoogleRestore", "com.google.android.apps.restore", Constants.is_priv_app)
+        android_migrate_prebuilt = Package("AndroidMigratePrebuilt", "com.google.android.apps.pixelmigrate",
+                                           Constants.is_priv_app)
         setup_wizard_set = AppSet("SetupWizard")
         setup_wizard_set.add_package(setup_wizard)
         setup_wizard_set.add_package(google_restore)
@@ -577,6 +579,8 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
             google_one_time_initializer = Package("GoogleOneTimeInitializer", "com.google.android.onetimeinitializer",
                                                   Constants.is_priv_app, partition="system_ext")
             setup_wizard_set.add_package(google_one_time_initializer)
+        if TARGET_ANDROID_VERSION < 12:
+            setup_wizard_set.add_package(android_migrate_prebuilt)
         return setup_wizard_set
 
     @staticmethod

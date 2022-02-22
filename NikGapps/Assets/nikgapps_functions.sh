@@ -917,7 +917,7 @@ install_app_set() {
   addToLog " "
   addToLog "- Current Appset=$appset_name, value=$value"
   if [ "$value" -eq 0 ]; then
-    ui_print "- Skipping $appset_name"
+    ui_print "x Skipping $appset_name"
   elif [ "$value" -eq -1 ]; then
     addToLog "- $appset_name is disabled"
     for i in "$2"; do
@@ -934,7 +934,7 @@ install_app_set() {
     total_available_size=$(get_total_available_size)
     addToLog "- total size required by $appset_name = $total_size_required"
     if [ $total_size_required -gt $total_available_size ]; then
-      ui_print "- Skipping $appset_name due to insufficient space"
+      ui_print "x Skipping $appset_name due to insufficient space"
       return
     fi
     for i in $package_list; do
@@ -964,12 +964,12 @@ install_app_set() {
             install_the_package "$appset_name" "$i" "$current_package_title" "$value" "$install_partition"
             size_after=$(calculate_space_after "$current_package_title" "$install_partition" "$size_before")
           else
-            ui_print "- Skipping $current_package_title as no space is left"
+            ui_print "x Skipping $current_package_title as no space is left"
           fi
         elif [ "$value" -eq -1 ] ; then
           uninstall_the_package "$appset_name" "$current_package_title"
         elif [ "$value" -eq 0 ] ; then
-          ui_print "- Skipping $current_package_title"
+          ui_print "x Skipping $current_package_title"
         fi
       elif [ "$mode" = "uninstall_by_name" ]; then
         for i in "$2"; do
