@@ -1,3 +1,6 @@
+- date: 28th Feb 2021 (Android S, R and Q Canary Release)
+  changes:
+      - item: Fixed installation issues of some apps (to system_ext) in android 10
 - date: 22nd Feb 2021 (Android S, R and Q Release)
   changes:
       - item: Introduce Smart Installation to address storage full issues
@@ -9,7 +12,7 @@
       - item: Control all the features of nikgapps.config through config builds
       - item: Fixed an issue where dirty flashing Gboard failed even when Gboard was originally clean flashed
       - item: nikgapps.config bumped up to v20
-      - item: Changed addon script name from 50-<package>.sh to 51-<package>.sh to let Rom script execute first
+      - item: Changed addon script name from <50<package>.sh to <51-package>.sh to let Rom script execute first
       - item: Abort when unknown mode is detected
       - item: Addon.d improvements
       - item: Revert back to google setup wizard as default (flash PixelSetupWizard addon for pixel setup wizard)

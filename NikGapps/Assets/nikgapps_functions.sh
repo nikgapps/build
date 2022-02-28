@@ -143,7 +143,7 @@ check_if_partitions_are_mounted_rw() {
   addToLog "- Android version: $androidVersion"
   case "$androidVersion" in
     "10")
-      system_ext="";
+      system_ext="$product";
       [ ! "$is_system_writable" ] && [ ! "$is_product_writable" ] && abort "- Partitions not writable!"
     ;;
     "1"*)
@@ -842,7 +842,7 @@ get_install_partition(){
           system_available_size=$(get_available_size_again "/system")
           if [ $system_available_size -gt $size_required ]; then
             addToLog "- system is big enough, we'll use it"
-            install_partition="/system/system_ext"
+            install_partition="$system_ext"
           else
             addToLog "- if system_ext is not a block and system is not big enough, we're out of options"
             install_partition="-1"
@@ -957,6 +957,11 @@ install_app_set() {
         if [ "$value" -ge 1 ] ; then
           package_size=$(echo $i | cut -d',' -f2)
           default_partition=$(echo $i | cut -d',' -f3)
+          case "$default_partition" in
+            "system_ext") 
+            [ $androidVersion -le 10 ] && default_partition=product && addToLog "- default_partition is overridden"
+            ;;
+          esac
           install_partition=$(get_install_partition "$default_partition" "$default_partition" "$package_size")
           addToLog "- $current_package_title required size: $package_size Kb, installing to $install_partition ($default_partition)"
           if [ "$install_partition" != "-1" ]; then
