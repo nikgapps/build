@@ -399,7 +399,6 @@ class NikGappsPackages:
         if TARGET_ANDROID_VERSION >= 11:
             google_location_history = Package("LocationHistoryPrebuilt", "com.google.android.gms.location.history",
                                               Constants.is_system_app, "GoogleLocationHistory")
-            google_location_history.delete("LocationHistoryPrebuilt")
             app_set_list.append(AppSet("GoogleLocationHistory", [google_location_history]))
         gmail = Package("PrebuiltGmail", "com.google.android.gm", Constants.is_system_app, "Gmail")
         gmail.delete("Email")
@@ -556,9 +555,6 @@ class NikGappsPackages:
         setup_wizard = Package("SetupWizardPrebuilt", "com.google.android.setupwizard", Constants.is_priv_app,
                                "SetupWizard")
         setup_wizard.delete("Provision")
-        setup_wizard.delete("SetupWizardPrebuilt")
-        setup_wizard.delete("SetupWizard")
-        setup_wizard.delete("GoogleRestore")
         setup_wizard.additional_installer_script = """
 set_prop "setupwizard.feature.baseline_setupwizard_enabled" "true" "$install_partition/build.prop"
 set_prop "ro.setupwizard.enterprise_mode" "1" "$install_partition/build.prop"
@@ -623,9 +619,6 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
         pixel_launcher = Package("NexusLauncherPrebuilt", "com.google.android.apps.nexuslauncher",
                                  Constants.is_priv_app, "PixelLauncher", partition="system_ext")
         pixel_launcher.priv_app_permissions.append("android.permission.PACKAGE_USAGE_STATS")
-        pixel_launcher.delete("TrebuchetQuickStep")
-        if TARGET_ANDROID_VERSION == 12:
-            pixel_launcher.delete("Launcher3QuickStep")
         device_personalization_services = Package("MatchmakerPrebuiltPixel4", "com.google.android.as",
                                                   Constants.is_priv_app, "DevicePersonalizationServices")
         gapps_list = [pixel_launcher]
@@ -644,8 +637,6 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
         from Config import TARGET_ANDROID_VERSION
         if TARGET_ANDROID_VERSION == 10:
             lawnchair_ci = Package("Lawnchair", "ch.deletescape.lawnchair.ci", Constants.is_priv_app)
-            lawnchair_ci.delete("Lawnchair")
-            lawnchair_ci.delete("Lawnfeed")
             if "etc/permissions/privapp-permissions-lawnchair.xml" not in lawnchair_ci.predefined_file_list:
                 lawnchair_ci.predefined_file_list.append("etc/permissions/privapp-permissions-lawnchair.xml")
             if "etc/sysconfig/lawnchair-hiddenapi-package-whitelist.xml" not in lawnchair_ci.predefined_file_list:
@@ -659,8 +650,6 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
             lawnchair_set.add_package(lawnchair_recents_provider)
         else:
             lawnchair = Package("Lawnchair", "ch.deletescape.lawnchair.plah", Constants.is_priv_app)
-            lawnchair.delete("Lawnchair")
-            lawnchair.delete("Lawnfeed")
             lawnchair_set.add_package(lawnchair)
         lawnfeed = Package("Lawnfeed", "ch.deletescape.lawnchair.lawnfeed", Constants.is_system_app)
         lawnchair_set.add_package(lawnfeed)
