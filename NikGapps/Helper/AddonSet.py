@@ -88,7 +88,7 @@ class AddonSet:
             if TARGET_ANDROID_VERSION == 10:
                 device_personalization_services.predefined_file_list.append(
                     "overlay/DevicePersonalizationServicesConfig.apk")
-            device_personalization_services.delete_in_rom("DevicePersonalizationPrebuiltPixel4")
+            device_personalization_services.delete("DevicePersonalizationPrebuiltPixel4")
             gapps_list.append(device_personalization_services)
         return AppSet("DevicePersonalizationServices", gapps_list)
 
@@ -113,7 +113,7 @@ class AddonSet:
                                                   Constants.is_priv_app, "DevicePersonalizationServices")
         gapps_list = [pixel_launcher]
         if TARGET_ANDROID_VERSION >= 9:
-            device_personalization_services.delete_in_rom("DevicePersonalizationPrebuiltPixel4")
+            device_personalization_services.delete("DevicePersonalizationPrebuiltPixel4")
             gapps_list.append(device_personalization_services)
         if TARGET_ANDROID_VERSION >= 11:
             quick_access_wallet = Package("QuickAccessWallet", "com.android.systemui.plugin.globalactions.wallet",
@@ -201,8 +201,8 @@ class AddonSet:
         youtube_vanced_black = Package("YouTube", "com.vanced.android.youtube", Constants.is_system_app,
                                        "YouTubeVancedBlack")
         vanced_gms = Package("VancedGms", "com.mgoogle.android.gms", Constants.is_system_app)
-        youtube_vanced_black.delete_in_rom("YouTube")
-        youtube_vanced_black.delete_in_rom("VancedGms")
+        youtube_vanced_black.delete("YouTube")
+        youtube_vanced_black.delete("VancedGms")
         return AppSet("YouTubeVancedBlack", [youtube_vanced_black, vanced_gms])
 
     @staticmethod
@@ -210,8 +210,8 @@ class AddonSet:
         youtube_vanced_dark = Package("YouTube", "com.vanced.android.youtube", Constants.is_system_app,
                                       "YouTubeVancedDark")
         vanced_gms = Package("VancedGms", "com.mgoogle.android.gms", Constants.is_system_app)
-        youtube_vanced_dark.delete_in_rom("YouTube")
-        youtube_vanced_dark.delete_in_rom("VancedGms")
+        youtube_vanced_dark.delete("YouTube")
+        youtube_vanced_dark.delete("VancedGms")
         return AppSet("YouTubeVancedDark", [youtube_vanced_dark, vanced_gms])
 
     @staticmethod

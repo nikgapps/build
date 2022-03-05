@@ -1098,14 +1098,6 @@ RemoveAospAppsFromRom() {
   fi
 }
 
-RemoveFromRomWithGapps() {
-  addToLog "- Removing From Rom with Gapps"
-  clean_recursive "$1"
-  addToLog "- Creating addon.d script for $*"
-  deletePath="$1"
-  echo "delete=$deletePath" >>$TMPDIR/addon/"$deleteFilesFromRomPath"
-}
-
 rmv() {
   addToLog "- Removing $1"
   rm -rf "$1"

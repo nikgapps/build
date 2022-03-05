@@ -130,9 +130,9 @@ class NikGappsPackages:
         core_go.add_package(extra_files_go)
 
         prebuiltgmscore = Package("PrebuiltGmsCore", "com.google.android.gms", Constants.is_priv_app, "GmsCore")
-        prebuiltgmscore.delete_in_rom("PrebuiltGmsCoreQt")
-        prebuiltgmscore.delete_in_rom("PrebuiltGmsCoreRvc")
-        prebuiltgmscore.delete_in_rom("GmsCore")
+        prebuiltgmscore.delete("PrebuiltGmsCoreQt")
+        prebuiltgmscore.delete("PrebuiltGmsCoreRvc")
+        prebuiltgmscore.delete("GmsCore")
         prebuiltgmscore.additional_installer_script = """
     gms_optimization=$(ReadConfigValue "gms_optimization" "$nikgapps_config_file_name")
     [ -z "$gms_optimization" ] && gms_optimization=0
@@ -259,9 +259,9 @@ class NikGappsPackages:
         # files.predefined_file_list.append("framework/com.google.android.media.effects.jar")
         # files.predefined_file_list.append("lib64/libgdx.so")
         prebuiltgmscore = Package("PrebuiltGmsCore", "com.google.android.gms", Constants.is_priv_app, "GmsCore")
-        prebuiltgmscore.delete_in_rom("PrebuiltGmsCoreQt")
-        prebuiltgmscore.delete_in_rom("PrebuiltGmsCoreRvc")
-        prebuiltgmscore.delete_in_rom("GmsCore")
+        prebuiltgmscore.delete("PrebuiltGmsCoreQt")
+        prebuiltgmscore.delete("PrebuiltGmsCoreRvc")
+        prebuiltgmscore.delete("GmsCore")
         prebuiltgmscore.additional_installer_script = """
     gms_optimization=$(ReadConfigValue "gms_optimization" "$nikgapps_config_file_name")
     [ -z "$gms_optimization" ] && gms_optimization=0
@@ -394,12 +394,12 @@ class NikGappsPackages:
         google_drive = Package("Drive", "com.google.android.apps.docs", Constants.is_system_app)
         app_set_list.append(AppSet("Drive", [google_drive]))
         google_maps = Package("GoogleMaps", "com.google.android.apps.maps", Constants.is_priv_app)
-        google_maps.delete_in_rom("Maps")
+        google_maps.delete("Maps")
         app_set_list.append(AppSet("GoogleMaps", [google_maps]))
         if TARGET_ANDROID_VERSION >= 11:
             google_location_history = Package("LocationHistoryPrebuilt", "com.google.android.gms.location.history",
                                               Constants.is_system_app, "GoogleLocationHistory")
-            google_location_history.delete_in_rom("LocationHistoryPrebuilt")
+            google_location_history.delete("LocationHistoryPrebuilt")
             app_set_list.append(AppSet("GoogleLocationHistory", [google_location_history]))
         gmail = Package("PrebuiltGmail", "com.google.android.gm", Constants.is_system_app, "Gmail")
         gmail.delete("Email")
@@ -418,7 +418,7 @@ class NikGappsPackages:
         google_photos.delete("SnapdragonGallery")
         app_set_list.append(AppSet("GooglePhotos", [google_photos]))
         google_turbo = Package("Turbo", "com.google.android.apps.turbo", Constants.is_priv_app, "DeviceHealthServices")
-        google_turbo.delete_in_rom("TurboPrebuilt")
+        google_turbo.delete("TurboPrebuilt")
         app_set_list.append(AppSet("DeviceHealthServices", [google_turbo]))
 
         return app_set_list
@@ -630,7 +630,7 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
                                                   Constants.is_priv_app, "DevicePersonalizationServices")
         gapps_list = [pixel_launcher]
         if TARGET_ANDROID_VERSION >= 9:
-            device_personalization_services.delete_in_rom("DevicePersonalizationPrebuiltPixel4")
+            device_personalization_services.delete("DevicePersonalizationPrebuiltPixel4")
             gapps_list.append(device_personalization_services)
         if TARGET_ANDROID_VERSION >= 11:
             quick_access_wallet = Package("QuickAccessWallet", "com.android.systemui.plugin.globalactions.wallet",

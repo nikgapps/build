@@ -31,7 +31,6 @@ class Package:
         self.folder_dict = dict()  # Stores list of folders that needs 755 permissions
         self.file_dict = dict()  # Stores the file location on server as key and on device as value
         self.delete_files_list = []  # Stores the path of file to delete. Helpful for removing AOSP counterpart
-        self.delete_rom_files_list = []  # Helpful for removing files in Roms with gapps
         self.priv_app_permissions = []  # Stores the priv-app whitelist permissions for the package
         self.enabled = 1
         self.validated = True
@@ -39,14 +38,6 @@ class Package:
         self.additional_installer_script = ""
         self.failure_logs = ""
         self.pkg_size = 0
-
-    def delete_in_rom(self, data):
-        if not str(data).startswith("/"):
-            if data not in self.delete_rom_files_list:
-                self.delete_rom_files_list.append(data)
-        else:
-            if data not in self.delete_rom_files_list:
-                self.delete_rom_files_list.append(data)
 
     def delete(self, data):
         if not str(data).startswith("/"):
@@ -85,15 +76,9 @@ class Package:
             str_data += "package_name=\"\"" + "\n"
         str_data += "packagePath=install" + self.package_title + "Files\n"
         str_data += "deleteFilesPath=delete" + self.package_title + "Files\n"
-        str_data += "deleteFilesFromRomPath=delete" + self.package_title + "FromRomFiles\n"
         str_data += "\n"
         str_data += f"remove_aosp_apps_from_rom=\"\n"
         for delete_folder in self.delete_files_list:
-            str_data += f"{delete_folder}\n"
-        str_data += "\"\n"
-        str_data += "\n"
-        str_data += f"remove_gapps_from_rom=\"\n"
-        for delete_folder in self.delete_rom_files_list:
             str_data += f"{delete_folder}\n"
         str_data += "\"\n"
         str_data += "\n"
@@ -113,13 +98,6 @@ class Package:
         str_data += "   # Delete the folders that we want to remove with installing " + self.package_title + "\n"
         str_data += "   for i in $remove_aosp_apps_from_rom; do\n"
         str_data += "       RemoveAospAppsFromRom \"$i\"\n"
-        str_data += "   done\n"
-        str_data += "}\n"
-        str_data += "\n"
-        str_data += "remove_gapps_from_rom() {\n"
-        str_data += "   # Delete the folders that we want to remove with installing on Rom with Gapps\n"
-        str_data += "   for i in $remove_gapps_from_rom; do\n"
-        str_data += "       RemoveFromRomWithGapps \"$i\"\n"
         str_data += "   done\n"
         str_data += "}\n"
         str_data += "\n"

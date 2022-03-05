@@ -77,7 +77,6 @@ restore() {
   echo "     [ -f \"\$C/\$S/\$FILE\" ] && restore_file \$S/\"\$FILE\" \"\$R\""
   echo "   done"
   delete_from_aosp
-  delete_from_rom
   debloat_files
   echo "   for i in \$(list_files); do"
   if [ "$version" = 3 ]; then
@@ -101,20 +100,6 @@ delete_from_aosp() {
     IFS="$(printf '%b_' ' \n')"
     IFS="${IFS%_}"
     g=$(grep "delete" "$deleteSource" | cut -d= -f2)
-    for i in $g; do
-      echo "   clean_recursive \"$i\""
-    done
-    IFS="$OLD_IFS"
-  fi
-}
-
-delete_from_rom() {
-  echo "   addToLog \"Removing Files from Rom Source in $fileName\""
-  if [ -f "$removeFromRomSource" ]; then
-    OLD_IFS="$IFS"
-    IFS="$(printf '%b_' ' \n')"
-    IFS="${IFS%_}"
-    g=$(grep "delete" "$removeFromRomSource" | cut -d= -f2)
     for i in $g; do
       echo "   clean_recursive \"$i\""
     done
