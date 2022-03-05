@@ -63,8 +63,6 @@ class NikGappsConfig:
         execute_d = ConfigObj("execute.d", self.enabled_mode)
         execute_d.description = "# Addon.d config set it to 0 to skip the " \
                                 "automatic backup/restore while flashing the rom"
-        addon_version = ConfigObj("addon_version.d", 3)
-        addon_version.description = "# set it to 2 if 3 doesn't work for your device"
         use_zip_config = ConfigObj("use_zip_config", self.use_zip_config)
         use_zip_config.description = "# if you want to force the installer to use the config from gapps zip file, " \
                                      "set below to 1"
@@ -73,7 +71,7 @@ class NikGappsConfig:
                                        "careful while doing it, you may experience issues like delayed notification " \
                                        "with some Roms"
         config_list = [version, log_directory, install_partition, mode, wipe_dalvik_cache, wipe_runtime_permissions,
-                       execute_d, addon_version, use_zip_config, gms_optimization]
+                       execute_d, use_zip_config, gms_optimization]
         return config_list
 
     def get_config_dictionary(self):

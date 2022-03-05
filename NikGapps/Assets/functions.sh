@@ -99,6 +99,3 @@ find_config
 execute_config=$(ReadConfigValue "execute.d" "$nikgapps_config_file_name")
 [ "$execute_config" != "0" ] && execute_config=1
 addToLog "- execute_config = $execute_config"
-addon_version_config=$(ReadConfigValue "addon_version.d" "$nikgapps_config_file_name")
-[ -z "$addon_version_config" ] && addon_version_config=3
-addToLog "- addon_version_config = $addon_version_config"
