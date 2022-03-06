@@ -421,6 +421,7 @@ find_config() {
   mkdir -p "$addonDir"
   mkdir -p "$logDir"
   mkdir -p "$addon_scripts_logDir"
+  mkdir -p "$TMPDIR/addon"
   ui_print " "
   ui_print "--> Finding config files"
   nikgapps_config_file_name="$nikGappsDir/nikgapps.config"

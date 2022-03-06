@@ -104,7 +104,6 @@ class Package:
         str_data += "install_package() {\n"
         str_data += "   remove_existing_package\n"
         str_data += "   remove_aosp_apps\n"
-        str_data += "   remove_gapps_from_rom\n"
         str_data += "   # Create folders and set the permissions\n"
         for folder in self.folder_dict:
             str_data += "   make_dir \"" + folder + "\"\n"
@@ -121,15 +120,12 @@ class Package:
             str_data += "\n"
         str_data += "   chmod 755 \"$COMMONDIR/addon\";\n"
         str_data += "   . $COMMONDIR/addon \"$OFD\" \"" + self.package_title + "\" \"$TMPDIR/addon/$packagePath\"" \
-                    + " \"$TMPDIR/addon/$deleteFilesPath\"" + " \"\"" + " \"$TMPDIR/addon/$deleteFilesFromRomPath\"\n"
+                    + " \"$TMPDIR/addon/$deleteFilesPath\"" + " \"\"\n"
         str_data += "   copy_file \"$TMPDIR/addon/$packagePath\" \"$logDir/addonfiles/" + "$packagePath" + ".addon\"\n"
         str_data += "   rm -rf \"$TMPDIR/addon/$packagePath\"\n"
         str_data += "   copy_file \"$TMPDIR/addon/$deleteFilesPath\" \"$logDir/addonfiles/" + "$deleteFilesPath" + \
                     ".addon\"\n"
-        str_data += "   copy_file \"$TMPDIR/addon/$deleteFilesFromRomPath\" \"$logDir/addonfiles/" + \
-                    "$deleteFilesFromRomPath" + ".addon\"\n"
         str_data += "   rm -rf \"$TMPDIR/addon/$deleteFilesPath\"\n"
-        str_data += "   rm -rf \"$TMPDIR/addon/$deleteFilesFromRomPath\"\n"
         str_data += "}\n"
         str_data += "\n"
         str_data += "find_install_mode\n"

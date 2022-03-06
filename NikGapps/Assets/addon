@@ -14,7 +14,6 @@ shift 1
 installSource=$1
 deleteSource=$2
 debloaterSource=$3
-removeFromRomSource=$4
 mkdir -p "$destDir"
 TMPDIR=/dev/tmp
 COMMONDIR=$TMPDIR/NikGappsScripts
