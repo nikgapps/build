@@ -54,7 +54,7 @@ class AddonSet:
         snap.delete("ScreenRecorder")
         return AppSet("Snap", [snap])
 
-    @ staticmethod
+    @staticmethod
     def get_flipendo():
         flipendo = Package("Flipendo", "com.google.android.flipendo", Constants.is_system_app)
         return AppSet("Flipendo", [flipendo])
@@ -171,6 +171,13 @@ class AddonSet:
         pixel_live_wallpaper_set.add_package(wallpapers_breel_2020a)
         pixel_live_wallpaper_set.add_package(pixel_live_wallpaper)
         pixel_live_wallpaper_set.add_package(wallpapers_breel_2020)
+        if TARGET_ANDROID_VERSION == 12:
+            pixel_wallpapers_2021 = Package("PixelWallpapers2021", "com.google.android.apps.wallpaper.pixel",
+                                            Constants.is_system_app)
+            micropaper = Package("MicropaperPrebuilt", "com.google.pixel.dynamicwallpapers", Constants.is_system_app,
+                                 "Micropaper")
+            pixel_live_wallpaper_set.add_package(pixel_wallpapers_2021)
+            pixel_live_wallpaper_set.add_package(micropaper)
         return pixel_live_wallpaper_set
 
     @staticmethod
