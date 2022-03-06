@@ -23,7 +23,7 @@ if $BOOTMODE; then
   mkdir -p $COMMONDIR
 fi
 addonDir="/sdcard/NikGapps/addonLogs"
-nikGappsAddonLogFile="$addonDir/addonlogfiles/NikGapps_"$fileName"_addon.log"
+nikGappsAddonLogFile="$addonDir/NikGapps_addon.log"
 nikGappsTestLog="$addonDir/logfiles/NikGapps.log"
 newline='
 '
@@ -31,11 +31,9 @@ newline='
 echo_add_to_log() {
   echo ""
   echo "addToLog() {"
-  echo "  mkdir -p \"\$(dirname $nikGappsAddonLogFile)\";"
   echo "  echo \"\$1\" >> $nikGappsAddonLogFile"
   echo "}"
   echo ""
-  echo "addToLog \"Execute Log for $fileName with commands: \$@\""
 }
 
 list_files() {
@@ -88,7 +86,6 @@ restore() {
 }
 
 delete_from_aosp() {
-  echo "   addToLog \"Deleting Aosp apps in $fileName\""
   if [ -f "$deleteSource" ]; then
     OLD_IFS="$IFS"
     IFS="$(printf '%b_' ' \n')"
@@ -102,7 +99,6 @@ delete_from_aosp() {
 }
 
 debloat_files() {
-  echo "   addToLog \"Running Debloater in $fileName\""
   if [ -f "$debloaterSource" ]; then
     OLD_IFS="$IFS"
     IFS="$(printf '%b_' ' \n')"
@@ -126,24 +122,13 @@ run() {
   echo "  exit 1"
   echo "fi"
   echo " "
-  echo "if [ ! -f \"\$S/addon.d/\$fileName.sh\" ]; then"
-  echo "  test \"\$execute_config\" = \"1\" && CopyFile \"\$0\" \"\$S/addon.d/\$fileName.sh\""
+  echo "if [ ! -f \"\$S/addon.d/51-$fileName.sh\" ]; then"
+  echo "  test \"\$execute_config\" = \"1\" && CopyFile \"\$0\" \"\$S/addon.d/51-$fileName.sh\""
   echo "fi"
   echo " "
   echo "case \"\$1\" in"
-  echo " pre-backup)"
-  echo "   rm -rf \"$nikGappsAddonLogFile\""
-  echo " ;;"
   backup
-  echo " post-backup)"
-  echo "   # Stub"
-  echo " ;;"
-  echo " pre-restore)"
-  echo "   # Stub"
-  echo " ;;"
   restore
-  echo " post-restore)"
-  echo " ;;"
   echo "esac"
 }
 

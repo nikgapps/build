@@ -8,9 +8,9 @@ OUTFD=$(ps | grep -v 'grep' | grep -oE 'update(.*) 3 [0-9]+' | cut -d" " -f3)
 [ -z $OUTFD ] && OUTFD=$(ps -Af | grep -v 'grep' | grep -oE 'status_fd=[0-9]+' | cut -d= -f2)
 test "$verbose" -a "$OUTFD" && FD=$OUTFD
 if [ -z $OUTFD ]; then
-  ui_print() { echo "$1"; test "/sdcard/NikGapps/addonLogs/logfiles/NikGapps.log" && echo "$1" >> "/sdcard/NikGapps/addonLogs/logfiles/NikGapps.log"; }
+  ui_print() { echo "$1"; test "$nikGappsAddonLogFile" && echo "$1" >> "$nikGappsAddonLogFile"; }
 else
-  ui_print() { echo -e "ui_print $1\nui_print" >> /proc/self/fd/$OUTFD; test "/sdcard/NikGapps/addonLogs/logfiles/NikGapps.log" && echo "$1" >> "/sdcard/NikGapps/addonLogs/logfiles/NikGapps.log"; }
+  ui_print() { echo -e "ui_print $1\nui_print" >> /proc/self/fd/$OUTFD; test "$nikGappsAddonLogFile" && echo "$1" >> "$nikGappsAddonLogFile"; }
 fi
 
 if [ -d "/postinstall" ]; then
@@ -34,7 +34,6 @@ esac
 
 clean_recursive () {
   func_result="$(beginswith / "$1")"
-  addToLog "- Deleting $1 with func_result: $func_result"
   if [ "$func_result" = "true" ]; then
     addToLog "- Deleting $1"
     rm -rf "$1"
@@ -94,8 +93,7 @@ ReadConfigValue() {
   return $?
 }
 
-find_config
+[-z $nikgapps_config_file_name ] && find_config
 
-execute_config=$(ReadConfigValue "execute.d" "$nikgapps_config_file_name")
+[ -z $execute_config ] && execute_config=$(ReadConfigValue "execute.d" "$nikgapps_config_file_name")
 [ "$execute_config" != "0" ] && execute_config=1
-addToLog "- execute_config = $execute_config"
