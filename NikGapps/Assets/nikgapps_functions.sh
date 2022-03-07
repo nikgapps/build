@@ -274,15 +274,39 @@ copy_logs() {
   copy_file "$busyboxLog" "$logDir/logfiles/busybox.log"
   copy_file "$installation_size_log" "$logDir/logfiles/installation_size.log"
   cd "$logDir" || return
-  rm -rf "$nikGappsDir"/logs
+  rm -rf "$nikGappsDir/logs"
   tar -cz -f "$TMPDIR/$nikGappsLogFile" *
-  rm -rf "$nikgapps_log_dir/nikgapps_logs"
-  rm -rf "$nikgapps_config_dir/nikgapps_logs"
   [ -z "$nikgapps_config_dir" ] && nikgapps_config_dir=/sdcard/NikGapps
-  copy_file "$TMPDIR/$nikGappsLogFile" "$nikGappsDir/logs/$nikGappsLogFile"
-  copy_file "$TMPDIR/$nikGappsLogFile" "$nikgapps_config_dir/nikgapps_logs/$nikGappsLogFile"
-  copy_file "$TMPDIR/$nikGappsLogFile" "$nikgapps_log_dir/$nikGappsLogFile"
-  ui_print "- Copying Logs at $nikgapps_log_dir/$nikGappsLogFile"
+
+  # if /userdata is encrypted, installer will copy the logs to system
+  backup_logs_dir="$system/etc"
+  OLD_IFS="$IFS"
+  config_dir_list="$nikGappsDir:$nikgapps_config_dir:$nikgapps_log_dir:backup_logs_dir"
+  IFS=":"
+  for dir in $config_dir_list; do
+    if [ -d "$dir/nikgapps_logs" ]; then
+      archive_dir="$dir/nikgapps_logs_archive"
+      mkdir -p "$archive_dir"
+      mv "$dir/nikgapps_logs"/* "$archive_dir"
+      copy_file "$TMPDIR/$nikGappsLogFile" "$dir/nikgapps_logs/$nikGappsLogFile"
+    fi
+  done
+  IFS="$OLD_IFS"
+
+  if [ -f "$nikgapps_log_dir/$nikGappsLogFile" ]; then
+    ui_print "- Copying Logs at $nikgapps_log_dir/$nikGappsLogFile"
+  elif [ -f "$nikgapps_config_dir/nikgapps_logs/$nikGappsLogFile" ]; then
+    ui_print "- Copying Logs at $nikgapps_config_dir/nikgapps_logs/$nikGappsLogFile"
+  elif [ -f "$nikGappsDir/nikgapps_logs/$nikGappsLogFile" ]; then
+    ui_print "- Copying Logs at $nikGappsDir/nikgapps_logs/$nikGappsLogFile"
+  else
+    if [ -f "$backup_logs_dir/nikgapps_logs/$nikGappsLogFile" ]; then
+      ui_print "- Copying Logs at $backup_logs_dir/nikgapps_logs/$nikGappsLogFile"
+    else
+      ui_print "- Couldn't copy logs, something went wrong!"
+    fi
+  fi
+  
   ui_print " "
   cd /
 }
@@ -599,7 +623,7 @@ find_log_directory() {
   addToLog "- LogDirectory=$value"
   [ "$value" = "default" ] && value="$nikGappsDir"
   [ -z "$value" ] && value="$nikGappsDir"
-  nikgapps_log_dir="$value/nikgapps_logs"
+  nikgapps_log_dir="$value"
 }
 
 find_partitions_type() {
