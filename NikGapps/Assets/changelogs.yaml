@@ -1,7 +1,7 @@
-- date: 28th Feb 2021 (Android S, R and Q Canary Release)
+- date: 28th Feb 2022 (Android S, R and Q Canary Release)
   changes:
       - item: Fixed installation issues of some apps (to system_ext) in android 10
-- date: 22nd Feb 2021 (Android S, R and Q Release)
+- date: 22nd Feb 2022 (Android S, R and Q Release)
   changes:
       - item: Introduce Smart Installation to address storage full issues
       - item: Added space check before installing packages to ensure that system is never left into inconsistent state
@@ -16,7 +16,7 @@
       - item: Abort when unknown mode is detected
       - item: Addon.d improvements
       - item: Revert back to google setup wizard as default (flash PixelSetupWizard addon for pixel setup wizard)
-- date: 27th Jan 2021 (Android S, R and Q Release)
+- date: 27th Jan 2022 (Android S, R and Q Release)
   changes:
       - item: Hotfix Update - Fixes notification delays for some people due to gms optimization
 - date: 25th Dec 2021 (Android S, R and Q Release)
