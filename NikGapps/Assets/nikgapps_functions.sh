@@ -173,26 +173,24 @@ check_if_system_mounted_rw() {
 }
 
 clean_recursive() {
+  folders_that_exists=""
   func_result="$(beginswith / "$1")"
   addToLog "- Deleting $1 with func_result: $func_result"
   if [ "$func_result" = "true" ]; then
-    rm -rf "$1"
+    if [ -e "$1" ]; then
+       rm -rf "$1"
+      folders_that_exists="$folders_that_exists":"$1"
+    fi
   else
-    # For Devices having symlinked product and system_ext partition
-    for sys in "/system"; do
-      for subsys in "/system" "/product" "/system_ext"; do
-        for folder in "/app" "/priv-app"; do
-          delete_recursive "$sys$subsys$folder/$1"
-        done
-      done
-    done
-    # For devices having dedicated product and system_ext partitions
-    for subsys in "/system" "/product" "/system_ext"; do
-      for folder in "/app" "/priv-app"; do
-        delete_recursive "$subsys$folder/$1"
-      done
+    for i in $(find "$system" "$product" "$system_ext" -name "$1" 2>/dev/null;); do
+      if [ -d "$i" ]; then
+        addToLog "- Deleting $i"
+         rm -rf "$i"
+        folders_that_exists="$folders_that_exists":"$i"
+      fi
     done
   fi
+  echo "$folders_that_exists"
 }
 
 # This is meant to copy the files safely from source to destination
@@ -270,6 +268,8 @@ copy_logs() {
   addToLog "- copying $nikgapps_config_file_name to log directory"
   copy_file "$nikgapps_config_file_name" "$logDir/configfiles/nikgapps.config"
   copy_file "$recoveryLog" "$logDir/logfiles/recovery.log"
+  addToLog "- Start Time: $start_time"
+  addToLog "- End Time: $(date +%Y_%m_%d_%H_%M_%S)"
   copy_file "$nikGappsLog" "$logDir/logfiles/NikGapps.log"
   copy_file "$busyboxLog" "$logDir/logfiles/busybox.log"
   copy_file "$installation_size_log" "$logDir/logfiles/installation_size.log"
@@ -281,14 +281,17 @@ copy_logs() {
   # if /userdata is encrypted, installer will copy the logs to system
   backup_logs_dir="$system/etc"
   OLD_IFS="$IFS"
-  config_dir_list="$nikGappsDir:$nikgapps_config_dir:$nikgapps_log_dir:backup_logs_dir"
+  config_dir_list="$nikGappsDir:$nikgapps_config_dir:$nikgapps_log_dir:$backup_logs_dir"
   IFS=":"
   for dir in $config_dir_list; do
-    if [ -d "$dir/nikgapps_logs" ]; then
+    if [ -d "$dir" ]; then
       archive_dir="$dir/nikgapps_logs_archive"
       mkdir -p "$archive_dir"
+      mkdir -p "$dir/nikgapps_logs"
       mv "$dir/nikgapps_logs"/* "$archive_dir"
       copy_file "$TMPDIR/$nikGappsLogFile" "$dir/nikgapps_logs/$nikGappsLogFile"
+    else
+      ui_print "- $dir/nikgapps_logs not a directory"
     fi
   done
   IFS="$OLD_IFS"
@@ -366,8 +369,8 @@ debloat() {
 }
 
 delete_package() {
-  addToLog "- Deleting package $1"
-  clean_recursive "$1"
+  deleted_folders=$(clean_recursive "$1")
+  addToLog "- Deleted $deleted_folders as part of package $1"
 }
 
 delete_package_data() {
@@ -972,9 +975,12 @@ install_app_set() {
           uninstall_the_package "$appset_name" "$current_package_title"
         fi
       elif [ "$mode" = "install" ]; then
+        addToLog "- Config Value of $i is $value"
         if [ "$value" -ge 1 ] ; then
           package_size=$(echo $i | cut -d',' -f2)
+          addToLog "- package_size = $package_size"
           default_partition=$(echo $i | cut -d',' -f3)
+          addToLog "- default_partition = $default_partition"
           case "$default_partition" in
             "system_ext") 
             [ $androidVersion -le 10 ] && default_partition=product && addToLog "- default_partition is overridden"
@@ -990,6 +996,7 @@ install_app_set() {
             ui_print "x Skipping $current_package_title as no space is left"
           fi
         elif [ "$value" -eq -1 ] ; then
+          addToLog "- uninstalling $current_package_title"
           uninstall_the_package "$appset_name" "$current_package_title"
         elif [ "$value" -eq 0 ] ; then
           ui_print "x Skipping $current_package_title"
@@ -1109,10 +1116,26 @@ RemoveAospAppsFromRom() {
   if [ "$configValue" -eq 2 ]; then
     addToLog "- Not creating addon.d script for $*"
   else
-    clean_recursive "$1"
-    addToLog "- Creating addon.d script for $*"
-    deletePath="$1"
-    echo "delete=$deletePath" >>$TMPDIR/addon/"$deleteFilesPath"
+    deleted_folders=$(clean_recursive "$1")
+    if [ -n "$deleted_folders" ]; then
+      addToLog "- Removed folders: $deleted_folders"
+      OLD_IFS="$IFS"
+      IFS=":"
+      for i in $deleted_folders; do
+        if [ -n "$i" ]; then
+          deletePath=$(echo "$i" | sed "s|^$system/||")
+          if grep -q "delete=$deletePath" "$2"; then
+            addToLog "- $deletePath deleted already"
+          else
+            echo "delete=$deletePath" >>$2
+            addToLog "- DeletePath=$deletePath >> $2"
+          fi
+        fi
+      done
+      IFS="$OLD_IFS"
+    else
+      addToLog "- No $1 folders to remove"
+    fi
   fi
 }
 

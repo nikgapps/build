@@ -30,7 +30,7 @@ newline='
 echo_add_to_log() {
   echo ""
   echo "addToLog() {"
-  echo "  echo \"\$1\" >> $nikGappsAddonLogFile"
+  echo "  echo \"\$(date +%Y_%m_%d_%H_%M_%S): \$1\" >> $nikGappsAddonLogFile"
   echo "}"
   echo ""
 }
@@ -45,6 +45,27 @@ list_files() {
     IFS="$(printf '%b_' ' \n')"
     IFS="${IFS%_}"
     g=$(grep "install" "$installSource" | cut -d= -f2)
+    for i in $g; do
+      echo "$i"
+    done
+    IFS="$OLD_IFS"
+  fi
+
+  echo "EOF"
+  echo "}"
+  echo ""
+}
+
+list_delete_folders() {
+  echo ""
+  echo "delete_folders() {"
+  echo "cat <<EOF"
+
+  if [ -f "$deleteSource" ]; then
+    OLD_IFS="$IFS"
+    IFS="$(printf '%b_' ' \n')"
+    IFS="${IFS%_}"
+    g=$(grep "delete" "$deleteSource" | cut -d= -f2)
     for i in $g; do
       echo "$i"
     done
@@ -73,7 +94,7 @@ restore() {
   echo "     [ -n \"\$REPLACEMENT\" ] && R=\"\$S/\$REPLACEMENT\""
   echo "     [ -f \"\$C/\$S/\$FILE\" ] && restore_file \$S/\"\$FILE\" \"\$R\""
   echo "   done"
-  delete_from_aosp
+  echo "   delete_aosp_apps"
   debloat_files
   echo "   for i in \$(list_files); do"
   echo "     f=\$(get_output_path \"\$S/\$i\")"
@@ -82,19 +103,6 @@ restore() {
   echo "     chmod 755 \$(dirname \$f)"
   echo "   done"
   echo " ;;"
-}
-
-delete_from_aosp() {
-  if [ -f "$deleteSource" ]; then
-    OLD_IFS="$IFS"
-    IFS="$(printf '%b_' ' \n')"
-    IFS="${IFS%_}"
-    g=$(grep "delete" "$deleteSource" | cut -d= -f2)
-    for i in $g; do
-      echo "   clean_recursive \"$i\""
-    done
-    IFS="$OLD_IFS"
-  fi
 }
 
 debloat_files() {
@@ -156,6 +164,7 @@ cat "$COMMONDIR/header" >> "$dest"
   echo_add_to_log
   cat "$COMMONDIR/functions"
   list_files
+  list_delete_folders
   run
 } >>"$dest"
 chmod 755 "$dest"

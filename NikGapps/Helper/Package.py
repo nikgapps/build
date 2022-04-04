@@ -76,6 +76,7 @@ class Package:
             str_data += "package_name=\"\"" + "\n"
         str_data += "packagePath=install" + self.package_title + "Files\n"
         str_data += "deleteFilesPath=delete" + self.package_title + "Files\n"
+        str_data += "propFilePath=$(get_prop_file_path)\n"
         str_data += "\n"
         str_data += f"remove_aosp_apps_from_rom=\"\n"
         for delete_folder in self.delete_files_list:
@@ -97,7 +98,7 @@ class Package:
         str_data += "remove_aosp_apps() {\n"
         str_data += "   # Delete the folders that we want to remove with installing " + self.package_title + "\n"
         str_data += "   for i in $remove_aosp_apps_from_rom; do\n"
-        str_data += "       RemoveAospAppsFromRom \"$i\"\n"
+        str_data += "       RemoveAospAppsFromRom \"$i\" \"$propFilePath\"\n"
         str_data += "   done\n"
         str_data += "}\n"
         str_data += "\n"
@@ -119,13 +120,17 @@ class Package:
             str_data += self.additional_installer_script
             str_data += "\n"
         str_data += "   chmod 755 \"$COMMONDIR/addon\";\n"
+        str_data += "   if [ -f \"$propFilePath\" ]; then\n"
+        str_data += "       echo \"install=$(echo \"$propFilePath\" | sed \"s|^$system/||\")\" " \
+                    ">>\"$TMPDIR/addon/$packagePath\"\n"
+        str_data += "       addToLog \"- Adding $propFilePath to $TMPDIR/addon/$packagePath\"\n"
+        str_data += "   fi\n"
         str_data += "   . $COMMONDIR/addon \"$OFD\" \"" + self.package_title + "\" \"$TMPDIR/addon/$packagePath\"" \
-                    + " \"$TMPDIR/addon/$deleteFilesPath\"" + " \"\"\n"
+                    + " \"$propFilePath\"" + " \"\"\n"
         str_data += "   copy_file \"$TMPDIR/addon/$packagePath\" \"$logDir/addonfiles/" + "$packagePath" + ".addon\"\n"
         str_data += "   rm -rf \"$TMPDIR/addon/$packagePath\"\n"
-        str_data += "   copy_file \"$TMPDIR/addon/$deleteFilesPath\" \"$logDir/addonfiles/" + "$deleteFilesPath" + \
-                    ".addon\"\n"
-        str_data += "   rm -rf \"$TMPDIR/addon/$deleteFilesPath\"\n"
+        str_data += "   copy_file \"$propFilePath\" \"$logDir/addonfiles/" + "$package_title.prop" + \
+                    "\"\n"
         str_data += "}\n"
         str_data += "\n"
         str_data += "find_install_mode\n"
