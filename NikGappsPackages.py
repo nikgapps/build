@@ -313,7 +313,7 @@ class NikGappsPackages:
         google_dialer.delete("Dialer")
         app_set_list.append(AppSet("GoogleDialer", [google_dialer]))
 
-        google_contacts = Package("GoogleContacts", "com.google.android.contacts", Constants.is_priv_app)
+        google_contacts = Package("GoogleContacts", "com.google.android.contacts", Constants.is_system_app)
         google_contacts.delete("Contacts")
         app_set_list.append(AppSet("GoogleContacts", [google_contacts]))
 
@@ -466,7 +466,7 @@ class NikGappsPackages:
 
     @staticmethod
     def get_chrome():
-        google_chrome = Package("GoogleChrome", "com.android.chrome", Constants.is_priv_app)
+        google_chrome = Package("GoogleChrome", "com.android.chrome", Constants.is_system_app)
         google_chrome.delete("Bolt")
         google_chrome.delete("Browser")
         google_chrome.delete("Browser2")
