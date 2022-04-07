@@ -69,6 +69,8 @@ class Upload:
                 folder_name = "NikGapps-S"
             elif android_version == 12.1:
                 folder_name = "NikGapps-SL"
+            else:
+                print(android_version)
         elif file_type == "addons":
             if android_version == 9:
                 folder_name = "Addons-P"
@@ -80,8 +82,12 @@ class Upload:
                 folder_name = "Addons-S"
             elif android_version == 12.1:
                 folder_name = "Addons-SL"
+            else:
+                print(android_version)
         elif file_type == "debloater":
             folder_name = "Debloater"
+        else:
+            print(file_type)
         return self.release_dir + "/" + folder_name
 
     def cd(self, path):
