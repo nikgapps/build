@@ -1,3 +1,11 @@
+- date: 7th April 2022 (Android S, R and Q Canary Release)
+  changes:
+      - item: Android 12.1 (12L) release
+      - item: Many addon.d fixes (faster ota update and fixes)
+      - item: Fixed Pixel Launcher and Setup Wizard for android 12.1 release
+      - item: Removed Vanced Manager (will add back as an addon later)
+      - item: Fixed an issue which requires formatting /data partition to boot
+      - item: use addon_version = 3 (dropping v2 support)
 - date: 28th Feb 2022 (Android S, R and Q Canary Release)
   changes:
       - item: Fixed installation issues of some apps (to system_ext) in android 10
