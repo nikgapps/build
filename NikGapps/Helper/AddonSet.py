@@ -22,7 +22,8 @@ class AddonSet:
             AddonSet.get_youtube(),
             AddonSet.get_poke_pix_live_wallpapers(),
             AddonSet.get_google_tts(),
-            AddonSet.get_pixel_setup_wizard()
+            AddonSet.get_pixel_setup_wizard(),
+            AddonSet.get_vanced_manager()
         ]
         # if TARGET_ANDROID_VERSION in (10, 11):
         #     addon_set_list.append(AddonSet.get_pixel_setup_wizard())
@@ -35,6 +36,21 @@ class AddonSet:
                 if addon_set.title == addon_name:
                     return [addon_set]
         return None
+
+    @staticmethod
+    def get_vanced_manager():
+        vanced_manager = Package("VancedManager", "com.vanced.manager", Constants.is_system_app)
+        return AppSet("VancedManager", [vanced_manager])
+
+    @staticmethod
+    def get_google_camera_go():
+        google_camera_lite = Package("GoogleCameraGo", "com.google.android.apps.cameralite", Constants.is_system_app)
+        return AppSet("GoogleCameraGo", [google_camera_lite])
+
+    @staticmethod
+    def get_lineageos_recorder():
+        los_recorder = Package("Recorder", "org.lineageos.recorder", Constants.is_system_app)
+        return AppSet("Recorder", [los_recorder])
 
     @staticmethod
     def get_google_tts():
@@ -171,7 +187,7 @@ class AddonSet:
         pixel_live_wallpaper_set.add_package(wallpapers_breel_2020a)
         pixel_live_wallpaper_set.add_package(pixel_live_wallpaper)
         pixel_live_wallpaper_set.add_package(wallpapers_breel_2020)
-        if TARGET_ANDROID_VERSION == 12:
+        if TARGET_ANDROID_VERSION >= 12:
             pixel_wallpapers_2021 = Package("PixelWallpapers2021", "com.google.android.apps.wallpaper.pixel",
                                             Constants.is_system_app)
             micropaper = Package("MicropaperPrebuilt", "com.google.pixel.dynamicwallpapers", Constants.is_system_app,
