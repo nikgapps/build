@@ -1,4 +1,4 @@
-- date: 7th April 2022 (Android S, R and Q Canary Release)
+- date: 7th April 2022 (Android SL, S, R and Q Canary Release)
   changes:
       - item: Android 12.1 (12L) release
       - item: Many addon.d fixes (faster ota update and fixes)
