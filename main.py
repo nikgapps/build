@@ -64,7 +64,7 @@ else:
             print("Last Source Commit: " + str(source_last_commit_datetime))
 
     for android_version in android_versions:
-        Config.TARGET_ANDROID_VERSION = int(android_version)
+        Config.TARGET_ANDROID_VERSION = android_version
         apk_source_datetime = None
         release_datetime = None
         new_release = False
@@ -79,7 +79,8 @@ else:
                 apk_source_repo = Git(Constants.apk_source_directly + str(Config.TARGET_ANDROID_VERSION))
                 if apk_source_repo is not None:
                     apk_source_datetime = apk_source_repo.get_latest_commit_date(repo=branch)
-                    # if last commit was before release date, the release was already made so we don't need a new release
+                    # if last commit was before release date,
+                    # the release was already made, so we don't need a new release
                     print("Last Apk Repo (" + str(Config.TARGET_ANDROID_VERSION) + ") Commit: " + str(
                         apk_source_datetime))
             else:
