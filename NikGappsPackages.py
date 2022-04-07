@@ -403,9 +403,6 @@ class NikGappsPackages:
         app_set_list.append(AppSet("GoogleCalendar", [google_calendar]))
         google_markup = Package("MarkupGoogle", "com.google.android.markup", Constants.is_system_app)
         app_set_list.append(AppSet("MarkupGoogle", [google_markup]))
-        google_wallpaper = Package("WallpaperPickerGooglePrebuilt", "com.google.android.apps.wallpaper",
-                                   Constants.is_priv_app, "GoogleWallpaper", partition="system_ext")
-        app_set_list.append(AppSet("GoogleWallpaper", [google_wallpaper]))
         google_feedback = Package("GoogleFeedback", "com.google.android.feedback", Constants.is_priv_app,
                                   partition="system_ext")
         app_set_list.append(AppSet("GoogleFeedback", [google_feedback]))
@@ -574,6 +571,9 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
             quick_access_wallet = Package("QuickAccessWallet", "com.android.systemui.plugin.globalactions.wallet",
                                           Constants.is_priv_app)
             gapps_list.append(quick_access_wallet)
+        google_wallpaper = Package("WallpaperPickerGooglePrebuilt", "com.google.android.apps.wallpaper",
+                                   Constants.is_priv_app, "GoogleWallpaper", partition="system_ext")
+        gapps_list.append(google_wallpaper)
         return AppSet("PixelLauncher", gapps_list)
 
     @staticmethod
