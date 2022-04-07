@@ -311,61 +311,6 @@ class NikGappsPackages:
         google_dialer = Package("GoogleDialer", "com.google.android.dialer", Constants.is_priv_app)
         google_dialer.predefined_file_list.append("framework/com.google.android.dialer.support.jar")
         google_dialer.delete("Dialer")
-        google_dialer.additional_installer_script = """script_text="<permissions>
-                            <!-- Shared library required on the device to get Google Dialer updates from
-                                 Play Store. This will be deprecated once Google Dialer play store
-                                 updates stop supporting pre-O devices. -->
-                            <library name=\\"com.google.android.dialer.support\\"
-                              file=\\"$install_partition/framework/com.google.android.dialer.support.jar\\" />
-
-                            <!-- Starting from Android O and above, this system feature is required for
-                                 getting Google Dialer play store updates. -->
-                            <feature name=\\"com.google.android.apps.dialer.SUPPORTED\\" />
-                        </permissions>"
-                        echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.dialer.support.xml
-                        set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.dialer.support.xml"
-                        installPath=$product_prefix"etc/permissions/com.google.android.dialer.support.xml"
-                        echo "install=$installPath" >> $TMPDIR/addon/$packagePath
-                        if [ -f "$install_partition/etc/permissions/com.google.android.dialer.support.xml" ]; then
-                          addToLog "- $install_partition/etc/permissions/com.google.android.dialer.support.xml Successfully Written!"
-                        fi
-
-                         # set Google Dialer as default; based on the work of osm0sis @ xda-developers
-                          setver=\"122\"  # lowest version in MM, tagged at 6.0.0
-                          setsec=\"/data/system/users/0/settings_secure.xml\"
-                          if [ -f \"$setsec\" ]; then
-                            if grep -q 'dialer_default_application' \"$setsec\"; then
-                              if ! grep -q 'dialer_default_application\" value=\"com.google.android.dialer' \"$setsec\"; then
-                                curentry=\"$(grep -o 'dialer_default_application\" value=.*$' \"$setsec\")\"
-                                newentry='dialer_default_application\" value=\"com.google.android.dialer\" package=\"android\" />\\r'
-                                sed -i \"s;${curentry};${newentry};\" \"$setsec\"
-                              fi
-                            else
-                              max=\"0\"
-                              for i in $(grep -o 'id=.*$' \"$setsec\" | cut -d '\"' -f 2); do
-                                test \"$i\" -gt \"$max\" && max=\"$i\"
-                              done
-                              entry='<setting id=\"'\"$((max + 1))\"'\" name=\"dialer_default_application\" value=\"com.google.android.dialer\" package=\"android\" />\\r'
-                              sed -i \"/<settings version=\\\"/a\ \ ${entry}\" \"$setsec\"
-                            fi
-                          else
-                            if [ ! -d \"/data/system/users/0\" ]; then
-                              install -d \"/data/system/users/0\"
-                              chown -R 1000:1000 \"/data/system\"
-                              chmod -R 775 \"/data/system\"
-                              chmod 700 \"/data/system/users/0\"
-                            fi
-                            { echo -e \"<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>\\r\"
-                            echo -e '<settings version=\"'$setver'\">\\r'
-                            echo -e '  <setting id="1" name=\"dialer_default_application\" value=\"com.google.android.dialer\" package=\"android\" />\\r'
-                            echo -e '</settings>'; } > \"$setsec\"
-                          fi
-                          chown 1000:1000 \"$setsec\"
-                          chmod 600 \"$setsec\"
-
-                          if [ -f "$setsec" ]; then
-                            addToLog "- $setsec Successfully Written!"
-                          fi"""
         app_set_list.append(AppSet("GoogleDialer", [google_dialer]))
 
         google_contacts = Package("GoogleContacts", "com.google.android.contacts", Constants.is_priv_app)
