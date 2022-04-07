@@ -167,10 +167,6 @@ class NikGappsPackages:
                                      Constants.is_system_app)
         core_go.add_package(googlecalendarsync)
 
-        vanced_manager = Package("VancedManager", "com.vanced.manager", Constants.is_system_app)
-        vanced_manager.enabled = 0
-        core_go.add_package(vanced_manager)
-
         pixel_launcher_set = NikGappsPackages.get_pixel_launcher()
         for pkg in pixel_launcher_set.package_list:
             core_go.add_package(pkg)
@@ -295,10 +291,7 @@ class NikGappsPackages:
         app_set_list = NikGappsPackages.get_core_package()
         digital_wellbeing = Package("WellbeingPreBuilt", "com.google.android.apps.wellbeing", Constants.is_priv_app,
                                     "DigitalWellbeing")
-        vanced_manager = Package("VancedManager", "com.vanced.manager", Constants.is_system_app)
-        vanced_manager.enabled = 0
         app_set_list.append(AppSet("DigitalWellbeing", [digital_wellbeing]))
-        app_set_list.append(AppSet("VancedManager", [vanced_manager]))
         google_messages = Package("PrebuiltBugle", "com.google.android.apps.messaging", Constants.is_system_app,
                                   "GoogleMessages")
         google_messages.delete("RevengeMessages")
