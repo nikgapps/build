@@ -50,7 +50,7 @@ umount_all() {
 umount_apex() {
   [ -d /apex/com.android.runtime ] || return 1;
   local dest loop var;
-  for var in $($BB grep -o 'export .* /.*' /system_root/init.environ.rc | $BB awk '{ print $2 }'); do
+  for var in $($BB grep -o 'export .* /.*' /system_root/init.environ.rc 2>/dev/null | $BB awk '{ print $2 }'); do
     if [ "$(eval echo \$OLD_$var)" ]; then
       eval $var=\$OLD_${var};
     else
@@ -59,11 +59,9 @@ umount_apex() {
     unset OLD_${var};
   done;
   for dest in $($BB find /apex -type d -mindepth 1 -maxdepth 1); do
-    if [ -f $dest.img ]; then
-      loop=$($BB mount | $BB grep $dest | $BB cut -d\  -f1);
-    fi;
-    ($BB umount -l $dest;
-    $BB losetup -d $loop) 2>/dev/null;
+    loop=$($BB mount | $BB grep $dest | $BB grep loop | $BB cut -d\  -f1);
+    $BB umount -l $dest;
+    [ "$loop" ] && $BB losetup -d $loop;
   done;
   $BB rm -rf /apex 2>/dev/null;
 }

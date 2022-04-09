@@ -184,7 +184,7 @@ mount_apex() {
         if [ $? != 0 ]; then
           while [ $num -lt 64 ]; do
             loop=/dev/block/loop$num;
-            ($BB mknod $loop b 7 $((num * minorx));
+            [ -e $loop ] || $BB mknod $loop b 7 $((num * minorx));
             $BB losetup $loop $dest.img) 2>/dev/null;
             num=$((num + 1));
             $BB losetup $loop | $BB grep -q $dest.img && break;
