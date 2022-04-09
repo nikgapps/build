@@ -435,6 +435,7 @@ class NikGappsPackages:
             app_set_list.append(AppSet("DeviceSetup", [google_device_setup]))
         android_auto = Package("AndroidAutoStubPrebuilt", "com.google.android.projection.gearhead",
                                Constants.is_priv_app, "AndroidAuto")
+        android_auto.clean_flash_only = True
         app_set_list.append(AppSet("AndroidAuto", [android_auto]))
         app_set_list.append(NikGappsPackages.get_chrome())
         return app_set_list
