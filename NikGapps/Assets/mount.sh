@@ -167,6 +167,7 @@ mount_apex() {
   [ -d /system_root/system/apex ] || return 1;
   local apex dest loop minorx num var;
   setup_mountpoint /apex;
+  $BB mount -t tmpfs tmpfs /apex -o mode=755 && $BB touch /apex/apextmp;
   minorx=1;
   [ -e /dev/block/loop1 ] && minorx=$($BB ls -l /dev/block/loop1 | $BB awk '{ print $6 }');
   num=0;

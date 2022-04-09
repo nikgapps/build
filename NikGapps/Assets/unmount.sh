@@ -48,7 +48,7 @@ umount_all() {
 
 # Unmount apex partition upon recovery cleanup
 umount_apex() {
-  [ -d /apex/com.android.runtime ] || return 1;
+  [ -d /apex ] || return 1;
   local dest loop var;
   for var in $($BB grep -o 'export .* /.*' /system_root/init.environ.rc 2>/dev/null | $BB awk '{ print $2 }'); do
     if [ "$(eval echo \$OLD_$var)" ]; then
@@ -63,5 +63,6 @@ umount_apex() {
     $BB umount -l $dest;
     [ "$loop" ] && $BB losetup -d $loop;
   done;
+  [ -f /apex/apextmp ] && $BB umount /apex;
   $BB rm -rf /apex 2>/dev/null;
 }
