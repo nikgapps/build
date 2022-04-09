@@ -1,4 +1,4 @@
-- date: 8th April 2022 (Android SL, S, R and Q Canary Release)
+- date: 9th April 2022 (Android SL, S, R and Q Canary Release)
   changes:
       - item: Android 12.1 (12L) release
       - item: Many addon.d fixes (faster ota update and fixes)
@@ -7,6 +7,7 @@
       - item: Fixed an issue which requires formatting /data partition to boot
       - item: use addon_version = 3 (dropping v2 support)
       - item: Fixed PixelLauncher crashes from 7th April build
+      - item: Fixed Aosp apps not being deleted for some users
 - date: 28th Feb 2022 (Android S, R and Q Canary Release)
   changes:
       - item: Fixed installation issues of some apps (to system_ext) in android 10
