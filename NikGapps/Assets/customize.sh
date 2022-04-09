@@ -179,16 +179,15 @@ ls -alR /product >"$logDir/partitions/Product_Files_Before.txt"
 find_system_size
 # find the size required to install gapps
 find_gapps_size
-# run the debloater
-test "$zip_type" = "debloater" && debloat
 calculate_space "system" "product" "system_ext"
 ui_print " "
 mode=$(ReadConfigValue "mode" "$nikgapps_config_file_name")
 [ -z "$mode" ] && mode="install"
 [ "$ZIP_NAME_LOWER" = "uninstall" ] && mode="uninstall_by_name"
 addToLog "- Install mode is $mode"
-
+# run the debloater
 test "$zip_type" = "debloater" && ui_print "--> Starting the debloat process"
+test "$zip_type" = "debloater" && debloat
 
 if [ "$zip_type" != "debloater" ]; then
   ui_print "--> Starting the install process"
