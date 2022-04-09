@@ -173,6 +173,7 @@ mount_apex() {
   num=0;
   for apex in /system_root/system/apex/*; do
     dest=/apex/$($BB basename $apex | $BB sed -E -e 's;\.apex$|\.capex$;;' -e 's;\.current$|\.release$;;');
+    $BB mkdir -p $dest;
     case $apex in
       *.apex|*.capex)
         $BB unzip -qo $apex original_apex -d /apex;
@@ -185,7 +186,7 @@ mount_apex() {
           while [ $num -lt 64 ]; do
             loop=/dev/block/loop$num;
             [ -e $loop ] || $BB mknod $loop b 7 $((num * minorx));
-            $BB losetup $loop $dest.img) 2>/dev/null;
+            $BB losetup $loop $dest.img 2>/dev/null;
             num=$((num + 1));
             $BB losetup $loop | $BB grep -q $dest.img && break;
           done;
