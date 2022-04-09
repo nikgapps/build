@@ -77,6 +77,27 @@ list_delete_folders() {
   echo ""
 }
 
+list_debloat_folders() {
+  echo ""
+  echo "debloat_folders() {"
+  echo "cat <<EOF"
+
+  if [ -f "$debloaterSource" ]; then
+    OLD_IFS="$IFS"
+    IFS="$(printf '%b_' ' \n')"
+    IFS="${IFS%_}"
+    g=$(grep "debloat" "$debloaterSource" | cut -d= -f2)
+    for i in $g; do
+      echo "$i"
+    done
+    IFS="$OLD_IFS"
+  fi
+
+  echo "EOF"
+  echo "}"
+  echo ""
+}
+
 backup() {
   echo " backup)"
   echo "   ui_print \"- Backing up $fileName\""
@@ -95,7 +116,7 @@ restore() {
   echo "     [ -f \"\$C/\$S/\$FILE\" ] && restore_file \$S/\"\$FILE\" \"\$R\""
   echo "   done"
   echo "   delete_aosp_apps"
-  debloat_files
+  echo "   debloat_apps"
   echo "   for i in \$(list_files); do"
   echo "     f=\$(get_output_path \"\$S/\$i\")"
   echo "     chown root:root \"\$f\""
@@ -103,19 +124,6 @@ restore() {
   echo "     chmod 755 \$(dirname \$f)"
   echo "   done"
   echo " ;;"
-}
-
-debloat_files() {
-  if [ -f "$debloaterSource" ]; then
-    OLD_IFS="$IFS"
-    IFS="$(printf '%b_' ' \n')"
-    IFS="${IFS%_}"
-    g=$(grep "debloat" "$debloaterSource" | cut -d= -f2)
-    for i in $g; do
-      echo "   clean_recursive \"$i\""
-    done
-    IFS="$OLD_IFS"
-  fi
 }
 
 run() {
@@ -165,6 +173,7 @@ cat "$COMMONDIR/header" >> "$dest"
   cat "$COMMONDIR/functions"
   list_files
   list_delete_folders
+  list_debloat_folders
   run
 } >>"$dest"
 chmod 755 "$dest"

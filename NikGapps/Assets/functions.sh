@@ -64,6 +64,21 @@ delete_aosp_apps(){
   done
 }
 
+debloat_apps(){
+  for i in $(debloat_folders); do
+    # A/B device will have /postinstall
+    if [ -d "/postinstall" ]; then
+      delete_recursive "/postinstall$S/$i"
+    # if /postinstall doesn't exist, then it must be A-only device
+    elif [ -d "$S/$i" ]; then
+      delete_recursive "$S/$i"
+    # if the folder doesn't exist on either /postinstall or /system
+    else
+      addToLog "- $i cannot be located"
+    fi
+  done
+}
+
 find_config() {
   nikgapps_config_file_name="$nikGappsDir/nikgapps.config"
   for location in "/tmp" "/sdcard1" "/sdcard1/NikGapps" "/sdcard" "/storage/emulated/NikGapps" "/storage/emulated"; do

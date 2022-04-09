@@ -194,7 +194,7 @@ clean_recursive() {
       for sys in "/system" ""; do
         for subsys in "/system" "/product" "/system_ext"; do
           for folder in "/app" "/priv-app"; do
-            if [ -d "$sys$subsys$folder/$1" ]; then
+            if [ -d "$sys$subsys$folder/$1" ] && [ "$sys$subsys$folder/" != "$sys$subsys$folder/$1" ]; then
               addToLog "- Hardcoded and Deleting $sys$subsys$folder/$1"
               rm -rf "$sys$subsys$folder/$1"
               folders_that_exists="$folders_that_exists":"$sys$subsys$folder/$1"
@@ -351,21 +351,36 @@ debloat() {
           startswith=$(beginswith / "$i")
           ui_print "x Removing $i"
           if [ "$startswith" = "false" ]; then
-            echo "debloat=$i" >>$TMPDIR/addon/$debloaterFilesPath
             addToLog "- value of i is $i"
-            rmv "$system/app/$i"
-            rmv "$system$product/app/$i"
-            rmv "$system/priv-app/$i"
-            rmv "$system$product/priv-app/$i"
-            rmv "$system/system_ext/app/$i"
-            rmv "$system/system_ext/priv-app/$i"
-            rmv "/product/app/$i"
-            rmv "/product/priv-app/$i"
-            rmv "/system_ext/app/$i"
-            rmv "/system_ext/priv-app/$i"
+            debloated_folders=$(clean_recursive "$i")
+            if [ -n "$debloated_folders" ]; then
+              addToLog "- Removed folders: $debloated_folders"
+              OLD_IFS="$IFS"
+              IFS=":"
+              for j in $debloated_folders; do
+                if [ -n "$j" ]; then
+                  debloatPath=$(echo "$j" | sed "s|^$system/||")
+                  if grep -q "debloat=$debloatPath" "$TMPDIR/addon/$debloaterFilesPath"; then
+                    addToLog "- $debloatPath debloated already"
+                  else
+                    echo "debloat=$debloatPath" >>$TMPDIR/addon/$debloaterFilesPath
+                    addToLog "- debloat=$debloatPath >> $TMPDIR/addon/$debloaterFilesPath"
+                  fi
+                fi
+              done
+              IFS="$OLD_IFS"
+            else
+              addToLog "- No $i folders to debloat"
+            fi
           else
             rmv "$i"
-            echo "debloat=$i" >>$TMPDIR/addon/$debloaterFilesPath
+            debloatPath=$(echo "$i" | sed "s|^$system/||")
+            if grep -q "debloat=$debloatPath" "$TMPDIR/addon/$debloaterFilesPath"; then
+              addToLog "- $debloatPath debloated already"
+            else
+              echo "debloat=$debloatPath" >>$TMPDIR/addon/$debloaterFilesPath
+              addToLog "- debloat=$debloatPath >> $TMPDIR/addon/$debloaterFilesPath"
+            fi
           fi
         fi
       else
@@ -374,7 +389,7 @@ debloat() {
     done
     if [ $debloaterRan = 1 ]; then
       . $COMMONDIR/addon "$OFD" "Debloater" "" "" "$TMPDIR/addon/$debloaterFilesPath" ""
-      copy_file "$system/addon.d/nikgapps/Debloater.sh" "$logDir/addonscripts/Debloater.sh"
+      copy_file "$system/addon.d/51-Debloater.sh" "$logDir/addonscripts/51-Debloater.sh"
       copy_file "$TMPDIR/addon/$debloaterFilesPath" "$logDir/addonfiles/Debloater.addon"
       rmv "$TMPDIR/addon/$debloaterFilesPath"
     fi
