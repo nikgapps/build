@@ -9,11 +9,7 @@ class AddonSet:
     @staticmethod
     def get_addon_packages(addon_name=None):
         addon_set_list = [
-            AddonSet.get_adaway(),
             AddonSet.get_pixel_live_wallpapers(),
-            AddonSet.get_youtube_dark(),
-            AddonSet.get_youtube_black(),
-            AddonSet.get_youtube_music(),
             AddonSet.get_google_fi(),
             AddonSet.get_google_duo(),
             AddonSet.get_google_docs(),
@@ -22,8 +18,7 @@ class AddonSet:
             AddonSet.get_youtube(),
             AddonSet.get_poke_pix_live_wallpapers(),
             AddonSet.get_google_tts(),
-            AddonSet.get_pixel_setup_wizard(),
-            AddonSet.get_vanced_manager()
+            AddonSet.get_pixel_setup_wizard()
         ]
         # if TARGET_ANDROID_VERSION in (10, 11):
         #     addon_set_list.append(AddonSet.get_pixel_setup_wizard())
