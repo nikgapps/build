@@ -189,6 +189,22 @@ clean_recursive() {
         folders_that_exists="$folders_that_exists":"$i"
       fi
     done
+    # some devices fail to find the folder using above method even when the folder exists
+    if [ -z "$folders_that_exists" ]; then
+      for sys in "/system" ""; do
+        for subsys in "/system" "/product" "/system_ext"; do
+          for folder in "/app" "/priv-app"; do
+            if [ -d "$sys$subsys$folder/$1" ]; then
+              addToLog "- Hardcoded and Deleting $sys$subsys$folder/$1"
+              rm -rf "$sys$subsys$folder/$1"
+              folders_that_exists="$folders_that_exists":"$sys$subsys$folder/$1"
+            fi
+          done
+        done
+      done
+    else
+      addToLog "- search finished, $folders_that_exists deleted"
+    fi
   fi
   echo "$folders_that_exists"
 }
