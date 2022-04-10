@@ -16,6 +16,7 @@ from NikGapps.Helper.Package import Package
 class Release:
     @staticmethod
     def zip(build_package_list, sent_message=None):
+        av = str(Config.TARGET_ANDROID_VERSION)
         for pkg_type in build_package_list:
             print("Currently Working on " + pkg_type)
             os.environ['pkg_type'] = str(pkg_type)
@@ -38,16 +39,15 @@ class Release:
                     # Create config obj to handle config operations
                     config_obj = NikGappsConfig(config_files, use_zip_config=1)
                     # Get Target Android Version so the packages can be created
-                    android_version = int(config_obj.get_android_version())
-                    if str(android_version) != str(Config.TARGET_ANDROID_VERSION):
+                    android_version = config_obj.get_android_version()
+                    if str(android_version) != av:
                         continue
                     Constants.update_android_version_dependencies()
                     # Generate a file name for the zip
                     file_name = Constants.release_directory
                     config_file_name = os.path.splitext(os.path.basename(config_files))[0].replace(" ", "")
                     config_file_name = os.path.splitext(os.path.basename(config_file_name))[0].replace("'", "")
-                    file_name = file_name + Constants.dir_sep + Logs.get_file_name(config_file_name,
-                                                                                   str(Config.TARGET_ANDROID_VERSION))
+                    file_name = file_name + Constants.dir_sep + Logs.get_file_name(config_file_name, av)
                     # Build the packages from the directory
                     print("Building for " + str(config_files))
                     if sent_message is not None:
@@ -57,17 +57,22 @@ class Release:
                     # move the config file to archive
                     if zip_status:
                         print("Source: " + str(config_files))
-                        destination = Constants.config_directory + os.path.sep + str("archive") + os.path.sep + str(
-                            Config.TARGET_ANDROID_VERSION) + os.path.sep + config_file_name + "_" + str(
-                            Logs.get_current_time()) + ".config"
+
+                        todays_date = str(Logs.get_current_time())
+                        destination = f"{Constants.config_directory + os.path.sep}archive{os.path.sep}" \
+                                      f"{av + os.path.sep}" \
+                                      f"{todays_date + os.path.sep}" \
+                                      f"{config_file_name}_{todays_date}.config"
                         print("Destination: " + destination)
                         print("Moving the config file to archive")
                         FileOp.move_file(config_files, destination)
                         # commit the changes
-                        config_repo.update_config_changes("Moved " + str(
-                            Config.TARGET_ANDROID_VERSION) + os.path.sep + config_file_name + ".config to archive" + os.path.sep + str(
-                            Config.TARGET_ANDROID_VERSION) + os.path.sep + config_file_name + "_" + str(
-                            Logs.get_current_time()) + ".config")
+
+                        commit_message = f"Moved {av + os.path.sep + config_file_name}.config to archive" \
+                                         f"{os.path.sep + av + os.path.sep + todays_date + os.path.sep}" \
+                                         f"{config_file_name}_{todays_date}.config"
+                        print(commit_message)
+                        config_repo.update_config_changes(commit_message)
                     elif zip_status is None:
                         print("Delete the config file")
                         FileOp.remove_file(config_files)

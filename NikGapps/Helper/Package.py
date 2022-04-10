@@ -31,7 +31,6 @@ class Package:
         self.folder_dict = dict()  # Stores list of folders that needs 755 permissions
         self.file_dict = dict()  # Stores the file location on server as key and on device as value
         self.delete_files_list = []  # Stores the path of file to delete. Helpful for removing AOSP counterpart
-        self.delete_rom_files_list = []  # Helpful for removing files in Roms with gapps
         self.priv_app_permissions = []  # Stores the priv-app whitelist permissions for the package
         self.enabled = 1
         self.validated = True
@@ -39,14 +38,6 @@ class Package:
         self.additional_installer_script = ""
         self.failure_logs = ""
         self.pkg_size = 0
-
-    def delete_in_rom(self, data):
-        if not str(data).startswith("/"):
-            if data not in self.delete_rom_files_list:
-                self.delete_rom_files_list.append(data)
-        else:
-            if data not in self.delete_rom_files_list:
-                self.delete_rom_files_list.append(data)
 
     def delete(self, data):
         if not str(data).startswith("/"):
@@ -85,15 +76,10 @@ class Package:
             str_data += "package_name=\"\"" + "\n"
         str_data += "packagePath=install" + self.package_title + "Files\n"
         str_data += "deleteFilesPath=delete" + self.package_title + "Files\n"
-        str_data += "deleteFilesFromRomPath=delete" + self.package_title + "FromRomFiles\n"
+        str_data += "propFilePath=$(get_prop_file_path)\n"
         str_data += "\n"
         str_data += f"remove_aosp_apps_from_rom=\"\n"
         for delete_folder in self.delete_files_list:
-            str_data += f"{delete_folder}\n"
-        str_data += "\"\n"
-        str_data += "\n"
-        str_data += f"remove_gapps_from_rom=\"\n"
-        for delete_folder in self.delete_rom_files_list:
             str_data += f"{delete_folder}\n"
         str_data += "\"\n"
         str_data += "\n"
@@ -112,21 +98,13 @@ class Package:
         str_data += "remove_aosp_apps() {\n"
         str_data += "   # Delete the folders that we want to remove with installing " + self.package_title + "\n"
         str_data += "   for i in $remove_aosp_apps_from_rom; do\n"
-        str_data += "       RemoveAospAppsFromRom \"$i\"\n"
-        str_data += "   done\n"
-        str_data += "}\n"
-        str_data += "\n"
-        str_data += "remove_gapps_from_rom() {\n"
-        str_data += "   # Delete the folders that we want to remove with installing on Rom with Gapps\n"
-        str_data += "   for i in $remove_gapps_from_rom; do\n"
-        str_data += "       RemoveFromRomWithGapps \"$i\"\n"
+        str_data += "       RemoveAospAppsFromRom \"$i\" \"$propFilePath\"\n"
         str_data += "   done\n"
         str_data += "}\n"
         str_data += "\n"
         str_data += "install_package() {\n"
         str_data += "   remove_existing_package\n"
         str_data += "   remove_aosp_apps\n"
-        str_data += "   remove_gapps_from_rom\n"
         str_data += "   # Create folders and set the permissions\n"
         for folder in self.folder_dict:
             str_data += "   make_dir \"" + folder + "\"\n"
@@ -142,16 +120,17 @@ class Package:
             str_data += self.additional_installer_script
             str_data += "\n"
         str_data += "   chmod 755 \"$COMMONDIR/addon\";\n"
+        str_data += "   if [ -f \"$propFilePath\" ]; then\n"
+        str_data += "       echo \"install=$(echo \"$propFilePath\" | sed \"s|^$system/||\")\" " \
+                    ">>\"$TMPDIR/addon/$packagePath\"\n"
+        str_data += "       addToLog \"- Adding $propFilePath to $TMPDIR/addon/$packagePath\"\n"
+        str_data += "   fi\n"
         str_data += "   . $COMMONDIR/addon \"$OFD\" \"" + self.package_title + "\" \"$TMPDIR/addon/$packagePath\"" \
-                    + " \"$TMPDIR/addon/$deleteFilesPath\"" + " \"\"" + " \"$TMPDIR/addon/$deleteFilesFromRomPath\"\n"
+                    + " \"$propFilePath\"" + " \"\"\n"
         str_data += "   copy_file \"$TMPDIR/addon/$packagePath\" \"$logDir/addonfiles/" + "$packagePath" + ".addon\"\n"
         str_data += "   rm -rf \"$TMPDIR/addon/$packagePath\"\n"
-        str_data += "   copy_file \"$TMPDIR/addon/$deleteFilesPath\" \"$logDir/addonfiles/" + "$deleteFilesPath" + \
-                    ".addon\"\n"
-        str_data += "   copy_file \"$TMPDIR/addon/$deleteFilesFromRomPath\" \"$logDir/addonfiles/" + \
-                    "$deleteFilesFromRomPath" + ".addon\"\n"
-        str_data += "   rm -rf \"$TMPDIR/addon/$deleteFilesPath\"\n"
-        str_data += "   rm -rf \"$TMPDIR/addon/$deleteFilesFromRomPath\"\n"
+        str_data += "   copy_file \"$propFilePath\" \"$logDir/addonfiles/" + "$package_title.prop" + \
+                    "\"\n"
         str_data += "}\n"
         str_data += "\n"
         str_data += "find_install_mode\n"

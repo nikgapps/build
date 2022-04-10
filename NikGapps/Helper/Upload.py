@@ -59,25 +59,36 @@ class Upload:
     def get_cd_without_date(self, android_version, file_type):
         folder_name = "Test"
         if file_type == "gapps":
-            if android_version == 9:
+            if float(android_version) == float(9):
                 folder_name = "NikGapps-P"
-            elif android_version == 10:
+            elif float(android_version) == float(10):
                 folder_name = "NikGapps-Q"
-            elif android_version == 11:
+            elif float(android_version) == float(11):
                 folder_name = "NikGapps-R"
-            elif android_version == 12:
+            elif float(android_version) == float(12):
                 folder_name = "NikGapps-S"
+            elif float(android_version) == float(12.1):
+                folder_name = "NikGapps-SL"
+            else:
+                print(android_version)
         elif file_type == "addons":
-            if android_version == 9:
+            if float(android_version) == float(9):
                 folder_name = "Addons-P"
-            elif android_version == 10:
+            elif float(android_version) == float(10):
                 folder_name = "Addons-Q"
-            elif android_version == 11:
+            elif float(android_version) == float(11):
                 folder_name = "Addons-R"
-            elif android_version == 12:
+            elif float(android_version) == float(12):
                 folder_name = "Addons-S"
+            elif float(android_version) == float(12.1):
+                folder_name = "Addons-SL"
+            else:
+                print(android_version)
         elif file_type == "debloater":
             folder_name = "Debloater"
+        else:
+            print(file_type)
+        print("Upload Dir: " + self.release_dir + "/" + folder_name)
         return self.release_dir + "/" + folder_name
 
     def cd(self, path):

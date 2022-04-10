@@ -167,25 +167,26 @@ mount_apex() {
   [ -d /system_root/system/apex ] || return 1;
   local apex dest loop minorx num var;
   setup_mountpoint /apex;
+  $BB mount -t tmpfs tmpfs /apex -o mode=755 && $BB touch /apex/apextmp;
   minorx=1;
   [ -e /dev/block/loop1 ] && minorx=$($BB ls -l /dev/block/loop1 | $BB awk '{ print $6 }');
   num=0;
   for apex in /system_root/system/apex/*; do
-    dest=/apex/$($BB basename $apex .apex);
-    case $dest in
-      *.current|*.release) dest=$(echo $dest | $BB rev | $BB cut -d. -f2- | $BB rev);;
-    esac;
+    dest=/apex/$($BB basename $apex | $BB sed -E -e 's;\.apex$|\.capex$;;' -e 's;\.current$|\.release$;;');
     $BB mkdir -p $dest;
     case $apex in
-      *.apex)
+      *.apex|*.capex)
+        $BB unzip -qo $apex original_apex -d /apex;
+        [ -f /apex/original_apex ] && apex=/apex/original_apex;
         $BB unzip -qo $apex apex_payload.img -d /apex;
+        $BB mv -f /apex/original_apex $dest.apex 2>/dev/null;
         $BB mv -f /apex/apex_payload.img $dest.img;
         $BB mount -t ext4 -o ro,noatime $dest.img $dest 2>/dev/null;
         if [ $? != 0 ]; then
           while [ $num -lt 64 ]; do
             loop=/dev/block/loop$num;
-            ($BB mknod $loop b 7 $((num * minorx));
-            $BB losetup $loop $dest.img) 2>/dev/null;
+            [ -e $loop ] || $BB mknod $loop b 7 $((num * minorx));
+            $BB losetup $loop $dest.img 2>/dev/null;
             num=$((num + 1));
             $BB losetup $loop | $BB grep -q $dest.img && break;
           done;

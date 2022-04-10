@@ -8,9 +8,11 @@ OUTFD=$(ps | grep -v 'grep' | grep -oE 'update(.*) 3 [0-9]+' | cut -d" " -f3)
 [ -z $OUTFD ] && OUTFD=$(ps -Af | grep -v 'grep' | grep -oE 'status_fd=[0-9]+' | cut -d= -f2)
 test "$verbose" -a "$OUTFD" && FD=$OUTFD
 if [ -z $OUTFD ]; then
-  ui_print() { echo "$1"; test "/sdcard/NikGapps/addonLogs/logfiles/NikGapps.log" && echo "$1" >> "/sdcard/NikGapps/addonLogs/logfiles/NikGapps.log"; }
+  ui_print() { echo "$1"; test "$nikGappsAddonLogFile" && echo "$(date +%Y_%m_%d_%H_%M_%S): $1" >> "$nikGappsAddonLogFile"; }
 else
-  ui_print() { echo -e "ui_print $1\nui_print" >> /proc/self/fd/$OUTFD; test "/sdcard/NikGapps/addonLogs/logfiles/NikGapps.log" && echo "$1" >> "/sdcard/NikGapps/addonLogs/logfiles/NikGapps.log"; }
+  ui_print() {
+    echo -e "ui_print $1\nui_print" >> /proc/self/fd/$OUTFD; test "$nikGappsAddonLogFile" && echo "$(date +%Y_%m_%d_%H_%M_%S): $1" >> "$nikGappsAddonLogFile";
+   }
 fi
 
 if [ -d "/postinstall" ]; then
@@ -32,39 +34,6 @@ case $2 in
 esac
 }
 
-clean_recursive () {
-  func_result="$(beginswith / "$1")"
-  addToLog "- Deleting $1 with func_result: $func_result"
-  if [ "$func_result" = "true" ]; then
-    addToLog "- Deleting $1"
-    rm -rf "$1"
-  else
-    addToLog "- Deleting $1"
-    # For OTA update
-    for sys in "/postinstall" "/postinstall/system"; do
-      for subsys in "/system" "/product" "/system_ext"; do
-        for folder in "/app" "/priv-app"; do
-          delete_recursive "$sys$subsys$folder/$1"
-        done
-      done
-    done
-    # For Devices having symlinked product and system_ext partition
-    for sys in "$P" "/system" "/system_root"; do
-      for subsys in "/system" "/product" "/system_ext"; do
-        for folder in "/app" "/priv-app"; do
-          delete_recursive "$sys$subsys$folder/$1"
-        done
-      done
-    done
-    # For devices having dedicated product and system_ext partitions
-    for subsys in "$P" "/system" "/product" "/system_ext"; do
-      for folder in "/app" "/priv-app"; do
-        delete_recursive "$subsys$folder/$1"
-      done
-    done
-  fi
-}
-
 CopyFile() {
   if [ -f "$1" ]; then
     mkdir -p "$(dirname "$2")"
@@ -73,8 +42,41 @@ CopyFile() {
 }
 
 delete_recursive() {
-  addToLog "- rm -rf $*"
-  rm -rf "$*"
+  # delete if directory exists
+  if [ -d "$1" ]; then
+    addToLog "- Deleting $*"
+    rm -rf "$*"
+  fi
+}
+
+delete_aosp_apps(){
+  for i in $(delete_folders); do
+    # A/B device will have /postinstall
+    if [ -d "/postinstall" ]; then
+      delete_recursive "/postinstall$S/$i"
+    # if /postinstall doesn't exist, then it must be A-only device
+    elif [ -d "$S/$i" ]; then
+      delete_recursive "$S/$i"
+    # if the folder doesn't exist on either /postinstall or /system
+    else
+      addToLog "- $i cannot be located"
+    fi
+  done
+}
+
+debloat_apps(){
+  for i in $(debloat_folders); do
+    # A/B device will have /postinstall
+    if [ -d "/postinstall" ]; then
+      delete_recursive "/postinstall$S/$i"
+    # if /postinstall doesn't exist, then it must be A-only device
+    elif [ -d "$S/$i" ]; then
+      delete_recursive "$S/$i"
+    # if the folder doesn't exist on either /postinstall or /system
+    else
+      addToLog "- $i cannot be located"
+    fi
+  done
 }
 
 find_config() {
@@ -94,11 +96,7 @@ ReadConfigValue() {
   return $?
 }
 
-find_config
+[-z $nikgapps_config_file_name ] && find_config
 
-execute_config=$(ReadConfigValue "execute.d" "$nikgapps_config_file_name")
+[ -z $execute_config ] && execute_config=$(ReadConfigValue "execute.d" "$nikgapps_config_file_name")
 [ "$execute_config" != "0" ] && execute_config=1
-addToLog "- execute_config = $execute_config"
-addon_version_config=$(ReadConfigValue "addon_version.d" "$nikgapps_config_file_name")
-[ -z "$addon_version_config" ] && addon_version_config=3
-addToLog "- addon_version_config = $addon_version_config"

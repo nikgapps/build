@@ -109,7 +109,6 @@ class Export:
             self.z.writestringtozip(debloater_config_lines, "afzc/debloater.config")
             self.z.writefiletozip(Assets.changelog, "changelog.yaml")
             self.z.writefiletozip(Assets.addon_path, "common/addon")
-            self.z.writefiletozip(Assets.addon_sh_path, "common/nikgapps.sh")
             self.z.writefiletozip(Assets.header_path, "common/header")
             self.z.writefiletozip(Assets.functions_path, "common/functions")
             self.z.writestringtozip(file_sizes, "common/file_size")

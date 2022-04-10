@@ -14,7 +14,6 @@ shift 1
 installSource=$1
 deleteSource=$2
 debloaterSource=$3
-removeFromRomSource=$4
 mkdir -p "$destDir"
 TMPDIR=/dev/tmp
 COMMONDIR=$TMPDIR/NikGappsScripts
@@ -23,7 +22,7 @@ if $BOOTMODE; then
   mkdir -p $COMMONDIR
 fi
 addonDir="/sdcard/NikGapps/addonLogs"
-nikGappsAddonLogFile="$addonDir/addonlogfiles/NikGapps_"$fileName"_addon.log"
+nikGappsAddonLogFile="$addonDir/NikGapps_addon.log"
 nikGappsTestLog="$addonDir/logfiles/NikGapps.log"
 newline='
 '
@@ -31,11 +30,9 @@ newline='
 echo_add_to_log() {
   echo ""
   echo "addToLog() {"
-  echo "  mkdir -p \"\$(dirname $nikGappsAddonLogFile)\";"
-  echo "  echo \"\$1\" >> $nikGappsAddonLogFile"
+  echo "  echo \"\$(date +%Y_%m_%d_%H_%M_%S): \$1\" >> $nikGappsAddonLogFile"
   echo "}"
   echo ""
-  echo "addToLog \"Execute Log for $fileName with commands: \$@\""
 }
 
 list_files() {
@@ -48,6 +45,48 @@ list_files() {
     IFS="$(printf '%b_' ' \n')"
     IFS="${IFS%_}"
     g=$(grep "install" "$installSource" | cut -d= -f2)
+    for i in $g; do
+      echo "$i"
+    done
+    IFS="$OLD_IFS"
+  fi
+
+  echo "EOF"
+  echo "}"
+  echo ""
+}
+
+list_delete_folders() {
+  echo ""
+  echo "delete_folders() {"
+  echo "cat <<EOF"
+
+  if [ -f "$deleteSource" ]; then
+    OLD_IFS="$IFS"
+    IFS="$(printf '%b_' ' \n')"
+    IFS="${IFS%_}"
+    g=$(grep "delete" "$deleteSource" | cut -d= -f2)
+    for i in $g; do
+      echo "$i"
+    done
+    IFS="$OLD_IFS"
+  fi
+
+  echo "EOF"
+  echo "}"
+  echo ""
+}
+
+list_debloat_folders() {
+  echo ""
+  echo "debloat_folders() {"
+  echo "cat <<EOF"
+
+  if [ -f "$debloaterSource" ]; then
+    OLD_IFS="$IFS"
+    IFS="$(printf '%b_' ' \n')"
+    IFS="${IFS%_}"
+    g=$(grep "debloat" "$debloaterSource" | cut -d= -f2)
     for i in $g; do
       echo "$i"
     done
@@ -76,64 +115,15 @@ restore() {
   echo "     [ -n \"\$REPLACEMENT\" ] && R=\"\$S/\$REPLACEMENT\""
   echo "     [ -f \"\$C/\$S/\$FILE\" ] && restore_file \$S/\"\$FILE\" \"\$R\""
   echo "   done"
-  delete_from_aosp
-  delete_from_rom
-  debloat_files
+  echo "   delete_aosp_apps"
+  echo "   debloat_apps"
   echo "   for i in \$(list_files); do"
-  if [ "$version" = 3 ]; then
-    echo "     f=\$(get_output_path \"\$S/\$i\")"
-    echo "     chown root:root \"\$f\""
-    echo "     chmod 644 \"\$f\""
-    echo "     chmod 755 \$(dirname \$f)"
-  else
-    echo "     chown root:root \"\$P/\$i\""
-    echo "     chmod 644 \"\$P/\$i\""
-    echo "     chmod 755 \"\$(dirname \"\$P/\$i\")\""
-  fi
+  echo "     f=\$(get_output_path \"\$S/\$i\")"
+  echo "     chown root:root \"\$f\""
+  echo "     chmod 644 \"\$f\""
+  echo "     chmod 755 \$(dirname \$f)"
   echo "   done"
   echo " ;;"
-}
-
-delete_from_aosp() {
-  echo "   addToLog \"Deleting Aosp apps in $fileName\""
-  if [ -f "$deleteSource" ]; then
-    OLD_IFS="$IFS"
-    IFS="$(printf '%b_' ' \n')"
-    IFS="${IFS%_}"
-    g=$(grep "delete" "$deleteSource" | cut -d= -f2)
-    for i in $g; do
-      echo "   clean_recursive \"$i\""
-    done
-    IFS="$OLD_IFS"
-  fi
-}
-
-delete_from_rom() {
-  echo "   addToLog \"Removing Files from Rom Source in $fileName\""
-  if [ -f "$removeFromRomSource" ]; then
-    OLD_IFS="$IFS"
-    IFS="$(printf '%b_' ' \n')"
-    IFS="${IFS%_}"
-    g=$(grep "delete" "$removeFromRomSource" | cut -d= -f2)
-    for i in $g; do
-      echo "   clean_recursive \"$i\""
-    done
-    IFS="$OLD_IFS"
-  fi
-}
-
-debloat_files() {
-  echo "   addToLog \"Running Debloater in $fileName\""
-  if [ -f "$debloaterSource" ]; then
-    OLD_IFS="$IFS"
-    IFS="$(printf '%b_' ' \n')"
-    IFS="${IFS%_}"
-    g=$(grep "debloat" "$debloaterSource" | cut -d= -f2)
-    for i in $g; do
-      echo "   clean_recursive \"$i\""
-    done
-    IFS="$OLD_IFS"
-  fi
 }
 
 run() {
@@ -147,24 +137,13 @@ run() {
   echo "  exit 1"
   echo "fi"
   echo " "
-  echo "if [ ! -f \"\$S/addon.d/\$fileName.sh\" ]; then"
-  echo "  test \"\$execute_config\" = \"1\" && CopyFile \"\$0\" \"\$S/addon.d/\$fileName.sh\""
+  echo "if [ ! -f \"\$S/addon.d/51-$fileName.sh\" ]; then"
+  echo "  test \"\$execute_config\" = \"1\" && CopyFile \"\$0\" \"\$S/addon.d/51-$fileName.sh\""
   echo "fi"
   echo " "
   echo "case \"\$1\" in"
-  echo " pre-backup)"
-  echo "   rm -rf \"$nikGappsAddonLogFile\""
-  echo " ;;"
   backup
-  echo " post-backup)"
-  echo "   # Stub"
-  echo " ;;"
-  echo " pre-restore)"
-  echo "   # Stub"
-  echo " ;;"
   restore
-  echo " post-restore)"
-  echo " ;;"
   echo "esac"
 }
 
@@ -178,16 +157,8 @@ ReadConfigValue() {
 header() {
   echo "#!/sbin/sh"
   echo "#"
-  echo "# ADDOND_VERSION=$version"
+  echo "# ADDOND_VERSION=3"
 }
-
-if [ -z "$nikgapps_config_file_name" ]; then
-  version=3
-else
-  addon_version_config=$(ReadConfigValue "addon_version.d" "$nikgapps_config_file_name")
-  [ -n "$addon_version_config" ] && version=$addon_version_config
-  [ -z "$addon_version_config" ] && version=3
-fi
 
 for i in $(find $destDir -iname "*$fileName.sh" 2>/dev/null;); do
   if [ -f "$i" ]; then
@@ -201,6 +172,8 @@ cat "$COMMONDIR/header" >> "$dest"
   echo_add_to_log
   cat "$COMMONDIR/functions"
   list_files
+  list_delete_folders
+  list_debloat_folders
   run
 } >>"$dest"
 chmod 755 "$dest"

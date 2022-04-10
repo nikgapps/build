@@ -1,6 +1,8 @@
 import git.exc
 from git import Repo, Commit
 from shutil import copyfile
+
+from NikGapps.Helper import FileOp
 from NikGapps.Helper.Assets import Assets
 from NikGapps.Helper.Constants import Constants
 import os
@@ -14,7 +16,25 @@ class Git:
 
     def __init__(self, working_tree_dir):
         self.working_tree_dir = working_tree_dir
-        self.repo = Repo(working_tree_dir)
+        if FileOp.dir_exists(self.working_tree_dir):
+            self.repo = Repo(working_tree_dir)
+
+    def clone_repo(self, repo_url, branch="main", fresh_clone=True):
+        repo_clone_start_time = Constants.start_of_function()
+        try:
+            if fresh_clone and FileOp.dir_exists(self.working_tree_dir):
+                print(f"{self.working_tree_dir} already exists, deleting for a fresh clone!")
+                FileOp.remove_dir(self.working_tree_dir)
+            print(f"git clone -b --depth=1 {branch} {repo_url}")
+            self.repo = git.Repo.clone_from(repo_url, self.working_tree_dir, branch=branch, depth=1)
+            assert self.repo.__class__ is Repo  # clone an existing repository
+            assert Repo.init(self.working_tree_dir).__class__ is Repo
+            Constants.end_of_function(repo_clone_start_time, f"Time taken to clone -b {branch} {repo_url}")
+            return True
+        except Exception as e:
+            print("Exception caught while cloning the repo: " + str(e))
+        Constants.end_of_function(repo_clone_start_time, f"Time taken to clone -b {branch} {repo_url}")
+        return False
 
     # this will return commits 21-30 from the commit list as traversed backwards master
     # ten_commits_past_twenty = list(repo.iter_commits('master', max_count=10, skip=20))
@@ -29,7 +49,7 @@ class Git:
             else:
                 commits = list(self.repo.iter_commits('master', max_count=50))
         except git.exc.GitCommandError:
-            if repo is "master":
+            if repo == "master":
                 repo = "main"
             commits = list(self.repo.iter_commits(repo, max_count=50))
 

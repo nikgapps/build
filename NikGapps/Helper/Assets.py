@@ -23,7 +23,6 @@ class Assets:
     addon_path = cwd + "addon"
     header_path = cwd + "header"
     functions_path = cwd + "functions.sh"
-    addon_sh_path = cwd + "addon.sh"
     busybox = cwd + "busybox"
     file_sizes_path = cwd + "file_size.txt"
     mount_path = cwd + "mount.sh"

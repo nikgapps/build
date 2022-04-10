@@ -1,4 +1,19 @@
-- date: 22nd Feb 2021 (Android S, R and Q Release)
+- date: 10th April 2022 (Android SL, S, R and Q Canary Release)
+  changes:
+      - item: Android 12.1 (12L) release
+      - item: Many addon.d fixes (faster ota update and fixes)
+      - item: Fixed Pixel Launcher and Setup Wizard for android 12.1 release
+      - item: Removed Vanced Manager (will add back as an addon later)
+      - item: Fixed an issue which requires formatting /data partition to boot
+      - item: use addon_version = 3 (dropping v2 support)
+      - item: Fixed PixelLauncher crashes from 7th April build
+      - item: Fixed Aosp apps not being deleted for some users
+      - item: Dropped Vanced and Adaway support as those are non-gapps
+      - item: Enforce Android Auto to be clean flashed only to avoid unnecessary issues
+- date: 28th Feb 2022 (Android S, R and Q Canary Release)
+  changes:
+      - item: Fixed installation issues of some apps (to system_ext) in android 10
+- date: 22nd Feb 2022 (Android S, R and Q Release)
   changes:
       - item: Introduce Smart Installation to address storage full issues
       - item: Added space check before installing packages to ensure that system is never left into inconsistent state
@@ -9,11 +24,11 @@
       - item: Control all the features of nikgapps.config through config builds
       - item: Fixed an issue where dirty flashing Gboard failed even when Gboard was originally clean flashed
       - item: nikgapps.config bumped up to v20
-      - item: Changed addon script name from 50-<package>.sh to 51-<package>.sh to let Rom script execute first
+      - item: Changed addon script name from <50<package>.sh to <51-package>.sh to let Rom script execute first
       - item: Abort when unknown mode is detected
       - item: Addon.d improvements
       - item: Revert back to google setup wizard as default (flash PixelSetupWizard addon for pixel setup wizard)
-- date: 27th Jan 2021 (Android S, R and Q Release)
+- date: 27th Jan 2022 (Android S, R and Q Release)
   changes:
       - item: Hotfix Update - Fixes notification delays for some people due to gms optimization
 - date: 25th Dec 2021 (Android S, R and Q Release)

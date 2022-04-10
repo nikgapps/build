@@ -130,9 +130,9 @@ class NikGappsPackages:
         core_go.add_package(extra_files_go)
 
         prebuiltgmscore = Package("PrebuiltGmsCore", "com.google.android.gms", Constants.is_priv_app, "GmsCore")
-        prebuiltgmscore.delete_in_rom("PrebuiltGmsCoreQt")
-        prebuiltgmscore.delete_in_rom("PrebuiltGmsCoreRvc")
-        prebuiltgmscore.delete_in_rom("GmsCore")
+        prebuiltgmscore.delete("PrebuiltGmsCoreQt")
+        prebuiltgmscore.delete("PrebuiltGmsCoreRvc")
+        prebuiltgmscore.delete("GmsCore")
         prebuiltgmscore.additional_installer_script = """
     gms_optimization=$(ReadConfigValue "gms_optimization" "$nikgapps_config_file_name")
     [ -z "$gms_optimization" ] && gms_optimization=0
@@ -166,10 +166,6 @@ class NikGappsPackages:
         googlecalendarsync = Package("GoogleCalendarSyncAdapter", "com.google.android.syncadapters.calendar",
                                      Constants.is_system_app)
         core_go.add_package(googlecalendarsync)
-
-        vanced_manager = Package("VancedManager", "com.vanced.manager", Constants.is_system_app)
-        vanced_manager.enabled = 0
-        core_go.add_package(vanced_manager)
 
         pixel_launcher_set = NikGappsPackages.get_pixel_launcher()
         for pkg in pixel_launcher_set.package_list:
@@ -259,9 +255,9 @@ class NikGappsPackages:
         # files.predefined_file_list.append("framework/com.google.android.media.effects.jar")
         # files.predefined_file_list.append("lib64/libgdx.so")
         prebuiltgmscore = Package("PrebuiltGmsCore", "com.google.android.gms", Constants.is_priv_app, "GmsCore")
-        prebuiltgmscore.delete_in_rom("PrebuiltGmsCoreQt")
-        prebuiltgmscore.delete_in_rom("PrebuiltGmsCoreRvc")
-        prebuiltgmscore.delete_in_rom("GmsCore")
+        prebuiltgmscore.delete("PrebuiltGmsCoreQt")
+        prebuiltgmscore.delete("PrebuiltGmsCoreRvc")
+        prebuiltgmscore.delete("GmsCore")
         prebuiltgmscore.additional_installer_script = """
     gms_optimization=$(ReadConfigValue "gms_optimization" "$nikgapps_config_file_name")
     [ -z "$gms_optimization" ] && gms_optimization=0
@@ -295,10 +291,7 @@ class NikGappsPackages:
         app_set_list = NikGappsPackages.get_core_package()
         digital_wellbeing = Package("WellbeingPreBuilt", "com.google.android.apps.wellbeing", Constants.is_priv_app,
                                     "DigitalWellbeing")
-        vanced_manager = Package("VancedManager", "com.vanced.manager", Constants.is_system_app)
-        vanced_manager.enabled = 0
         app_set_list.append(AppSet("DigitalWellbeing", [digital_wellbeing]))
-        app_set_list.append(AppSet("VancedManager", [vanced_manager]))
         google_messages = Package("PrebuiltBugle", "com.google.android.apps.messaging", Constants.is_system_app,
                                   "GoogleMessages")
         google_messages.delete("RevengeMessages")
@@ -311,64 +304,9 @@ class NikGappsPackages:
         google_dialer = Package("GoogleDialer", "com.google.android.dialer", Constants.is_priv_app)
         google_dialer.predefined_file_list.append("framework/com.google.android.dialer.support.jar")
         google_dialer.delete("Dialer")
-        google_dialer.additional_installer_script = """script_text="<permissions>
-                            <!-- Shared library required on the device to get Google Dialer updates from
-                                 Play Store. This will be deprecated once Google Dialer play store
-                                 updates stop supporting pre-O devices. -->
-                            <library name=\\"com.google.android.dialer.support\\"
-                              file=\\"$install_partition/framework/com.google.android.dialer.support.jar\\" />
-
-                            <!-- Starting from Android O and above, this system feature is required for
-                                 getting Google Dialer play store updates. -->
-                            <feature name=\\"com.google.android.apps.dialer.SUPPORTED\\" />
-                        </permissions>"
-                        echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.dialer.support.xml
-                        set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.dialer.support.xml"
-                        installPath=$product_prefix"etc/permissions/com.google.android.dialer.support.xml"
-                        echo "install=$installPath" >> $TMPDIR/addon/$packagePath
-                        if [ -f "$install_partition/etc/permissions/com.google.android.dialer.support.xml" ]; then
-                          addToLog "- $install_partition/etc/permissions/com.google.android.dialer.support.xml Successfully Written!"
-                        fi
-
-                         # set Google Dialer as default; based on the work of osm0sis @ xda-developers
-                          setver=\"122\"  # lowest version in MM, tagged at 6.0.0
-                          setsec=\"/data/system/users/0/settings_secure.xml\"
-                          if [ -f \"$setsec\" ]; then
-                            if grep -q 'dialer_default_application' \"$setsec\"; then
-                              if ! grep -q 'dialer_default_application\" value=\"com.google.android.dialer' \"$setsec\"; then
-                                curentry=\"$(grep -o 'dialer_default_application\" value=.*$' \"$setsec\")\"
-                                newentry='dialer_default_application\" value=\"com.google.android.dialer\" package=\"android\" />\\r'
-                                sed -i \"s;${curentry};${newentry};\" \"$setsec\"
-                              fi
-                            else
-                              max=\"0\"
-                              for i in $(grep -o 'id=.*$' \"$setsec\" | cut -d '\"' -f 2); do
-                                test \"$i\" -gt \"$max\" && max=\"$i\"
-                              done
-                              entry='<setting id=\"'\"$((max + 1))\"'\" name=\"dialer_default_application\" value=\"com.google.android.dialer\" package=\"android\" />\\r'
-                              sed -i \"/<settings version=\\\"/a\ \ ${entry}\" \"$setsec\"
-                            fi
-                          else
-                            if [ ! -d \"/data/system/users/0\" ]; then
-                              install -d \"/data/system/users/0\"
-                              chown -R 1000:1000 \"/data/system\"
-                              chmod -R 775 \"/data/system\"
-                              chmod 700 \"/data/system/users/0\"
-                            fi
-                            { echo -e \"<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>\\r\"
-                            echo -e '<settings version=\"'$setver'\">\\r'
-                            echo -e '  <setting id="1" name=\"dialer_default_application\" value=\"com.google.android.dialer\" package=\"android\" />\\r'
-                            echo -e '</settings>'; } > \"$setsec\"
-                          fi
-                          chown 1000:1000 \"$setsec\"
-                          chmod 600 \"$setsec\"
-
-                          if [ -f "$setsec" ]; then
-                            addToLog "- $setsec Successfully Written!"
-                          fi"""
         app_set_list.append(AppSet("GoogleDialer", [google_dialer]))
 
-        google_contacts = Package("GoogleContacts", "com.google.android.contacts", Constants.is_priv_app)
+        google_contacts = Package("GoogleContacts", "com.google.android.contacts", Constants.is_system_app)
         google_contacts.delete("Contacts")
         app_set_list.append(AppSet("GoogleContacts", [google_contacts]))
 
@@ -394,12 +332,11 @@ class NikGappsPackages:
         google_drive = Package("Drive", "com.google.android.apps.docs", Constants.is_system_app)
         app_set_list.append(AppSet("Drive", [google_drive]))
         google_maps = Package("GoogleMaps", "com.google.android.apps.maps", Constants.is_priv_app)
-        google_maps.delete_in_rom("Maps")
+        google_maps.delete("Maps")
         app_set_list.append(AppSet("GoogleMaps", [google_maps]))
         if TARGET_ANDROID_VERSION >= 11:
             google_location_history = Package("LocationHistoryPrebuilt", "com.google.android.gms.location.history",
                                               Constants.is_system_app, "GoogleLocationHistory")
-            google_location_history.delete_in_rom("LocationHistoryPrebuilt")
             app_set_list.append(AppSet("GoogleLocationHistory", [google_location_history]))
         gmail = Package("PrebuiltGmail", "com.google.android.gm", Constants.is_system_app, "Gmail")
         gmail.delete("Email")
@@ -418,7 +355,7 @@ class NikGappsPackages:
         google_photos.delete("SnapdragonGallery")
         app_set_list.append(AppSet("GooglePhotos", [google_photos]))
         google_turbo = Package("Turbo", "com.google.android.apps.turbo", Constants.is_priv_app, "DeviceHealthServices")
-        google_turbo.delete_in_rom("TurboPrebuilt")
+        google_turbo.delete("TurboPrebuilt")
         app_set_list.append(AppSet("DeviceHealthServices", [google_turbo]))
 
         return app_set_list
@@ -459,9 +396,6 @@ class NikGappsPackages:
         app_set_list.append(AppSet("GoogleCalendar", [google_calendar]))
         google_markup = Package("MarkupGoogle", "com.google.android.markup", Constants.is_system_app)
         app_set_list.append(AppSet("MarkupGoogle", [google_markup]))
-        google_wallpaper = Package("WallpaperPickerGooglePrebuilt", "com.google.android.apps.wallpaper",
-                                   Constants.is_priv_app, "GoogleWallpaper", partition="system_ext")
-        app_set_list.append(AppSet("GoogleWallpaper", [google_wallpaper]))
         google_feedback = Package("GoogleFeedback", "com.google.android.feedback", Constants.is_priv_app,
                                   partition="system_ext")
         app_set_list.append(AppSet("GoogleFeedback", [google_feedback]))
@@ -501,6 +435,7 @@ class NikGappsPackages:
             app_set_list.append(AppSet("DeviceSetup", [google_device_setup]))
         android_auto = Package("AndroidAutoStubPrebuilt", "com.google.android.projection.gearhead",
                                Constants.is_priv_app, "AndroidAuto")
+        android_auto.clean_flash_only = True
         app_set_list.append(AppSet("AndroidAuto", [android_auto]))
         app_set_list.append(NikGappsPackages.get_chrome())
         return app_set_list
@@ -522,7 +457,7 @@ class NikGappsPackages:
 
     @staticmethod
     def get_chrome():
-        google_chrome = Package("GoogleChrome", "com.android.chrome", Constants.is_priv_app)
+        google_chrome = Package("GoogleChrome", "com.android.chrome", Constants.is_system_app)
         google_chrome.delete("Bolt")
         google_chrome.delete("Browser")
         google_chrome.delete("Browser2")
@@ -556,9 +491,6 @@ class NikGappsPackages:
         setup_wizard = Package("SetupWizardPrebuilt", "com.google.android.setupwizard", Constants.is_priv_app,
                                "SetupWizard")
         setup_wizard.delete("Provision")
-        setup_wizard.delete("SetupWizardPrebuilt")
-        setup_wizard.delete("SetupWizard")
-        setup_wizard.delete("GoogleRestore")
         setup_wizard.additional_installer_script = """
 set_prop "setupwizard.feature.baseline_setupwizard_enabled" "true" "$install_partition/build.prop"
 set_prop "ro.setupwizard.enterprise_mode" "1" "$install_partition/build.prop"
@@ -624,18 +556,19 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
                                  Constants.is_priv_app, "PixelLauncher", partition="system_ext")
         pixel_launcher.priv_app_permissions.append("android.permission.PACKAGE_USAGE_STATS")
         pixel_launcher.delete("TrebuchetQuickStep")
-        if TARGET_ANDROID_VERSION == 12:
-            pixel_launcher.delete("Launcher3QuickStep")
         device_personalization_services = Package("MatchmakerPrebuiltPixel4", "com.google.android.as",
                                                   Constants.is_priv_app, "DevicePersonalizationServices")
         gapps_list = [pixel_launcher]
         if TARGET_ANDROID_VERSION >= 9:
-            device_personalization_services.delete_in_rom("DevicePersonalizationPrebuiltPixel4")
+            device_personalization_services.delete("DevicePersonalizationPrebuiltPixel4")
             gapps_list.append(device_personalization_services)
         if TARGET_ANDROID_VERSION >= 11:
             quick_access_wallet = Package("QuickAccessWallet", "com.android.systemui.plugin.globalactions.wallet",
                                           Constants.is_priv_app)
             gapps_list.append(quick_access_wallet)
+        google_wallpaper = Package("WallpaperPickerGooglePrebuilt", "com.google.android.apps.wallpaper",
+                                   Constants.is_priv_app, "GoogleWallpaper", partition="system_ext")
+        gapps_list.append(google_wallpaper)
         return AppSet("PixelLauncher", gapps_list)
 
     @staticmethod
@@ -644,8 +577,6 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
         from Config import TARGET_ANDROID_VERSION
         if TARGET_ANDROID_VERSION == 10:
             lawnchair_ci = Package("Lawnchair", "ch.deletescape.lawnchair.ci", Constants.is_priv_app)
-            lawnchair_ci.delete("Lawnchair")
-            lawnchair_ci.delete("Lawnfeed")
             if "etc/permissions/privapp-permissions-lawnchair.xml" not in lawnchair_ci.predefined_file_list:
                 lawnchair_ci.predefined_file_list.append("etc/permissions/privapp-permissions-lawnchair.xml")
             if "etc/sysconfig/lawnchair-hiddenapi-package-whitelist.xml" not in lawnchair_ci.predefined_file_list:
@@ -659,8 +590,6 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
             lawnchair_set.add_package(lawnchair_recents_provider)
         else:
             lawnchair = Package("Lawnchair", "ch.deletescape.lawnchair.plah", Constants.is_priv_app)
-            lawnchair.delete("Lawnchair")
-            lawnchair.delete("Lawnfeed")
             lawnchair_set.add_package(lawnchair)
         lawnfeed = Package("Lawnfeed", "ch.deletescape.lawnchair.lawnfeed", Constants.is_system_app)
         lawnchair_set.add_package(lawnfeed)

@@ -79,7 +79,6 @@ class Build:
                     permissions_list = cmd.get_white_list_permissions(primary_app_location)
                     if permissions_list.__len__() >= 1 and not permissions_list[0].__contains__("Exception"):
                         pkg.generate_priv_app_whitelist(app_set.title, permissions_list, Constants.source_directory)
-                pkg.delete_rom_files_list = pkg_to_build.delete_rom_files_list
                 # Add the deleted files from the pkg_to_build object
                 for delete_file in pkg_to_build.delete_files_list:
                     delete_files_list.append(delete_file)

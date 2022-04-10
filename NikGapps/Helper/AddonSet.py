@@ -9,11 +9,7 @@ class AddonSet:
     @staticmethod
     def get_addon_packages(addon_name=None):
         addon_set_list = [
-            AddonSet.get_adaway(),
             AddonSet.get_pixel_live_wallpapers(),
-            AddonSet.get_youtube_dark(),
-            AddonSet.get_youtube_black(),
-            AddonSet.get_youtube_music(),
             AddonSet.get_google_fi(),
             AddonSet.get_google_duo(),
             AddonSet.get_google_docs(),
@@ -37,6 +33,21 @@ class AddonSet:
         return None
 
     @staticmethod
+    def get_vanced_manager():
+        vanced_manager = Package("VancedManager", "com.vanced.manager", Constants.is_system_app)
+        return AppSet("VancedManager", [vanced_manager])
+
+    @staticmethod
+    def get_google_camera_go():
+        google_camera_lite = Package("GoogleCameraGo", "com.google.android.apps.cameralite", Constants.is_system_app)
+        return AppSet("GoogleCameraGo", [google_camera_lite])
+
+    @staticmethod
+    def get_lineageos_recorder():
+        los_recorder = Package("Recorder", "org.lineageos.recorder", Constants.is_system_app)
+        return AppSet("Recorder", [los_recorder])
+
+    @staticmethod
     def get_google_tts():
         google_tts = Package("GoogleTTS", "com.google.android.tts", Constants.is_system_app)
         google_tts.delete("PicoTts")
@@ -54,7 +65,7 @@ class AddonSet:
         snap.delete("ScreenRecorder")
         return AppSet("Snap", [snap])
 
-    @ staticmethod
+    @staticmethod
     def get_flipendo():
         flipendo = Package("Flipendo", "com.google.android.flipendo", Constants.is_system_app)
         return AppSet("Flipendo", [flipendo])
@@ -88,7 +99,7 @@ class AddonSet:
             if TARGET_ANDROID_VERSION == 10:
                 device_personalization_services.predefined_file_list.append(
                     "overlay/DevicePersonalizationServicesConfig.apk")
-            device_personalization_services.delete_in_rom("DevicePersonalizationPrebuiltPixel4")
+            device_personalization_services.delete("DevicePersonalizationPrebuiltPixel4")
             gapps_list.append(device_personalization_services)
         return AppSet("DevicePersonalizationServices", gapps_list)
 
@@ -107,13 +118,13 @@ class AddonSet:
         pixel_launcher = Package("NexusLauncherPrebuilt", "com.google.android.apps.nexuslauncher",
                                  Constants.is_priv_app, "PixelLauncher", partition="system_ext")
         pixel_launcher.priv_app_permissions.append("android.permission.PACKAGE_USAGE_STATS")
-        pixel_launcher.delete("TrebuchetQuickStep")
+        # pixel_launcher.delete("TrebuchetQuickStep")
         # pixel_launcher.delete("Launcher3QuickStep")
         device_personalization_services = Package("MatchmakerPrebuiltPixel4", "com.google.android.as",
                                                   Constants.is_priv_app, "DevicePersonalizationServices")
         gapps_list = [pixel_launcher]
         if TARGET_ANDROID_VERSION >= 9:
-            device_personalization_services.delete_in_rom("DevicePersonalizationPrebuiltPixel4")
+            device_personalization_services.delete("DevicePersonalizationPrebuiltPixel4")
             gapps_list.append(device_personalization_services)
         if TARGET_ANDROID_VERSION >= 11:
             quick_access_wallet = Package("QuickAccessWallet", "com.android.systemui.plugin.globalactions.wallet",
@@ -139,13 +150,9 @@ class AddonSet:
         from Config import TARGET_ANDROID_VERSION
         if TARGET_ANDROID_VERSION == 9:
             lawnchair = Package("Lawnchair", "ch.deletescape.lawnchair.plah", Constants.is_priv_app)
-            lawnchair.delete("Lawnchair")
-            lawnchair.delete("Lawnfeed")
             lawnchair_set.add_package(lawnchair)
         if TARGET_ANDROID_VERSION == 10:
             lawnchair_ci = Package("Lawnchair", "ch.deletescape.lawnchair.ci", Constants.is_priv_app)
-            lawnchair_ci.delete("Lawnchair")
-            lawnchair_ci.delete("Lawnfeed")
             if "etc/permissions/privapp-permissions-lawnchair.xml" not in lawnchair_ci.predefined_file_list:
                 lawnchair_ci.predefined_file_list.append("etc/permissions/privapp-permissions-lawnchair.xml")
             if "etc/sysconfig/lawnchair-hiddenapi-package-whitelist.xml" not in lawnchair_ci.predefined_file_list:
@@ -175,6 +182,13 @@ class AddonSet:
         pixel_live_wallpaper_set.add_package(wallpapers_breel_2020a)
         pixel_live_wallpaper_set.add_package(pixel_live_wallpaper)
         pixel_live_wallpaper_set.add_package(wallpapers_breel_2020)
+        if TARGET_ANDROID_VERSION >= 12:
+            pixel_wallpapers_2021 = Package("PixelWallpapers2021", "com.google.android.apps.wallpaper.pixel",
+                                            Constants.is_system_app)
+            micropaper = Package("MicropaperPrebuilt", "com.google.pixel.dynamicwallpapers", Constants.is_system_app,
+                                 "Micropaper")
+            pixel_live_wallpaper_set.add_package(pixel_wallpapers_2021)
+            pixel_live_wallpaper_set.add_package(micropaper)
         return pixel_live_wallpaper_set
 
     @staticmethod
@@ -201,8 +215,6 @@ class AddonSet:
         youtube_vanced_black = Package("YouTube", "com.vanced.android.youtube", Constants.is_system_app,
                                        "YouTubeVancedBlack")
         vanced_gms = Package("VancedGms", "com.mgoogle.android.gms", Constants.is_system_app)
-        youtube_vanced_black.delete_in_rom("YouTube")
-        youtube_vanced_black.delete_in_rom("VancedGms")
         return AppSet("YouTubeVancedBlack", [youtube_vanced_black, vanced_gms])
 
     @staticmethod
@@ -210,8 +222,6 @@ class AddonSet:
         youtube_vanced_dark = Package("YouTube", "com.vanced.android.youtube", Constants.is_system_app,
                                       "YouTubeVancedDark")
         vanced_gms = Package("VancedGms", "com.mgoogle.android.gms", Constants.is_system_app)
-        youtube_vanced_dark.delete_in_rom("YouTube")
-        youtube_vanced_dark.delete_in_rom("VancedGms")
         return AppSet("YouTubeVancedDark", [youtube_vanced_dark, vanced_gms])
 
     @staticmethod
@@ -230,11 +240,6 @@ class AddonSet:
         setup_wizard = Package("SetupWizardPrebuilt", "com.google.android.setupwizard", Constants.is_priv_app,
                                "SetupWizard")
         setup_wizard.delete("Provision")
-        setup_wizard.delete("SetupWizardPrebuilt")
-        setup_wizard.delete("SetupWizard")
-        setup_wizard.delete("GoogleRestore")
-        setup_wizard.delete("AndroidMigratePrebuilt")
-        setup_wizard.delete("PixelSetupWizard")
         setup_wizard.additional_installer_script = """
         set_prop "setupwizard.feature.baseline_setupwizard_enabled" "true" "$install_partition/build.prop"
         set_prop "ro.setupwizard.enterprise_mode" "1" "$install_partition/build.prop"
