@@ -16,7 +16,8 @@ class Git:
 
     def __init__(self, working_tree_dir):
         self.working_tree_dir = working_tree_dir
-        self.repo = Repo(working_tree_dir)
+        if FileOp.dir_exists(self.working_tree_dir):
+            self.repo = Repo(working_tree_dir)
 
     def clone_repo(self, repo_url, branch="main", fresh_clone=True):
         repo_clone_start_time = Constants.start_of_function()
