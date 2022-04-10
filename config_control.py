@@ -78,7 +78,7 @@ if Config.BUILD_CONFIG:
                         continue
                 Constants.end_of_function(start_time,
                                           f"Time taken to clone -b {branch} gitlab.com/nikgapps/{android_version}.git")
-                Config.TARGET_ANDROID_VERSION = int(android_version)
+                Config.TARGET_ANDROID_VERSION = android_version
                 if FileOp.dir_exists(repo_dir):
                     Constants.update_sourceforge_release_directory("config")
                     zip_status = Release.zip(['config'])
