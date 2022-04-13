@@ -1155,7 +1155,7 @@ RemoveAospAppsFromRom() {
       for i in $deleted_folders; do
         if [ -n "$i" ]; then
           deletePath=$(echo "$i" | sed "s|^$system/||")
-          if grep -q "delete=$deletePath" "$2"; then
+          if [ -f "$2" ] && [ grep -q "delete=$deletePath" "$2" ]; then
             addToLog "- $deletePath deleted already"
           else
             echo "delete=$deletePath" >>$2
