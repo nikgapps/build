@@ -576,9 +576,9 @@ find_gapps_size() {
 find_install_mode() {
   if [ "$clean_flash_only" = "true" ] && [ "$install_type" = "dirty" ]; then
     prop_file_exists="false"
-    for i in $(find /system /system/product /system/system_ext -iname "$package_title.prop" 2>/dev/null;); do
-      if [ -f "$i" ]; then
-        addToLog "- Found $i"
+    for i in "$system/etc/permissions" "$system/product/etc/permissions" "$system/system_ext/etc/permissions"; do
+      if [ -f "$i/$package_title.prop" ]; then
+        addToLog "- Found $i/$package_title.prop"
         prop_file_exists="true"
         break
       fi
