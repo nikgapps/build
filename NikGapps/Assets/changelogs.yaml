@@ -1,4 +1,4 @@
-- date: 10th April 2022 (Android SL, S, R and Q Canary Release)
+- date: 13th April 2022 (Android SL, S, R and Q Release)
   changes:
       - item: Android 12.1 (12L) release
       - item: Many addon.d fixes (faster ota update and fixes)
@@ -6,10 +6,12 @@
       - item: Removed Vanced Manager (will add back as an addon later)
       - item: Fixed an issue which requires formatting /data partition to boot
       - item: use addon_version = 3 (dropping v2 support)
-      - item: Fixed PixelLauncher crashes from 7th April build
       - item: Fixed Aosp apps not being deleted for some users
       - item: Dropped Vanced and Adaway support as those are non-gapps
       - item: Enforce Android Auto to be clean flashed only to avoid unnecessary issues
+      - item: Add Google Talkback addon (for those who wants to include them in custom builds)
+      - item: Script improvements
+      - item: nikgapps config version updated to v21
 - date: 28th Feb 2022 (Android S, R and Q Canary Release)
   changes:
       - item: Fixed installation issues of some apps (to system_ext) in android 10
