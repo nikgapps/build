@@ -57,7 +57,7 @@ class Git:
             commit: Commit
             # if filter_key = 10, it will look for commits that starts with 10
             # failing will continue looking for latest available commit that starts with 10
-            if filter_key is not None and not str(commit.message).startswith(filter_key):
+            if filter_key is not None and not str(commit.message).startswith(filter_key + ":"):
                 continue
             time_in_string = str(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(commit.committed_date)))
             time_in_object = datetime.strptime(time_in_string, '%Y-%m-%d %H:%M:%S')
