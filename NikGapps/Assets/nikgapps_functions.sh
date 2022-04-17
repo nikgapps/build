@@ -339,7 +339,7 @@ debloat() {
     for i in $g; do
       if [ $debloaterRan = 0 ]; then
         ui_print " "
-        ui_print "--> Running Debloater"
+        ui_print "--> Starting the debloating process"
       fi
       value=$($i | grep "^WipeDalvikCache=" | cut -d'=' -f 1)
       if [ "$i" != "WipeDalvikCache" ]; then
@@ -396,6 +396,9 @@ debloat() {
   else
     addToLog "- Debloater.config not found!"
     unpack "afzc/debloater.config" "/sdcard/NikGapps/debloater.config"
+  fi
+  if [ $debloaterRan = 1 ]; then
+    ui_print " "
   fi
 }
 
@@ -484,11 +487,13 @@ find_config() {
   ui_print "--> Finding config files"
   nikgapps_config_file_name="$nikGappsDir/nikgapps.config"
   unpack "afzc/nikgapps.config" "$COMMONDIR/nikgapps.config"
+  unpack "afzc/debloater.config" "$COMMONDIR/debloater.config"
   use_zip_config=$(ReadConfigValue "use_zip_config" "$COMMONDIR/nikgapps.config")
   addToLog "- use_zip_config=$use_zip_config"
   if [ "$use_zip_config" = "1" ]; then
     ui_print "- Using config file from the zip"
     nikgapps_config_file_name="$COMMONDIR/nikgapps.config"
+    debloater_config_file_name="$COMMONDIR/debloater.config"
   else
     found_config="$(find_config_path nikgapps.config)"
     if [ "$found_config" ]; then
