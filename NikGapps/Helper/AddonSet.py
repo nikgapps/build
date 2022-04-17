@@ -22,7 +22,7 @@ class AddonSet:
         ]
         # if TARGET_ANDROID_VERSION in (10, 11):
         #     addon_set_list.append(AddonSet.get_pixel_setup_wizard())
-        if TARGET_ANDROID_VERSION == 11:
+        if TARGET_ANDROID_VERSION >= 11:
             addon_set_list.append(AddonSet.get_flipendo())
         if addon_name is None:
             return addon_set_list
