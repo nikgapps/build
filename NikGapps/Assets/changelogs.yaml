@@ -55,7 +55,7 @@
   changes:
       - item: Android 12 bring up
       - item: a lot of mount fixes (thanks to osm0sis)
-      - item: fix DPS (aslo known as ASI) crashes
+      - item: fix DPS (also known as ASI) crashes
       - item: Fix GoogleFiles deleting DocumentsUI on android 10 when it shouldn't delete it
       - item: config releases - add more validations to ensure the config files are not breaking the workflows
       - item: config releases - speed up the execution
@@ -109,7 +109,7 @@
       - item: Add support for go packages in config releases
       - item: Build Go Packages addon too
       - item: Script improvements
-      - item: set InstallPartition=default as defailt value to make it simpler
+      - item: set InstallPartition=default as default value to make it simpler
       - item: Update nikgapps.config to v14
       - item: Ability to include addons as part of your custom build in config-releases
       - item: Swap Google Recorder (moved to stock) and Google Play Games (moved to full)
@@ -217,7 +217,7 @@
       - item: Playstore Updates (10th Oct)
 - date: 08th Oct 2020 (Android R and Q Release)
   changes:
-      - item: Fixed select option not working in Recents Screen
+      - item: Fixed select option not working in Recent Screen
       - item: Revamped NikGapps architecture to implement AppSets (check notes/website for more details)
       - item: Add pixelize AppSet that will enable pixel features such as PixelSetupWizard, PixelConfigs
       - item: Remove styles and wallpaper to avoid conflicts with Rom
@@ -266,9 +266,9 @@
       - item: Playstore Updates (12th Sept)
 - date: 1st Sept 2020
   changes:
-      - item: Setup InstallPartition config such that, user can intall gapps to desired location (This is more for Developers)
+      - item: Setup InstallPartition config such that, user can install gapps to desired location (This is more for Developers)
       - item: Fixed an issue where LawnchairRecentsProvider was installed by default
-      - item: Fixed an issue where GooglePhone was not appearing on Playstore if InstallPatition was set to system
+      - item: Fixed an issue where GooglePhone was not appearing on Playstore if InstallPartition was set to system
       - item: Separate GoogleSetupWizard and PixelSetupWizard addon
       - item: Improved logs structure
       - item: Addon Updates (1st Sept)
