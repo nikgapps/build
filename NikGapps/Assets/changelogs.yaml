@@ -1,10 +1,11 @@
-- date: 18th April 2022 (Android SL, S, R and Q Release)
+- date: 20th April 2022 (Android SL, S, R and Q Canary Release)
   changes:
       - item: Integrate Debloater with Gapps Package (debloater will run first if debloater.config is configured)
       - item: Fixed Flipendo not installing
       - item: Fixed Data transfer tool not working on android 10, 11 on some Roms
       - item: Add Velvet and GoogleAssistant to GoogleSearch AppSet
       - item: Update config version to v22
+      - item: Fixed Velvet causing bootloop in some cases
 - date: 13th April 2022 (Android SL, S, R and Q Release)
   changes:
       - item: Android 12.1 (12L) release
