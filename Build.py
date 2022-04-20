@@ -77,6 +77,8 @@ class Build:
                 # Generate priv-app permissions whitelist
                 if pkg.primary_app_location is not None and app_type == Constants.is_priv_app:
                     permissions_list = cmd.get_white_list_permissions(primary_app_location)
+                    for perm in pkg_to_build.priv_app_permissions:
+                        permissions_list.append(perm)
                     if permissions_list.__len__() >= 1 and not permissions_list[0].__contains__("Exception"):
                         pkg.generate_priv_app_whitelist(app_set.title, permissions_list, Constants.source_directory)
                 # Add the deleted files from the pkg_to_build object

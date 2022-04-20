@@ -364,6 +364,11 @@ class NikGappsPackages:
     def get_stock_package():
         app_set_list = NikGappsPackages.get_omni_package()
         google_velvet = Package("Velvet", "com.google.android.googlequicksearchbox", Constants.is_priv_app)
+        google_velvet.priv_app_permissions.append("android.permission.EXPAND_STATUS_BAR")
+        google_velvet.priv_app_permissions.append("android.permission.SET_MEDIA_KEY_LISTENER")
+        google_velvet.priv_app_permissions.append("android.permission.SET_VOLUME_KEY_LONG_PRESS_LISTENER")
+        google_velvet.priv_app_permissions.append("android.permission.MANAGE_USB")
+        google_velvet.priv_app_permissions.append("android.permission.START_ACTIVITIES_FROM_BACKGROUND")
         google_velvet.priv_app_permissions.append("android.permission.WRITE_APN_SETTINGS")
         google_velvet.priv_app_permissions.append("android.permission.BLUETOOTH_PRIVILEGED")
         google_velvet.additional_installer_script = """
