@@ -364,12 +364,18 @@ class NikGappsPackages:
     def get_stock_package():
         app_set_list = NikGappsPackages.get_omni_package()
         google_velvet = Package("Velvet", "com.google.android.googlequicksearchbox", Constants.is_priv_app)
+        google_velvet.priv_app_permissions.append("android.permission.EXPAND_STATUS_BAR")
+        google_velvet.priv_app_permissions.append("android.permission.SET_MEDIA_KEY_LISTENER")
+        google_velvet.priv_app_permissions.append("android.permission.SET_VOLUME_KEY_LONG_PRESS_LISTENER")
+        google_velvet.priv_app_permissions.append("android.permission.MANAGE_USB")
+        google_velvet.priv_app_permissions.append("android.permission.START_ACTIVITIES_FROM_BACKGROUND")
         google_velvet.priv_app_permissions.append("android.permission.WRITE_APN_SETTINGS")
         google_velvet.priv_app_permissions.append("android.permission.BLUETOOTH_PRIVILEGED")
         google_velvet.additional_installer_script = """
     set_prop "ro.opa.eligible_device" "true" "$install_partition/build.prop"
                         """
-        app_set_list.append(AppSet("Velvet", [google_velvet]))
+        google_assistant = Package("Assistant", "com.google.android.apps.googleassistant", Constants.is_priv_app)
+        app_set_list.append(AppSet("GoogleSearch", [google_velvet, google_assistant]))
         google_board = Package("LatinIMEGooglePrebuilt", "com.google.android.inputmethod.latin",
                                Constants.is_system_app, "GBoard")
         google_board.additional_installer_script = """
@@ -418,8 +424,6 @@ class NikGappsPackages:
         app_set_list.append(AppSet("GoogleKeep", [google_keep]))
         google_play_books = Package("Books", "com.google.android.apps.books", Constants.is_system_app)
         app_set_list.append(AppSet("Books", [google_play_books]))
-        google_assistant = Package("Assistant", "com.google.android.apps.googleassistant", Constants.is_priv_app)
-        app_set_list.append(AppSet("Assistant", [google_assistant]))
         youtube_music = Package("YouTubeMusicPrebuilt", "com.google.android.apps.youtube.music",
                                 Constants.is_system_app,
                                 "YouTubeMusic")

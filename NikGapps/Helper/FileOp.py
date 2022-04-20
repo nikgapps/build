@@ -82,6 +82,7 @@ class FileOp:
                     and not str(dir_list).endswith("/etc") \
                     and not str(dir_list).endswith("/framework") \
                     and not str(dir_list).startswith("/usr/srec/en-US/") \
+                    and not str(dir_list).endswith("system_ext_seapp_contexts") \
                     and not str(dir_list).endswith("/priv-app"):
                 return_list.append(dir_list[1:])
         return return_list
