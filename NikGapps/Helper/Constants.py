@@ -61,6 +61,7 @@ class Constants:
     #     TARGET_ANDROID_VERSION) + os.path.sep + current_time + os.path.sep + "Packages"
     path = os.path
     nikgapps_config = "nikgapps.config"
+    temp_nikgapps_config_location = temp_packages_directory + os.path.sep + nikgapps_config
     DELETE_FILES_NAME = "DeleteFilesData"
 
     if Config.TARGET_ANDROID_VERSION >= 10:

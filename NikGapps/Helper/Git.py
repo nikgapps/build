@@ -2,7 +2,7 @@ import git.exc
 from git import Repo, Commit
 from shutil import copyfile
 
-from NikGapps.Helper import FileOp
+from NikGapps.Helper.FileOp import FileOp
 from NikGapps.Helper.Assets import Assets
 from NikGapps.Helper.Constants import Constants
 import os
@@ -72,6 +72,8 @@ class Git:
         if files != "":
             for f in files.split('\n'):
                 return True
+        if self.repo.untracked_files.__len__() > 0:
+            return True
         return False
 
     def git_push(self, commit_message, push_untracked_files=None):

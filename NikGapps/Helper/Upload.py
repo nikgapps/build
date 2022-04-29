@@ -58,7 +58,7 @@ class Upload:
 
     def get_cd_without_date(self, android_version, file_type):
         folder_name = "Test"
-        if file_type == "gapps":
+        if file_type == "gapps" or file_type == "config":
             if float(android_version) == float(9):
                 folder_name = "NikGapps-P"
             elif float(android_version) == float(10):

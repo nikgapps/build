@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys
-from NikGapps.Helper import FileOp
+from NikGapps.Helper import FileOp, NikGappsConfig
 from Release import Release
 import Config
 from NikGapps.Helper.Constants import Constants
@@ -130,6 +130,9 @@ else:
         if website_repo is not None:
             commit_datetime = website_repo.get_latest_commit_date()
             website_repo.update_changelog()
+
+config = NikGappsConfig()
+config.upload_nikgapps_config()
 
 Constants.end_of_function(start_time, "Total time taken by the program")
 print("End of the Program")
