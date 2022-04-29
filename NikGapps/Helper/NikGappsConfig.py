@@ -5,8 +5,9 @@ from .ConfigObj import ConfigObj
 from NikGappsPackages import NikGappsPackages
 import Config
 import json
-from NikGapps.Helper import Constants, Upload
+from NikGapps.Helper import Constants
 from NikGapps.Helper.FileOp import FileOp
+from NikGapps.Helper.Upload import Upload
 from .Git import Git
 
 
@@ -77,28 +78,34 @@ class NikGappsConfig:
                     print("version on server is: " + version_on_server)
                     if int(version_on_server) < int(self.config_version):
                         print("server needs updating")
-                        self.create_nikgapps_config_and_upload()
-                        decoded_hand[key] = str(self.config_version)
-                        with open(config_version_json, "w") as file:
-                            json.dump(decoded_hand, file, indent=2)
+                        if self.create_nikgapps_config_and_upload():
+                            decoded_hand[key] = str(self.config_version)
+                            with open(config_version_json, "w") as file:
+                                json.dump(decoded_hand, file, indent=2)
+                        else:
+                            print("Cannot update the tracker since config file failed to upload")
                     elif int(version_on_server) == int(self.config_version):
                         print("server is in sync")
                     else:
                         print("server is on higher version")
                 else:
                     print(f"{key} key doesn't exist! creating the file with the key")
-                    self.create_nikgapps_config_and_upload()
-                    decoded_hand[key] = str(self.config_version)
-                    with open(config_version_json, 'w') as f:
-                        json.dump(decoded_hand, f, indent=2)
-                        print(f"{config_version_json} file is created")
+                    if self.create_nikgapps_config_and_upload():
+                        decoded_hand[key] = str(self.config_version)
+                        with open(config_version_json, 'w') as f:
+                            json.dump(decoded_hand, f, indent=2)
+                            print(f"{config_version_json} file is created")
+                    else:
+                        print("Cannot update the tracker since config file failed to upload")
 
             else:
                 print(config_version_json + " doesn't exist! creating the file")
-                self.create_nikgapps_config_and_upload()
-                with open(config_version_json, 'w') as f:
-                    json.dump(analytics_dict, f, indent=2)
-                    print(f"{config_version_json} file is created")
+                if self.create_nikgapps_config_and_upload():
+                    with open(config_version_json, 'w') as f:
+                        json.dump(analytics_dict, f, indent=2)
+                        print(f"{config_version_json} file is created")
+                else:
+                    print("Cannot update the tracker since config file failed to upload")
             if tracker_repo.due_changes():
                 print("Updating the config version to v" + str(self.config_version))
                 tracker_repo.git_push("Updating config version to v" + str(self.config_version),
