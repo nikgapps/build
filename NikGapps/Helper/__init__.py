@@ -16,3 +16,4 @@ from .SystemStat import SystemStat
 from .NikMail import NikMail
 from .Download import Download
 from .ConfigObj import ConfigObj
+from .B64 import B64
