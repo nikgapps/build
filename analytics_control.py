@@ -5,6 +5,7 @@ from pathlib import Path
 import git
 from git import Repo
 
+import Config
 from NikGapps.Helper import Constants, FileOp, Git, Logs
 
 repo_name = "git@github.com:nikgapps/config.git"
@@ -63,15 +64,16 @@ if FileOp.dir_exists(repo_dir):
         decoded_hand = json.loads(custom_builds_json_string)
 
         for key in analytics_dict:
-            print(f"Update download count for {key}")
-            if decoded_hand.get(key) is not None:
+            key_code = Config.ANDROID_VERSIONS[key]["code"]
+            print(f"Update download count for {key}({key_code})")
+            if decoded_hand.get(key_code) is not None:
                 # get the download count of the key
-                download_count_before = decoded_hand[key]
-                decoded_hand[key] = str(analytics_dict[key])
+                download_count_before = decoded_hand[key_code]
+                decoded_hand[key_code] = str(analytics_dict[key])
                 print(f"Download count for {key} updated from {download_count_before} to {str(analytics_dict[key])}")
             else:
                 print(f"key doesn't exist.. so creating {str(analytics_dict[key])}")
-                decoded_hand[key] = str(analytics_dict[key])
+                decoded_hand[key_code] = str(analytics_dict[key])
             print()
 
         print(decoded_hand)
