@@ -102,6 +102,7 @@ class Cmd:
                 output_line = self.execute_cmd(self.COMMAND_ZIPALIGN_APK)
                 if len(output_line) > 0:
                     for line in output_line:
+                        print(line)
                         if line.__contains__("Verification succesful"):
                             return aligned_apk_path
         return ""
