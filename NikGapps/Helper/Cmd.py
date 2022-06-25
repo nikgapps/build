@@ -80,6 +80,7 @@ class Cmd:
         output_line = self.execute_cmd(self.COMMAND_BUILD_APK)
         if len(output_line) > 0:
             for line in output_line:
+                print(line)
                 if line.__contains__("Built apk..."):
                     built_apk = True
                     break
@@ -91,6 +92,7 @@ class Cmd:
             output_line = self.execute_cmd(self.COMMAND_SIGN_APK)
             if len(output_line) > 0:
                 for line in output_line:
+                    print(line)
                     if line.__contains__("Signed"):
                         signed_apk = True
                         break
@@ -103,7 +105,7 @@ class Cmd:
                 if len(output_line) > 0:
                     for line in output_line:
                         print(line)
-                        if line.__contains__("Verification succesful"):
+                        if line.__contains__("Verification succesful") or line.__contains__("Verification successful"):
                             return aligned_apk_path
         return ""
 
