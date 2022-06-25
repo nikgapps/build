@@ -1,3 +1,6 @@
+import os
+from pathlib import Path
+
 from .Assets import Assets
 from .FileOp import FileOp
 from .Constants import Constants
@@ -42,6 +45,11 @@ class Cmd:
     COMMAND_DEVICE_ARCHITECTURE = adb_path + ["shell", "getprop", "ro.product.cpu.abi"]
     COMMAND_ADB_CONNECT_DEVICES = adb_path + ["connect", "IP"]
     COMMAND_SIGN_ZIP = ["java", "-jar", sign_jar_path, "file_path", sign_jar_path, "false"]
+    COMMAND_BUILD_APK = ["java", "-jar", Assets.apktool_path, "b", "folder_name"]
+    COMMAND_SIGN_APK = ["java", "-jar", Assets.apksigner_path, "sign", "--key", Assets.key_path, "--cert"
+                        , Assets.cert_path, "-v", "outfile.apk"]
+    COMMAND_ZIPALIGN_APK = ["zipalign", "-p", "-f", "-v", "4", "infile.apk", "outfile.apk"]
+    COMMAND_ZIPALIGN_VERIFY = ["zipalign", "-c", "-v", "4", "outfile.apk"]
 
     def execute_adb_command(self, params):
         return self.execute_cmd(self.adb_path + params)
@@ -64,6 +72,39 @@ class Cmd:
                 if line.__contains__("Using a specified mount point") or line.__contains__("remount succeeded"):
                     return True
         return False
+
+    def build_overlay(self, folder_name):
+        print(f"Building {Path(folder_name).name} overlay")
+        self.COMMAND_BUILD_APK[4] = folder_name
+        built_apk = False
+        output_line = self.execute_cmd(self.COMMAND_BUILD_APK)
+        if len(output_line) > 0:
+            for line in output_line:
+                if line.__contains__("Built apk..."):
+                    built_apk = True
+                    break
+        apk_path = os.path.join(folder_name, "dist", f"{Path(folder_name).name}.apk")
+        if built_apk and FileOp.file_exists(apk_path):
+            print(f"Signing {Path(apk_path).name}")
+            signed_apk = False
+            self.COMMAND_SIGN_APK[9] = apk_path
+            output_line = self.execute_cmd(self.COMMAND_SIGN_APK)
+            if len(output_line) > 0:
+                for line in output_line:
+                    if line.__contains__("Signed"):
+                        signed_apk = True
+                        break
+            if signed_apk:
+                print(f"Zipaligning {apk_path}")
+                self.COMMAND_ZIPALIGN_APK[5] = apk_path
+                aligned_apk_path = os.path.join(folder_name, "dist", f"{Path(folder_name).name}-aligned.apk")
+                self.COMMAND_ZIPALIGN_APK[6] = aligned_apk_path
+                output_line = self.execute_cmd(self.COMMAND_ZIPALIGN_APK)
+                if len(output_line) > 0:
+                    for line in output_line:
+                        if line.__contains__("Verification succesful"):
+                            return aligned_apk_path
+        return ""
 
     def established_device_connection_as_root(self):
         if self.adb_has_root_permissions():
