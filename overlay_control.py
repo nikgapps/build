@@ -34,7 +34,7 @@ if FileOp.dir_exists(repo_dir):
             print("Failed to build overlay")
     if overlay_config_repo.due_changes():
         print("Pushing due changes!")
-        overlay_config_repo.git_push(commit_message="Updated Overlays!")
+        overlay_config_repo.git_push(commit_message="Updated Overlays!", push_untracked_files=True)
     else:
         print(f"{overlays_repo_dir} doesn't exist!")
 else:
