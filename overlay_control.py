@@ -18,23 +18,23 @@ if FileOp.dir_exists(repo_dir):
     overlays_repo_dir = Constants.pwd + Constants.dir_sep + overlay_android_version
     if FileOp.dir_exists(overlays_repo_dir):
         FileOp.remove_dir(overlays_repo_dir)
-        overlay_config_repo = Git(overlays_repo_dir)
-        overlay_config_repo.clone_repo(overlays_repo_name, branch="main")
-        for folder in Path(repo_dir).iterdir():
-            if str(folder).endswith(".git"):
-                continue
-            cmd = Cmd()
-            overlay_path = cmd.build_overlay(folder_name=str(folder))
-            if not overlay_path.__eq__(""):
-                print(f"{overlay_path} successfully built..")
-                print(f"Copying to {os.path.join(overlays_repo_dir, str(Path(folder).name), f'{Path(folder).name}.apk')}")
-                FileOp.copy_file(overlay_path, os.path.join(overlays_repo_dir,
-                                                            str(Path(folder).name), f"{Path(folder).name}.apk"))
-            else:
-                print("Failed to build overlay")
-        if overlay_config_repo.due_changes():
-            print("Pushing due changes!")
-            overlay_config_repo.git_push(commit_message="Updated Overlays!")
+    overlay_config_repo = Git(overlays_repo_dir)
+    overlay_config_repo.clone_repo(overlays_repo_name, branch="main")
+    for folder in Path(repo_dir).iterdir():
+        if str(folder).endswith(".git"):
+            continue
+        cmd = Cmd()
+        overlay_path = cmd.build_overlay(folder_name=str(folder))
+        if not overlay_path.__eq__(""):
+            print(f"{overlay_path} successfully built..")
+            print(f"Copying to {os.path.join(overlays_repo_dir, str(Path(folder).name), f'{Path(folder).name}.apk')}")
+            FileOp.copy_file(overlay_path, os.path.join(overlays_repo_dir,
+                                                        str(Path(folder).name), f"{Path(folder).name}.apk"))
+        else:
+            print("Failed to build overlay")
+    if overlay_config_repo.due_changes():
+        print("Pushing due changes!")
+        overlay_config_repo.git_push(commit_message="Updated Overlays!")
     else:
         print(f"{overlays_repo_dir} doesn't exist!")
 else:
