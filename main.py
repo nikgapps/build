@@ -57,6 +57,10 @@ try:
         if currentArgument in ("-a", "--androidversion"):
             android_versions = currentValue.split(',')
     if config_string is not None:
+        # fetch the config repository
+        # create a file by reading config_string
+        # build and upload the package
+        # move the file to archive
         print("config operation")
     else:
         print("package operation")
