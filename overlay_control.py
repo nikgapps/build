@@ -10,7 +10,7 @@ branch = "master"
 config_repo = Git(repo_dir)
 if FileOp.dir_exists(repo_dir):
     FileOp.remove_dir(repo_dir)
-    config_repo.clone_repo(repo_name, branch=branch)
+config_repo.clone_repo(repo_name, branch=branch)
 
 if FileOp.dir_exists(repo_dir):
     overlay_android_version = f"overlays_{Config.ANDROID_VERSIONS[str(Config.TARGET_ANDROID_VERSION)]['code']}"
