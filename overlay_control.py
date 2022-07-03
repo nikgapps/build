@@ -4,8 +4,9 @@ from pathlib import Path
 import Config
 from NikGapps.Helper import Constants, Git, FileOp, Cmd
 
-repo_name = "git@github.com:nikhilmenghani/NikGapps-overlays.git"
-repo_dir = Constants.pwd + Constants.dir_sep + "NikGapps-overlays"
+android_version_code = Config.ANDROID_VERSIONS[str(Config.TARGET_ANDROID_VERSION)]['code']
+repo_name = f"git@github.com:nikgapps/overlays_{android_version_code}_source.git"
+repo_dir = Constants.pwd + Constants.dir_sep + f"overlays_{android_version_code}_source"
 branch = "master"
 config_repo = Git(repo_dir)
 if FileOp.dir_exists(repo_dir):
@@ -13,8 +14,8 @@ if FileOp.dir_exists(repo_dir):
 config_repo.clone_repo(repo_name, branch=branch)
 
 if FileOp.dir_exists(repo_dir):
-    overlay_android_version = f"overlays_{Config.ANDROID_VERSIONS[str(Config.TARGET_ANDROID_VERSION)]['code']}"
-    overlays_repo_name = f"git@github.com:nikhilmenghani/{overlay_android_version}.git"
+    overlay_android_version = f"overlays_{android_version_code}"
+    overlays_repo_name = f"git@github.com:nikgapps/{overlay_android_version}.git"
     overlays_repo_dir = Constants.pwd + Constants.dir_sep + overlay_android_version
     if FileOp.dir_exists(overlays_repo_dir):
         FileOp.remove_dir(overlays_repo_dir)
