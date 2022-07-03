@@ -20,7 +20,7 @@ if FileOp.dir_exists(repo_dir):
     if FileOp.dir_exists(overlays_repo_dir):
         FileOp.remove_dir(overlays_repo_dir)
     overlay_config_repo = Git(overlays_repo_dir)
-    overlay_config_repo.clone_repo(overlays_repo_name, branch="main")
+    overlay_config_repo.clone_repo(overlays_repo_name, branch="master")
     for folder in Path(repo_dir).iterdir():
         if str(folder).endswith(".git"):
             continue
