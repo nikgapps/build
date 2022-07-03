@@ -39,6 +39,8 @@ class Build:
                         overlay_destination = pkg_path + Constants.dir_sep + "___overlay" + Constants.dir_sep + Path(
                             file).name
                         FileOp.copy_file(file, overlay_destination)
+                else:
+                    print(f"{overlay_dir} doesn't exist!")
                 for pkg_files in Path(pkg_path).rglob("*"):
                     if Path(pkg_files).is_dir() or str(pkg_files).__contains__(".git") \
                             or str(pkg_files).endswith(".gitattributes") or str(pkg_files).endswith("README.md"):
