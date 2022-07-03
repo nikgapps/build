@@ -30,9 +30,9 @@ package_list = Config.BUILD_PACKAGE_LIST
 argumentList = sys.argv[1:]
 print(f"Actual Arguments: {argumentList}")
 # Options
-options = "ucnpa:"
+options = "ucnpad:"
 # Long options
-long_options = ["userID=", "config=", "name=", "androidversion=", "packages="]
+long_options = ["userID=", "config=", "name=", "androidversion=", "packages=", "disableGitCheck="]
 try:
     config_string = None
     # Parsing argument
@@ -56,6 +56,8 @@ try:
             file_name = f"{currentValue}" if currentValue.endswith(".config") else f"{currentValue}.config"
         if currentArgument in ("-a", "--androidversion"):
             android_versions = currentValue.split(',')
+        if currentArgument in ("-d", "--disableGitCheck"):
+            Config.GIT_CHECK = False
     if config_string is not None:
         # fetch the config repository
         # create a file by reading config_string
