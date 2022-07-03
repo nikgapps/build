@@ -7,11 +7,11 @@ ANDROID_VERSIONS = {'10': {'sdk': '29', 'code': 'Q'}
                     }
 
 # The android version that we're targeting this application to run
-TARGET_ANDROID_VERSION = 11
+TARGET_ANDROID_VERSION = 12.1
 
 # Release type defines the release
 # Possible values are [ 'canary', 'stable' ]
-RELEASE_TYPE = "canary"
+RELEASE_TYPE = "stable"
 release_type = os.environ.get('RELEASE_TYPE')
 if release_type is not None:
     RELEASE_TYPE = release_type
@@ -72,6 +72,7 @@ GIT_CHECK = True
 BUILD_CONFIG = True
 
 # Possible Values are ['fetch', 'build']
+# PROJECT_MODE = "fetch"
 PROJECT_MODE = "build"
 
 # This will help fetch the files which requires root access such as overlay files

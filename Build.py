@@ -9,7 +9,7 @@ from NikGapps.Helper.AppSet import AppSet
 class Build:
     project_name = "NikGapps"
 
-    # Just provide the package list and it will pick them up from the directory and build them for you
+    # Just provide the package list, and it will pick them up from the directory and build them for you
     @staticmethod
     def build_from_directory(app_set_build_list):
         dir_path = Constants.source_directory
@@ -32,7 +32,15 @@ class Build:
                 app_type = None
                 primary_app_location = None
                 delete_files_list = []
-                # print("Package Name: " + package.title)
+                # copy over any overlay.apk that exists to pkg_path!
+                overlay_dir = Constants.overlay_directory + Constants.dir_sep + f"{package_title}Overlay"
+                if FileOp.dir_exists(overlay_dir):
+                    for file in Path(overlay_dir).rglob("*.apk"):
+                        overlay_destination = pkg_path + Constants.dir_sep + "___overlay" + Constants.dir_sep + Path(
+                            file).name
+                        FileOp.copy_file(file, overlay_destination)
+                else:
+                    print(f"{overlay_dir} doesn't exist!")
                 for pkg_files in Path(pkg_path).rglob("*"):
                     if Path(pkg_files).is_dir() or str(pkg_files).__contains__(".git") \
                             or str(pkg_files).endswith(".gitattributes") or str(pkg_files).endswith("README.md"):

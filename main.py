@@ -1,6 +1,7 @@
 #!/usr/bin/env python
+import getopt
 import sys
-from NikGapps.Helper import FileOp, NikGappsConfig
+from NikGapps.Helper import FileOp, NikGappsConfig, B64
 from Release import Release
 import Config
 from NikGapps.Helper.Constants import Constants
@@ -22,21 +23,59 @@ datetime_London = datetime.now(tz_London)
 print("London:", datetime_London.strftime("%a, %m/%d/%Y, %H:%M:%S"))
 print("---------------------------------------")
 commit_message = datetime_London.strftime("%Y-%m-%d %H:%M:%S")
-
-# find the argument length
-arg_len = len(sys.argv)
 # initialize android versions and package list to build
 android_versions = [Config.TARGET_ANDROID_VERSION]
 package_list = Config.BUILD_PACKAGE_LIST
-if arg_len > 1:
-    android_versions = sys.argv[1].split(',')
-    if arg_len > 2:
-        package_list = sys.argv[2].split(',')
 
+argumentList = sys.argv[1:]
+print(f"Actual Arguments: {argumentList}")
+# Options
+options = "ucnpa:"
+# Long options
+long_options = ["userID=", "config=", "name=", "androidversion=", "packages="]
+try:
+    config_string = None
+    # Parsing argument
+    arguments, values = getopt.getopt(argumentList, options, long_options)
+    print(f"Arguments with values: {arguments}")
+    # checking each argument
+    for currentArgument, currentValue in arguments:
+        if currentArgument in ("-u", "--userID"):
+            user_id = currentValue
+        if currentArgument in ("-c", "--config"):
+            config_string = B64.b64d(currentValue)
+            if config_string != currentValue:
+                print(config_string)
+                package_list = []
+            else:
+                print("Cannot decode the input file")
+                exit(1)
+        if config_string is None and currentArgument in ("-p", "--packages"):
+            package_list = currentValue.split(',')
+        if currentArgument in ("-n", "--name"):
+            file_name = f"{currentValue}" if currentValue.endswith(".config") else f"{currentValue}.config"
+        if currentArgument in ("-a", "--androidversion"):
+            android_versions = currentValue.split(',')
+    if config_string is not None:
+        # fetch the config repository
+        # create a file by reading config_string
+        # build and upload the package
+        # move the file to archive
+        print("config operation")
+    else:
+        print("package operation")
+
+except getopt.error as err:
+    # output error, and return with an error code
+    print(str(err))
+    exit(0)
+
+print("---------------------------------------")
 print("Android Versions to build: " + str(android_versions))
 print("---------------------------------------")
 print("Packages to build: " + str(package_list))
 print("---------------------------------------")
+
 # # override when we don't want to execute anything
 # android_versions = []
 

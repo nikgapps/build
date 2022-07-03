@@ -8,6 +8,10 @@ class Assets:
     assets_folder = os.path.join(os.getcwd(), 'NikGapps', 'Assets')
     cwd = assets_folder + Constants.dir_sep
     system_name = platform.system()
+    apksigner_path = cwd + "apksigner.jar"
+    apktool_path = cwd + "apktool_2.6.1.jar"
+    key_path = cwd + "cert.pk8"
+    cert_path = cwd + "cert.x509.pem"
     if system_name == "Windows":
         aapt_path = os.path.join(assets_folder, 'bin', system_name, 'aapt_64.exe')
         adb_path = os.path.join(assets_folder, 'bin', system_name, 'adb.exe')

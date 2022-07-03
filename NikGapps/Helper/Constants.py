@@ -24,6 +24,8 @@ class Constants:
     # The directory where all the packages will be pulled from device and exported
     export_directory = str(Path(cwd).parent) + os.path.sep + "Export" + os.path.sep + str(
         Config.TARGET_ANDROID_VERSION) + os.path.sep + current_time
+    overlay_android_version = f"overlays_{Config.ANDROID_VERSIONS[str(Config.TARGET_ANDROID_VERSION)]['code']}"
+    overlay_directory = str(Path(cwd).parent) + os.path.sep + overlay_android_version
     # The directory where all the stable package specific files will reside
     android_version_folder = "Q"
     if str(Config.TARGET_ANDROID_VERSION).__eq__("9"):
