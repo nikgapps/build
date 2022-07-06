@@ -2,9 +2,6 @@ import json
 import os
 from pathlib import Path
 
-import git
-from git import Repo
-
 import Config
 from NikGapps.Helper import Constants, FileOp, Git, Logs
 
@@ -62,7 +59,7 @@ if FileOp.dir_exists(repo_dir):
         print(custom_builds_json_string)
         print()
         decoded_hand = json.loads(custom_builds_json_string)
-
+        total_count = 0
         for key in analytics_dict:
             key_code = Config.ANDROID_VERSIONS[key]["code"]
             print(f"Update download count for {key}({key_code})")
@@ -74,8 +71,9 @@ if FileOp.dir_exists(repo_dir):
             else:
                 print(f"key doesn't exist.. so creating {str(analytics_dict[key])}")
                 decoded_hand[key_code] = str(analytics_dict[key])
+            total_count += int(decoded_hand[key_code])
             print()
-
+        decoded_hand['total'] = str(total_count)
         print(decoded_hand)
 
         with open(custom_builds_count_json, "w") as file:
