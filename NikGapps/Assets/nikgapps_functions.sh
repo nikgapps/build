@@ -1144,7 +1144,7 @@ mount_system_source() {
 
 # Read the config file from (Thanks to xXx @xda)
 ReadConfigValue() {
-  value=$(sed -e '/^[[:blank:]]*#/d;s/[\t\n\r ]//g;/^$/d' "$2" | grep "^$1=" | cut -d'=' -f 2)
+  value=$(sed -e '/^[[:blank:]]*#/d;s/[\t\n\r ]//g;/^$/d' "$2" | grep -m 1 "^$1=" | cut -d'=' -f 2)
   echo "$value"
   return $?
 }
