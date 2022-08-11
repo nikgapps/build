@@ -96,7 +96,7 @@ ReadConfigValue() {
   return $?
 }
 
-[-z $nikgapps_config_file_name ] && find_config
+[ -z $nikgapps_config_file_name ] && find_config
 
 [ -z $execute_config ] && execute_config=$(ReadConfigValue "execute.d" "$nikgapps_config_file_name")
 [ "$execute_config" != "0" ] && execute_config=1
