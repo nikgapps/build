@@ -134,7 +134,6 @@ calculate_space() {
 
 ch_con() {
   chcon -h u:object_r:"${1}"_file:s0 "$2"
-  addToLog "- ch_con with ${1} for $2"
 }
 
 check_if_partitions_are_mounted_rw() {
@@ -483,6 +482,7 @@ find_config() {
   mkdir -p "$nikGappsDir"
   mkdir -p "$addonDir"
   mkdir -p "$logDir"
+  mkdir -p "$package_logDir"
   mkdir -p "$addon_scripts_logDir"
   mkdir -p "$TMPDIR/addon"
   ui_print " "
@@ -1001,6 +1001,7 @@ install_app_set() {
       addToLog " "
       addToLog "----------------------------------------------------------------------------"
       addToLog "- Working for $current_package_title"
+      addToPackageLog "- Working for $current_package_title" "$current_package_title"
       value=1
       if [ -f "$nikgapps_config_file_name" ]; then
         value=$(ReadConfigValue ">>$current_package_title" "$nikgapps_config_file_name")
@@ -1080,16 +1081,19 @@ install_file() {
     mkdir -p "$(dirname "$install_location")"
     set_perm 0 0 0755 "$(dirname "$install_location")"
     # unpacking of package
-    addToLog "- Unzipping $pkgFile"
-    addToLog "  -> copying $1"
-    addToLog "  -> to $install_location"
+    addToPackageLog "- Unzipping $pkgFile" "$package_title"
+    addToPackageLog "  -> copying $1" "$package_title"
+    addToPackageLog "  -> to $install_location" "$package_title"
     $BB unzip -o "$pkgFile" "$1" -p >"$install_location"
     # post unpack operations
     if [ -f "$install_location" ]; then
-      addToLog "- File Successfully Written!"
+      addToPackageLog "- File Successfully Written!" "$package_title"
       # It's important to set selinux policy
       case $install_location in
-      *) ch_con system "$install_location" ;;
+        *)
+          ch_con system "$install_location"
+          addToPackageLog "- ch_con with ${1} for $2" "$package_title"
+        ;;
       esac
       set_perm 0 0 0644 "$install_location"
       # Addon stuff!
@@ -1098,7 +1102,7 @@ install_file() {
           *"/system_ext") installPath="system_ext/$file_location" ;;
           *) installPath="$file_location" ;;
       esac
-      addToLog "- InstallPath=$installPath"
+      addToPackageLog "- InstallPath=$installPath" "$package_title"
       echo "install=$installPath" >>"$TMPDIR/addon/$packagePath"
     else
       ui_print "- Failed to write $install_location"
