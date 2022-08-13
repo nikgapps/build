@@ -1,8 +1,7 @@
-- date: 11th Aug 2022 (Android SL, R)
+- date: 13th Aug 2022 (Android SL, R)
   changes:
       - item: Fixed Markup crashing
       - item: Fixed dynamic_partitions_op_list issue coming with ota update or dirty flashing Rom
-      - item: Reverting back to addon.d v2 since v3 has some issues with A-only devices with dynamic partitions
 - date: 9th July 2022 (Android SL, R)
   changes:
       - item: Fixed select not working on recents screen with pixel launcher (tested on los 19.1, check with rom Developer if this doesn't work)
