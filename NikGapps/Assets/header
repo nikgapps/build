@@ -12,9 +12,3 @@ nikGappsDir="/sdcard/NikGapps"
 
 nikGappsAddonLogFile="/sdcard/NikGapps/addonLogs/NikGapps_addon.log"
 mkdir -p "$(dirname $nikGappsAddonLogFile)";
-
-if [ -z $backuptool_ab ]; then
-  P="$S"
-else
-  P="/postinstall/system"
-fi

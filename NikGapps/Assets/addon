@@ -117,11 +117,12 @@ restore() {
   echo "   done"
   echo "   delete_aosp_apps"
   echo "   debloat_apps"
-  echo "  for i in \$(list_files); do"
-  echo "    chown root:root \"\$P/\$i\""
-  echo "    chmod 644 \"\$P/\$i\""
-  echo "    chmod 755 \"\$(dirname \"\$P/\$i\")\""
-  echo "  done"
+  echo "   for i in \$(list_files); do"
+  echo "     f=\$(get_output_path \"\$S/\$i\")"
+  echo "     chown root:root \"\$f\""
+  echo "     chmod 644 \"\$f\""
+  echo "     chmod 755 \$(dirname \$f)"
+  echo "   done"
   echo " ;;"
 }
 
@@ -156,7 +157,7 @@ ReadConfigValue() {
 header() {
   echo "#!/sbin/sh"
   echo "#"
-  echo "# ADDOND_VERSION=2"
+  echo "# ADDOND_VERSION=3"
 }
 
 for i in $(find $destDir -iname "*$fileName.sh" 2>/dev/null;); do
