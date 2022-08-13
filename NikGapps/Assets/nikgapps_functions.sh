@@ -334,6 +334,7 @@ copy_logs() {
 debloat() {
   debloaterFilesPath="DebloaterFiles"
   debloaterRan=0
+  addon_index=10
   if [ -f "$debloater_config_file_name" ]; then
     addToLog "- Debloater.config found!"
     g=$(sed -e '/^[[:blank:]]*#/d;s/[\t\n\r ]//g;/^$/d' "$debloater_config_file_name")
@@ -390,7 +391,7 @@ debloat() {
     done
     if [ $debloaterRan = 1 ]; then
       . $COMMONDIR/addon "$OFD" "Debloater" "" "" "$TMPDIR/addon/$debloaterFilesPath" ""
-      copy_file "$system/addon.d/51-Debloater.sh" "$logDir/addonscripts/51-Debloater.sh"
+      copy_file "$system/addon.d/$addon_index-Debloater.sh" "$logDir/addonscripts/$addon_index-Debloater.sh"
       copy_file "$TMPDIR/addon/$debloaterFilesPath" "$logDir/addonfiles/Debloater.addon"
       rmv "$TMPDIR/addon/$debloaterFilesPath"
     fi

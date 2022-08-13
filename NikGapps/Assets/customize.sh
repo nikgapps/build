@@ -44,7 +44,8 @@ installation_size_log=$TMPDIR/installation_size.log
 busyboxLog=$TMPDIR/busybox.log
 addonDir="$TMPDIR/addon"
 sdcard="/sdcard"
-master_addon_file="51-nikgapps-addon.sh"
+addon_index=10
+master_addon_file="$addon_index-nikgapps-addon.sh"
 
 addToLog() {
   echo "$1" >>"$nikGappsLog"

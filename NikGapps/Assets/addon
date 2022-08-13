@@ -8,7 +8,8 @@ shift 1
 destDir=$system/addon.d
 NikGappsDir=$destDir
 destDir=$NikGappsDir
-dest=$destDir/51-$1".sh"
+addon_index=10
+dest="$destDir/$addon_index-$1.sh"
 fileName=$1
 shift 1
 installSource=$1
@@ -129,16 +130,16 @@ restore() {
 run() {
   echo " "
   echo "if [ \"\$execute_config\" = \"0\" ]; then"
-  echo "  if [ -f \"\$S/addon.d/51-$fileName.sh\" ]; then"
+  echo "  if [ -f \"\$S/addon.d/$addon_index-$fileName.sh\" ]; then"
   echo "    ui_print \"- Deleting up $fileName.sh\""
-  echo "    rm -rf \$S/addon.d/51-$fileName.sh"
-  echo "    rm -rf \$T/addon.d/51-$fileName.sh"
+  echo "    rm -rf \$S/addon.d/$addon_index-$fileName.sh"
+  echo "    rm -rf \$T/addon.d/$addon_index-$fileName.sh"
   echo "  fi"
   echo "  exit 1"
   echo "fi"
   echo " "
-  echo "if [ ! -f \"\$S/addon.d/51-$fileName.sh\" ]; then"
-  echo "  test \"\$execute_config\" = \"1\" && CopyFile \"\$0\" \"\$S/addon.d/51-$fileName.sh\""
+  echo "if [ ! -f \"\$S/addon.d/$addon_index-$fileName.sh\" ]; then"
+  echo "  test \"\$execute_config\" = \"1\" && CopyFile \"\$0\" \"\$S/addon.d/$addon_index-$fileName.sh\""
   echo "fi"
   echo " "
   echo "case \"\$1\" in"
@@ -178,4 +179,4 @@ cat "$COMMONDIR/header" >> "$dest"
 } >>"$dest"
 chmod 755 "$dest"
 mkdir -p "$addon_scripts_logDir"
-cat "$dest" > "$addon_scripts_logDir/51-$fileName.sh"
+cat "$dest" > "$addon_scripts_logDir/$addon_index-$fileName.sh"
