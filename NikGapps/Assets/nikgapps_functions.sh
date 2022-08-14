@@ -592,8 +592,8 @@ find_install_mode() {
       fi
     done
     if [ "$prop_file_exists" = "false" ]; then
-      test "$zip_type" = "gapps" && ui_print "- Can't dirty flash $package_title" && return
-      test "$zip_type" = "addon" && abort "- Can't dirty flash $package_title, please clean flash!"
+      test "$zip_type" = "gapps" && ui_print "- Cannot dirty flash, wipe /data to install $package_title" && return
+      test "$zip_type" = "addon" && abort "- Cannot flash $package_title now as you will run into issues! Wipe /data if you still want to install it. You must always flash $package_title before booting into Rom!"
     fi
   fi
   addToLog "----------------------------------------------------------------------------"
