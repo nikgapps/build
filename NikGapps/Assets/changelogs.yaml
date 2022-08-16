@@ -1,7 +1,8 @@
-- date: 13th Aug 2022 (Android SL, R)
+- date: 16th Aug 2022 (Android SL, R Canary Release)
   changes:
       - item: Fixed Markup crashing
       - item: Fixed dynamic_partitions_op_list issue coming with ota update or dirty flashing Rom
+      - item: Fixed ota update not able to delete aosp apps
 - date: 9th July 2022 (Android SL, R)
   changes:
       - item: Fixed select not working on recents screen with pixel launcher (tested on los 19.1, check with rom Developer if this doesn't work)
