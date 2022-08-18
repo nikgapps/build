@@ -44,11 +44,12 @@ class Constants:
     if str(Config.ENVIRONMENT_TYPE).__eq__("production"):
         android_version_folder = str(Config.TARGET_ANDROID_VERSION)
     source_directory = str(Path(cwd).parent) + os.path.sep + str(android_version_folder)
+    website_repo = "git@github.com:nikgapps/nikgapps.github.io.git"
     website_directory = str(Path(cwd).parent) + os.path.sep + "nikgapps.github.io"
     release_history_directory = str(Path(cwd).parent) + os.path.sep + "release"
     if Config.RELEASE_TYPE.__eq__("canary"):
         release_history_directory = str(Path(cwd).parent) + os.path.sep + "canary-release"
-    apk_source_repo = f"git@gitlab.com:nikgapps/{str(Config.TARGET_ANDROID_VERSION)}.git"
+    apk_source_repo = f"git@gitlab.com:nikgapps/"
     apk_source_directory = str(Path(cwd).parent) + os.path.sep
     config_directory = str(Path(cwd).parent) + os.path.sep + "config"
     sourceforge_release_directory = "/home/frs/project/nikgapps/Releases"
@@ -93,7 +94,6 @@ class Constants:
     @staticmethod
     def end_of_function(start_time, message=None):
         print(Fore.CYAN)
-        print()
         print("---------------------------------------")
         if message is not None:
             print("--- " + message + " ---")
@@ -103,7 +103,6 @@ class Constants:
         print("--- %s seconds --- " % (time.time() - start_time))
         print("--- %s minutes %s seconds --- " % (minutes, seconds))
         print("---------------------------------------")
-        print()
         print(Fore.RESET)
 
     @staticmethod

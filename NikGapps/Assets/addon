@@ -20,7 +20,7 @@ TMPDIR=/dev/tmp
 COMMONDIR=$TMPDIR/NikGappsScripts
 if $BOOTMODE; then
   COMMONDIR=$MODPATH/NikGappsScripts
-  mkdir -p $COMMONDIR
+  mkdir -p "$COMMONDIR"
 fi
 addonDir="/sdcard/NikGapps/addonLogs"
 nikGappsAddonLogFile="$addonDir/NikGapps_addon.log"
@@ -165,7 +165,7 @@ header() {
 
 for i in $(find $destDir -iname "*$fileName.sh" 2>/dev/null;); do
   if [ -f "$i" ]; then
-    rm -rf $i
+    rm -rf "$i"
   fi
 done
 
