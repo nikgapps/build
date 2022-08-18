@@ -93,7 +93,7 @@ class Constants:
 
     @staticmethod
     def end_of_function(start_time, message=None):
-        print(Fore.CYAN)
+        print(Fore.LIGHTMAGENTA_EX)
         print("---------------------------------------")
         if message is not None:
             print("--- " + message + " ---")
