@@ -5,6 +5,7 @@ from datetime import datetime
 from pathlib import Path
 
 import pytz
+from colorama import Fore
 
 import Config
 
@@ -47,8 +48,8 @@ class Constants:
     release_history_directory = str(Path(cwd).parent) + os.path.sep + "release"
     if Config.RELEASE_TYPE.__eq__("canary"):
         release_history_directory = str(Path(cwd).parent) + os.path.sep + "canary-release"
-
-    apk_source_directly = str(Path(cwd).parent) + os.path.sep
+    apk_source_repo = f"git@gitlab.com:nikgapps/{str(Config.TARGET_ANDROID_VERSION)}.git"
+    apk_source_directory = str(Path(cwd).parent) + os.path.sep
     config_directory = str(Path(cwd).parent) + os.path.sep + "config"
     sourceforge_release_directory = "/home/frs/project/nikgapps/Releases"
 
@@ -91,17 +92,19 @@ class Constants:
 
     @staticmethod
     def end_of_function(start_time, message=None):
+        print(Fore.CYAN)
+        print()
+        print("---------------------------------------")
         if message is not None:
-            print()
             print("--- " + message + " ---")
-        else:
-            print()
         sec = round(time.time() - start_time, 0)
         seconds = int(math.fmod(sec, 60))
         minutes = int(sec // 60)
         print("--- %s seconds --- " % (time.time() - start_time))
         print("--- %s minutes %s seconds --- " % (minutes, seconds))
+        print("---------------------------------------")
         print()
+        print(Fore.RESET)
 
     @staticmethod
     def update_sourceforge_release_directory(release_type):
