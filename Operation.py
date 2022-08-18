@@ -28,7 +28,7 @@ class Operation:
         if repo_url is not None:
             repository.clone_repo(repo_url=repo_url, fresh_clone=False, branch=branch)
         if repository is not None:
-            last_commit_datetime = repository.get_latest_commit_date(repo=branch)
+            last_commit_datetime = repository.get_latest_commit_date(branch=branch)
         return last_commit_datetime
 
     @staticmethod
@@ -104,7 +104,7 @@ class Operation:
             if git_check:
                 release_datetime = None
                 if release_repo is not None:
-                    release_datetime = release_repo.get_latest_commit_date(repo="master",
+                    release_datetime = release_repo.get_latest_commit_date(branch="master",
                                                                            filter_key=str(android_version))
                     print(f"Last Release ({str(android_version)}): " + str(release_datetime))
                 apk_source_datetime = self.get_last_commit_date(repo_dir=apk_source_directory,

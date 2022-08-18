@@ -98,7 +98,7 @@ else:
         else:
             print(Constants.release_history_directory + " doesn't exist!")
         source_repo = Git(Constants.cwd)
-        source_last_commit_datetime = source_repo.get_latest_commit_date(repo="main")
+        source_last_commit_datetime = source_repo.get_latest_commit_date(branch="main")
         if Config.RELEASE_TYPE.__eq__("canary"):
             print("Last Canary Source Commit: " + str(source_last_commit_datetime))
         else:
@@ -119,7 +119,7 @@ else:
                     branch = "canary"
                 apk_source_repo = Git(Constants.apk_source_directory + str(Config.TARGET_ANDROID_VERSION))
                 if apk_source_repo is not None:
-                    apk_source_datetime = apk_source_repo.get_latest_commit_date(repo=branch)
+                    apk_source_datetime = apk_source_repo.get_latest_commit_date(branch=branch)
                     # if last commit was before release date,
                     # the release was already made, so we don't need a new release
                     print("Last Apk Repo (" + str(Config.TARGET_ANDROID_VERSION) + ") Commit: " + str(
