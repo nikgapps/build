@@ -108,7 +108,7 @@ class Operation:
                                                                            filter_key=str(android_version))
                     print(f"Last Release ({str(android_version)}): " + str(release_datetime))
                 apk_source_datetime = self.get_last_commit_date(repo_dir=apk_source_directory,
-                                                                repo_url=apk_source_repo, branch="main")
+                                                                repo_url=apk_source_repo)
                 if apk_source_datetime is not None:
                     print("Last Apk Repo (" + str(Config.TARGET_ANDROID_VERSION) + ") Commit: " + str(
                         apk_source_datetime))

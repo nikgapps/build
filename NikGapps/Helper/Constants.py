@@ -49,7 +49,7 @@ class Constants:
     release_history_directory = str(Path(cwd).parent) + os.path.sep + "release"
     if Config.RELEASE_TYPE.__eq__("canary"):
         release_history_directory = str(Path(cwd).parent) + os.path.sep + "canary-release"
-    apk_source_repo = f"git@gitlab.com:nikgapps/"
+    apk_source_repo = f"https://gitlab.com/nikgapps/"
     apk_source_directory = str(Path(cwd).parent) + os.path.sep
     config_directory = str(Path(cwd).parent) + os.path.sep + "config"
     sourceforge_release_directory = "/home/frs/project/nikgapps/Releases"
