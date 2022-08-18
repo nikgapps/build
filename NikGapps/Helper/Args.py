@@ -14,7 +14,8 @@ class Args:
         parser.add_argument(
             '-G', '--enableGitCheck', help="Include this to enable git operations", action="store_true")
         parser.add_argument(
-            '-A', '--androidVersion', help="It is the android version for which we need to build the gapps", default="-1",
+            '-A', '--androidVersion', help="It is the android version for which we need to build the gapps",
+            default="-1",
             type=str)
         parser.add_argument(
             '-P', '--packageList', help="List of packages to build", type=str)
@@ -37,11 +38,10 @@ class Args:
         else:
             pkg_list = []
         return pkg_list
-    
+
     def get_android_versions(self):
         if self.android_version is not None:
             android_versions = self.android_version.split(',')
         else:
             android_versions = []
         return android_versions
-    

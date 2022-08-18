@@ -21,16 +21,23 @@ class Git:
 
     def clone_repo(self, repo_url, branch="main", fresh_clone=True, commit_depth=1):
         try:
-            if FileOp.dir_exists(self.working_tree_dir):
-                if fresh_clone:
+            if fresh_clone:
+                # for fresh clone, we must clean the directory and clone again
+                if FileOp.dir_exists(self.working_tree_dir):
                     print(f"{self.working_tree_dir} already exists, deleting for a fresh clone!")
                     FileOp.remove_dir(self.working_tree_dir)
-            else:
-                print(f"{self.working_tree_dir} doesn't exists, fresh clone is enforced!")
                 print(Fore.GREEN + f"git clone -b {branch} --depth={commit_depth} {repo_url}" + Fore.RESET)
                 repo_clone_start_time = Constants.start_of_function()
                 self.repo = git.Repo.clone_from(repo_url, self.working_tree_dir, branch=branch, depth=commit_depth)
                 Constants.end_of_function(repo_clone_start_time, f"Time taken to clone -b {branch} {repo_url}")
+            else:
+                # if it is not a fresh clone, we only clone when directory doesn't exist
+                if not FileOp.dir_exists(self.working_tree_dir):
+                    print(f"{self.working_tree_dir} doesn't exists, fresh clone is enforced!")
+                    print(Fore.GREEN + f"git clone -b {branch} --depth={commit_depth} {repo_url}" + Fore.RESET)
+                    repo_clone_start_time = Constants.start_of_function()
+                    self.repo = git.Repo.clone_from(repo_url, self.working_tree_dir, branch=branch, depth=commit_depth)
+                    Constants.end_of_function(repo_clone_start_time, f"Time taken to clone -b {branch} {repo_url}")
             assert self.repo.__class__ is Repo  # clone an existing repository
             assert Repo.init(self.working_tree_dir).__class__ is Repo
             return True
