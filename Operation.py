@@ -24,11 +24,11 @@ class Operation:
     def get_last_commit_date(repo_dir=Constants.cwd, repo_url=None,
                              branch="canary" if Config.RELEASE_TYPE.__eq__("canary") else "main"):
         last_commit_datetime = None
-        repo = Git(repo_dir)
+        repository = Git(repo_dir)
         if repo_url is not None:
-            repo.clone_repo(repo_url=repo_url, fresh_clone=False, branch=branch)
-        if repo is not None:
-            last_commit_datetime = repo.get_latest_commit_date(repo=branch)
+            repository.clone_repo(repo_url=repo_url, fresh_clone=False, branch=branch)
+        if repository is not None:
+            last_commit_datetime = repository.get_latest_commit_date(repo=branch)
         return last_commit_datetime
 
     @staticmethod

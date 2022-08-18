@@ -50,17 +50,17 @@ class Git:
     # assert len(ten_commits_past_twenty) == 10
     # assert fifty_first_commits[20:30] == ten_commits_past_twenty
     # repo = git.Repo.clone_from(repo_url, working_tree_dir, branch='master')
-    def get_latest_commit_date(self, repo=None, filter_key=None):
+    def get_latest_commit_date(self, branch=None, filter_key=None):
         tz_london = pytz.timezone('Europe/London')
         try:
-            if repo is not None:
-                commits = list(self.repo.iter_commits(repo, max_count=50))
+            if branch is not None:
+                commits = list(self.repo.iter_commits(branch, max_count=50))
             else:
                 commits = list(self.repo.iter_commits('master', max_count=50))
         except git.exc.GitCommandError:
-            if repo == "master":
-                repo = "main"
-            commits = list(self.repo.iter_commits(repo, max_count=50))
+            if branch == "master":
+                branch = "main"
+            commits = list(self.repo.iter_commits(branch, max_count=50))
 
         for commit in commits:
             commit: Commit
