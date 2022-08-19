@@ -22,7 +22,7 @@ class Upload:
         self.child = pexpect.spawn('sftp nikhilmenghani@frs.sourceforge.net')
         self.successful_connection = False
         self.day = datetime.now(pytz.timezone('Europe/London')).strftime("%a")
-        i = self.child.expect(["Password", "yes/no", pexpect.TIMEOUT, pexpect.EOF])
+        i = self.child.expect(["Password", "yes/no", pexpect.TIMEOUT, pexpect.EOF], timeout=120)
         if i == 2 or i == 3:
             print("Timeout has occurred, let's try one more time")
             self.child.sendcontrol('c')
