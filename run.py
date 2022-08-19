@@ -26,6 +26,7 @@ package_list = Config.BUILD_PACKAGE_LIST
 
 # parse command line arguments
 args = Args()
+Config.OVERRIDE_RELEASE = args.forceRun
 if len(args.get_package_list()) > 0:
     package_list = args.get_package_list()
 # override when we don't want to execute anything
