@@ -129,8 +129,6 @@ restore() {
 
 run() {
   echo " "
-  echo "ls -alR \$S > \"$addonDir/$fileName-\$1.log\""
-  echo " "
   echo "if [ \"\$execute_config\" = \"0\" ]; then"
   echo "  if [ -f \"\$S/addon.d/$addon_index-$fileName.sh\" ]; then"
   echo "    ui_print \"- Deleting up $fileName.sh\""
