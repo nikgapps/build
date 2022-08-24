@@ -1,3 +1,10 @@
+- date: 25th Aug 2022 (Android SL, R Release)
+  changes:
+      - item: Fixed Markup crashing
+      - item: Fixed dynamic_partitions_op_list issue coming with ota update or dirty flashing Rom
+      - item: Fixed ota update not able to delete aosp apps
+      - item: Fixed an issue where gboard voice command was taking longer to process
+      - item: Script Improvements
 - date: 9th July 2022 (Android SL, R)
   changes:
       - item: Fixed select not working on recents screen with pixel launcher (tested on los 19.1, check with rom Developer if this doesn't work)

@@ -134,7 +134,6 @@ calculate_space() {
 
 ch_con() {
   chcon -h u:object_r:"${1}"_file:s0 "$2"
-  addToLog "- ch_con with ${1} for $2"
 }
 
 check_if_partitions_are_mounted_rw() {
@@ -335,6 +334,7 @@ copy_logs() {
 debloat() {
   debloaterFilesPath="DebloaterFiles"
   debloaterRan=0
+  addon_index=10
   if [ -f "$debloater_config_file_name" ]; then
     addToLog "- Debloater.config found!"
     g=$(sed -e '/^[[:blank:]]*#/d;s/[\t\n\r ]//g;/^$/d' "$debloater_config_file_name")
@@ -391,7 +391,7 @@ debloat() {
     done
     if [ $debloaterRan = 1 ]; then
       . $COMMONDIR/addon "$OFD" "Debloater" "" "" "$TMPDIR/addon/$debloaterFilesPath" ""
-      copy_file "$system/addon.d/51-Debloater.sh" "$logDir/addonscripts/51-Debloater.sh"
+      copy_file "$system/addon.d/$addon_index-Debloater.sh" "$logDir/addonscripts/$addon_index-Debloater.sh"
       copy_file "$TMPDIR/addon/$debloaterFilesPath" "$logDir/addonfiles/Debloater.addon"
       rmv "$TMPDIR/addon/$debloaterFilesPath"
     fi
@@ -483,6 +483,7 @@ find_config() {
   mkdir -p "$nikGappsDir"
   mkdir -p "$addonDir"
   mkdir -p "$logDir"
+  mkdir -p "$package_logDir"
   mkdir -p "$addon_scripts_logDir"
   mkdir -p "$TMPDIR/addon"
   ui_print " "
@@ -591,8 +592,8 @@ find_install_mode() {
       fi
     done
     if [ "$prop_file_exists" = "false" ]; then
-      test "$zip_type" = "gapps" && ui_print "- Can't dirty flash $package_title" && return
-      test "$zip_type" = "addon" && abort "- Can't dirty flash $package_title, please clean flash!"
+      test "$zip_type" = "gapps" && ui_print "- Cannot dirty flash, wipe /data to install $package_title" && return
+      test "$zip_type" = "addon" && abort "- Cannot flash $package_title now as you will run into issues! Wipe /data if you still want to install it. You must always flash $package_title before booting into Rom!"
     fi
   fi
   addToLog "----------------------------------------------------------------------------"
@@ -1001,6 +1002,7 @@ install_app_set() {
       addToLog " "
       addToLog "----------------------------------------------------------------------------"
       addToLog "- Working for $current_package_title"
+      addToPackageLog "- Working for $current_package_title" "$current_package_title"
       value=1
       if [ -f "$nikgapps_config_file_name" ]; then
         value=$(ReadConfigValue ">>$current_package_title" "$nikgapps_config_file_name")
@@ -1080,16 +1082,19 @@ install_file() {
     mkdir -p "$(dirname "$install_location")"
     set_perm 0 0 0755 "$(dirname "$install_location")"
     # unpacking of package
-    addToLog "- Unzipping $pkgFile"
-    addToLog "  -> copying $1"
-    addToLog "  -> to $install_location"
+    addToPackageLog "- Unzipping $pkgFile" "$package_title"
+    addToPackageLog "  -> copying $1" "$package_title"
+    addToPackageLog "  -> to $install_location" "$package_title"
     $BB unzip -o "$pkgFile" "$1" -p >"$install_location"
     # post unpack operations
     if [ -f "$install_location" ]; then
-      addToLog "- File Successfully Written!"
+      addToPackageLog "- File Successfully Written!" "$package_title"
       # It's important to set selinux policy
       case $install_location in
-      *) ch_con system "$install_location" ;;
+        *)
+          ch_con system "$install_location"
+          addToPackageLog "- ch_con with ${1} for $2" "$package_title"
+        ;;
       esac
       set_perm 0 0 0644 "$install_location"
       # Addon stuff!
@@ -1098,7 +1103,7 @@ install_file() {
           *"/system_ext") installPath="system_ext/$file_location" ;;
           *) installPath="$file_location" ;;
       esac
-      addToLog "- InstallPath=$installPath"
+      addToPackageLog "- InstallPath=$installPath" "$package_title"
       echo "install=$installPath" >>"$TMPDIR/addon/$packagePath"
     else
       ui_print "- Failed to write $install_location"

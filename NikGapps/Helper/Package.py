@@ -123,7 +123,7 @@ class Package:
         str_data += "   if [ -f \"$propFilePath\" ]; then\n"
         str_data += "       echo \"install=$(echo \"$propFilePath\" | sed \"s|^$system/||\")\" " \
                     ">>\"$TMPDIR/addon/$packagePath\"\n"
-        str_data += "       addToLog \"- Adding $propFilePath to $TMPDIR/addon/$packagePath\"\n"
+        str_data += "       addToPackageLog \"- Adding $propFilePath to $TMPDIR/addon/$packagePath\" \"" + self.package_title + "\" \n"
         str_data += "   fi\n"
         str_data += "   . $COMMONDIR/addon \"$OFD\" \"" + self.package_title + "\" \"$TMPDIR/addon/$packagePath\"" \
                     + " \"$propFilePath\"" + " \"\"\n"

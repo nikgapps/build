@@ -1,7 +1,7 @@
 import git.exc
 from git import Repo, Commit
 from shutil import copyfile
-
+from colorama import Fore
 from NikGapps.Helper.FileOp import FileOp
 from NikGapps.Helper.Assets import Assets
 from NikGapps.Helper.Constants import Constants
@@ -19,21 +19,30 @@ class Git:
         if FileOp.dir_exists(self.working_tree_dir):
             self.repo = Repo(working_tree_dir)
 
-    def clone_repo(self, repo_url, branch="main", fresh_clone=True):
-        repo_clone_start_time = Constants.start_of_function()
+    def clone_repo(self, repo_url, branch="main", fresh_clone=True, commit_depth=1):
         try:
-            if fresh_clone and FileOp.dir_exists(self.working_tree_dir):
-                print(f"{self.working_tree_dir} already exists, deleting for a fresh clone!")
-                FileOp.remove_dir(self.working_tree_dir)
-            print(f"git clone -b --depth=1 {branch} {repo_url}")
-            self.repo = git.Repo.clone_from(repo_url, self.working_tree_dir, branch=branch, depth=1)
+            if fresh_clone:
+                # for fresh clone, we must clean the directory and clone again
+                if FileOp.dir_exists(self.working_tree_dir):
+                    print(f"{self.working_tree_dir} already exists, deleting for a fresh clone!")
+                    FileOp.remove_dir(self.working_tree_dir)
+                print(Fore.GREEN + f"git clone -b {branch} --depth={commit_depth} {repo_url}" + Fore.RESET)
+                repo_clone_start_time = Constants.start_of_function()
+                self.repo = git.Repo.clone_from(repo_url, self.working_tree_dir, branch=branch, depth=commit_depth)
+                Constants.end_of_function(repo_clone_start_time, f"Time taken to clone -b {branch} {repo_url}")
+            else:
+                # if it is not a fresh clone, we only clone when directory doesn't exist
+                if not FileOp.dir_exists(self.working_tree_dir):
+                    print(f"{self.working_tree_dir} doesn't exists, fresh clone is enforced!")
+                    print(Fore.GREEN + f"git clone -b {branch} --depth={commit_depth} {repo_url}" + Fore.RESET)
+                    repo_clone_start_time = Constants.start_of_function()
+                    self.repo = git.Repo.clone_from(repo_url, self.working_tree_dir, branch=branch, depth=commit_depth)
+                    Constants.end_of_function(repo_clone_start_time, f"Time taken to clone -b {branch} {repo_url}")
             assert self.repo.__class__ is Repo  # clone an existing repository
             assert Repo.init(self.working_tree_dir).__class__ is Repo
-            Constants.end_of_function(repo_clone_start_time, f"Time taken to clone -b {branch} {repo_url}")
             return True
         except Exception as e:
             print("Exception caught while cloning the repo: " + str(e))
-        Constants.end_of_function(repo_clone_start_time, f"Time taken to clone -b {branch} {repo_url}")
         return False
 
     # this will return commits 21-30 from the commit list as traversed backwards master
@@ -41,17 +50,17 @@ class Git:
     # assert len(ten_commits_past_twenty) == 10
     # assert fifty_first_commits[20:30] == ten_commits_past_twenty
     # repo = git.Repo.clone_from(repo_url, working_tree_dir, branch='master')
-    def get_latest_commit_date(self, repo=None, filter_key=None):
+    def get_latest_commit_date(self, branch=None, filter_key=None):
         tz_london = pytz.timezone('Europe/London')
         try:
-            if repo is not None:
-                commits = list(self.repo.iter_commits(repo, max_count=50))
+            if branch is not None:
+                commits = list(self.repo.iter_commits(branch, max_count=50))
             else:
                 commits = list(self.repo.iter_commits('master', max_count=50))
         except git.exc.GitCommandError:
-            if repo == "master":
-                repo = "main"
-            commits = list(self.repo.iter_commits(repo, max_count=50))
+            if branch == "master":
+                branch = "main"
+            commits = list(self.repo.iter_commits(branch, max_count=50))
 
         for commit in commits:
             commit: Commit

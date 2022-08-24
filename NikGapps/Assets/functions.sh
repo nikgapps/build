@@ -43,8 +43,9 @@ CopyFile() {
 
 delete_recursive() {
   # delete if directory exists
+  addToLog "- Deleting $*"
   if [ -d "$1" ]; then
-    addToLog "- Deleting $*"
+    addToLog "- worked this time!"
     rm -rf "$*"
   fi
 }
@@ -52,15 +53,8 @@ delete_recursive() {
 delete_aosp_apps(){
   for i in $(delete_folders); do
     # A/B device will have /postinstall
-    if [ -d "/postinstall" ]; then
-      delete_recursive "/postinstall$S/$i"
-    # if /postinstall doesn't exist, then it must be A-only device
-    elif [ -d "$S/$i" ]; then
-      delete_recursive "$S/$i"
-    # if the folder doesn't exist on either /postinstall or /system
-    else
-      addToLog "- $i cannot be located"
-    fi
+    delete_recursive "/postinstall$S/$i"
+    delete_recursive "$S/$i"
   done
 }
 
@@ -96,7 +90,8 @@ ReadConfigValue() {
   return $?
 }
 
-[-z $nikgapps_config_file_name ] && find_config
+[ -z $nikgapps_config_file_name ] && find_config
 
 [ -z $execute_config ] && execute_config=$(ReadConfigValue "execute.d" "$nikgapps_config_file_name")
 [ "$execute_config" != "0" ] && execute_config=1
+

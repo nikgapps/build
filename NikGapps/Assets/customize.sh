@@ -37,16 +37,22 @@ nikGappsLogFile="Logs-"$actual_file_name.tar.gz
 recoveryLog=/tmp/recovery.log
 logDir="$TMPDIR/NikGapps/logs"
 addon_scripts_logDir="$logDir/addonscripts"
+package_logDir="$logDir/package_log"
 nikGappsDir="/sdcard/NikGapps"
 nikGappsLog=$TMPDIR/NikGapps.log
 installation_size_log=$TMPDIR/installation_size.log
 busyboxLog=$TMPDIR/busybox.log
 addonDir="$TMPDIR/addon"
 sdcard="/sdcard"
-master_addon_file="51-nikgapps-addon.sh"
+addon_index=10
+master_addon_file="$addon_index-nikgapps-addon.sh"
 
 addToLog() {
   echo "$1" >>"$nikGappsLog"
+}
+
+addToPackageLog(){
+  echo "$1" >> "$package_logDir/$2.log"
 }
 
 addSizeToLog() {

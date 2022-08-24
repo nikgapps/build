@@ -5,6 +5,7 @@ from datetime import datetime
 from pathlib import Path
 
 import pytz
+from colorama import Fore
 
 import Config
 
@@ -43,12 +44,13 @@ class Constants:
     if str(Config.ENVIRONMENT_TYPE).__eq__("production"):
         android_version_folder = str(Config.TARGET_ANDROID_VERSION)
     source_directory = str(Path(cwd).parent) + os.path.sep + str(android_version_folder)
+    website_repo = "git@github.com:nikgapps/nikgapps.github.io.git"
     website_directory = str(Path(cwd).parent) + os.path.sep + "nikgapps.github.io"
     release_history_directory = str(Path(cwd).parent) + os.path.sep + "release"
     if Config.RELEASE_TYPE.__eq__("canary"):
         release_history_directory = str(Path(cwd).parent) + os.path.sep + "canary-release"
-
-    apk_source_directly = str(Path(cwd).parent) + os.path.sep
+    apk_source_repo = f"https://gitlab.com/nikgapps/"
+    apk_source_directory = str(Path(cwd).parent) + os.path.sep
     config_directory = str(Path(cwd).parent) + os.path.sep + "config"
     sourceforge_release_directory = "/home/frs/project/nikgapps/Releases"
 
@@ -91,17 +93,17 @@ class Constants:
 
     @staticmethod
     def end_of_function(start_time, message=None):
+        print(Fore.LIGHTMAGENTA_EX)
+        print("---------------------------------------")
         if message is not None:
-            print()
             print("--- " + message + " ---")
-        else:
-            print()
         sec = round(time.time() - start_time, 0)
         seconds = int(math.fmod(sec, 60))
         minutes = int(sec // 60)
         print("--- %s seconds --- " % (time.time() - start_time))
         print("--- %s minutes %s seconds --- " % (minutes, seconds))
-        print()
+        print("---------------------------------------")
+        print(Fore.RESET)
 
     @staticmethod
     def update_sourceforge_release_directory(release_type):
