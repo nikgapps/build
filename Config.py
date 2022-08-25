@@ -4,10 +4,11 @@ ANDROID_VERSIONS = {'10': {'sdk': '29', 'code': 'Q'}
     , '11': {'sdk': '30', 'code': 'R'}
     , '12': {'sdk': '31', 'code': 'S'}
     , '12.1': {'sdk': '32', 'code': 'SL'}
+    , '13': {'sdk': '33', 'code': 'T'}
                     }
 
 # The android version that we're targeting this application to run
-TARGET_ANDROID_VERSION = 12.1
+TARGET_ANDROID_VERSION = 13
 
 # Release type defines the release
 # Possible values are [ 'canary', 'stable' ]

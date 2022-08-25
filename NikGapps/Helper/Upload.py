@@ -69,6 +69,8 @@ class Upload:
                 folder_name = "NikGapps-S"
             elif float(android_version) == float(12.1):
                 folder_name = "NikGapps-SL"
+            elif float(android_version) == float(13):
+                folder_name = "NikGapps-T"
             else:
                 print(android_version)
         elif file_type == "addons":
@@ -82,6 +84,8 @@ class Upload:
                 folder_name = "Addons-S"
             elif float(android_version) == float(12.1):
                 folder_name = "Addons-SL"
+            elif float(android_version) == float(13):
+                folder_name = "Addons-T"
             else:
                 print(android_version)
         elif file_type == "debloater":
