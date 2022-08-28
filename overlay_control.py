@@ -2,8 +2,13 @@ import os.path
 from pathlib import Path
 
 import Config
-from NikGapps.Helper import Constants, Git, FileOp, Cmd
+from NikGapps.Helper import Constants, Git, FileOp, Cmd, Args
 
+# parse command line arguments
+args = Args()
+if args.android_version != str(-1):
+    Config.TARGET_ANDROID_VERSION = args.android_version
+    Constants.update_android_version_dependencies()
 android_version_code = Config.ANDROID_VERSIONS[str(Config.TARGET_ANDROID_VERSION)]['code']
 repo_name = f"git@github.com:nikgapps/overlays_{android_version_code}_source.git"
 repo_dir = Constants.pwd + Constants.dir_sep + f"overlays_{android_version_code}_source"
