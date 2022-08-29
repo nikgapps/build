@@ -375,10 +375,12 @@ class NikGappsPackages:
         google_velvet.priv_app_permissions.append("android.permission.START_ACTIVITIES_FROM_BACKGROUND")
         google_velvet.priv_app_permissions.append("android.permission.WRITE_APN_SETTINGS")
         google_velvet.priv_app_permissions.append("android.permission.BLUETOOTH_PRIVILEGED")
+        google_velvet.clean_flash_only = True
         google_velvet.additional_installer_script = """
     set_prop "ro.opa.eligible_device" "true" "$install_partition/build.prop"
                         """
         google_assistant = Package("Assistant", "com.google.android.apps.googleassistant", Constants.is_priv_app)
+        google_assistant.clean_flash_only = True
         app_set_list.append(AppSet("GoogleSearch", [google_velvet, google_assistant]))
         google_board = Package("LatinIMEGooglePrebuilt", "com.google.android.inputmethod.latin",
                                Constants.is_system_app, "GBoard")
@@ -414,6 +416,7 @@ class NikGappsPackages:
         app_set_list.append(AppSet("GooglePartnerSetup", [google_partner_setup]))
         google_sounds = Package("SoundPickerPrebuilt", "com.google.android.soundpicker", Constants.is_system_app,
                                 "GoogleSounds")
+        google_sounds.clean_flash_only = True
         app_set_list.append(AppSet("GoogleSounds", [google_sounds]))
         if TARGET_ANDROID_VERSION >= 10:
             android_device_policy = Package("DevicePolicyPrebuilt", "com.google.android.apps.work.clouddpc",
