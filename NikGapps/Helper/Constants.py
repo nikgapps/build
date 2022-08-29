@@ -29,22 +29,7 @@ class Constants:
     overlay_android_version = f"overlays_{android_version_code}"
     overlay_directory = str(Path(cwd).parent) + os.path.sep + overlay_android_version
     # The directory where all the stable package specific files will reside
-    android_version_folder = "Q"
-    if str(Config.TARGET_ANDROID_VERSION).__eq__("9"):
-        android_version_folder = "P"
-    elif str(Config.TARGET_ANDROID_VERSION).__eq__("10"):
-        android_version_folder = "Q"
-    elif str(Config.TARGET_ANDROID_VERSION).__eq__("11"):
-        android_version_folder = "R"
-    elif str(Config.TARGET_ANDROID_VERSION).__eq__("12"):
-        android_version_folder = "S"
-    elif str(Config.TARGET_ANDROID_VERSION).__eq__("12.1"):
-        android_version_folder = "SL"
-    elif str(Config.TARGET_ANDROID_VERSION).__eq__("13"):
-        android_version_folder = "T"
-
-    if str(Config.ENVIRONMENT_TYPE).__eq__("production"):
-        android_version_folder = str(Config.TARGET_ANDROID_VERSION)
+    android_version_folder = str(Config.TARGET_ANDROID_VERSION)
     source_directory = str(Path(cwd).parent) + os.path.sep + str(android_version_folder)
     website_repo = "git@github.com:nikgapps/nikgapps.github.io.git"
     website_directory = str(Path(cwd).parent) + os.path.sep + "nikgapps.github.io"
@@ -95,7 +80,7 @@ class Constants:
 
     @staticmethod
     def end_of_function(start_time, message=None):
-        print(Fore.LIGHTMAGENTA_EX)
+        print(Fore.YELLOW)
         print("---------------------------------------")
         if message is not None:
             print("--- " + message + " ---")
@@ -118,20 +103,7 @@ class Constants:
 
     @staticmethod
     def update_android_version_dependencies():
-        if str(Config.TARGET_ANDROID_VERSION).__eq__("9"):
-            Constants.android_version_folder = "P"
-        elif str(Config.TARGET_ANDROID_VERSION).__eq__("10"):
-            Constants.android_version_folder = "Q"
-        elif str(Config.TARGET_ANDROID_VERSION).__eq__("11"):
-            Constants.android_version_folder = "R"
-        elif str(Config.TARGET_ANDROID_VERSION).__eq__("12"):
-            Constants.android_version_folder = "S"
-        elif str(Config.TARGET_ANDROID_VERSION).__eq__("12.1"):
-            Constants.android_version_folder = "SL"
-        elif str(Config.TARGET_ANDROID_VERSION).__eq__("13"):
-            Constants.android_version_folder = "T"
-        if str(Config.ENVIRONMENT_TYPE.lower()) == "production":
-            Constants.android_version_folder = str(Config.TARGET_ANDROID_VERSION)
+        Constants.android_version_folder = str(Config.TARGET_ANDROID_VERSION)
         Constants.export_directory = str(Path(Constants.cwd).parent) + os.path.sep + "Export" + os.path.sep + str(
             Config.TARGET_ANDROID_VERSION) + os.path.sep + Constants.current_time
         Constants.source_directory = str(Path(Constants.cwd).parent) + os.path.sep + str(
@@ -142,6 +114,9 @@ class Constants:
         Constants.temp_packages_directory = str(
             Path(Constants.cwd).parent) + os.path.sep + "TempPackages" + os.path.sep + str(
             Constants.android_version_folder)
+        android_version_code = Config.ANDROID_VERSIONS[str(Config.TARGET_ANDROID_VERSION)]['code']
+        overlay_android_version = f"overlays_{android_version_code}"
+        overlay_directory = str(Path(Constants.cwd).parent) + os.path.sep + overlay_android_version
 
     @staticmethod
     def get_mtime(pkg_zip_path):
