@@ -80,6 +80,8 @@ class NikGappsPackages:
                             <!-- Starting from Android O and above, this system feature is required for
                                  getting Google Dialer play store updates. -->
                             <feature name=\\"com.google.android.apps.dialer.SUPPORTED\\" />
+                            <!-- Feature for Google Dialer Call Recording -->
+                            <feature name=\\"com.google.android.apps.dialer.call_recording_audio\\" />
                         </permissions>"
                         echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.dialer.support.xml
                         set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.dialer.support.xml"
@@ -205,6 +207,8 @@ class NikGappsPackages:
                     <!-- Starting from Android O and above, this system feature is required for
                          getting Google Dialer play store updates. -->
                     <feature name=\\"com.google.android.apps.dialer.SUPPORTED\\" />
+                    <!-- Feature for Google Dialer Call Recording -->
+                    <feature name=\\"com.google.android.apps.dialer.call_recording_audio\\" />
                 </permissions>"
                 echo -e "$script_text" > $install_partition/etc/permissions/com.google.android.dialer.support.xml
                 set_perm 0 0 0644 "$install_partition/etc/permissions/com.google.android.dialer.support.xml"
