@@ -1,3 +1,8 @@
+- date: 30th Aug 2022 (Android T, SL)
+  changes:
+      - item: Added Google Dialer Call Recording Support
+      - item: Major Overlay Updates for Android T, Minor for SL
+      - item: Attempt to fix pixel launcher crash in some cases
 - date: 25th Aug 2022 (Android SL, R Release)
   changes:
       - item: Fixed Markup crashing
