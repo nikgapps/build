@@ -169,9 +169,6 @@ class NikGappsPackages:
                                      Constants.is_system_app)
         core_go.add_package(googlecalendarsync)
 
-        pixel_launcher_set = NikGappsPackages.get_pixel_launcher()
-        for pkg in pixel_launcher_set.package_list:
-            core_go.add_package(pkg)
         app_set_list = [core_go]
 
         google_go = Package("GoogleGo", "com.google.android.apps.searchlite", Constants.is_priv_app)
@@ -392,7 +389,6 @@ class NikGappsPackages:
         google_board.delete("LatinIME")
         google_board.clean_flash_only = True
         app_set_list.append(AppSet("GBoard", [google_board]))
-        app_set_list.append(NikGappsPackages.get_pixel_launcher())
         if TARGET_ANDROID_VERSION >= 11:
             app_set_list.append(NikGappsPackages.get_google_files())
         google_recorder = Package("RecorderPrebuilt", "com.google.android.apps.recorder", Constants.is_priv_app,

@@ -43,7 +43,7 @@ class Args:
         return pkg_list
 
     def get_android_versions(self):
-        if self.android_version is not None:
+        if self.android_version != str(-1):
             android_versions = self.android_version.split(',')
         else:
             android_versions = []

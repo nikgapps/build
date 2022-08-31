@@ -18,7 +18,8 @@ class AddonSet:
             AddonSet.get_youtube(),
             AddonSet.get_google_tts(),
             AddonSet.get_pixel_setup_wizard(),
-            AddonSet.get_google_talkback()
+            AddonSet.get_google_talkback(),
+            AddonSet.get_pixel_launcher()
         ]
         # if TARGET_ANDROID_VERSION in (10, 11):
         #     addon_set_list.append(AddonSet.get_pixel_setup_wizard())
@@ -119,7 +120,6 @@ class AddonSet:
                                  Constants.is_priv_app, "PixelLauncher", partition="system_ext")
         pixel_launcher.priv_app_permissions.append("android.permission.PACKAGE_USAGE_STATS")
         # pixel_launcher.delete("TrebuchetQuickStep")
-        # pixel_launcher.delete("Launcher3QuickStep")
         device_personalization_services = Package("MatchmakerPrebuiltPixel4", "com.google.android.as",
                                                   Constants.is_priv_app, "DevicePersonalizationServices")
         gapps_list = [pixel_launcher]
@@ -130,6 +130,9 @@ class AddonSet:
             quick_access_wallet = Package("QuickAccessWallet", "com.android.systemui.plugin.globalactions.wallet",
                                           Constants.is_priv_app)
             gapps_list.append(quick_access_wallet)
+        google_wallpaper = Package("WallpaperPickerGooglePrebuilt", "com.google.android.apps.wallpaper",
+                                   Constants.is_priv_app, "GoogleWallpaper", partition="system_ext")
+        gapps_list.append(google_wallpaper)
         return AppSet("PixelLauncher", gapps_list)
 
     @staticmethod
