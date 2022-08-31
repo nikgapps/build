@@ -32,6 +32,8 @@ if len(args.get_package_list()) > 0:
 # override when we don't want to execute anything
 # android_versions = []
 
+if len(args.get_android_versions()) > 0:
+    android_versions = args.get_android_versions()
 print("---------------------------------------")
 print("Android Versions to build: " + str(android_versions))
 print("---------------------------------------")
@@ -43,7 +45,7 @@ if PROJECT_MODE.__eq__("fetch"):
     operation.fetch()
 else:
     operation = Operation()
-    operation.build(git_check=args.enable_git_check, android_versions=args.get_android_versions(),
+    operation.build(git_check=args.enable_git_check, android_versions=android_versions,
                     package_list=package_list, commit_message=commit_message)
 
 Constants.end_of_function(start_time, "Total time taken by the program")
