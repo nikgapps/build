@@ -1,3 +1,6 @@
+- date: 31st Aug 2022 (Android T, SL)
+  changes:
+      - item: Move Pixel Launcher from Stock/Full to Addons-only until the issues are resolved
 - date: 30th Aug 2022 (Android T, SL)
   changes:
       - item: Added Google Dialer Call Recording Support
