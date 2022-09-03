@@ -87,8 +87,8 @@ class Constants:
         sec = round(time.time() - start_time, 0)
         seconds = int(math.fmod(sec, 60))
         minutes = int(sec // 60)
-        print("--- %s seconds --- " % (time.time() - start_time))
-        print("--- %s minutes %s seconds --- " % (minutes, seconds))
+        print(Fore.YELLOW + f"--- {(time.time() - start_time)} seconds --- " + Fore.RESET)
+        print(Fore.YELLOW + f"--- %s minutes %s seconds --- " % (minutes, seconds) + Fore.RESET)
         print("---------------------------------------")
         print(Fore.RESET)
 
