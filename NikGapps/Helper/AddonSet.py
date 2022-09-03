@@ -19,7 +19,9 @@ class AddonSet:
             AddonSet.get_google_tts(),
             AddonSet.get_pixel_setup_wizard(),
             AddonSet.get_google_talkback(),
-            AddonSet.get_pixel_launcher()
+            AddonSet.get_pixel_launcher(),
+            AddonSet.get_device_personalization_services(),
+            AddonSet.get_google_wallpaper()
         ]
         # if TARGET_ANDROID_VERSION in (10, 11):
         #     addon_set_list.append(AddonSet.get_pixel_setup_wizard())
@@ -32,11 +34,6 @@ class AddonSet:
                 if addon_set.title == addon_name:
                     return [addon_set]
         return None
-
-    @staticmethod
-    def get_vanced_manager():
-        vanced_manager = Package("VancedManager", "com.vanced.manager", Constants.is_system_app)
-        return AppSet("VancedManager", [vanced_manager])
 
     @staticmethod
     def get_google_camera_go():
@@ -96,12 +93,8 @@ class AddonSet:
         device_personalization_services = Package("MatchmakerPrebuiltPixel4", "com.google.android.as",
                                                   Constants.is_priv_app, "DevicePersonalizationServices")
         gapps_list = []
-        if TARGET_ANDROID_VERSION >= 10:
-            if TARGET_ANDROID_VERSION == 10:
-                device_personalization_services.predefined_file_list.append(
-                    "overlay/DevicePersonalizationServicesConfig.apk")
-            device_personalization_services.delete("DevicePersonalizationPrebuiltPixel4")
-            gapps_list.append(device_personalization_services)
+        device_personalization_services.delete("DevicePersonalizationPrebuiltPixel4")
+        gapps_list.append(device_personalization_services)
         return AppSet("DevicePersonalizationServices", gapps_list)
 
     @staticmethod
@@ -134,6 +127,12 @@ class AddonSet:
                                    Constants.is_priv_app, "GoogleWallpaper", partition="system_ext")
         gapps_list.append(google_wallpaper)
         return AppSet("PixelLauncher", gapps_list)
+
+    @staticmethod
+    def get_google_wallpaper():
+        google_wallpaper = Package("WallpaperPickerGooglePrebuilt", "com.google.android.apps.wallpaper",
+                                   Constants.is_priv_app, "GoogleWallpaper", partition="system_ext")
+        return AppSet("GoogleWallpaper", google_wallpaper)
 
     @staticmethod
     def get_mixplorer():
@@ -212,31 +211,6 @@ class AddonSet:
     def get_youtube():
         youtube = Package("YouTube", "com.google.android.youtube", Constants.is_system_app)
         return AppSet("YouTube", [youtube])
-
-    @staticmethod
-    def get_youtube_black():
-        youtube_vanced_black = Package("YouTube", "com.vanced.android.youtube", Constants.is_system_app,
-                                       "YouTubeVancedBlack")
-        vanced_gms = Package("VancedGms", "com.mgoogle.android.gms", Constants.is_system_app)
-        return AppSet("YouTubeVancedBlack", [youtube_vanced_black, vanced_gms])
-
-    @staticmethod
-    def get_youtube_dark():
-        youtube_vanced_dark = Package("YouTube", "com.vanced.android.youtube", Constants.is_system_app,
-                                      "YouTubeVancedDark")
-        vanced_gms = Package("VancedGms", "com.mgoogle.android.gms", Constants.is_system_app)
-        return AppSet("YouTubeVancedDark", [youtube_vanced_dark, vanced_gms])
-
-    @staticmethod
-    def get_youtube_music():
-        youtube_music = Package("YMusic", "com.vanced.android.apps.youtube.music", Constants.is_system_app,
-                                "YouTubeVancedMusic")
-        youtube_music.delete("GooglePlayMusic")
-        youtube_music.delete("SnapdragonMusic")
-        youtube_music.delete("YouTubeMusicPrebuilt")
-        youtube_music.delete("Eleven")
-        vanced_gms = Package("VancedGms", "com.mgoogle.android.gms", Constants.is_system_app)
-        return AppSet("YouTubeVancedMusic", [youtube_music, vanced_gms])
 
     @staticmethod
     def get_pixel_setup_wizard():
