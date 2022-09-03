@@ -9,7 +9,6 @@ class AddonSet:
     @staticmethod
     def get_addon_packages(addon_name=None):
         addon_set_list = [
-            AddonSet.get_pixel_live_wallpapers(),
             AddonSet.get_google_fi(),
             AddonSet.get_google_duo(),
             AddonSet.get_google_docs(),
@@ -27,6 +26,8 @@ class AddonSet:
         #     addon_set_list.append(AddonSet.get_pixel_setup_wizard())
         if TARGET_ANDROID_VERSION >= 11:
             addon_set_list.append(AddonSet.get_flipendo())
+        if TARGET_ANDROID_VERSION < 13:
+            addon_set_list.append(AddonSet.get_pixel_live_wallpapers())
         if addon_name is None:
             return addon_set_list
         else:
