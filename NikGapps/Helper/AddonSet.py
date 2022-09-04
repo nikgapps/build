@@ -133,7 +133,7 @@ class AddonSet:
     def get_google_wallpaper():
         google_wallpaper = Package("WallpaperPickerGooglePrebuilt", "com.google.android.apps.wallpaper",
                                    Constants.is_priv_app, "GoogleWallpaper", partition="system_ext")
-        return AppSet("GoogleWallpaper", google_wallpaper)
+        return AppSet("GoogleWallpaper", [google_wallpaper])
 
     @staticmethod
     def get_mixplorer():
