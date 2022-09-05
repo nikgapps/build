@@ -181,16 +181,17 @@ class Export:
                 if u.successful_connection:
                     # check if directory exists, if it does, we're good to upload the file
                     cd = u.get_cd_with_date(Config.TARGET_ANDROID_VERSION, file_type)
+                    print(f"Checking if {cd} exists")
                     dir_exists = u.cd(cd)
                     if not dir_exists:
                         print(str(cd) + " doesn't exist!")
                         # make the folder with current date if the directory doesn't exist
                         u.make_folder(Config.TARGET_ANDROID_VERSION, file_type)
                         # try to cd again
-                        dir_exists = u.cd(u.get_cd_with_date(Config.TARGET_ANDROID_VERSION, file_type))
+                        dir_exists = u.cd(cd)
                     # if the directory exists, we can upload the file
                     if dir_exists:
-                        print("uploading " + file_name + " ...")
+                        print("uploading " + file_name + f" to {cd}...")
                         u.upload_file(file_name)
                         print("uploading file finished...")
                         zip_execution_status = True

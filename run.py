@@ -2,7 +2,7 @@
 
 from colorama import Fore
 
-from NikGapps.Helper import Upload
+from NikGapps.Helper import Upload, FileOp
 from NikGapps.Helper.Args import Args
 from Operation import Operation
 import Config
@@ -11,6 +11,7 @@ from NikGapps.Helper.SystemStat import SystemStat
 import pytz
 from datetime import datetime
 from Config import PROJECT_MODE
+from Release import Release
 
 print("Start of the Program")
 print(Fore.GREEN)
@@ -50,6 +51,12 @@ else:
     u = Upload()
     operation.build(git_check=args.enable_git_check, android_versions=android_versions,
                     package_list=package_list, commit_message=commit_message, upload=u)
+    if Config.BUILD_CONFIG:
+        if FileOp.dir_exists(Constants.config_directory):
+            Constants.update_sourceforge_release_directory("config")
+            zip_status = Release.zip(['config'], upload=u)
+        else:
+            print(Constants.config_directory + " doesn't exist!")
     u.close()
 
 Constants.end_of_function(start_time, "Total time taken by the program")
