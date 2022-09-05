@@ -20,9 +20,11 @@ class Upload:
         tz_london = pytz.timezone('Europe/London')
         datetime_london = datetime.now(tz_london)
         self.release_date = str(datetime_london.strftime("%d-%b-%Y"))
+        print("spawning sftp nikhilmenghani@frs.sourceforge.net")
         self.child = pexpect.spawn('sftp nikhilmenghani@frs.sourceforge.net')
         self.successful_connection = False
         self.day = datetime.now(pytz.timezone('Europe/London')).strftime("%a")
+        print("Expecting Password")
         i = self.child.expect(["Password", "yes/no", pexpect.TIMEOUT, pexpect.EOF], timeout=120)
         if i == 2 or i == 3:
             print("Timeout has occurred, let's try one more time")
@@ -30,15 +32,20 @@ class Upload:
             self.child = pexpect.spawn('sftp nikhilmenghani@frs.sourceforge.net')
             i = self.child.expect(["Password", "yes/no", pexpect.TIMEOUT, pexpect.EOF])
         if i == 1:
+            print("sending yes")
             self.child.sendline("yes")
+            print("Expecting Password")
             self.child.expect("Password")
             self.child.sendline(str(self.sf_pwd))
+            print("Expecting Connected to frs.sourceforge.net or sftp> or Password")
             status = self.child.expect(["Connected to frs.sourceforge.net", "sftp> ", "Password"])
             if status == 0 or status == 1:
                 self.successful_connection = True
                 print("Connection was successful")
         elif i == 0:
+            print("Sending Password")
             self.child.sendline(str(self.sf_pwd))
+            print("Expecting Connected to frs.sourceforge.net or sftp> or Password")
             status = self.child.expect(["Connected to frs.sourceforge.net", "sftp> ", "Password"])
             if status == 0 or status == 1:
                 self.successful_connection = True
