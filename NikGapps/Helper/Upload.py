@@ -115,9 +115,10 @@ class Upload:
         return self.release_dir + "/" + folder_name
 
     def cd(self, path):
+        if str(self.child.after.decode()).__eq__("Connected to frs.sourceforge.net"):
+            self.child.expect("sftp> ")
         self.child.sendline("cd " + path)
-        i = self.child.expect(
-            ["sftp> ", "Couldn't canonicalize: No such file or directory", pexpect.TIMEOUT, pexpect.EOF])
+        i = self.child.expect(["sftp> ", "Couldn't canonicalize: No such file or directory"])
         if i == 0:
             return True
         elif i == 1:

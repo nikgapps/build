@@ -133,13 +133,6 @@ class Operation:
         if git_check and website_repo is not None:
             website_repo.update_changelog()
 
-        if Config.BUILD_CONFIG:
-            if FileOp.dir_exists(Constants.config_directory):
-                Constants.update_sourceforge_release_directory("config")
-                zip_status = Release.zip(['config'], upload)
-            else:
-                print(Constants.config_directory + " doesn't exist!")
-
         if Config.UPLOAD_FILES:
             config = NikGappsConfig()
             config.upload_nikgapps_config()
