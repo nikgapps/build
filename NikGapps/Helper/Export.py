@@ -23,7 +23,7 @@ class Export:
         self.file_name = file_name
         self.z = ZipOp(file_name)
 
-    def zip(self, config_obj: NikGappsConfig, sent_message=None):
+    def zip(self, config_obj: NikGappsConfig, sent_message=None, upload: Upload = None):
         total_packages = 0
         print_progress = ""
         start_time = Constants.start_of_function()
@@ -175,7 +175,7 @@ class Export:
                     file_type = "addons"
                 elif Constants.get_base_name(file_name).__contains__("Debloater"):
                     file_type = "debloater"
-                u = Upload()
+                u = upload if upload is not None else Upload()
                 zip_execution_status = False
                 # proceed only if the connection is successful
                 if u.successful_connection:
@@ -198,8 +198,6 @@ class Export:
                         print("The directory doesn't exist!")
                 else:
                     print("The Connection Failed!")
-                # make sure we close the connection
-                u.close()
                 file_size_kb = round(FileOp.get_file_size(file_name, "KB"), 2)
                 file_size_mb = round(FileOp.get_file_size(file_name), 2)
                 Constants.end_of_function(start_time,

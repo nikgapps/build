@@ -1,5 +1,5 @@
 from datetime import datetime
-from NikGapps.Helper import FileOp, Git, NikGappsConfig
+from NikGapps.Helper import FileOp, Git, NikGappsConfig, Upload
 from NikGapps.Helper.Constants import Constants
 from Release import Release
 from Config import FETCH_PACKAGE
@@ -81,7 +81,7 @@ class Operation:
         return False
 
     def build(self, git_check=Config.GIT_CHECK, android_versions=None, package_list=Config.BUILD_PACKAGE_LIST,
-              commit_message=None):
+              commit_message=None, upload: Upload = None):
         if android_versions is None:
             android_versions = [Config.TARGET_ANDROID_VERSION]
         if commit_message is None:
@@ -126,7 +126,7 @@ class Operation:
                     Constants.update_sourceforge_release_directory("canary")
                 else:
                     Constants.update_sourceforge_release_directory("")
-                Release.zip(package_list)
+                Release.zip(package_list, upload)
                 if release_repo is not None and git_check:
                     release_repo.git_push(str(android_version) + ": " + str(commit_message))
 
@@ -136,7 +136,7 @@ class Operation:
         if Config.BUILD_CONFIG:
             if FileOp.dir_exists(Constants.config_directory):
                 Constants.update_sourceforge_release_directory("config")
-                zip_status = Release.zip(['config'])
+                zip_status = Release.zip(['config'], upload)
             else:
                 print(Constants.config_directory + " doesn't exist!")
 

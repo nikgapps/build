@@ -10,6 +10,7 @@ from NikGapps.Helper import Constants
 class Upload:
 
     def __init__(self):
+        upload_start_time = Constants.start_of_function()
         self.release_dir = Constants.sourceforge_release_directory
         self.sf_pwd = os.environ.get('SF_PWD')
         if self.sf_pwd is None or self.sf_pwd.__eq__(""):
@@ -49,6 +50,17 @@ class Upload:
                 self.child.interact()
             except BaseException as e:
                 print("Exception while interacting: " + str(e))
+        Constants.end_of_function(upload_start_time, "Total time taken to authenticate!")
+
+    def is_authenticated(self):
+        try:
+            i = self.child.expect(["sftp> ", pexpect.TIMEOUT, pexpect.EOF], timeout=3)
+            if i == 0:
+                print("Already Connected!")
+                return True
+        except Exception as e:
+            print(e.args)
+        return False
 
     def get_cd_with_date(self, android_version, file_type, input_date=None):
         if input_date is not None:
@@ -96,9 +108,9 @@ class Upload:
         return self.release_dir + "/" + folder_name
 
     def cd(self, path):
-        self.child.expect("sftp> ")
         self.child.sendline("cd " + path)
-        i = self.child.expect(["sftp> ", "Couldn't canonicalize: No such file or directory"])
+        i = self.child.expect(
+            ["sftp> ", "Couldn't canonicalize: No such file or directory", pexpect.TIMEOUT, pexpect.EOF])
         if i == 0:
             return True
         elif i == 1:

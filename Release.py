@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 import Config
-from NikGapps.Helper import Logs, NikGappsConfig, FileOp, Git
+from NikGapps.Helper import Logs, NikGappsConfig, FileOp, Git, Upload
 from Build import Build
 from NikGappsPackages import NikGappsPackages
 from NikGapps.Helper.Assets import Assets
@@ -15,7 +15,7 @@ from NikGapps.Helper.Package import Package
 
 class Release:
     @staticmethod
-    def zip(build_package_list, sent_message=None):
+    def zip(build_package_list, upload: Upload = None, sent_message=None):
         av = str(Config.TARGET_ANDROID_VERSION)
         for pkg_type in build_package_list:
             print("Currently Working on " + pkg_type)
@@ -29,7 +29,7 @@ class Release:
                                         Constants.release_directory + Constants.dir_sep + str(
                                             "addons") + Constants.dir_sep + "NikGapps-Addon-"
                                         + Constants.android_version_folder + "-" + app_set.title + "-" + str(
-                                            Logs.get_current_time()) + ".zip", [app_set])
+                                            Logs.get_current_time()) + ".zip", [app_set], upload=upload)
             elif pkg_type == "config":
                 config_repo = Git(Constants.config_directory)
                 for config_files in Path(Constants.config_directory).rglob("*.config"):
@@ -53,7 +53,8 @@ class Release:
                     if sent_message is not None:
                         sent_message.edit_text("Building for " + str(pkg_type))
                     # Create a zip out of filtered packages
-                    zip_status = Release.zip_package(sent_message, file_name, app_set_list=None, config_obj=config_obj)
+                    zip_status = Release.zip_package(sent_message, file_name, app_set_list=None, config_obj=config_obj,
+                                                     upload=upload)
                     # move the config file to archive
                     if zip_status:
                         print("Source: " + str(config_files))
@@ -99,7 +100,7 @@ class Release:
                     if sent_message is not None:
                         sent_message.edit_text("Building for " + str(pkg_type))
                     Release.zip_package(sent_message, file_name,
-                                        NikGappsPackages.get_packages(pkg_type))
+                                        NikGappsPackages.get_packages(pkg_type), upload=upload)
                 else:
                     for app_set in NikGappsPackages.get_packages(pkg_type):
                         if app_set is None:
@@ -113,7 +114,7 @@ class Release:
                             Release.zip_package(sent_message, Constants.release_directory
                                                 + Constants.dir_sep + "addons" + Constants.dir_sep + "NikGapps-Addon-"
                                                 + Constants.android_version_folder + "-" + app_set.title + "-"
-                                                + str(Logs.get_current_time()) + ".zip", [app_set])
+                                                + str(Logs.get_current_time()) + ".zip", [app_set], upload=upload)
             os.environ['pkg_type'] = ''
 
     @staticmethod
@@ -130,7 +131,7 @@ class Release:
         return package_list
 
     @staticmethod
-    def zip_package(sent_message, package_name, app_set_list, config_obj: NikGappsConfig = None):
+    def zip_package(sent_message, package_name, app_set_list, config_obj: NikGappsConfig = None, upload: Upload = None):
         if config_obj is not None:
             config_obj: NikGappsConfig
             if config_obj.config_package_list.__len__() > 0:
@@ -145,7 +146,7 @@ class Release:
             if sent_message is not None:
                 sent_message.edit_text("Exporting " + str(file_name))
             z = Export(file_name)
-            return z.zip(config_obj, sent_message)
+            return z.zip(config_obj, sent_message, upload)
         else:
             print("Package List Empty!")
 
