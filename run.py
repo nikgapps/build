@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 from colorama import Fore
+
+from NikGapps.Helper import Upload
 from NikGapps.Helper.Args import Args
 from Operation import Operation
 import Config
@@ -45,8 +47,10 @@ if PROJECT_MODE.__eq__("fetch"):
     operation.fetch()
 else:
     operation = Operation()
+    u = Upload()
     operation.build(git_check=args.enable_git_check, android_versions=android_versions,
-                    package_list=package_list, commit_message=commit_message)
+                    package_list=package_list, commit_message=commit_message, upload=u)
+    u.close()
 
 Constants.end_of_function(start_time, "Total time taken by the program")
 
