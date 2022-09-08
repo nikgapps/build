@@ -558,27 +558,6 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
         return pixelize_set
 
     @staticmethod
-    def get_pixel_launcher():
-        pixel_launcher = Package("NexusLauncherPrebuilt", "com.google.android.apps.nexuslauncher",
-                                 Constants.is_priv_app, "PixelLauncher", partition="system_ext")
-        pixel_launcher.priv_app_permissions.append("android.permission.PACKAGE_USAGE_STATS")
-        pixel_launcher.delete("TrebuchetQuickStep")
-        device_personalization_services = Package("MatchmakerPrebuiltPixel4", "com.google.android.as",
-                                                  Constants.is_priv_app, "DevicePersonalizationServices")
-        gapps_list = [pixel_launcher]
-        if TARGET_ANDROID_VERSION >= 9:
-            device_personalization_services.delete("DevicePersonalizationPrebuiltPixel4")
-            gapps_list.append(device_personalization_services)
-        if TARGET_ANDROID_VERSION >= 11:
-            quick_access_wallet = Package("QuickAccessWallet", "com.android.systemui.plugin.globalactions.wallet",
-                                          Constants.is_priv_app)
-            gapps_list.append(quick_access_wallet)
-        google_wallpaper = Package("WallpaperPickerGooglePrebuilt", "com.google.android.apps.wallpaper",
-                                   Constants.is_priv_app, "GoogleWallpaper", partition="system_ext")
-        gapps_list.append(google_wallpaper)
-        return AppSet("PixelLauncher", gapps_list)
-
-    @staticmethod
     def get_lawnchair():
         lawnchair_set = AppSet("Lawnchair")
         from Config import TARGET_ANDROID_VERSION
