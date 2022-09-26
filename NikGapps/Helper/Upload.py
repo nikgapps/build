@@ -8,7 +8,8 @@ import os
 
 import Config
 from Config import UPLOAD_FILES
-from NikGapps.Helper import Constants, FileOp
+from NikGapps.Helper import Constants
+from NikGapps.Helper.FileOp import FileOp
 
 
 class Upload:
