@@ -14,7 +14,6 @@ from .AppSet import AppSet
 from .Cmd import Cmd
 import os
 from NikGapps.Helper.Upload import Upload
-import platform
 
 
 class Export:
@@ -22,7 +21,7 @@ class Export:
         self.file_name = file_name
         self.z = ZipOp(file_name)
 
-    def zip(self, app_set_list, config_string, upload: Upload = None):
+    def zip(self, app_set_list, config_string):
         total_packages = 0
         print_progress = ""
         start_time = Constants.start_of_function()
@@ -145,45 +144,7 @@ class Export:
 
                 cmd.push_package(file_name, device_path)
                 Constants.end_of_function(start_time, "Total time taken to send the zip to device")
-            system_name = platform.system()
-            if system_name != "Windows" and UPLOAD_FILES:
-                start_time = Constants.start_of_function()
-                # make the connection and initialize the parameters
-                file_type = "gapps"
-                if Constants.get_base_name(file_name).__contains__("Addon"):
-                    file_type = "addons"
-                elif Constants.get_base_name(file_name).__contains__("Debloater"):
-                    file_type = "debloater"
-                u = upload if upload is not None else Upload()
-                zip_execution_status = False
-                # proceed only if the connection is successful
-                if u.successful_connection:
-                    # check if directory exists, if it does, we're good to upload the file
-                    cd = u.get_cd_with_date(Config.TARGET_ANDROID_VERSION, file_type)
-                    print(f"Checking if {cd} exists")
-                    dir_exists = u.cd(cd)
-                    if not dir_exists:
-                        print(str(cd) + " doesn't exist!")
-                        # make the folder with current date if the directory doesn't exist
-                        u.make_folder(Config.TARGET_ANDROID_VERSION, file_type)
-                        # try to cd again
-                        dir_exists = u.cd(cd)
-                    # if the directory exists, we can upload the file
-                    if dir_exists:
-                        print("uploading " + file_name + f" to {cd}...")
-                        u.upload_file(file_name)
-                        print("uploading file finished...")
-                        zip_execution_status = True
-                    else:
-                        print("The directory doesn't exist!")
-                else:
-                    print("The Connection Failed!")
-                file_size_kb = round(FileOp.get_file_size(file_name, "KB"), 2)
-                file_size_mb = round(FileOp.get_file_size(file_name), 2)
-                Constants.end_of_function(start_time,
-                                          f"Total time taken to upload file with size {file_size_mb} MB ("
-                                          f"{file_size_kb} Kb)")
-            return zip_execution_status
+            return file_name, zip_execution_status
 
     @staticmethod
     def get_installer_script(total_packages, app_set_list):

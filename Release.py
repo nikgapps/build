@@ -86,7 +86,15 @@ class Release:
                         Logs.get_current_time()) + ".zip"
                     z = Export(file_name)
                     config_obj = NikGappsConfig()
-                    z.zip(app_set_list=config_obj.config_package_list, config_string=config_obj.get_nikgapps_config())
+                    result = z.zip(app_set_list=config_obj.config_package_list,
+                                   config_string=config_obj.get_nikgapps_config())
+                    if result[1] and Config.UPLOAD_FILES:
+                        u = upload if upload is not None else Upload()
+                        print("Uploading " + str(result[0]))
+                        u.upload(result[0])
+                        print("Done")
+                    else:
+                        print("Failed to create zip!")
             else:
                 if pkg_type in Config.BUILD_PACKAGE_LIST:
                     file_name = Constants.release_directory
@@ -135,10 +143,16 @@ class Release:
             config_obj.config_package_list = Build.build_from_directory(app_set_list)
             print("Exporting " + str(file_name))
             z = Export(file_name)
-            return z.zip(app_set_list=config_obj.config_package_list, config_string=config_obj.get_nikgapps_config(),
-                         upload=upload)
+            result = z.zip(app_set_list=config_obj.config_package_list, config_string=config_obj.get_nikgapps_config())
+            if result[1] and Config.UPLOAD_FILES:
+                u = upload if upload is not None else Upload()
+                print("Uploading " + str(result[0]))
+                u.upload(result[0])
+                print("Done")
+                return True
         else:
             print("Package List Empty!")
+            return False
 
     @staticmethod
     def package(fetch_package):

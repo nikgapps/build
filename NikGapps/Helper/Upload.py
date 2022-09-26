@@ -1,10 +1,14 @@
+import platform
+
 import pexpect
 import time
 import pytz
 from datetime import datetime
 import os
 
-from NikGapps.Helper import Constants
+import Config
+from Config import UPLOAD_FILES
+from NikGapps.Helper import Constants, FileOp
 
 
 class Upload:
@@ -140,6 +144,48 @@ class Upload:
         self.child.expect("100%", timeout=3600)
         self.child.expect("sftp>")
         time.sleep(1)
+
+    def upload(self, file_name):
+        system_name = platform.system()
+        execution_status = False
+        if system_name != "Windows" and UPLOAD_FILES:
+            start_time = Constants.start_of_function()
+            # make the connection and initialize the parameters
+            file_type = "gapps"
+            if Constants.get_base_name(file_name).__contains__("Addon"):
+                file_type = "addons"
+            elif Constants.get_base_name(file_name).__contains__("Debloater"):
+                file_type = "debloater"
+            # proceed only if the connection is successful
+            if self.successful_connection:
+                # check if directory exists, if it does, we're good to upload the file
+                cd = self.get_cd_with_date(Config.TARGET_ANDROID_VERSION, file_type)
+                print(f"Checking if {cd} exists")
+                dir_exists = self.cd(cd)
+                if not dir_exists:
+                    print(str(cd) + " doesn't exist!")
+                    # make the folder with current date if the directory doesn't exist
+                    self.make_folder(Config.TARGET_ANDROID_VERSION, file_type)
+                    # try to cd again
+                    dir_exists = self.cd(cd)
+                # if the directory exists, we can upload the file
+                if dir_exists:
+                    print("uploading " + file_name + f" to {cd}...")
+                    self.upload_file(file_name)
+                    print("uploading file finished...")
+                    execution_status = True
+                else:
+                    print("The directory doesn't exist!")
+            else:
+                print("The Connection Failed!")
+            file_size_kb = round(FileOp.get_file_size(file_name, "KB"), 2)
+            file_size_mb = round(FileOp.get_file_size(file_name), 2)
+            Constants.end_of_function(start_time,
+                                      f"Total time taken to upload file with size {file_size_mb} MB ("
+                                      f"{file_size_kb} Kb)")
+        else:
+            print("System incompatible or upload disabled!")
+        return execution_status
 
     def close(self):
         if not str(self.sf_pwd).__eq__(""):
