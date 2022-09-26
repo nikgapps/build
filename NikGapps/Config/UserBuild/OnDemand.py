@@ -8,8 +8,13 @@ class OnDemand:
 
     @staticmethod
     def build_from_config_byte(config_name, config_in_byte, android_version):
-        config_string = B64.b64d(config_in_byte)
-        OnDemand.build_from_config_string(config_name, config_string, android_version)
+        try:
+            config_string = B64.b64d(config_in_byte)
+            OnDemand.build_from_config_string(config_name, config_string, android_version)
+            return True
+        except Exception as e:
+            print(e)
+            return False
 
     @staticmethod
     def build_from_config_string(config_name, config_string, android_version):

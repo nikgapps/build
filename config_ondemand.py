@@ -42,6 +42,7 @@ if config_string is None:
     print("No config value specified. Exiting...")
     exit(1)
 
-OnDemand.build_from_config_byte(config_name, config_string, Config.TARGET_ANDROID_VERSION)
+if not OnDemand.build_from_config_byte(config_name, config_string, Config.TARGET_ANDROID_VERSION):
+    print("Failed to build. Exiting...")
 
 print("End of the Program")
