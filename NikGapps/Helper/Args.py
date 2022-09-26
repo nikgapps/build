@@ -12,6 +12,8 @@ class Args:
         parser.add_argument(
             '-C', '--config', help="byte64 value of nikgapps.config", type=str)
         parser.add_argument(
+            '-N', '--configName', help="Name of custom nikgapps.config", type=str)
+        parser.add_argument(
             '-G', '--enableGitCheck', help="Include this to enable git operations", action="store_true")
         parser.add_argument(
             '-F', '--forceRun', help="Overrides the release constraints and runs always", action="store_true")
@@ -30,6 +32,7 @@ class Args:
         self.android_version = args.androidVersion
         self.package_list = args.packageList
         self.forceRun = args.forceRun
+        self.config_name = args.configName
 
     def get_package_list(self):
         if self.config_value is None and self.package_list is not None:

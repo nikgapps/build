@@ -1,5 +1,8 @@
 from datetime import datetime
-from NikGapps.Helper import FileOp, Git, NikGappsConfig, Upload
+
+from NikGapps.Config.ConfigOperations import ConfigOperations
+from NikGapps.Config.NikGappsConfig import NikGappsConfig
+from NikGapps.Helper import FileOp, Git, Upload
 from NikGapps.Helper.Constants import Constants
 from Release import Release
 from Config import FETCH_PACKAGE
@@ -135,4 +138,4 @@ class Operation:
 
         if Config.UPLOAD_FILES:
             config = NikGappsConfig()
-            config.upload_nikgapps_config()
+            ConfigOperations.upload_nikgapps_config(config)
