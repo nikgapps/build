@@ -26,8 +26,8 @@ class Operations:
         if result[1] and Config.UPLOAD_FILES:
             u = upload if upload is not None else Upload()
             print("Uploading " + str(result[0]))
-            u.upload(result[0])
+            execution_status = u.upload(result[0])
             print("Done")
-            return True
+            return execution_status
         else:
             return False
