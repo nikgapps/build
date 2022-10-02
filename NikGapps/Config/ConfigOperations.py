@@ -110,17 +110,7 @@ class ConfigOperations:
 
     @staticmethod
     def get_android_version_from_path(config_obj: NikGappsConfig):
-        if str(config_obj.config_path).__contains__(os.path.sep + "9" + os.path.sep):
-            return 9
-        elif str(config_obj.config_path).__contains__(os.path.sep + "10" + os.path.sep):
-            return 10
-        elif str(config_obj.config_path).__contains__(os.path.sep + "11" + os.path.sep):
-            return 11
-        elif str(config_obj.config_path).__contains__(os.path.sep + "12" + os.path.sep):
-            return 12
-        elif str(config_obj.config_path).__contains__(os.path.sep + "12.1" + os.path.sep):
-            return 12.1
-        elif str(config_obj.config_path).__contains__(os.path.sep + "13" + os.path.sep):
-            return 13
-        else:
-            return 0
+        for android_version in Config.ANDROID_VERSIONS:
+            if str(config_obj.config_path).__contains__(os.path.sep + android_version + os.path.sep):
+                return android_version
+        return 0
