@@ -17,11 +17,15 @@ class OnDemand:
 
     @staticmethod
     def build_from_config_string(config_name, config_string, android_version):
-        config_dir = ConfigDirectory()
-        config_dir.setup(override_dir=False)
-        path = config_dir.write_user_config(config_string=config_string, android_version=android_version,
-                                            config_name=config_name)
-        return OnDemand.build_from_config_file(config_path=path, android_version=android_version)
+        try:
+            config_dir = ConfigDirectory()
+            config_dir.setup(override_dir=False)
+            path = config_dir.write_user_config(config_string=config_string, android_version=android_version,
+                                                config_name=config_name)
+            return OnDemand.build_from_config_file(config_path=path, android_version=android_version)
+        except Exception as e:
+            print(e)
+            return False
 
     @staticmethod
     def build_from_config_file(config_path, android_version):
