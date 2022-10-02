@@ -19,20 +19,23 @@ class OnDemand:
     def build_from_config_string(config_name, config_string, android_version):
         try:
             config_dir = ConfigDirectory()
-            config_dir.setup(override_dir=False)
-            path = config_dir.write_user_config(config_string=config_string, android_version=android_version,
-                                                config_name=config_name)
-            return OnDemand.build_from_config_file(config_path=path, android_version=android_version)
+            config_repo = config_dir.setup(override_dir=False)
+            if config_repo is not None:
+                path = config_dir.write_user_config(config_string=config_string, android_version=android_version,
+                                                    config_name=config_name)
+                return OnDemand.build_from_config_file(config_path=path, android_version=android_version,
+                                                       config_repo=config_repo)
         except Exception as e:
             print(e)
             return False
+        return False
 
     @staticmethod
-    def build_from_config_file(config_path, android_version):
+    def build_from_config_file(config_path, android_version, config_repo):
         config_obj = NikGappsConfig(config_path=config_path, use_zip_config=1)
         result = False
         if config_obj.validate():
             # create a config based build
             Constants.update_android_version_dependencies()
-            result = Operations.build(config_obj, android_version)
+            result = Operations.build(config_obj, android_version, config_repo)
         return result
