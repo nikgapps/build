@@ -123,10 +123,11 @@ class Upload:
         if str(self.child.after.decode()).__eq__("Connected to frs.sourceforge.net"):
             self.child.expect("sftp> ")
         self.child.sendline("cd " + path)
-        i = self.child.expect(["sftp> ", "Couldn't canonicalize: No such file or directory"])
+        i = self.child.expect(
+            ["sftp> ", "Couldn't canonicalize: No such file or directory", f"realpath {path}: No such file"])
         if i == 0:
             return True
-        elif i == 1:
+        elif i in (1, 2):
             return False
 
     def make_folder(self, android_version, file_type, folder_name=None):
@@ -173,6 +174,7 @@ class Upload:
                 if dir_exists:
                     print("uploading " + file_name + f" to {cd}...")
                     self.upload_file(file_name)
+                    print("Download Link: " + Constants.get_download_link(file_name, cd))
                     print("uploading file finished...")
                     execution_status = True
                 else:

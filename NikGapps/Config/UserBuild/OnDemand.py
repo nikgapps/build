@@ -37,5 +37,6 @@ class OnDemand:
         if config_obj.validate():
             # create a config based build
             Constants.update_android_version_dependencies()
+            Constants.update_sourceforge_release_directory("config")
             result = Operations.build(config_obj, android_version, config_repo)
         return result

@@ -75,6 +75,13 @@ class Constants:
         return math.ceil(file_stats.st_size / 1000)
 
     @staticmethod
+    def get_download_link(file_name, sf_path):
+        sf_prefix = "https://sourceforge.net/projects/nikgapps/files/"
+        download_link = sf_prefix + sf_path[len("/home/frs/project/nikgapps/"):] + "/" + Constants.get_base_name(
+            file_name) + "/download"
+        return download_link
+
+    @staticmethod
     def start_of_function():
         return time.time()
 

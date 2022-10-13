@@ -5,7 +5,8 @@ from colorama import Fore
 
 import Config
 from NikGapps.Config.UserBuild.OnDemand import OnDemand
-from NikGapps.Helper import SystemStat, Constants, Args, B64
+from NikGapps.Helper import SystemStat, Constants, Args, B64, FileOp
+from Operation import Operation
 
 print("Start of the Program")
 print(Fore.GREEN)
@@ -42,7 +43,21 @@ if config_string is None:
     print("No config value specified. Exiting...")
     exit(1)
 
+# now that we have the validations done, let's check the directories
+repo_dir = Constants.pwd + Constants.dir_sep + str(Config.TARGET_ANDROID_VERSION)
+if FileOp.dir_exists(repo_dir):
+    print(f"{repo_dir} already exists!")
+else:
+    print(f"{repo_dir} does not exist. Cloning...")
+    if Operation.clone_apk_repo(android_version=Config.TARGET_ANDROID_VERSION) is not None:
+        print(f"{repo_dir} cloned successfully!")
+    else:
+        print(f"{repo_dir} could not be cloned!")
+        exit(1)
+
 if not OnDemand.build_from_config_byte(config_name, config_string, Config.TARGET_ANDROID_VERSION):
     print("Failed to build. Exiting...")
+else:
+    print("Build successful!")
 
 print("End of the Program")
