@@ -1,7 +1,10 @@
+import os
+
+import Config
 from NikGapps.Config.ConfigDirectoy import ConfigDirectory
 from NikGapps.Config.NikGappsConfig import NikGappsConfig
 from NikGapps.Config.UserBuild.Operations import Operations
-from NikGapps.Helper import Constants, B64
+from NikGapps.Helper import Constants, B64, FileOp
 
 
 class OnDemand:
@@ -39,4 +42,11 @@ class OnDemand:
             Constants.update_android_version_dependencies()
             Constants.update_sourceforge_release_directory("config")
             result = Operations.build(config_obj, android_version, config_repo)
+        else:
+            print("Delete the config file")
+            FileOp.remove_file(config_path)
+            # commit the changes
+            config_repo.update_config_changes("Deleting " + str(
+                Config.TARGET_ANDROID_VERSION) + os.path.sep + os.path.basename(
+                config_path) + ".config since it doesn't follow defined protocols")
         return result

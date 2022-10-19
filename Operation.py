@@ -24,11 +24,11 @@ class Operation:
             print(message)
 
     @staticmethod
-    def clone_apk_repo(android_version, branch="main"):
+    def clone_apk_repo(android_version, fresh_clone=False, branch="main"):
         apk_source_directory = Constants.apk_source_directory + str(android_version)
         apk_source_repo = Constants.apk_source_repo + str(android_version) + ".git"
         repository = Git(apk_source_directory)
-        result = repository.clone_repo(repo_url=apk_source_repo, fresh_clone=False, branch=branch)
+        result = repository.clone_repo(repo_url=apk_source_repo, fresh_clone=fresh_clone, branch=branch)
         return repository.repo if result else None
 
     @staticmethod
@@ -36,7 +36,7 @@ class Operation:
                              branch="canary" if Config.RELEASE_TYPE.__eq__("canary") else "main", android_version=None):
         last_commit_datetime = None
         if android_version is not None:
-            repository = Operation.clone_apk_repo(android_version, branch)
+            repository = Operation.clone_apk_repo(android_version, branch=branch)
         else:
             repository = Git(repo_dir)
             if repo_url is not None:
