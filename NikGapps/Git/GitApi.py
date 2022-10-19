@@ -2,7 +2,8 @@ import time
 
 import NikGapps.Git.GitConfig as Config
 import json
-import requests
+
+from NikGapps.Web.Requests import Requests
 
 
 class GitApi:
@@ -14,7 +15,7 @@ class GitApi:
             headers = {'Authorization': f'token {Config.git_token_admin}'}
         else:
             headers = {'Accept': 'application/vnd.github.v3+json'}
-        r = requests.get(url, data=json.dumps(params), headers=headers)
+        r = Requests.get(url, params, headers)
 
         if not r.status_code.__eq__(200):
             print("--------------------------------------------------------------------------------")
@@ -32,7 +33,7 @@ class GitApi:
                        'Authorization': f'token {Config.git_token_admin}'}
         else:
             headers = {'Accept': 'application/vnd.github.v3+json'}
-        r = requests.put(url, data=json.dumps(params), headers=headers)
+        r = Requests.put(url, params, headers)
 
         if not r.status_code.__eq__(200):
             print("--------------------------------------------------------------------------------")
@@ -50,7 +51,7 @@ class GitApi:
                        'Authorization': f'token {Config.git_token_admin}'}
         else:
             headers = {'Accept': 'application/vnd.github.v3+json'}
-        r = requests.patch(url, data=json.dumps(params), headers=headers)
+        r = Requests.patch(url, params, headers)
 
         if not r.status_code.__eq__(200):
             print("--------------------------------------------------------------------------------")
@@ -68,7 +69,7 @@ class GitApi:
                        'Authorization': f'token {Config.git_token_admin}'}
         else:
             headers = {'Accept': 'application/vnd.github.v3+json'}
-        r = requests.post(url, data=json.dumps(params), headers=headers)
+        r = Requests.post(url, params, headers)
         print("-------------------------------------------------------------------------------------")
         print(f"Response {str(r.status_code)} while posting to {url}")
         if not r.status_code.__eq__(201):
