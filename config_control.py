@@ -36,9 +36,6 @@ if Config.BUILD_CONFIG:
     print("Android Versions to build: " + str(android_versions))
     print("---------------------------------------")
     if FileOp.dir_exists(Constants.config_directory):
-        branch = "master"
-        if Config.RELEASE_TYPE.__eq__("canary"):
-            branch = "canary"
         for android_version in android_versions:
             clone_android_version = False
             config_folder = Path(Constants.config_directory + Constants.dir_sep + str(android_version))
