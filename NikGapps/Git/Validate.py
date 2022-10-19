@@ -1,5 +1,6 @@
 import os
 
+import Config
 from NikGapps.Config.NikGappsConfig import NikGappsConfig
 from NikGapps.Git.PullRequest import PullRequest
 import re
@@ -31,9 +32,11 @@ class Validate:
             if not file_name.endswith(".config"):
                 failure_reason.append(f"{file_name} doesn't have .config extension, we only accept config files!")
             print("- checking if android version is present")
-            if not (file_name.startswith("10" + os.path.sep) or file_name.startswith("11" + os.path.sep)
-                    or file_name.startswith("12" + os.path.sep) or file_name.startswith("12.1" + os.path.sep)
-                    or file_name.startswith("13" + os.path.sep)):
+            config_android_version = ""
+            for android_version in Config.ANDROID_VERSIONS:
+                if str(file_name).startswith(android_version + os.path.sep):
+                    config_android_version = android_version
+            if config_android_version.__eq__(""):
                 if file_name.startswith("archive" + os.path.sep):
                     failure_reason.append(f"You cannot modify archived file {file_name}")
                 else:
