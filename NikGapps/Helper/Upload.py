@@ -82,36 +82,15 @@ class Upload:
 
     def get_cd_without_date(self, android_version, file_type):
         folder_name = "Test"
+        try:
+            android_version_code = Config.ANDROID_VERSIONS[android_version]['code']
+        except KeyError:
+            print("Invalid Android Version")
+            return self.release_dir + "/" + folder_name
         if file_type == "gapps" or file_type == "config":
-            if float(android_version) == float(9):
-                folder_name = "NikGapps-P"
-            elif float(android_version) == float(10):
-                folder_name = "NikGapps-Q"
-            elif float(android_version) == float(11):
-                folder_name = "NikGapps-R"
-            elif float(android_version) == float(12):
-                folder_name = "NikGapps-S"
-            elif float(android_version) == float(12.1):
-                folder_name = "NikGapps-SL"
-            elif float(android_version) == float(13):
-                folder_name = "NikGapps-T"
-            else:
-                print(android_version)
+            folder_name = "NikGapps-" + android_version_code
         elif file_type == "addons":
-            if float(android_version) == float(9):
-                folder_name = "Addons-P"
-            elif float(android_version) == float(10):
-                folder_name = "Addons-Q"
-            elif float(android_version) == float(11):
-                folder_name = "Addons-R"
-            elif float(android_version) == float(12):
-                folder_name = "Addons-S"
-            elif float(android_version) == float(12.1):
-                folder_name = "Addons-SL"
-            elif float(android_version) == float(13):
-                folder_name = "Addons-T"
-            else:
-                print(android_version)
+            folder_name = "Addons-" + android_version_code
         elif file_type == "debloater":
             folder_name = "Debloater"
         else:
