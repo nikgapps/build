@@ -39,15 +39,8 @@ if Config.BUILD_CONFIG:
                     print(f"{repo_dir} cloned successfully!")
                 else:
                     print(f"{repo_dir} could not be cloned!")
-                Config.TARGET_ANDROID_VERSION = android_version
                 if FileOp.dir_exists(repo_dir):
-                    config_repo = Git(Constants.config_directory)
-                    for config_file in config_folder.rglob("*.config"):
-                        if not OnDemand.build_from_config_file(config_file, android_version, config_repo):
-                            print("Failed to build from config file: " + str(config_file))
-                            continue
-                        else:
-                            print("Successfully built from config file: " + str(config_file))
+                    OnDemand.build_all_configs(android_version)
                 else:
                     print(f"{repo_dir} doesn't exist!")
             else:

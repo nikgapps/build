@@ -1,10 +1,11 @@
 import os
+from pathlib import Path
 
 import Config
 from NikGapps.Config.ConfigDirectoy import ConfigDirectory
 from NikGapps.Config.NikGappsConfig import NikGappsConfig
 from NikGapps.Config.UserBuild.Operations import Operations
-from NikGapps.Helper import Constants, B64, FileOp
+from NikGapps.Helper import Constants, B64, FileOp, Git
 
 
 class OnDemand:
@@ -50,3 +51,14 @@ class OnDemand:
                 Config.TARGET_ANDROID_VERSION) + os.path.sep + os.path.basename(
                 config_path) + ".config since it doesn't follow defined protocols")
         return result
+
+    @staticmethod
+    def build_all_configs(android_version):
+        Config.TARGET_ANDROID_VERSION = str(android_version)
+        config_repo = Git(Constants.config_directory)
+        config_folder = Path(Constants.config_directory + Constants.dir_sep + str(android_version))
+        for config_file in config_folder.rglob("*.config"):
+            if not OnDemand.build_from_config_file(config_file, android_version, config_repo):
+                print("Failed to build from config file: " + str(config_file))
+            else:
+                print("Successfully built from config file: " + str(config_file))
