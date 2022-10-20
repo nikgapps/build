@@ -4,7 +4,7 @@ import Config
 
 from NikGapps.Config.UserBuild.OnDemand import OnDemand
 from NikGapps.Git.GitApi import GitApi
-from NikGapps.Helper import Git
+from NikGapps.Helper import Git, Args
 from Operation import Operation
 from NikGapps.Helper.Constants import Constants
 from NikGapps.Helper.FileOp import FileOp
@@ -28,10 +28,8 @@ if len(workflows) > 1:
     print("Open workflows detected, Let's wait for open workflows to finish")
     exit(0)
 if Config.BUILD_CONFIG:
-    arg_len = len(sys.argv)
-    android_versions = [Config.TARGET_ANDROID_VERSION]
-    if arg_len > 1:
-        android_versions = sys.argv[1].split(',')
+    args = Args()
+    android_versions = args.get_android_versions()
     print("---------------------------------------")
     print("Android Versions to build: " + str(android_versions))
     print("---------------------------------------")
