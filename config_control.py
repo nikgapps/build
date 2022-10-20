@@ -3,28 +3,17 @@ from pathlib import Path
 import Config
 
 from NikGapps.Config.UserBuild.OnDemand import OnDemand
-from NikGapps.Git.GitApi import GitApi
+from NikGapps.Git.Workflow import Workflow
 from NikGapps.Helper import Git, Args
 from Operation import Operation
 from NikGapps.Helper.Constants import Constants
 from NikGapps.Helper.FileOp import FileOp
 
 actual_start_time = Constants.start_of_function()
-print("Checking if there is any existing workflow in progress")
-
-try:
-    workflows = GitApi.get_running_workflows(authenticate=False)
-except Exception as e:
-    print(str(e))
-    try:
-        workflows = GitApi.get_running_workflows(authenticate=True)
-    except Exception as e:
-        print(str(e))
-        workflows = []
-
-print("Total Open Workflows: " + str(len(workflows)))
-
-if len(workflows) > 1:
+workflows = Workflow.get_open_workflows()
+workflow_count = len(workflows)
+print("Total Open Workflows: " + str(workflow_count))
+if workflow_count > 1:
     print("Open workflows detected, Let's wait for open workflows to finish")
     exit(0)
 if Config.BUILD_CONFIG:
