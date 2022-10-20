@@ -1,5 +1,8 @@
 from datetime import datetime
-from NikGapps.Helper import FileOp, Git, NikGappsConfig, Upload
+
+from NikGapps.Config.ConfigOperations import ConfigOperations
+from NikGapps.Config.NikGappsConfig import NikGappsConfig
+from NikGapps.Helper import FileOp, Git, Upload
 from NikGapps.Helper.Constants import Constants
 from Release import Release
 from Config import FETCH_PACKAGE
@@ -21,12 +24,23 @@ class Operation:
             print(message)
 
     @staticmethod
+    def clone_apk_repo(android_version, fresh_clone=False, branch="main"):
+        apk_source_directory = Constants.apk_source_directory + str(android_version)
+        apk_source_repo = Constants.apk_source_repo + str(android_version) + ".git"
+        repository = Git(apk_source_directory)
+        result = repository.clone_repo(repo_url=apk_source_repo, fresh_clone=fresh_clone, branch=branch)
+        return repository.repo if result else None
+
+    @staticmethod
     def get_last_commit_date(repo_dir=Constants.cwd, repo_url=None,
-                             branch="canary" if Config.RELEASE_TYPE.__eq__("canary") else "main"):
+                             branch="canary" if Config.RELEASE_TYPE.__eq__("canary") else "main", android_version=None):
         last_commit_datetime = None
-        repository = Git(repo_dir)
-        if repo_url is not None:
-            repository.clone_repo(repo_url=repo_url, fresh_clone=False, branch=branch)
+        if android_version is not None:
+            repository = Operation.clone_apk_repo(android_version, branch=branch)
+        else:
+            repository = Git(repo_dir)
+            if repo_url is not None:
+                repository.clone_repo(repo_url=repo_url, fresh_clone=False, branch=branch)
         if repository is not None:
             last_commit_datetime = repository.get_latest_commit_date(branch=branch)
         return last_commit_datetime
@@ -99,16 +113,13 @@ class Operation:
         for android_version in android_versions:
             Config.TARGET_ANDROID_VERSION = android_version
             # clone the apk repo if it doesn't exist
-            apk_source_directory = Constants.apk_source_directory + str(android_version)
-            apk_source_repo = Constants.apk_source_repo + str(android_version) + ".git"
             if git_check:
                 release_datetime = None
                 if release_repo is not None:
                     release_datetime = release_repo.get_latest_commit_date(branch="master",
                                                                            filter_key=str(android_version))
                     print(f"Last Release ({str(android_version)}): " + str(release_datetime))
-                apk_source_datetime = self.get_last_commit_date(repo_dir=apk_source_directory,
-                                                                repo_url=apk_source_repo)
+                apk_source_datetime = self.get_last_commit_date(android_version=str(android_version))
                 if apk_source_datetime is not None:
                     print("Last Apk Repo (" + str(Config.TARGET_ANDROID_VERSION) + ") Commit: " + str(
                         apk_source_datetime))
@@ -135,4 +146,4 @@ class Operation:
 
         if Config.UPLOAD_FILES:
             config = NikGappsConfig()
-            config.upload_nikgapps_config()
+            ConfigOperations.upload_nikgapps_config(config)

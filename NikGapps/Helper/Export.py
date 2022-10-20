@@ -5,7 +5,6 @@ from Config import SEND_ZIP_DEVICE
 from Config import SIGN_PACKAGE
 import Config
 from Config import UPLOAD_FILES
-from . import NikGappsConfig
 from .ZipOp import ZipOp
 from .FileOp import FileOp
 from .Constants import Constants
@@ -15,7 +14,6 @@ from .AppSet import AppSet
 from .Cmd import Cmd
 import os
 from NikGapps.Helper.Upload import Upload
-import platform
 
 
 class Export:
@@ -23,13 +21,12 @@ class Export:
         self.file_name = file_name
         self.z = ZipOp(file_name)
 
-    def zip(self, config_obj: NikGappsConfig, sent_message=None, upload: Upload = None):
+    def zip(self, app_set_list, config_string):
         total_packages = 0
         print_progress = ""
         start_time = Constants.start_of_function()
         file_sizes = ""
         zip_execution_status = False
-        app_set_list = config_obj.config_package_list
         try:
             app_set_count = len(app_set_list)
             app_set_index = 1
@@ -59,11 +56,6 @@ class Export:
                     if (FRESH_BUILD and old_file) or (not file_exists) or (not txt_file_exists):
                         zpkg = ZipOp(pkg_zip_path)
                         file_index = 1
-                        if sent_message is not None:
-                            try:
-                                sent_message.edit_text(print_progress)
-                            except Exception as e:
-                                print(str(e))
                         for x in pkg.file_dict:
                             file_index = file_index + 1
                             pkg_size = pkg_size + Constants.get_file_bytes(x)
@@ -84,9 +76,6 @@ class Export:
                                     os.rename(pkg_zip_path, pkg_zip_path[:-11] + ".zip")
                                     pkg_zip_path = pkg_zip_path[:-11] + ".zip"
                                     print("The zip signed successfully: " + pkg_zip_path)
-                                    if sent_message is not None:
-                                        sent_message.edit_text(
-                                            "The zip signed successfully: " + Constants.get_base_name(pkg_zip_path))
                     else:
                         print(f"Using cached package: {Constants.get_base_name(pkg_zip_path)}")
                         for size_on_file in FileOp.read_string_file(pkg_txt_path):
@@ -102,7 +91,7 @@ class Export:
             self.z.writestringtozip(self.get_installer_script(total_packages, app_set_list), "common/install.sh")
             self.z.writestringtozip("#MAGISK", Constants.meta_inf_dir + "updater-script")
             self.z.writefiletozip(Assets.magisk_update_binary, Constants.meta_inf_dir + "update-binary")
-            self.z.writestringtozip(config_obj.get_nikgapps_config(), "afzc/nikgapps.config")
+            self.z.writestringtozip(config_string, "afzc/nikgapps.config")
             debloater_config_lines = ""
             for line in Assets.get_string_resource(Assets.debloater_config):
                 debloater_config_lines += line
@@ -120,9 +109,6 @@ class Export:
             self.z.writefiletozip(Assets.busybox, "busybox")
             zip_execution_status = True
             print('The zip ' + self.file_name + ' is created successfully!')
-            if sent_message is not None:
-                sent_message.edit_text(
-                    "The zip " + Constants.get_base_name(self.file_name) + " is created successfully!")
         except Exception as e:
             print("Exception occurred while creating the zip " + str(e))
         finally:
@@ -139,8 +125,6 @@ class Export:
                 start_time = Constants.start_of_function()
                 print('Signing The Zip')
                 zip_execution_status = False
-                if sent_message is not None:
-                    sent_message.edit_text("Signing The Zip")
                 cmd = Cmd()
                 output_list = cmd.sign_zip_file(file_name)
                 for output in output_list:
@@ -148,8 +132,6 @@ class Export:
                         file_name = file_name[:-4] + "-signed.zip"
                         print("The zip signed successfully: " + file_name)
                         zip_execution_status = True
-                        if sent_message is not None:
-                            sent_message.edit_text("The zip signed successfully: " + Constants.get_base_name(file_name))
                 Constants.end_of_function(start_time, "Total time taken to sign the zip")
             if SEND_ZIP_DEVICE:
                 start_time = Constants.start_of_function()
@@ -159,52 +141,10 @@ class Export:
                     file_name)
                 message = f"Sending {Constants.get_base_name(file_name)} to device at: " + device_path
                 print(message)
-                if sent_message is not None:
-                    sent_message.edit_text(message)
 
                 cmd.push_package(file_name, device_path)
-                if sent_message is not None:
-                    sent_message.edit_text("Sent the zip!")
                 Constants.end_of_function(start_time, "Total time taken to send the zip to device")
-            system_name = platform.system()
-            if system_name != "Windows" and UPLOAD_FILES:
-                start_time = Constants.start_of_function()
-                # make the connection and initialize the parameters
-                file_type = "gapps"
-                if Constants.get_base_name(file_name).__contains__("Addon"):
-                    file_type = "addons"
-                elif Constants.get_base_name(file_name).__contains__("Debloater"):
-                    file_type = "debloater"
-                u = upload if upload is not None else Upload()
-                zip_execution_status = False
-                # proceed only if the connection is successful
-                if u.successful_connection:
-                    # check if directory exists, if it does, we're good to upload the file
-                    cd = u.get_cd_with_date(Config.TARGET_ANDROID_VERSION, file_type)
-                    print(f"Checking if {cd} exists")
-                    dir_exists = u.cd(cd)
-                    if not dir_exists:
-                        print(str(cd) + " doesn't exist!")
-                        # make the folder with current date if the directory doesn't exist
-                        u.make_folder(Config.TARGET_ANDROID_VERSION, file_type)
-                        # try to cd again
-                        dir_exists = u.cd(cd)
-                    # if the directory exists, we can upload the file
-                    if dir_exists:
-                        print("uploading " + file_name + f" to {cd}...")
-                        u.upload_file(file_name)
-                        print("uploading file finished...")
-                        zip_execution_status = True
-                    else:
-                        print("The directory doesn't exist!")
-                else:
-                    print("The Connection Failed!")
-                file_size_kb = round(FileOp.get_file_size(file_name, "KB"), 2)
-                file_size_mb = round(FileOp.get_file_size(file_name), 2)
-                Constants.end_of_function(start_time,
-                                          f"Total time taken to upload file with size {file_size_mb} MB ("
-                                          f"{file_size_kb} Kb)")
-            return zip_execution_status
+            return file_name, zip_execution_status
 
     @staticmethod
     def get_installer_script(total_packages, app_set_list):
