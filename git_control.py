@@ -8,23 +8,15 @@ from NikGapps.Git.Validate import Validate
 from NikGapps.Git.GitApi import GitApi
 from NikGapps.Git.PullRequest import PullRequest
 import NikGapps.Git.GitConfig as Config
+from NikGapps.Git.Workflow import Workflow
 
-print("Checking if there is any existing workflow in progress")
+workflows = Workflow.get_open_workflows()
+workflow_count = len(workflows)
+print("Total Open Workflows: " + str(workflow_count))
+if workflow_count > 1:
+    print("Total Open Workflows: " + str(workflow_count) + f", most recent being {workflows[0]['run_number']}")
 
-try:
-    workflows = GitApi.get_running_workflows(authenticate=False)
-except Exception as e:
-    print(str(e))
-    try:
-        workflows = GitApi.get_running_workflows(authenticate=True)
-    except Exception as e:
-        print(str(e))
-        workflows = []
-
-if len(workflows) > 0:
-    print("Total Open Workflows: " + str(len(workflows)) + f", most recent being {workflows[0]['run_number']}")
-
-if len(workflows) > 1:
+if workflow_count > 1:
     print(f"Open workflows detected, Let's wait for open workflows to finish")
     for workflow in workflows:
         print(workflow["run_number"])

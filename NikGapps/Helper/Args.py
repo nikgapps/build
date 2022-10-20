@@ -1,5 +1,6 @@
 import argparse
 
+import Config
 from NikGapps.Helper.B64 import B64
 
 
@@ -22,6 +23,9 @@ class Args:
             default="-1",
             type=str)
         parser.add_argument(
+            '-a', '--allVersions', help="Indicates we need the build for all supported android versions",
+            action="store_true")
+        parser.add_argument(
             '-P', '--packageList', help="List of packages to build", type=str)
 
         args = parser.parse_args()
@@ -33,6 +37,7 @@ class Args:
         self.package_list = args.packageList
         self.forceRun = args.forceRun
         self.config_name = args.configName
+        self.all_versions = args.allVersions
 
     def get_package_list(self):
         if self.config_value is None and self.package_list is not None:
@@ -50,4 +55,6 @@ class Args:
             android_versions = self.android_version.split(',')
         else:
             android_versions = []
+            if self.all_versions:
+                android_versions = [version for version in Config.ANDROID_VERSIONS]
         return android_versions

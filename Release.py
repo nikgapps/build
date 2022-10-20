@@ -1,13 +1,10 @@
 import os
-from pathlib import Path
 
 import Config
-from NikGapps.Config.ConfigOperations import ConfigOperations
 from NikGapps.Config.NikGappsConfig import NikGappsConfig
-from NikGapps.Helper import Logs, FileOp, Git, Upload
+from NikGapps.Helper import Logs, Upload
 from Build import Build
 from NikGappsPackages import NikGappsPackages
-from NikGapps.Helper.Assets import Assets
 from NikGapps.Helper.Export import Export
 from NikGapps.Helper.Constants import Constants
 from NikGapps.Helper.Cmd import Cmd
@@ -18,7 +15,6 @@ from NikGapps.Helper.Package import Package
 class Release:
     @staticmethod
     def zip(build_package_list, upload: Upload = None):
-        av = str(Config.TARGET_ANDROID_VERSION)
         for pkg_type in build_package_list:
             print("Currently Working on " + pkg_type)
             os.environ['pkg_type'] = str(pkg_type)
@@ -65,19 +61,6 @@ class Release:
                                                 + Constants.android_version_folder + "-" + app_set.title + "-"
                                                 + str(Logs.get_current_time()) + ".zip", [app_set], upload=upload)
             os.environ['pkg_type'] = ''
-
-    @staticmethod
-    def get_config_packages(file_path):
-        package_list = []
-        pkg_list = []
-        config_lines = Assets.get_string_resource(file_path)
-        for line in config_lines:
-            if not str(line).startswith("#") and str(line).__contains__("=1"):
-                pkg_list.append(line.split("=")[0])
-        for pkg in NikGappsPackages.get_packages(NikGappsPackages.all_packages):
-            if pkg.title in pkg_list:
-                package_list.append(pkg)
-        return package_list
 
     @staticmethod
     def zip_package(package_name, app_set_list, config_obj: NikGappsConfig = None, upload: Upload = None):
