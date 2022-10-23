@@ -6,7 +6,7 @@ from NikGapps.Helper import Constants, Cmd, FileOp, Git
 class PixelExperience:
     def __init__(self, android_version):
         self.android_version = str(android_version)
-        self.repo_dir = Constants.pwd + Constants.dir_sep + "vendor_gapps_" + str(self.android_version)
+        self.repo_dir = Constants.pwd + Constants.dir_sep + "pe_gapps_" + str(self.android_version)
         self.repo_url = "git@gitlab.com:PixelExperience/thirteen/vendor_gapps.git"
         self.android_dict = {"13": "thirteen"}
         self.branch = self.android_dict[self.android_version]
