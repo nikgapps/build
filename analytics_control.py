@@ -77,7 +77,7 @@ if FileOp.dir_exists(repo_dir):
         print(decoded_hand)
 
         with open(custom_builds_count_json, "w") as file:
-            json.dump(decoded_hand, file, indent=2)
+            json.dump(decoded_hand, file, indent=2, sort_keys=True)
         try:
             print("Updating the download count in tracker repository")
             print("Custom builds so far created today: " + str(todays_custom_builds_count))

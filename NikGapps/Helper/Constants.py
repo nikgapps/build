@@ -94,10 +94,12 @@ class Constants:
         sec = round(time.time() - start_time, 0)
         seconds = int(math.fmod(sec, 60))
         minutes = int(sec // 60)
-        print(Fore.YELLOW + f"--- {(time.time() - start_time)} seconds --- " + Fore.RESET)
+        time_diff = (time.time() - start_time)
+        print(Fore.YELLOW + f"--- {time_diff} seconds --- " + Fore.RESET)
         print(Fore.YELLOW + f"--- %s minutes %s seconds --- " % (minutes, seconds) + Fore.RESET)
         print("---------------------------------------")
         print(Fore.RESET)
+        return time_diff
 
     @staticmethod
     def update_sourceforge_release_directory(release_type):
