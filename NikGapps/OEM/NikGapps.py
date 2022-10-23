@@ -29,10 +29,10 @@ class NikGapps:
             return None
 
     def clone_gapps_image(self):
-        print("Cloning PixelExperience GApps Image")
+        print("Cloning NikGapps Image")
         repo = Git(self.repo_dir)
-        repo.clone_repo(self.repo_url, branch=self.branch, fresh_clone=False)
-        return repo
+        result = repo.clone_repo(self.repo_url, branch=self.branch, fresh_clone=False)
+        return repo if result else None
 
     def get_gapps_dict(self):
         print("Getting NikGapps GApps Dict")
