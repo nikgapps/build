@@ -27,6 +27,9 @@ class Operations:
         n = NikGapps(android_version)
         n_gapps_dict = n.get_nikgapps_dict()
         tracker_repo = GitOperations.setup_tracker_repo()
+        if tracker_repo is None:
+            print("Failed to setup tracker repo!")
+            return
         tracker = Operations.get_tracker(android_version, tracker_repo, n.tracker)
         if tracker[0] is not None:
             with open(tracker[0], 'w') as file:
@@ -47,6 +50,9 @@ class Operations:
         pe = PixelExperience(android_version)
         pixel_experience_dict = pe.get_pixel_experience_dict()
         tracker_repo = GitOperations.setup_tracker_repo()
+        if tracker_repo is None:
+            print("Failed to setup tracker repo!")
+            return
         pixel_experience_tracker = Operations.get_tracker(android_version, tracker_repo, pe.tracker)
         if pixel_experience_tracker[0] is not None:
             with open(pixel_experience_tracker[0], 'w') as file:

@@ -11,5 +11,5 @@ class Operations:
         print("Repo Dir: " + repo_dir)
 
         tracker_repo = Git(repo_dir)
-        tracker_repo.clone_repo(repo_name)
-        return tracker_repo
+        result = tracker_repo.clone_repo(repo_name)
+        return tracker_repo if result else None
