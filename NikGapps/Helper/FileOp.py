@@ -1,3 +1,4 @@
+import hashlib
 import os.path
 import shutil
 from .Constants import Constants
@@ -178,3 +179,16 @@ class FileOp:
         else:
             print("File: " + file_path + " not found!")
             return ['File Not Found']
+
+    @staticmethod
+    def get_md5(file_path):
+        if FileOp.file_exists(file_path):
+            md5_hash = hashlib.md5()
+            a_file = open(file_path, "rb")
+            content = a_file.read()
+            md5_hash.update(content)
+            digest = md5_hash.hexdigest()
+            a_file.close()
+            return digest
+        else:
+            return "File Not Found"
