@@ -10,7 +10,7 @@ class NikGapps:
         self.android_version = str(android_version)
         self.oem = "nikgapps"
         self.repo_dir = Constants.pwd + Constants.dir_sep + f"{self.oem}_" + str(self.android_version)
-        self.repo_url = f"git@gitlab.com:nikgapps/{str(self.android_version)}.git"
+        self.repo_url = f"https://gitlab.com/nikgapps/{str(self.android_version)}.git"
         self.android_dict = {}
         for v in Config.ANDROID_VERSIONS:
             self.android_dict[v] = "main"

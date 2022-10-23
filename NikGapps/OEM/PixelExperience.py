@@ -8,9 +8,9 @@ class PixelExperience:
         self.android_version = str(android_version)
         self.oem = "pe_gapps"
         self.repo_dir = Constants.pwd + Constants.dir_sep + f"{self.oem}_" + str(self.android_version)
-        self.repo_url = "git@gitlab.com:PixelExperience/thirteen/vendor_gapps.git"
         self.android_dict = {"13": "thirteen"}
         self.branch = self.android_dict[self.android_version]
+        self.repo_url = f"https://gitlab.com/PixelExperience/{self.branch}/vendor_gapps.git"
         self.tracker = "pixel_experience"
 
     def android_version_supported(self, android_version):
