@@ -17,8 +17,11 @@ class PixelExperience:
         return android_version in self.android_dict
 
     def get_pixel_experience_dict(self):
-        self.clone_gapps_image()
-        return self.get_gapps_dict()
+        if self.clone_gapps_image() is not None:
+            return self.get_gapps_dict()
+        else:
+            print("Failed to clone PixelExperience GApps Image")
+            return None
 
     def clone_gapps_image(self):
         print("Cloning PixelExperience GApps Image")
