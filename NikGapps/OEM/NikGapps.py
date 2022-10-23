@@ -64,15 +64,14 @@ class NikGapps:
                     pkg_list = [pkg_dict]
                     gapps_dict[appset_name] = pkg_list
                 else:
-                    # the appset exists, so does the package list
-                    tmp_pkg_list = gapps_dict[appset_name]
-                    # we will go through all the packages, and check if the current package exists
-                    for pkg in gapps_dict[appset_name]:
-                        if pkg_name in pkg:
-                            pkg[pkg_name].append(f_dict)
-                        else:
-                            pkg_dict = {pkg_name: [f_dict]}
-                            tmp_pkg_list.append(pkg_dict)
-                        break
-                    gapps_dict[appset_name] = tmp_pkg_list
+                    pkg_list = gapps_dict[appset_name]
+                    pkg_found = False
+                    for pkg_dict in pkg_list:
+                        if pkg_name in pkg_dict:
+                            pkg_dict[pkg_name].append(f_dict)
+                            pkg_found = True
+                            break
+                    if not pkg_found:
+                        pkg_dict = {pkg_name: [f_dict]}
+                        pkg_list.append(pkg_dict)
         return gapps_dict
