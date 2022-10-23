@@ -11,6 +11,13 @@ class PixelExperience:
         self.android_dict = {"13": "thirteen"}
         self.branch = self.android_dict[self.android_version]
 
+    def android_version_supported(self, android_version):
+        return android_version in self.android_dict
+
+    def get_pixel_experience_dict(self):
+        self.clone_gapps_image()
+        return self.get_gapps_dict()
+
     def clone_gapps_image(self):
         print("Cloning PixelExperience GApps Image")
         repo = Git(self.repo_dir)

@@ -6,13 +6,6 @@ from NikGapps.Git.Operations import Operations as GitOperations
 
 
 class Operations:
-
-    @staticmethod
-    def get_pixel_experience_dict(android_version):
-        pe = PixelExperience(android_version)
-        pe.clone_gapps_image()
-        return pe.get_gapps_dict()
-
     @staticmethod
     def get_pixel_experience_tracker(android_version, tracker_repo):
         repo_dir = tracker_repo.working_tree_dir
@@ -30,7 +23,8 @@ class Operations:
 
     @staticmethod
     def sync_with_pixel_experience_tracker(android_version):
-        pixel_experience_dict = Operations.get_pixel_experience_dict(android_version)
+        pe = PixelExperience(android_version)
+        pixel_experience_dict = pe.get_pixel_experience_dict()
         tracker_repo = GitOperations.setup_tracker_repo()
         pixel_experience_tracker = Operations.get_pixel_experience_tracker(android_version, tracker_repo)
         if pixel_experience_tracker[0] is not None:
