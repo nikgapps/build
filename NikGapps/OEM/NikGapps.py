@@ -55,23 +55,23 @@ class NikGapps:
                 package_name = cmd.get_package_name(str(path))
                 package_version = cmd.get_package_version(str(path))
                 f_dict = {"partition": "system", "type": supported_type,
-                          "folder": folder_name,
-                          "file": file_path, "package": package_name, "version": package_version,
+                          "folder": folder_name, "file": file_path, "package": package_name,
+                          "package_name": pkg_name, "version": package_version,
                           "md5": FileOp.get_md5(str(path))}
                 if appset_name not in gapps_dict:
                     # the appset is new, so will be the package list
-                    pkg_dict = {pkg_name: [f_dict]}
+                    pkg_dict = {package_name: [f_dict]}
                     pkg_list = [pkg_dict]
                     gapps_dict[appset_name] = pkg_list
                 else:
                     pkg_list = gapps_dict[appset_name]
                     pkg_found = False
                     for pkg_dict in pkg_list:
-                        if pkg_name in pkg_dict:
-                            pkg_dict[pkg_name].append(f_dict)
+                        if package_name in pkg_dict:
+                            pkg_dict[package_name].append(f_dict)
                             pkg_found = True
                             break
                     if not pkg_found:
-                        pkg_dict = {pkg_name: [f_dict]}
+                        pkg_dict = {package_name: [f_dict]}
                         pkg_list.append(pkg_dict)
         return gapps_dict
