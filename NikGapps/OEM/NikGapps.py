@@ -1,7 +1,8 @@
 from pathlib import Path
 
 import Config
-from NikGapps.Helper import Constants, Git, Cmd, FileOp
+from NikGapps.Helper import Constants, Git, Cmd, FileOp, Package
+from NikGappsPackages import NikGappsPackages
 
 
 class NikGapps:
@@ -38,40 +39,49 @@ class NikGapps:
         print("Getting NikGapps GApps Dict")
         gapps_dict = {}
         cmd = Cmd()
-        for path in Path(self.repo_dir).rglob("*.apk"):
-            if path.is_file() and "overlay" not in str(path):
-                file_path = str(path)
-                file_path = file_path[len(self.repo_dir) + 1:]
-                path_split = file_path.split("/")
-                appset_name = path_split[0]
-                pkg_name = path_split[1]
-                folder_name = path_split[2]
-                supported_type = "unknown"
-                if folder_name.startswith("___priv-app"):
-                    supported_type = "priv-app"
-                elif folder_name.startswith("___app"):
-                    supported_type = "app"
-                folder_name = supported_type if supported_type == "unknown" else folder_name[len(supported_type) + 6:]
-                package_name = cmd.get_package_name(str(path))
-                package_version = cmd.get_package_version(str(path))
-                f_dict = {"partition": "system", "type": supported_type,
-                          "folder": folder_name, "file": file_path, "package": package_name,
-                          "package_name": pkg_name, "version": package_version,
-                          "md5": FileOp.get_md5(str(path))}
-                if appset_name not in gapps_dict:
-                    # the appset is new, so will be the package list
-                    pkg_dict = {package_name: [f_dict]}
-                    pkg_list = [pkg_dict]
-                    gapps_dict[appset_name] = pkg_list
-                else:
-                    pkg_list = gapps_dict[appset_name]
-                    pkg_found = False
-                    for pkg_dict in pkg_list:
-                        if package_name in pkg_dict:
-                            pkg_dict[package_name].append(f_dict)
-                            pkg_found = True
-                            break
-                    if not pkg_found:
+        for appset in NikGappsPackages.get_packages("all"):
+            for pkg in appset.package_list:
+                pkg: Package
+                if pkg.package_name is None:
+                    continue
+                package_path = self.repo_dir + Constants.dir_sep + appset.title + Constants.dir_sep + pkg.package_title
+                for path in Path(package_path).rglob("*.apk"):
+                    if "overlay" in str(path) or "split" in str(path):
+                        continue
+                    file_path = str(path)[len(self.repo_dir) + 1:]
+                    path_split = file_path.split("/")
+                    appset_name = path_split[0]
+                    pkg_name = path_split[1]
+                    folder_name = path_split[2]
+                    supported_type = "unknown"
+                    if folder_name.startswith("___priv-app"):
+                        supported_type = "priv-app"
+                    elif folder_name.startswith("___app"):
+                        supported_type = "app"
+                    folder_name = supported_type if supported_type == "unknown" else folder_name[
+                                                                                     len(supported_type) + 6:]
+                    package_name = cmd.get_package_name(str(path))
+                    package_version = cmd.get_package_version(str(path))
+                    file_path = str(path)[len(package_path) + 1:]
+                    version = ''.join([i for i in package_version if i.isdigit()])
+                    f_dict = {"partition": "system", "type": supported_type,
+                              "folder": folder_name, "file": file_path, "package": package_name,
+                              "package_title": pkg_name, "version": package_version, "version_code": version,
+                              "md5": FileOp.get_md5(str(path))}
+                    if appset_name not in gapps_dict:
+                        # the appset is new, so will be the package list
                         pkg_dict = {package_name: [f_dict]}
-                        pkg_list.append(pkg_dict)
+                        pkg_list = [pkg_dict]
+                        gapps_dict[appset_name] = pkg_list
+                    else:
+                        pkg_list = gapps_dict[appset_name]
+                        pkg_found = False
+                        for pkg_dict in pkg_list:
+                            if package_name in pkg_dict:
+                                pkg_dict[package_name].append(f_dict)
+                                pkg_found = True
+                                break
+                        if not pkg_found:
+                            pkg_dict = {package_name: [f_dict]}
+                            pkg_list.append(pkg_dict)
         return gapps_dict
