@@ -10,7 +10,7 @@ from colorama import Fore
 import Config
 
 
-class Constants:
+class C:
     tz_london = pytz.timezone('Europe/London')
     datetime_london = datetime.now(tz_london)
     current_time = datetime_london.strftime("%Y%m%d")
@@ -77,7 +77,7 @@ class Constants:
     @staticmethod
     def get_download_link(file_name, sf_path):
         sf_prefix = "https://sourceforge.net/projects/nikgapps/files/"
-        download_link = sf_prefix + sf_path[len("/home/frs/project/nikgapps/"):] + "/" + Constants.get_base_name(
+        download_link = sf_prefix + sf_path[len("/home/frs/project/nikgapps/"):] + "/" + C.get_base_name(
             file_name) + "/download"
         return download_link
 
@@ -104,28 +104,28 @@ class Constants:
     @staticmethod
     def update_sourceforge_release_directory(release_type):
         if release_type == "config":
-            Constants.sourceforge_release_directory = "/home/frs/project/nikgapps/Config-Releases"
+            C.sourceforge_release_directory = "/home/frs/project/nikgapps/Config-Releases"
         elif release_type == "canary":
-            Constants.sourceforge_release_directory = "/home/frs/project/nikgapps/Canary-Releases"
+            C.sourceforge_release_directory = "/home/frs/project/nikgapps/Canary-Releases"
         else:
-            Constants.sourceforge_release_directory = "/home/frs/project/nikgapps/Releases"
+            C.sourceforge_release_directory = "/home/frs/project/nikgapps/Releases"
 
     @staticmethod
     def update_android_version_dependencies():
-        Constants.android_version_folder = str(Config.TARGET_ANDROID_VERSION)
-        Constants.export_directory = str(Path(Constants.cwd).parent) + os.path.sep + "Export" + os.path.sep + str(
-            Config.TARGET_ANDROID_VERSION) + os.path.sep + Constants.current_time
-        Constants.source_directory = str(Path(Constants.cwd).parent) + os.path.sep + str(
-            Constants.android_version_folder)
-        print("Source: " + Constants.source_directory)
-        Constants.release_directory = str(Path(Constants.cwd).parent) + os.path.sep + "Releases" + os.path.sep + str(
+        C.android_version_folder = str(Config.TARGET_ANDROID_VERSION)
+        C.export_directory = str(Path(C.cwd).parent) + os.path.sep + "Export" + os.path.sep + str(
+            Config.TARGET_ANDROID_VERSION) + os.path.sep + C.current_time
+        C.source_directory = str(Path(C.cwd).parent) + os.path.sep + str(
+            C.android_version_folder)
+        print("Source: " + C.source_directory)
+        C.release_directory = str(Path(C.cwd).parent) + os.path.sep + "Releases" + os.path.sep + str(
             Config.TARGET_ANDROID_VERSION)
-        Constants.temp_packages_directory = str(
-            Path(Constants.cwd).parent) + os.path.sep + "TempPackages" + os.path.sep + str(
-            Constants.android_version_folder)
+        C.temp_packages_directory = str(
+            Path(C.cwd).parent) + os.path.sep + "TempPackages" + os.path.sep + str(
+            C.android_version_folder)
         android_version_code = Config.ANDROID_VERSIONS[str(Config.TARGET_ANDROID_VERSION)]['code']
         overlay_android_version = f"overlays_{android_version_code}"
-        overlay_directory = str(Path(Constants.cwd).parent) + os.path.sep + overlay_android_version
+        overlay_directory = str(Path(C.cwd).parent) + os.path.sep + overlay_android_version
 
     @staticmethod
     def get_mtime(pkg_zip_path):
@@ -143,9 +143,9 @@ class Constants:
                 progress_count += 1
                 progress = int((package_progress * progress_length) / 100)
                 if progress >= progress_count:
-                    print_progress += Constants.progress_complete
+                    print_progress += C.progress_complete
                 else:
-                    print_progress += Constants.progress_remaining
+                    print_progress += C.progress_remaining
         print_progress += "]"
         return print_progress
 
@@ -159,19 +159,19 @@ class Constants:
 
     @staticmethod
     def get_import_path(app_set, pkg, install_path, export_directory=None):
-        base_name = Constants.get_base_name(install_path)
-        dir_name = Constants.get_parent_path(install_path)
+        base_name = C.get_base_name(install_path)
+        dir_name = C.get_parent_path(install_path)
         dir_name = str(dir_name).replace("\\system_ext", "").replace("/system_ext", "") \
             .replace("\\system", "").replace("/system", "") \
             .replace("\\product", "").replace("/product", "")
         if export_directory is not None:
-            output = export_directory + Constants.dir_sep
+            output = export_directory + C.dir_sep
         else:
-            output = Constants.export_directory + Constants.dir_sep
+            output = C.export_directory + C.dir_sep
         if app_set is not None:
-            output += app_set + Constants.dir_sep
-        output += str(pkg) + Constants.dir_sep + str(dir_name).replace("\\", "___").replace(
-            Constants.dir_sep, "___") + Constants.dir_sep + base_name
+            output += app_set + C.dir_sep
+        output += str(pkg) + C.dir_sep + str(dir_name).replace("\\", "___").replace(
+            C.dir_sep, "___") + C.dir_sep + base_name
         if not os.path.exists(Path(output).parent):
             os.makedirs(Path(output).parent)
         return Path(output)

@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import Config
-from NikGapps.Helper import Constants, Git, Cmd, FileOp, Package
+from NikGapps.Helper import C, Git, Cmd, FileOp, Package
 from NikGappsPackages import NikGappsPackages
 
 
@@ -10,7 +10,7 @@ class NikGapps:
     def __init__(self, android_version):
         self.android_version = str(android_version)
         self.oem = "nikgapps"
-        self.repo_dir = Constants.pwd + Constants.dir_sep + f"{self.oem}_" + str(self.android_version)
+        self.repo_dir = C.pwd + C.dir_sep + f"{self.oem}_" + str(self.android_version)
         self.repo_url = f"https://gitlab.com/{self.oem}/{str(self.android_version)}.git"
         self.android_dict = {}
         for v in Config.ANDROID_VERSIONS:
@@ -52,7 +52,7 @@ class NikGapps:
                 pkg: Package
                 if pkg.package_name is None:
                     continue
-                package_path = self.repo_dir + Constants.dir_sep + appset.title + Constants.dir_sep + pkg.package_title
+                package_path = self.repo_dir + C.dir_sep + appset.title + C.dir_sep + pkg.package_title
                 for path in Path(package_path).rglob("*.apk"):
                     if "overlay" in str(path) or "split" in str(path):
                         continue
@@ -103,7 +103,7 @@ class NikGapps:
                 pkg: Package
                 if pkg.package_name is None:
                     continue
-                package_path = self.repo_dir + Constants.dir_sep + appset.title + Constants.dir_sep + pkg.package_title
+                package_path = self.repo_dir + C.dir_sep + appset.title + C.dir_sep + pkg.package_title
                 for path in Path(package_path).rglob("*.apk"):
                     if "overlay" in str(path) or "split" in str(path):
                         continue

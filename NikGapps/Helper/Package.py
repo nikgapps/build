@@ -3,7 +3,7 @@ from .Assets import Assets
 from .XmlOp import XmlOp
 from Config import TARGET_ANDROID_VERSION
 from .Cmd import Cmd
-from .Constants import Constants
+from .C import C
 from .FileOp import FileOp
 
 
@@ -19,10 +19,10 @@ class Package:
             self.partition = "product"
         self.app_type = app_type  # Whether the Package is system app or private app
         # target_folder is the folder where the package will be installed
-        if app_type == Constants.is_priv_app:
-            self.target_folder = str(Constants.system_root_dir + "/" + "priv-app" + "/" + title).replace("\\\\", "/")
-        elif app_type == Constants.is_system_app:
-            self.target_folder = str(Constants.system_root_dir + "/" + "app" + "/" + title).replace("\\\\", "/")
+        if app_type == C.is_priv_app:
+            self.target_folder = str(C.system_root_dir + "/" + "priv-app" + "/" + title).replace("\\\\", "/")
+        elif app_type == C.is_system_app:
+            self.target_folder = str(C.system_root_dir + "/" + "app" + "/" + title).replace("\\\\", "/")
         self.install_list = []  # Stores list of files installed to the package directory
         self.predefined_file_list = []  # Stores list of predefined file list
         self.overlay_list = []  # Stores list of overlay apks
@@ -53,7 +53,7 @@ class Package:
             if perm not in permissions_list:
                 permissions_list.append(perm)
         permissions_path = "/etc/permissions/" + str(self.package_name) + ".xml"
-        import_path = Constants.get_import_path(app_set, self.package_title, permissions_path, pkg_path)
+        import_path = C.get_import_path(app_set, self.package_title, permissions_path, pkg_path)
         self.file_dict[import_path] = "etc/permissions/" + str(self.package_name) + ".xml"
         XmlOp(self.package_name, permissions_list, import_path)
 
@@ -174,11 +174,11 @@ class Package:
                 install_location = file.replace(source_folder, self.target_folder)
                 # Replace the base.apk with System_App_Name.apk
                 install_location = str(
-                    install_location).replace("base.apk", Constants.get_base_name(self.target_folder) + ".apk")
+                    install_location).replace("base.apk", C.get_base_name(self.target_folder) + ".apk")
                 # Prepare the server directory where the pulled files will be stored
                 source = install_location
                 # Encrypt the file names and store it on server
-                server_location = Constants.get_import_path(app_set, self.package_title, source)
+                server_location = C.get_import_path(app_set, self.package_title, source)
                 # Pull the file from device and store on server
                 output_line = cmd.pull_package(file, server_location)
                 if output_line.__len__() >= 1 and output_line[0].__contains__("1 file pulled"):
@@ -187,7 +187,7 @@ class Package:
                 for folder in FileOp.get_dir_list(install_location):
                     self.folder_dict[folder] = folder
                 # Generate priv-app permissions whitelist
-                if file == self.primary_app_location and self.app_type == Constants.is_priv_app:
+                if file == self.primary_app_location and self.app_type == C.is_priv_app:
                     output_line = cmd.get_white_list_permissions(server_location)
                     if output_line.__len__() >= 1 and not output_line[0].__contains__("Exception"):
                         self.generate_priv_app_whitelist(app_set, output_line)
@@ -204,21 +204,21 @@ class Package:
                     print("The file " + file + " does not exists!")
                     continue
                 import_path = source
-                server_location = Constants.get_import_path(app_set, self.package_title, import_path)
+                server_location = C.get_import_path(app_set, self.package_title, import_path)
                 output_line = cmd.pull_package(source, server_location)
                 if output_line.__len__() >= 1 and output_line[0].__contains__("1 file pulled"):
                     log = "File pulled " + str(file)
                 # Update the folder dictionary
-                for folder in FileOp.get_dir_list(Constants.get_base_name(server_location).replace("___", "/")):
+                for folder in FileOp.get_dir_list(C.get_base_name(server_location).replace("___", "/")):
                     self.folder_dict[folder] = folder
                 self.file_dict[server_location] = source
         if self.delete_files_list.__len__() > 0:
             del_str = ""
             for delete_folder in self.delete_files_list:
                 del_str += delete_folder + "\n"
-            # if FileOp.dir_exists(Constants.path.join(Constants.export_directory, app_set, self.package_title)):
-            #     FileOp.write_string_file(del_str, Constants.path.join(Constants.export_directory, app_set,
-            #                                                           self.package_title, Constants.DELETE_FILES_NAME))
+            # if FileOp.dir_exists(C.path.join(C.export_directory, app_set, self.package_title)):
+            #     FileOp.write_string_file(del_str, C.path.join(C.export_directory, app_set,
+            #                                                           self.package_title, C.DELETE_FILES_NAME))
 
     # validate the package
     def validate(self):

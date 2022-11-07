@@ -6,7 +6,7 @@ from NikGapps.Helper import Upload, FileOp
 from NikGapps.Helper.Args import Args
 from Operation import Operation
 import Config
-from NikGapps.Helper.Constants import Constants
+from NikGapps.Helper.C import C
 from NikGapps.Helper.SystemStat import SystemStat
 import pytz
 from datetime import datetime
@@ -16,7 +16,7 @@ from Release import Release
 print("Start of the Program")
 print(Fore.GREEN)
 SystemStat.show_stats()
-start_time = Constants.start_of_function()
+start_time = C.start_of_function()
 tz_London = pytz.timezone('Europe/London')
 datetime_London = datetime.now(tz_London)
 print("London:", datetime_London.strftime("%a, %m/%d/%Y, %H:%M:%S"))
@@ -53,6 +53,6 @@ else:
                     package_list=package_list, commit_message=commit_message, upload=u)
     u.close()
 
-Constants.end_of_function(start_time, "Total time taken by the program")
+C.end_of_function(start_time, "Total time taken by the program")
 
 print("End of the Program")

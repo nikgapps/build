@@ -1,4 +1,4 @@
-from NikGapps.Helper import Constants, Git, FileOp
+from NikGapps.Helper import C, Git, FileOp
 
 
 class ConfigDirectory:
@@ -8,7 +8,7 @@ class ConfigDirectory:
         if repo_dir is not None:
             self.repo_dir = repo_dir
         else:
-            self.repo_dir = Constants.pwd + Constants.dir_sep + "config"
+            self.repo_dir = C.pwd + C.dir_sep + "config"
         self.config_repo = Git(self.repo_dir)
 
     def setup(self, override_dir=True):
@@ -18,7 +18,7 @@ class ConfigDirectory:
         return self.config_repo
 
     def write_user_config(self, config_string, android_version, config_name):
-        path = self.repo_dir + Constants.dir_sep + str(android_version) + Constants.dir_sep + config_name
+        path = self.repo_dir + C.dir_sep + str(android_version) + C.dir_sep + config_name
         try:
             FileOp.write_string_in_lf_file(str_data=config_string, file_path=path)
         except Exception as e:

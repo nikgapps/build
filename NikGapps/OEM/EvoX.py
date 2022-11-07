@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from NikGapps.Helper import Constants, Cmd, FileOp, Git
+from NikGapps.Helper import C, Cmd, FileOp, Git
 
 
 class EvoX:
@@ -8,7 +8,7 @@ class EvoX:
     def __init__(self, android_version):
         self.android_version = str(android_version)
         self.oem = "evo_x_gapps"
-        self.repo_dir = Constants.pwd + Constants.dir_sep + f"{self.oem}_" + str(self.android_version)
+        self.repo_dir = C.pwd + C.dir_sep + f"{self.oem}_" + str(self.android_version)
         self.android_dict = {"13": "tiramisu"}
         self.branch = self.android_dict[self.android_version]
         self.repo_url = f"https://gitlab.com/EvoX/vendor_gms.git"
@@ -38,8 +38,8 @@ class EvoX:
         for partition in supported_partitions:
             supported_types = {"privileged_apps": "priv-app", "apps": "app"}
             for supported_type in supported_types:
-                partition_dir = self.repo_dir + Constants.dir_sep + partition + Constants.dir_sep + \
-                                "packages" + Constants.dir_sep + supported_type + Constants.dir_sep
+                partition_dir = self.repo_dir + C.dir_sep + partition + C.dir_sep + \
+                                "packages" + C.dir_sep + supported_type + C.dir_sep
                 for path in Path(partition_dir).rglob("*.apk"):
                     if path.is_file():
                         file_path = str(path)

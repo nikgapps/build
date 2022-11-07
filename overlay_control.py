@@ -2,16 +2,16 @@ import os.path
 from pathlib import Path
 
 import Config
-from NikGapps.Helper import Constants, Git, FileOp, Cmd, Args
+from NikGapps.Helper import C, Git, FileOp, Cmd, Args
 
 # parse command line arguments
 args = Args()
 if args.android_version != str(-1):
     Config.TARGET_ANDROID_VERSION = args.android_version
-    Constants.update_android_version_dependencies()
+    C.update_android_version_dependencies()
 android_version_code = Config.ANDROID_VERSIONS[str(Config.TARGET_ANDROID_VERSION)]['code']
 repo_name = f"git@github.com:nikgapps/overlays_{android_version_code}_source.git"
-repo_dir = Constants.pwd + Constants.dir_sep + f"overlays_{android_version_code}_source"
+repo_dir = C.pwd + C.dir_sep + f"overlays_{android_version_code}_source"
 branch = "master"
 config_repo = Git(repo_dir)
 if FileOp.dir_exists(repo_dir):
@@ -21,7 +21,7 @@ config_repo.clone_repo(repo_name, branch=branch)
 if FileOp.dir_exists(repo_dir):
     overlay_android_version = f"overlays_{android_version_code}"
     overlays_repo_name = f"git@github.com:nikgapps/{overlay_android_version}.git"
-    overlays_repo_dir = Constants.pwd + Constants.dir_sep + overlay_android_version
+    overlays_repo_dir = C.pwd + C.dir_sep + overlay_android_version
     if FileOp.dir_exists(overlays_repo_dir):
         FileOp.remove_dir(overlays_repo_dir)
     overlay_config_repo = Git(overlays_repo_dir)

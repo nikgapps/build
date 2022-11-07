@@ -3,10 +3,10 @@ import os
 from pathlib import Path
 
 import Config
-from NikGapps.Helper import Constants, FileOp, Git, Logs
+from NikGapps.Helper import C, FileOp, Git, Logs
 
 repo_name = "git@github.com:nikgapps/config.git"
-repo_dir = Constants.pwd + Constants.dir_sep + "config"
+repo_dir = C.pwd + C.dir_sep + "config"
 branch = "main"
 analytics_dict = {}
 custom_build_dict = {}
@@ -18,18 +18,18 @@ config_repo.clone_repo(repo_name)
 
 if FileOp.dir_exists(repo_dir):
     print(f"{repo_dir} exists!")
-    archive_dir = repo_dir + Constants.dir_sep + "archive"
+    archive_dir = repo_dir + C.dir_sep + "archive"
     directory_contents = os.listdir(archive_dir)
     print(directory_contents)
     todays_date = str(Logs.get_current_time())
     for directory in directory_contents:
-        android_version_dir = archive_dir + Constants.dir_sep + str(directory)
+        android_version_dir = archive_dir + C.dir_sep + str(directory)
         count = 0
         for pkg_files in Path(android_version_dir).rglob("*"):
             if Path(pkg_files).is_file():
                 count += 1
         analytics_dict[directory] = count
-        android_version_dir_today = android_version_dir + Constants.dir_sep + todays_date
+        android_version_dir_today = android_version_dir + C.dir_sep + todays_date
         for pkg_files in Path(android_version_dir_today).rglob("*"):
             if Path(pkg_files).is_file():
                 todays_custom_builds_count += 1
@@ -41,7 +41,7 @@ print("Download count from archive directory: " + str(analytics_dict))
 print("Today's Download count so far: " + str(custom_build_dict))
 
 repo_name = "git@github.com:nikgapps/tracker.git"
-repo_dir = Constants.pwd + Constants.dir_sep + "tracker"
+repo_dir = C.pwd + C.dir_sep + "tracker"
 print()
 print("Repo Dir: " + repo_dir)
 
@@ -50,7 +50,7 @@ tracker_repo.clone_repo(repo_name)
 
 if FileOp.dir_exists(repo_dir):
     print(f"{repo_dir} exists!")
-    custom_builds_count_json = repo_dir + Constants.dir_sep + "count.json"
+    custom_builds_count_json = repo_dir + C.dir_sep + "count.json"
     if FileOp.file_exists(custom_builds_count_json):
         print("File Exists!")
         custom_builds_json_string = ""

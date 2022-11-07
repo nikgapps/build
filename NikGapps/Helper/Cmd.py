@@ -3,7 +3,7 @@ from pathlib import Path
 
 from .Assets import Assets
 from .FileOp import FileOp
-from .Constants import Constants
+from .C import C
 from Config import DEBUG_MODE
 import subprocess
 
@@ -219,7 +219,7 @@ class Cmd:
     def get_package_name(self, apk_path):
         self.COMMAND_AAPT_DUMP_PERMISSIONS[3] = apk_path
         # A temporary file where the output will be stored
-        temp_file = Constants.temp_packages_directory + Constants.dir_sep + "temp.txt"
+        temp_file = C.temp_packages_directory + C.dir_sep + "temp.txt"
         self.COMMAND_AAPT_DUMP_PERMISSIONS[5] = temp_file
         if DEBUG_MODE:
             print("Executing: " + str(self.COMMAND_AAPT_DUMP_PERMISSIONS))
@@ -263,7 +263,7 @@ class Cmd:
         return return_list
 
     def sign_zip_file(self, zip_path):
-        zip_path = Constants.path.abspath(zip_path)
+        zip_path = C.path.abspath(zip_path)
         self.COMMAND_SIGN_ZIP[3] = zip_path
         output_list = self.execute_cmd(self.COMMAND_SIGN_ZIP)
         if output_list.__len__() == 1 and output_list[0].startswith("Exception occurred"):

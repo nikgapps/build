@@ -5,7 +5,7 @@ import Config
 from NikGapps.Config.ConfigDirectoy import ConfigDirectory
 from NikGapps.Config.NikGappsConfig import NikGappsConfig
 from NikGapps.Config.UserBuild.Operations import Operations
-from NikGapps.Helper import Constants, B64, FileOp, Git
+from NikGapps.Helper import C, B64, FileOp, Git
 
 
 class OnDemand:
@@ -40,8 +40,8 @@ class OnDemand:
         result = False
         if config_obj.validate():
             # create a config based build
-            Constants.update_android_version_dependencies()
-            Constants.update_sourceforge_release_directory("config")
+            C.update_android_version_dependencies()
+            C.update_sourceforge_release_directory("config")
             result = Operations.build(config_obj, android_version, config_repo)
         else:
             print("Delete the config file")
@@ -55,8 +55,8 @@ class OnDemand:
     @staticmethod
     def build_all_configs(android_version):
         Config.TARGET_ANDROID_VERSION = str(android_version)
-        config_repo = Git(Constants.config_directory)
-        config_folder = Path(Constants.config_directory + Constants.dir_sep + str(android_version))
+        config_repo = Git(C.config_directory)
+        config_folder = Path(C.config_directory + C.dir_sep + str(android_version))
         for config_file in config_folder.rglob("*.config"):
             if not OnDemand.build_from_config_file(config_file, android_version, config_repo):
                 print("Failed to build from config file: " + str(config_file))

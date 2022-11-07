@@ -1,4 +1,4 @@
-from NikGapps.Helper import Constants, Git, FileOp
+from NikGapps.Helper import C, Git, FileOp
 
 
 class Operations:
@@ -6,7 +6,7 @@ class Operations:
     @staticmethod
     def setup_tracker_repo():
         repo_name = "git@github.com:nikgapps/tracker.git"
-        repo_dir = Constants.pwd + Constants.dir_sep + "tracker"
+        repo_dir = C.pwd + C.dir_sep + "tracker"
         print()
         print("Repo Dir: " + repo_dir)
 

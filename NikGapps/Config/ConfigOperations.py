@@ -3,14 +3,14 @@ import os
 
 import Config
 from NikGapps.Config.NikGappsConfig import NikGappsConfig
-from NikGapps.Helper import Constants, Git, FileOp, Upload
+from NikGapps.Helper import C, Git, FileOp, Upload
 
 
 class ConfigOperations:
     @staticmethod
     def upload_nikgapps_config(config_obj: NikGappsConfig):
         repo_name = "git@github.com:nikgapps/tracker.git"
-        repo_dir = Constants.pwd + Constants.dir_sep + "tracker"
+        repo_dir = C.pwd + C.dir_sep + "tracker"
         print()
         print("Repo Dir: " + repo_dir)
         analytics_dict = {}
@@ -22,7 +22,7 @@ class ConfigOperations:
 
         if FileOp.dir_exists(repo_dir):
             print(f"{repo_dir} exists!")
-            config_version_json = repo_dir + Constants.dir_sep + "config_version.json"
+            config_version_json = repo_dir + C.dir_sep + "config_version.json"
             if FileOp.file_exists(config_version_json):
                 print("File Exists!")
                 custom_builds_json_string = ""
@@ -77,9 +77,9 @@ class ConfigOperations:
     def create_nikgapps_config_and_upload(config_obj: NikGappsConfig):
         execution_status = False
         # create nikgapps.config file and upload to sourceforge
-        FileOp.write_string_in_lf_file(config_obj.get_nikgapps_config(), Constants.temp_nikgapps_config_location)
-        if FileOp.file_exists(Constants.temp_nikgapps_config_location):
-            Constants.sourceforge_release_directory = "/home/frs/project/nikgapps/Releases/Config"
+        FileOp.write_string_in_lf_file(config_obj.get_nikgapps_config(), C.temp_nikgapps_config_location)
+        if FileOp.file_exists(C.temp_nikgapps_config_location):
+            C.sourceforge_release_directory = "/home/frs/project/nikgapps/Releases/Config"
             u = Upload()
             if u.successful_connection:
                 file_type = "config"
@@ -96,8 +96,8 @@ class ConfigOperations:
                                                          input_date=f"v{config_obj.config_version}"))
                 # if the directory exists, we can upload the file
                 if dir_exists:
-                    print("uploading " + Constants.temp_nikgapps_config_location + " ...")
-                    u.upload_file(Constants.temp_nikgapps_config_location)
+                    print("uploading " + C.temp_nikgapps_config_location + " ...")
+                    u.upload_file(C.temp_nikgapps_config_location)
                     print("uploading file finished...")
                     execution_status = True
                 else:

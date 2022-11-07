@@ -4,15 +4,15 @@ import git
 from git import Repo
 
 from NikGapps.Helper import Git
-from NikGapps.Helper.Constants import Constants
+from NikGapps.Helper.C import C
 from NikGapps.Helper.FileOp import FileOp
 
-actual_start_time = Constants.start_of_function()
+actual_start_time = C.start_of_function()
 repo_name = "git@github.com:nikgapps/config.git"
-repo_dir = Constants.pwd + Constants.dir_sep + "config"
+repo_dir = C.pwd + C.dir_sep + "config"
 branch = "main"
 print("Repo Dir: " + repo_dir)
-start_time = Constants.start_of_function()
+start_time = C.start_of_function()
 try:
     if FileOp.dir_exists(repo_dir):
         print(f"{repo_dir} already exists, deleting for a fresh clone!")
@@ -23,11 +23,11 @@ try:
     assert Repo.init(repo_dir).__class__ is Repo
 except Exception as e:
     print("Exception caught while cloning the repo: " + str(e))
-    Constants.end_of_function(start_time, f"Time taken to clone -b {branch} {repo_name}")
+    C.end_of_function(start_time, f"Time taken to clone -b {branch} {repo_name}")
 
 if FileOp.dir_exists(repo_dir):
     print(f"{repo_dir} exists!")
-    archive_dir = repo_dir + Constants.dir_sep + "archive"
+    archive_dir = repo_dir + C.dir_sep + "archive"
     count = 0
     for path in Path(archive_dir).rglob("*"):
         if Path(path).is_file():
@@ -44,6 +44,6 @@ if FileOp.dir_exists(repo_dir):
     config_repo = Git(repo_dir)
     config_repo.update_config_changes(commit_message)
 else:
-    print(Constants.config_directory + " doesn't exist!")
+    print(C.config_directory + " doesn't exist!")
 
-Constants.end_of_function(actual_start_time, "Total time taken by the program")
+C.end_of_function(actual_start_time, "Total time taken by the program")

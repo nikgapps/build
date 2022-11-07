@@ -5,13 +5,13 @@ from colorama import Fore
 
 import Config
 from NikGapps.Config.UserBuild.OnDemand import OnDemand
-from NikGapps.Helper import SystemStat, Constants, Args, B64, FileOp
+from NikGapps.Helper import SystemStat, C, Args, B64, FileOp
 from Operation import Operation
 
 print("Start of the Program")
 print(Fore.GREEN)
 SystemStat.show_stats()
-start_time = Constants.start_of_function()
+start_time = C.start_of_function()
 tz_London = pytz.timezone('Europe/London')
 datetime_London = datetime.now(tz_London)
 print("London:", datetime_London.strftime("%a, %m/%d/%Y, %H:%M:%S"))
@@ -44,7 +44,7 @@ if config_string is None:
     exit(1)
 
 # now that we have the validations done, let's check the directories
-repo_dir = Constants.pwd + Constants.dir_sep + str(Config.TARGET_ANDROID_VERSION)
+repo_dir = C.pwd + C.dir_sep + str(Config.TARGET_ANDROID_VERSION)
 if FileOp.dir_exists(repo_dir):
     print(f"{repo_dir} already exists!")
 else:

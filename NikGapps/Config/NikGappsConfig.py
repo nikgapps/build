@@ -1,5 +1,5 @@
 import json
-from NikGapps.Helper import ConfigObj, FileOp, AppSet, Package, Constants, Logs
+from NikGapps.Helper import ConfigObj, FileOp, AppSet, Package, C, Logs
 from NikGappsPackages import NikGappsPackages
 
 

@@ -1,6 +1,6 @@
 import json
 
-from NikGapps.Helper import FileOp, Constants
+from NikGapps.Helper import FileOp, C
 from NikGapps.Helper.Json import Json
 from NikGapps.OEM.EvoX import EvoX
 from NikGapps.OEM.NikGapps import NikGapps
@@ -15,7 +15,7 @@ class Operations:
         repo_dir = tracker_repo.working_tree_dir
         if FileOp.dir_exists(repo_dir):
             print(f"{repo_dir} exists!")
-            tracker_file = repo_dir + Constants.dir_sep + android_version + Constants.dir_sep + f"{oem}_{android_version}.json"
+            tracker_file = repo_dir + C.dir_sep + android_version + C.dir_sep + f"{oem}_{android_version}.json"
             if FileOp.file_exists(tracker_file):
                 return tracker_file, True
             else:
