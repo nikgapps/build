@@ -3,34 +3,35 @@ from pathlib import Path
 from NikGapps.Helper import Constants, Cmd, FileOp, Git
 
 
-class PixelExperience:
+class EvoX:
+
     def __init__(self, android_version):
         self.android_version = str(android_version)
-        self.oem = "PixelExperience"
+        self.oem = "evo_x_gapps"
         self.repo_dir = Constants.pwd + Constants.dir_sep + f"{self.oem}_" + str(self.android_version)
-        self.android_dict = {"13": "thirteen"}
+        self.android_dict = {"13": "tiramisu"}
         self.branch = self.android_dict[self.android_version]
-        self.repo_url = f"https://gitlab.com/{self.oem}/{self.branch}/vendor_gapps.git"
-        self.tracker = self.oem
+        self.repo_url = f"https://gitlab.com/EvoX/vendor_gms.git"
+        self.tracker = "evo_x"
 
     def android_version_supported(self, android_version):
         return android_version in self.android_dict
 
-    def get_pixel_experience_dict(self):
+    def get_evo_x_dict(self):
         if self.clone_gapps_image() is not None:
             return self.get_gapps_dict()
         else:
-            print("Failed to clone PixelExperience GApps Image")
+            print(f"Failed to clone {self.oem} GApps Image")
             return None
 
     def clone_gapps_image(self):
-        print("Cloning PixelExperience GApps Image")
+        print(f"Cloning {self.oem} GApps Image")
         repo = Git(self.repo_dir)
         result = repo.clone_repo(self.repo_url, branch=self.branch, fresh_clone=False)
         return repo if result else None
 
     def get_gapps_dict(self):
-        print("Getting PixelExperience GApps Dict")
+        print(f"Getting {self.oem} GApps Dict")
         supported_partitions = ["system", "system_ext", "product", "vendor"]
         gapps_dict = {}
         cmd = Cmd()
@@ -51,10 +52,11 @@ class PixelExperience:
                                   "folder": folder_name,
                                   "file": file_path, "package": package_name, "version": package_version,
                                   "md5": FileOp.get_md5(str(path))}
-                        if folder_name in gapps_dict:
-                            gapps_list = gapps_dict[folder_name]
+                        if package_name in gapps_dict:
+                            gapps_list = gapps_dict[package_name]
                             gapps_list.append(g_dict)
                         else:
                             gapps_list.append(g_dict)
-                            gapps_dict[folder_name] = gapps_list
+                            gapps_dict[package_name] = gapps_list
         return gapps_dict
+

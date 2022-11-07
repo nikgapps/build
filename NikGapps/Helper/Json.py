@@ -1,3 +1,4 @@
+import os
 from urllib.request import urlopen
 import json
 
@@ -10,6 +11,8 @@ class Json:
 
     @staticmethod
     def write_dict_to_file(json_dict, file_name):
+        if not os.path.exists(os.path.dirname(file_name)):
+            os.makedirs(os.path.dirname(file_name))
         try:
             with open(file_name, 'w') as file:
                 json_dumps_str = json.dumps(json_dict, indent=4, sort_keys=True)
