@@ -114,23 +114,11 @@ class NikGapps:
                     package_version = cmd.get_package_version(str(path))
                     file_path = str(path)[len(package_path) + 1:]
                     version = ''.join([i for i in package_version if i.isdigit()])
-                    update_source = "apk_mirror"
-                    update_indicator = "1"
+                    update_source = "EvoX"
                     if nikgapps_dict is not None:
                         gapps_dict = nikgapps_dict
-                        if appset_name in nikgapps_dict:
-                            pkg_list = nikgapps_dict[appset_name]
-                            for pkg_dict in pkg_list:
-                                if package_name in pkg_dict:
-                                    for f_dict in pkg_dict[package_name]:
-                                        if f_dict["file_path"] == file_path:
-                                            if "update_source" in f_dict:
-                                                update_source = f_dict["update_source"]
-                                            if "update_indicator" in f_dict:
-                                                update_indicator = f_dict["update_indicator"]
-                                            break
                     f_dict = {"file_path": file_path, "version": package_version, "update_source": update_source,
-                              "update_indicator": update_indicator, "version_code": version}
+                              "update_indicator": "1", "version_code": version}
                     if appset_name not in gapps_dict:
                         # the appset is new, so will be the package list
                         pkg_dict = {package_name: [f_dict]}
@@ -147,8 +135,6 @@ class NikGapps:
                                     if file_dict["file_path"] == file_path:
                                         file_dict["version"] = package_version
                                         file_dict["version_code"] = version
-                                        file_dict["update_source"] = update_source
-                                        file_dict["update_indicator"] = "1"
                                         file_found = True
                                         break
                                 if not file_found:

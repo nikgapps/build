@@ -7,12 +7,12 @@ class EvoX:
 
     def __init__(self, android_version):
         self.android_version = str(android_version)
-        self.oem = "evo_x_gapps"
+        self.oem = "EvoX"
         self.repo_dir = C.pwd + C.dir_sep + f"{self.oem}_" + str(self.android_version)
         self.android_dict = {"13": "tiramisu"}
         self.branch = self.android_dict[self.android_version]
-        self.repo_url = f"https://gitlab.com/EvoX/vendor_gms.git"
-        self.tracker = "evo_x"
+        self.repo_url = f"https://gitlab.com/{self.oem}/vendor_gms.git"
+        self.tracker = self.oem
 
     def android_version_supported(self, android_version):
         return android_version in self.android_dict
@@ -47,9 +47,10 @@ class EvoX:
                         folder_name = file_path.split("/")[0]
                         package_name = cmd.get_package_name(str(path))
                         package_version = cmd.get_package_version(str(path))
+                        version = ''.join([i for i in package_version if i.isdigit()])
                         gapps_list = []
                         g_dict = {"partition": partition, "type": supported_types[supported_type],
-                                  "folder": folder_name,
+                                  "folder": folder_name, "version_code": version,
                                   "file": file_path, "package": package_name, "version": package_version,
                                   "md5": FileOp.get_md5(str(path))}
                         if package_name in gapps_dict:

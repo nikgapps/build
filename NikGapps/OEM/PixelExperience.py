@@ -46,9 +46,10 @@ class PixelExperience:
                         folder_name = file_path.split("/")[0]
                         package_name = cmd.get_package_name(str(path))
                         package_version = cmd.get_package_version(str(path))
+                        version = ''.join([i for i in package_version if i.isdigit()])
                         gapps_list = []
                         g_dict = {"partition": partition, "type": supported_types[supported_type],
-                                  "folder": folder_name,
+                                  "folder": folder_name, "version_code": version,
                                   "file": file_path, "package": package_name, "version": package_version,
                                   "md5": FileOp.get_md5(str(path))}
                         if folder_name in gapps_dict:
