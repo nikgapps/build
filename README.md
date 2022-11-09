@@ -53,7 +53,7 @@ git clone https://github.com/nikgapps/config.git --depth=1
 - Build
 ```
 cd build
-python3 config_control.py <android ver>
+python3 config_control.py --androidVersion <android version>
 ```
 
 ## For Developers
