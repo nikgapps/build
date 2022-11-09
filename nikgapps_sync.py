@@ -1,12 +1,14 @@
-from NikGapps.Helper import Constants, Args
+from NikGapps.Helper import C, Args
 from NikGapps.OEM.Operations import Operations
 
-start_time = Constants.start_of_function()
+start_time = C.start_of_function()
 
 args = Args()
 android_versions = args.get_android_versions()
-
+list_of_supported_appsets = ["GoogleDialer"]
+list_of_supported_oems = ["EvoX", "apk_mirror", "PixelExperience"]
 for android_version in android_versions:
     Operations.sync_with_nikgapps_tracker(android_version)
+    Operations.update_nikgapps_controller(android_version, list_of_supported_appsets)
 
-Constants.end_of_function(start_time, "End of the program")
+C.end_of_function(start_time, "End of the program")

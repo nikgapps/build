@@ -6,7 +6,7 @@ from NikGapps.Helper import Logs, Upload
 from Build import Build
 from NikGappsPackages import NikGappsPackages
 from NikGapps.Helper.Export import Export
-from NikGapps.Helper.Constants import Constants
+from NikGapps.Helper.C import C
 from NikGapps.Helper.Cmd import Cmd
 from NikGapps.Helper.AppSet import AppSet
 from NikGapps.Helper.Package import Package
@@ -21,13 +21,13 @@ class Release:
             if str(pkg_type).__contains__("addons"):
                 for app_set in NikGappsPackages.get_packages(pkg_type):
                     print("Building for " + str(app_set.title))
-                    Release.zip_package(Constants.release_directory + Constants.dir_sep + str(
-                        "addons") + Constants.dir_sep + "NikGapps-Addon-"
-                                        + Constants.android_version_folder + "-" + app_set.title + "-" + str(
+                    Release.zip_package(C.release_directory + C.dir_sep + str(
+                        "addons") + C.dir_sep + "NikGapps-Addon-"
+                                        + C.android_version_folder + "-" + app_set.title + "-" + str(
                         Logs.get_current_time()) + ".zip", [app_set], upload=upload)
             elif pkg_type == "debloater":
                 if Config.CREATE_DEBLOATER_ZIP:
-                    file_name = Constants.release_directory + Constants.dir_sep + "Debloater-" + str(
+                    file_name = C.release_directory + C.dir_sep + "Debloater-" + str(
                         Logs.get_current_time()) + ".zip"
                     z = Export(file_name)
                     config_obj = NikGappsConfig()
@@ -43,9 +43,9 @@ class Release:
                         print("Failed to create zip!")
             else:
                 if pkg_type in Config.BUILD_PACKAGE_LIST:
-                    file_name = Constants.release_directory
-                    file_name = file_name + Constants.dir_sep + Logs.get_file_name(pkg_type.lower(),
-                                                                                   str(Config.TARGET_ANDROID_VERSION))
+                    file_name = C.release_directory
+                    file_name = file_name + C.dir_sep + Logs.get_file_name(pkg_type.lower(),
+                                                                           str(Config.TARGET_ANDROID_VERSION))
                     # Build the packages from the directory
                     print("Building for " + str(pkg_type))
                     Release.zip_package(file_name,
@@ -56,9 +56,9 @@ class Release:
                             print("AppSet/Package Does not Exists: " + str(pkg_type))
                         else:
                             print("Building for " + str(app_set.title))
-                            Release.zip_package(Constants.release_directory
-                                                + Constants.dir_sep + "addons" + Constants.dir_sep + "NikGapps-Addon-"
-                                                + Constants.android_version_folder + "-" + app_set.title + "-"
+                            Release.zip_package(C.release_directory
+                                                + C.dir_sep + "addons" + C.dir_sep + "NikGapps-Addon-"
+                                                + C.android_version_folder + "-" + app_set.title + "-"
                                                 + str(Logs.get_current_time()) + ".zip", [app_set], upload=upload)
             os.environ['pkg_type'] = ''
 

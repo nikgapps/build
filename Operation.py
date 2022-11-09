@@ -3,7 +3,7 @@ from datetime import datetime
 from NikGapps.Config.ConfigOperations import ConfigOperations
 from NikGapps.Config.NikGappsConfig import NikGappsConfig
 from NikGapps.Helper import FileOp, Git, Upload
-from NikGapps.Helper.Constants import Constants
+from NikGapps.Helper.C import C
 from Release import Release
 from Config import FETCH_PACKAGE
 import Config
@@ -25,14 +25,14 @@ class Operation:
 
     @staticmethod
     def clone_apk_repo(android_version, fresh_clone=False, branch="main"):
-        apk_source_directory = Constants.apk_source_directory + str(android_version)
-        apk_source_repo = Constants.apk_source_repo + str(android_version) + ".git"
+        apk_source_directory = C.apk_source_directory + str(android_version)
+        apk_source_repo = C.apk_source_repo + str(android_version) + ".git"
         repository = Git(apk_source_directory)
         result = repository.clone_repo(repo_url=apk_source_repo, fresh_clone=fresh_clone, branch=branch)
         return repository.repo if result else None
 
     @staticmethod
-    def get_last_commit_date(repo_dir=Constants.cwd, repo_url=None,
+    def get_last_commit_date(repo_dir=C.cwd, repo_url=None,
                              branch="canary" if Config.RELEASE_TYPE.__eq__("canary") else "main", android_version=None):
         last_commit_datetime = None
         if android_version is not None:
@@ -47,22 +47,22 @@ class Operation:
 
     @staticmethod
     def get_release_repo():
-        release_repo = Git(Constants.release_history_directory)
-        if not FileOp.dir_exists(Constants.release_history_directory):
+        release_repo = Git(C.release_history_directory)
+        if not FileOp.dir_exists(C.release_history_directory):
             repo_name = "git@github.com:nikgapps/canary-release.git" if Config.RELEASE_TYPE.__eq__(
                 "canary") else "git@github.com:nikgapps/release.git"
             release_repo.clone_repo(repo_name, branch="master", commit_depth=50)
-            if not FileOp.dir_exists(Constants.release_history_directory):
-                print(Constants.release_history_directory + " doesn't exist!")
+            if not FileOp.dir_exists(C.release_history_directory):
+                print(C.release_history_directory + " doesn't exist!")
         return release_repo
 
     @staticmethod
-    def get_website_repo_for_changelog(repo_dir=Constants.website_directory, repo_url=Constants.website_repo,
+    def get_website_repo_for_changelog(repo_dir=C.website_directory, repo_url=C.website_repo,
                                        branch="master"):
         repo = Git(repo_dir)
         if repo_url is not None:
             repo.clone_repo(repo_url=repo_url, fresh_clone=False, branch=branch)
-        if not FileOp.dir_exists(Constants.website_directory):
+        if not FileOp.dir_exists(C.website_directory):
             print(f"Repo {repo_dir} doesn't exist!")
         return repo
 
@@ -124,19 +124,19 @@ class Operation:
                     print("Last Apk Repo (" + str(Config.TARGET_ANDROID_VERSION) + ") Commit: " + str(
                         apk_source_datetime))
                 else:
-                    print(Constants.apk_source_directory + " doesn't exist!")
+                    print(C.apk_source_directory + " doesn't exist!")
                 new_release = self.is_new_release(source_last_commit_datetime, apk_source_datetime, release_datetime)
             else:
                 new_release = True
             if Config.OVERRIDE_RELEASE or new_release:
                 if Config.TARGET_ANDROID_VERSION == 10 and "go" not in Config.BUILD_PACKAGE_LIST:
                     Config.BUILD_PACKAGE_LIST.append("go")
-                Constants.update_android_version_dependencies()
+                C.update_android_version_dependencies()
                 today = datetime.now(pytz.timezone('Europe/London')).strftime("%a")
                 if Config.RELEASE_TYPE.__eq__("canary"):
-                    Constants.update_sourceforge_release_directory("canary")
+                    C.update_sourceforge_release_directory("canary")
                 else:
-                    Constants.update_sourceforge_release_directory("")
+                    C.update_sourceforge_release_directory("")
                 Release.zip(package_list, upload)
                 if release_repo is not None and git_check:
                     release_repo.git_push(str(android_version) + ": " + str(commit_message))

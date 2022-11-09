@@ -1,13 +1,13 @@
 import hashlib
 import os.path
 import shutil
-from .Constants import Constants
+from .C import C
 
 
 class FileOp:
     @staticmethod
     def create_file_dir(file_path):
-        parent_dir = str(Constants.get_parent_path(file_path))
+        parent_dir = str(C.get_parent_path(file_path))
         if not os.path.exists(parent_dir):
             os.makedirs(parent_dir)
 
@@ -105,7 +105,7 @@ class FileOp:
             file.close()
             FileOp.remove_file(file_path)
         else:
-            return_list.append("Exception: " + str(Constants.FILE_DOES_NOT_EXIST))
+            return_list.append("Exception: " + str(C.FILE_DOES_NOT_EXIST))
         return return_list
 
     @staticmethod
@@ -121,7 +121,7 @@ class FileOp:
             file.close()
             FileOp.remove_file(file_path)
         else:
-            text = "Exception: " + str(Constants.FILE_DOES_NOT_EXIST)
+            text = "Exception: " + str(C.FILE_DOES_NOT_EXIST)
         return text
 
     @staticmethod
@@ -137,7 +137,7 @@ class FileOp:
             file.close()
             FileOp.remove_file(file_path)
         else:
-            text = "Exception: " + str(Constants.FILE_DOES_NOT_EXIST)
+            text = "Exception: " + str(C.FILE_DOES_NOT_EXIST)
         return text
 
     @staticmethod

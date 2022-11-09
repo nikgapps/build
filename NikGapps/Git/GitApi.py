@@ -15,7 +15,7 @@ class GitApi:
             headers = {'Authorization': f'token {Config.git_token_admin}'}
         else:
             headers = {'Accept': 'application/vnd.github.v3+json'}
-        r = Requests.get(url, params, headers)
+        r = Requests.get(url, params=params, headers=headers)
 
         if not r.status_code.__eq__(200):
             print("--------------------------------------------------------------------------------")
@@ -33,7 +33,7 @@ class GitApi:
                        'Authorization': f'token {Config.git_token_admin}'}
         else:
             headers = {'Accept': 'application/vnd.github.v3+json'}
-        r = Requests.put(url, params, headers)
+        r = Requests.put(url, params=params, headers=headers)
 
         if not r.status_code.__eq__(200):
             print("--------------------------------------------------------------------------------")
@@ -51,7 +51,7 @@ class GitApi:
                        'Authorization': f'token {Config.git_token_admin}'}
         else:
             headers = {'Accept': 'application/vnd.github.v3+json'}
-        r = Requests.patch(url, params, headers)
+        r = Requests.patch(url, params=params, headers=headers)
 
         if not r.status_code.__eq__(200):
             print("--------------------------------------------------------------------------------")
@@ -69,7 +69,7 @@ class GitApi:
                        'Authorization': f'token {Config.git_token_admin}'}
         else:
             headers = {'Accept': 'application/vnd.github.v3+json'}
-        r = Requests.post(url, params, headers)
+        r = Requests.post(url, params=params, headers=headers)
         print("-------------------------------------------------------------------------------------")
         print(f"Response {str(r.status_code)} while posting to {url}")
         if not r.status_code.__eq__(201):

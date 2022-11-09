@@ -4,7 +4,7 @@ import os
 import Config
 from Build import Build
 from NikGapps.Config.NikGappsConfig import NikGappsConfig
-from NikGapps.Helper import Constants, Logs, Export, FileOp, Upload
+from NikGapps.Helper import C, Logs, Export, FileOp, Upload
 
 
 class Operations:
@@ -12,10 +12,10 @@ class Operations:
     @staticmethod
     def build(config_obj: NikGappsConfig, android_version, config_repo, upload: Upload = None):
         # Generate a file name for the zip
-        file_name = Constants.release_directory
+        file_name = C.release_directory
         config_file_name = os.path.splitext(os.path.basename(config_obj.config_path))[0].replace(" ", "")
         config_file_name = os.path.splitext(os.path.basename(config_file_name))[0].replace("'", "")
-        file_name = file_name + Constants.dir_sep + Logs.get_file_name(config_file_name, android_version)
+        file_name = file_name + C.dir_sep + Logs.get_file_name(config_file_name, android_version)
         # Build the packages from the directory
         print("Building for " + str(config_obj.config_path))
         # Create a zip out of filtered packages
@@ -46,7 +46,7 @@ class Operations:
             print("Source: " + str(source_config_file))
 
             todays_date = str(Logs.get_current_time())
-            destination = f"{Constants.config_directory + os.path.sep}archive{os.path.sep}" \
+            destination = f"{C.config_directory + os.path.sep}archive{os.path.sep}" \
                           f"{android_version + os.path.sep}" \
                           f"{todays_date + os.path.sep}" \
                           f"{config_file_name}_{todays_date}.config"

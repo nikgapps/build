@@ -7,7 +7,7 @@ import Config
 from Config import UPLOAD_FILES
 from .ZipOp import ZipOp
 from .FileOp import FileOp
-from .Constants import Constants
+from .C import C
 from .Assets import Assets
 from .Package import Package
 from .AppSet import AppSet
@@ -24,7 +24,7 @@ class Export:
     def zip(self, app_set_list, config_string):
         total_packages = 0
         print_progress = ""
-        start_time = Constants.start_of_function()
+        start_time = C.start_of_function()
         file_sizes = ""
         zip_execution_status = False
         try:
@@ -40,9 +40,9 @@ class Export:
                     # Creating <Packages>.zip for all the packages
                     pkg: Package
                     package_progress = round(float(100 * package_index / package_count))
-                    pkg_zip_path = Constants.temp_packages_directory + Constants.dir_sep + "Packages" + Constants.dir_sep + str(
+                    pkg_zip_path = C.temp_packages_directory + C.dir_sep + "Packages" + C.dir_sep + str(
                         pkg.package_title) + ".zip"
-                    pkg_txt_path = Constants.temp_packages_directory + Constants.dir_sep + "Packages" + Constants.dir_sep + str(
+                    pkg_txt_path = C.temp_packages_directory + C.dir_sep + "Packages" + C.dir_sep + str(
                         pkg.package_title) + ".txt"
                     print_value = "AppSet (" + str(
                         app_set_progress) + "%): " + app_set.title + " Zipping (" + str(
@@ -52,13 +52,13 @@ class Export:
                     file_exists = FileOp.file_exists(pkg_zip_path)
                     txt_file_exists = FileOp.file_exists(pkg_txt_path)
                     old_file = True if (
-                            file_exists and Constants.get_mtime(pkg_zip_path) < Constants.local_datetime) else False
+                            file_exists and C.get_mtime(pkg_zip_path) < C.local_datetime) else False
                     if (FRESH_BUILD and old_file) or (not file_exists) or (not txt_file_exists):
                         zpkg = ZipOp(pkg_zip_path)
                         file_index = 1
                         for x in pkg.file_dict:
                             file_index = file_index + 1
-                            pkg_size = pkg_size + Constants.get_file_bytes(x)
+                            pkg_size = pkg_size + C.get_file_bytes(x)
                             zpkg.writefiletozip(x, str(x)[str(x).find("___"):].replace("\\", "/"))
                         if pkg.clean_flash_only:
                             zpkg.writestringtozip("", "___etc___permissions/" + pkg.package_title + ".prop")
@@ -77,7 +77,7 @@ class Export:
                                     pkg_zip_path = pkg_zip_path[:-11] + ".zip"
                                     print("The zip signed successfully: " + pkg_zip_path)
                     else:
-                        print(f"Using cached package: {Constants.get_base_name(pkg_zip_path)}")
+                        print(f"Using cached package: {C.get_base_name(pkg_zip_path)}")
                         for size_on_file in FileOp.read_string_file(pkg_txt_path):
                             pkg_size = size_on_file
                             pkg.pkg_size = pkg_size
@@ -89,8 +89,8 @@ class Export:
                 app_set_index = app_set_index + 1
             # Writing additional script files to the zip
             self.z.writestringtozip(self.get_installer_script(total_packages, app_set_list), "common/install.sh")
-            self.z.writestringtozip("#MAGISK", Constants.meta_inf_dir + "updater-script")
-            self.z.writefiletozip(Assets.magisk_update_binary, Constants.meta_inf_dir + "update-binary")
+            self.z.writestringtozip("#MAGISK", C.meta_inf_dir + "updater-script")
+            self.z.writefiletozip(Assets.magisk_update_binary, C.meta_inf_dir + "update-binary")
             self.z.writestringtozip(config_string, "afzc/nikgapps.config")
             debloater_config_lines = ""
             for line in Assets.get_string_resource(Assets.debloater_config):
@@ -113,7 +113,7 @@ class Export:
             print("Exception occurred while creating the zip " + str(e))
         finally:
             self.z.close()
-            Constants.end_of_function(start_time, "Total time taken to build the zip")
+            C.end_of_function(start_time, "Total time taken to build the zip")
             file_name = self.file_name
             if SIGN_PACKAGE:
                 # it means we already signed the packages, now, we just need to rename the package to file-signed.zip
@@ -122,7 +122,7 @@ class Export:
                 file_name = file_name[:-4] + "-signed.zip"
                 print("File renamed to: " + file_name)
             elif SIGN_ZIP:
-                start_time = Constants.start_of_function()
+                start_time = C.start_of_function()
                 print('Signing The Zip')
                 zip_execution_status = False
                 cmd = Cmd()
@@ -132,18 +132,18 @@ class Export:
                         file_name = file_name[:-4] + "-signed.zip"
                         print("The zip signed successfully: " + file_name)
                         zip_execution_status = True
-                Constants.end_of_function(start_time, "Total time taken to sign the zip")
+                C.end_of_function(start_time, "Total time taken to sign the zip")
             if SEND_ZIP_DEVICE:
-                start_time = Constants.start_of_function()
+                start_time = C.start_of_function()
                 cmd = Cmd()
                 device_path = "/sdcard/Afzc-" + str(
-                    Constants.android_version_folder) + "/" + Constants.current_time + "/" + Constants.get_base_name(
+                    C.android_version_folder) + "/" + C.current_time + "/" + C.get_base_name(
                     file_name)
-                message = f"Sending {Constants.get_base_name(file_name)} to device at: " + device_path
+                message = f"Sending {C.get_base_name(file_name)} to device at: " + device_path
                 print(message)
 
                 cmd.push_package(file_name, device_path)
-                Constants.end_of_function(start_time, "Total time taken to send the zip to device")
+                C.end_of_function(start_time, "Total time taken to send the zip to device")
             return file_name, zip_execution_status
 
     @staticmethod

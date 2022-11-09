@@ -4,7 +4,7 @@ from shutil import copyfile
 from colorama import Fore
 from NikGapps.Helper.FileOp import FileOp
 from NikGapps.Helper.Assets import Assets
-from NikGapps.Helper.Constants import Constants
+from NikGapps.Helper.C import C
 import os
 import time
 import datetime
@@ -27,17 +27,17 @@ class Git:
                     print(f"{self.working_tree_dir} already exists, deleting for a fresh clone!")
                     FileOp.remove_dir(self.working_tree_dir)
                 print(Fore.GREEN + f"git clone -b {branch} --depth={commit_depth} {repo_url}" + Fore.RESET)
-                repo_clone_start_time = Constants.start_of_function()
+                repo_clone_start_time = C.start_of_function()
                 self.repo = git.Repo.clone_from(repo_url, self.working_tree_dir, branch=branch, depth=commit_depth)
-                Constants.end_of_function(repo_clone_start_time, f"Time taken to clone -b {branch} {repo_url}")
+                C.end_of_function(repo_clone_start_time, f"Time taken to clone -b {branch} {repo_url}")
             else:
                 # if it is not a fresh clone, we only clone when directory doesn't exist
                 if not FileOp.dir_exists(self.working_tree_dir):
                     print(f"{self.working_tree_dir} doesn't exists, fresh clone is enforced!")
                     print(Fore.GREEN + f"git clone -b {branch} --depth={commit_depth} {repo_url}" + Fore.RESET)
-                    repo_clone_start_time = Constants.start_of_function()
+                    repo_clone_start_time = C.start_of_function()
                     self.repo = git.Repo.clone_from(repo_url, self.working_tree_dir, branch=branch, depth=commit_depth)
-                    Constants.end_of_function(repo_clone_start_time, f"Time taken to clone -b {branch} {repo_url}")
+                    C.end_of_function(repo_clone_start_time, f"Time taken to clone -b {branch} {repo_url}")
             assert self.repo.__class__ is Repo  # clone an existing repository
             assert Repo.init(self.working_tree_dir).__class__ is Repo
             return True
@@ -97,7 +97,7 @@ class Git:
 
     def update_changelog(self):
         source_file = Assets.changelog
-        dest_file = Constants.website_directory + os.path.sep + "_data" + os.path.sep + "changelogs.yaml"
+        dest_file = C.website_directory + os.path.sep + "_data" + os.path.sep + "changelogs.yaml"
         i = copyfile(source_file, dest_file)
         if self.due_changes():
             print("Updating the changelog to the website")

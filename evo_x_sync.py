@@ -7,6 +7,6 @@ args = Args()
 android_versions = args.get_android_versions()
 
 for android_version in android_versions:
-    Operations.sync_with_pixel_experience_tracker(android_version)
+    Operations.sync_with_evo_x_tracker(android_version)
 
 C.end_of_function(start_time, "End of the program")

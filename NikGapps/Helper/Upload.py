@@ -8,15 +8,15 @@ import os
 
 import Config
 from Config import UPLOAD_FILES
-from NikGapps.Helper import Constants
+from NikGapps.Helper import C
 from NikGapps.Helper.FileOp import FileOp
 
 
 class Upload:
 
     def __init__(self):
-        upload_start_time = Constants.start_of_function()
-        self.release_dir = Constants.sourceforge_release_directory
+        upload_start_time = C.start_of_function()
+        self.release_dir = C.sourceforge_release_directory
         self.sf_pwd = os.environ.get('SF_PWD')
         if self.sf_pwd is None or self.sf_pwd.__eq__(""):
             self.sf_pwd = ""
@@ -62,7 +62,7 @@ class Upload:
                 self.child.interact()
             except BaseException as e:
                 print("Exception while interacting: " + str(e))
-        Constants.end_of_function(upload_start_time, "Total time taken to authenticate!")
+        C.end_of_function(upload_start_time, "Total time taken to authenticate!")
 
     def is_authenticated(self):
         try:
@@ -130,12 +130,12 @@ class Upload:
         system_name = platform.system()
         execution_status = False
         if system_name != "Windows" and UPLOAD_FILES:
-            start_time = Constants.start_of_function()
+            start_time = C.start_of_function()
             # make the connection and initialize the parameters
             file_type = "gapps"
-            if Constants.get_base_name(file_name).__contains__("Addon"):
+            if C.get_base_name(file_name).__contains__("Addon"):
                 file_type = "addons"
-            elif Constants.get_base_name(file_name).__contains__("Debloater"):
+            elif C.get_base_name(file_name).__contains__("Debloater"):
                 file_type = "debloater"
             # proceed only if the connection is successful
             if self.successful_connection:
@@ -153,7 +153,7 @@ class Upload:
                 if dir_exists:
                     print("uploading " + file_name + f" to {cd}...")
                     self.upload_file(file_name)
-                    print("Download Link: " + Constants.get_download_link(file_name, cd))
+                    print("Download Link: " + C.get_download_link(file_name, cd))
                     print("uploading file finished...")
                     execution_status = True
                 else:
@@ -162,9 +162,9 @@ class Upload:
                 print("The Connection Failed!")
             file_size_kb = round(FileOp.get_file_size(file_name, "KB"), 2)
             file_size_mb = round(FileOp.get_file_size(file_name), 2)
-            Constants.end_of_function(start_time,
-                                      f"Total time taken to upload file with size {file_size_mb} MB ("
-                                      f"{file_size_kb} Kb)")
+            C.end_of_function(start_time,
+                              f"Total time taken to upload file with size {file_size_mb} MB ("
+                              f"{file_size_kb} Kb)")
         else:
             print("System incompatible or upload disabled!")
         return execution_status
