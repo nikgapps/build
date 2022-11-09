@@ -2,6 +2,7 @@ import json
 
 from NikGapps.Helper import FileOp, C
 from NikGapps.Helper.Json import Json
+from NikGapps.OEM.ApkMirror import ApkMirror
 from NikGapps.OEM.EvoX import EvoX
 from NikGapps.OEM.NikGapps import NikGapps
 from NikGapps.OEM.PixelExperience import PixelExperience
@@ -127,3 +128,27 @@ class Operations:
                 print("Pixel Experience Tracker is None!")
         else:
             print("Pixel Experience Tracker is None!")
+
+    @staticmethod
+    def sync_with_apk_mirror(android_version):
+        tracker_repo = GitOperations.setup_tracker_repo()
+        if tracker_repo is None:
+            print("Failed to setup tracker repo!")
+            return
+        am = ApkMirror(android_version)
+        apk_mirror_tracker, isexists = Operations.get_tracker(android_version, tracker_repo, am.oem)
+        if apk_mirror_tracker is not None:
+            am_dict = am.get_apk_mirror_dict(NikGappsPackages.get_packages("all"))
+            if am_dict is not None:
+                Json.write_dict_to_file(am_dict, apk_mirror_tracker)
+                if isexists:
+                    print(f"Updated {apk_mirror_tracker}")
+                    tracker_repo.update_repo_changes("Synced with Apk Mirror Tracker for " + android_version)
+                else:
+                    print("File is empty!")
+                    tracker_repo.update_repo_changes(
+                        "Initial commit for Apk Mirror tracker for android version: " + android_version)
+            else:
+                print("Failed to get Apk Mirror Dict!")
+        else:
+            print("Apk Mirror Tracker is None!")
