@@ -23,6 +23,8 @@ class Args:
             default="-1",
             type=str)
         parser.add_argument(
+            '-O', '--oems', help="It is the OEM from which we need to fetch the gapps", default="-1", type=str)
+        parser.add_argument(
             '-a', '--allVersions', help="Indicates we need the build for all supported android versions",
             action="store_true")
         parser.add_argument(
@@ -38,6 +40,7 @@ class Args:
         self.forceRun = args.forceRun
         self.config_name = args.configName
         self.all_versions = args.allVersions
+        self.oems = args.oems
 
     def get_package_list(self):
         if self.config_value is None and self.package_list is not None:
@@ -49,6 +52,13 @@ class Args:
         else:
             pkg_list = []
         return pkg_list
+
+    def get_oems(self):
+        if self.oems != str(-1):
+            oems = self.oems.split(',')
+        else:
+            oems = []
+        return oems
 
     def get_android_versions(self):
         if self.android_version != str(-1):
