@@ -11,6 +11,20 @@ from NikGappsPackages import NikGappsPackages
 
 
 class Operations:
+
+    @staticmethod
+    def sync_tracker(oem, android_version, tracker_repo=None):
+        if oem == "PixelExperience":
+            Operations.sync_with_pixel_experience_tracker(android_version, tracker_repo)
+        elif oem == "EvoX":
+            Operations.sync_with_evo_x_tracker(android_version, tracker_repo)
+        elif oem == "apk_mirror":
+            Operations.sync_with_apk_mirror(android_version, tracker_repo)
+        elif oem == "NikGapps":
+            Operations.sync_with_nikgapps_tracker(android_version, tracker_repo)
+        else:
+            raise Exception(f"Unknown OEM: {oem}")
+
     @staticmethod
     def get_tracker(android_version, tracker_repo, oem):
         repo_dir = tracker_repo.working_tree_dir
@@ -27,11 +41,12 @@ class Operations:
         return None, False
 
     @staticmethod
-    def sync_with_nikgapps_tracker(android_version):
-        tracker_repo = GitOperations.setup_tracker_repo()
+    def sync_with_nikgapps_tracker(android_version, tracker_repo=None):
         if tracker_repo is None:
-            print("Failed to setup tracker repo!")
-            return
+            tracker_repo = GitOperations.setup_tracker_repo()
+            if tracker_repo is None:
+                print("Failed to setup tracker repo!")
+                return
         n = NikGapps(android_version)
         tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo, n.tracker_key)
         if tracker_file is not None:
@@ -51,11 +66,33 @@ class Operations:
             print("NikGapps Tracker is None!")
 
     @staticmethod
-    def update_nikgapps_controller(android_version, list_of_appsets=None):
-        tracker_repo = GitOperations.setup_tracker_repo()
+    def get_oems_from_controller(android_version, tracker_repo=None):
         if tracker_repo is None:
-            print("Failed to setup tracker repo!")
-            return
+            tracker_repo = GitOperations.setup_tracker_repo()
+            if tracker_repo is None:
+                print("Failed to setup tracker repo!")
+                return
+        n = NikGapps(android_version)
+        tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo, n.version_key)
+        nikgapps_dict = Json.read_dict_from_file(tracker_file)
+        oems = []
+        if nikgapps_dict is not None:
+            for appset in nikgapps_dict:
+                for pkg_dict in nikgapps_dict[appset]:
+                    for pkg in pkg_dict:
+                        for file_dict in pkg_dict[pkg]:
+                            oem = file_dict["update_source"]
+                            if oem not in oems:
+                                oems.append(oem)
+        return oems
+
+    @staticmethod
+    def update_nikgapps_controller(android_version, list_of_appsets=None, tracker_repo=None):
+        if tracker_repo is None:
+            tracker_repo = GitOperations.setup_tracker_repo()
+            if tracker_repo is None:
+                print("Failed to setup tracker repo!")
+                return
         n = NikGapps(android_version)
         tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo, n.version_key)
         appset_list = []
@@ -83,11 +120,12 @@ class Operations:
             print("NikGapps Tracker is None!")
 
     @staticmethod
-    def sync_with_evo_x_tracker(android_version):
-        tracker_repo = GitOperations.setup_tracker_repo()
+    def sync_with_evo_x_tracker(android_version, tracker_repo=None):
         if tracker_repo is None:
-            print("Failed to setup tracker repo!")
-            return
+            tracker_repo = GitOperations.setup_tracker_repo()
+            if tracker_repo is None:
+                print("Failed to setup tracker repo!")
+                return
         evo = EvoX(android_version)
         tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo, evo.oem)
         if tracker_file is not None:
@@ -107,11 +145,12 @@ class Operations:
             print("Evo X Tracker is None!")
 
     @staticmethod
-    def sync_with_pixel_experience_tracker(android_version):
-        tracker_repo = GitOperations.setup_tracker_repo()
+    def sync_with_pixel_experience_tracker(android_version, tracker_repo=None):
         if tracker_repo is None:
-            print("Failed to setup tracker repo!")
-            return
+            tracker_repo = GitOperations.setup_tracker_repo()
+            if tracker_repo is None:
+                print("Failed to setup tracker repo!")
+                return
         pe = PixelExperience(android_version)
         pixel_experience_tracker = Operations.get_tracker(android_version, tracker_repo, pe.oem)
         if pixel_experience_tracker[0] is not None:
@@ -130,11 +169,12 @@ class Operations:
             print("Pixel Experience Tracker is None!")
 
     @staticmethod
-    def sync_with_apk_mirror(android_version):
-        tracker_repo = GitOperations.setup_tracker_repo()
+    def sync_with_apk_mirror(android_version, tracker_repo=None):
         if tracker_repo is None:
-            print("Failed to setup tracker repo!")
-            return
+            tracker_repo = GitOperations.setup_tracker_repo()
+            if tracker_repo is None:
+                print("Failed to setup tracker repo!")
+                return
         am = ApkMirror(android_version)
         apk_mirror_tracker, isexists = Operations.get_tracker(android_version, tracker_repo, am.oem)
         if apk_mirror_tracker is not None:
