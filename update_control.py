@@ -15,10 +15,10 @@ tracker_repo = GitOperations.setup_tracker_repo()
 if tracker_repo is None:
     print("Failed to setup tracker repo!")
     exit(1)
+
 for android_version in android_versions:
-    s = Sync(list_of_supported_appsets)
-    s.do(tracker_repo, android_version)
-    Operations.sync_with_nikgapps_tracker(android_version, tracker_repo)
     Operations.update_nikgapps_controller(android_version, list_of_supported_appsets, tracker_repo)
+    s = Sync(list_of_supported_appsets, tracker_repo)
+    s.do(android_version)
 
 
