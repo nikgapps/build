@@ -36,7 +36,7 @@ if Config.BUILD_CONFIG:
                     break
             if clone_android_version:
                 repo_dir = C.pwd + C.dir_sep + str(android_version)
-                if Operation.clone_apk_repo(android_version=str(android_version), fresh_clone=False) is not None:
+                if Operation.clone_apk_repo(android_version=str(android_version), fresh_clone=True) is not None:
                     print(f"{repo_dir} cloned successfully!")
                 else:
                     print(f"{repo_dir} could not be cloned!")

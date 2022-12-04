@@ -125,7 +125,8 @@ class Export:
             elif SIGN_ZIP:
                 start_time = C.start_of_function()
                 print('Signing The Zip')
-                zip_execution_status = False
+                # until the issue is resolved with Java 17, commenting below line
+                # zip_execution_status = False
                 cmd = Cmd()
                 output_list = cmd.sign_zip_file(file_name)
                 for output in output_list:
@@ -134,6 +135,9 @@ class Export:
                         print("The zip signed successfully: " + file_name)
                         C.telegram.message("- The zip signed successfully: " + str(os.path.basename(file_name)))
                         zip_execution_status = True
+                    elif output.startswith("Exception occurred while executing"):
+                        print("The zip could not be signed: " + output)
+                        C.telegram.message("- The zip could not be signed: " + output)
                 C.end_of_function(start_time, "Total time taken to sign the zip")
             if SEND_ZIP_DEVICE:
                 start_time = C.start_of_function()
