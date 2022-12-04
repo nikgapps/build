@@ -86,7 +86,7 @@ for request in requests:
     else:
         print("Validation Successful!")
         print("Requesting a merge")
-        if GitApi.merge_pull_request(pr_number, "Squash Merge pull request #{pull_number} from @{pr_user}"):
+        if GitApi.merge_pull_request(pr_number, f"Squash Merge pull request #{pr_number} from @{pr_user}"):
             print("Successfully merged!")
         else:
             print("Failed to merge!")
