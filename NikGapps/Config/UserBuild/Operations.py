@@ -18,23 +18,27 @@ class Operations:
         file_name = file_name + C.dir_sep + Logs.get_file_name(config_file_name, android_version)
         # Build the packages from the directory
         print("Building for " + str(config_obj.config_path))
+        C.telegram.message("- Building for " + str(os.path.basename(config_obj.config_path)))
         # Create a zip out of filtered packages
         config_obj.config_package_list = Build.build_from_directory(config_obj.config_package_list)
         print("Exporting " + str(file_name))
-        C.telegram.message("Exporting " + str(file_name))
+        C.telegram.message("- Exporting " + str(os.path.basename(file_name)))
         z = Export(file_name)
         result = z.zip(app_set_list=config_obj.config_package_list, config_string=config_obj.get_nikgapps_config())
         if result[1]:
             if Config.UPLOAD_FILES:
                 u = upload if upload is not None else Upload()
                 print("Uploading " + str(result[0]))
+                C.telegram.message("- Uploading " + str(os.path.basename(result[0])))
                 execution_status = u.upload(result[0])
                 print("Done")
             else:
                 execution_status = True
             if execution_status:
+                C.telegram.message("- Done")
                 Operations.archive_the_config(config_obj.config_path, android_version, config_file_name, config_repo)
             else:
+                C.telegram.message("- Upload failed for " + str(os.path.basename(result[0])))
                 print("Cannot move to archive as upload failed!")
             return execution_status
         else:

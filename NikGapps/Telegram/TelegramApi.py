@@ -1,12 +1,13 @@
+import Config
 from NikGapps.Web.Requests import Requests
 
 
 class TelegramApi:
 
-    def __init__(self, token=""):
+    def __init__(self, token=Config.TELEGRAM_BOT_TOKEN):
         self.token = token
         self.base = "https://api.telegram.org"
-        self.chat_id = ""
+        self.chat_id = Config.TELEGRAM_CHAT_ID
         self.message_id = None
         self.msg = None
 
