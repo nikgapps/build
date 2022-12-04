@@ -8,6 +8,7 @@ class TelegramApi:
         self.base = "https://api.telegram.org"
         self.chat_id = ""
         self.message_id = None
+        self.msg = None
 
     def send_message(self, text, chat_id=None):
         if chat_id is None:
@@ -20,6 +21,7 @@ class TelegramApi:
         response = r.json()
         if response["ok"]:
             self.message_id = response["result"]["message_id"]
+            self.msg = text
         return response
 
     def message(self, text, chat_id=None):
@@ -30,7 +32,10 @@ class TelegramApi:
         if text is None or str(text).__eq__(""):
             print("No text to send")
             return None
+        text = self.msg + "\n" + text
         url = f"{self.base}/bot{self.token}/editMessageText?chat_id={chat_id}&message_id={self.message_id}&text={text}"
         r = Requests.get(url)
         response = r.json()
+        if response["ok"]:
+            self.msg = response["result"]["text"]
         return response
