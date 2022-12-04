@@ -40,3 +40,7 @@ class TelegramApi:
         if response["ok"]:
             self.msg = response["result"]["text"]
         return response
+
+    def reset_message(self):
+        self.message_id = None
+        self.msg = None

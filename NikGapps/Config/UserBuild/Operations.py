@@ -40,8 +40,10 @@ class Operations:
             else:
                 C.telegram.message("- Upload failed for " + str(os.path.basename(result[0])))
                 print("Cannot move to archive as upload failed!")
+            C.telegram.reset_message()
             return execution_status
         else:
+            C.telegram.reset_message()
             return False
 
     @staticmethod
@@ -52,11 +54,12 @@ class Operations:
 
             todays_date = str(Logs.get_current_time())
             destination = f"{C.config_directory + os.path.sep}archive{os.path.sep}" \
-                          f"{android_version + os.path.sep}" \
+                          f"{str(android_version) + os.path.sep}" \
                           f"{todays_date + os.path.sep}" \
                           f"{config_file_name}_{todays_date}.config"
             print("Destination: " + destination)
             print("Moving the config file to archive")
+            C.telegram.message("- Moving the config file to archive")
             FileOp.move_file(source_config_file, destination)
             # commit the changes
 
@@ -65,6 +68,7 @@ class Operations:
                              f"{config_file_name}_{todays_date}.config"
             print(commit_message)
             config_repo.update_config_changes(commit_message)
+            C.telegram.message("- Done")
             return True
         except Exception as e:
             print("Error while moving the config file to archive")
