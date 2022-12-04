@@ -40,7 +40,9 @@ for request in requests:
     pr_number = request["number"]
     pr = PullRequest(pr_number, request, authenticate=True)
     pr_url = request["url"]
-    print("Validating pull request " + str(pr_url))
+    pr_user = request["user"]["login"]
+    user_url = request["user"]["html_url"]
+    print("Validating pull request " + str(pr_url) + " from " + pr_user)
     failure_reason = Validate.pull_request(pr)
     print()
     if len(failure_reason) > 0:
@@ -84,7 +86,7 @@ for request in requests:
     else:
         print("Validation Successful!")
         print("Requesting a merge")
-        if GitApi.merge_pull_request(pr_number):
+        if GitApi.merge_pull_request(pr_number, "Squash Merge pull request #{pull_number} from @{pr_user}"):
             print("Successfully merged!")
         else:
             print("Failed to merge!")
