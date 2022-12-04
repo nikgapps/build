@@ -84,3 +84,7 @@ ADB_ROOT_ENABLED = False
 # Possible Values are ['core', 'basic', 'omni', 'stock', 'full', 'ultra', 'addons', 'addonsets', '<addon>'
 # (for e.g 'YouTube')]
 FETCH_PACKAGE = "core"
+
+TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
+
+TELEGRAM_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID')

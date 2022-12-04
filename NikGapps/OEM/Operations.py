@@ -13,13 +13,13 @@ from NikGappsPackages import NikGappsPackages
 class Operations:
 
     @staticmethod
-    def sync_tracker(oem, android_version, tracker_repo=None):
+    def sync_tracker(oem, android_version, tracker_repo=None, appsets=None):
         if oem == "PixelExperience":
-            Operations.sync_with_pixel_experience_tracker(android_version, tracker_repo)
+            Operations.sync_with_pixel_experience_tracker(android_version, tracker_repo, appsets)
         elif oem == "EvoX":
-            Operations.sync_with_evo_x_tracker(android_version, tracker_repo)
+            Operations.sync_with_evo_x_tracker(android_version, tracker_repo, appsets)
         elif oem == "apk_mirror":
-            Operations.sync_with_apk_mirror(android_version, tracker_repo)
+            Operations.sync_with_apk_mirror(android_version, tracker_repo, appsets)
         elif oem == "NikGapps":
             Operations.sync_with_nikgapps_tracker(android_version, tracker_repo)
         else:
@@ -76,15 +76,17 @@ class Operations:
         tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo, n.version_key)
         nikgapps_dict = Json.read_dict_from_file(tracker_file)
         oems = []
+        appsets = []
         if nikgapps_dict is not None:
             for appset in nikgapps_dict:
+                appsets.append(appset)
                 for pkg_dict in nikgapps_dict[appset]:
                     for pkg in pkg_dict:
                         for file_dict in pkg_dict[pkg]:
                             oem = file_dict["update_source"]
                             if oem not in oems:
                                 oems.append(oem)
-        return oems
+        return oems, appsets
 
     @staticmethod
     def update_nikgapps_controller(android_version, list_of_appsets=None, tracker_repo=None):
@@ -120,7 +122,7 @@ class Operations:
             print("NikGapps Tracker is None!")
 
     @staticmethod
-    def sync_with_evo_x_tracker(android_version, tracker_repo=None):
+    def sync_with_evo_x_tracker(android_version, tracker_repo=None, appsets=None):
         if tracker_repo is None:
             tracker_repo = GitOperations.setup_tracker_repo()
             if tracker_repo is None:
@@ -145,13 +147,16 @@ class Operations:
             print("Evo X Tracker is None!")
 
     @staticmethod
-    def sync_with_pixel_experience_tracker(android_version, tracker_repo=None):
+    def sync_with_pixel_experience_tracker(android_version, tracker_repo=None, appsets=None):
         if tracker_repo is None:
             tracker_repo = GitOperations.setup_tracker_repo()
             if tracker_repo is None:
                 print("Failed to setup tracker repo!")
                 return
         pe = PixelExperience(android_version)
+        if not pe.is_supported:
+            print(f"{android_version} is not supported by at the moment!")
+            return
         pixel_experience_tracker = Operations.get_tracker(android_version, tracker_repo, pe.oem)
         if pixel_experience_tracker[0] is not None:
             pixel_experience_dict = pe.get_pixel_experience_dict()
@@ -169,7 +174,7 @@ class Operations:
             print("Pixel Experience Tracker is None!")
 
     @staticmethod
-    def sync_with_apk_mirror(android_version, tracker_repo=None):
+    def sync_with_apk_mirror(android_version, tracker_repo=None, appsets=None):
         if tracker_repo is None:
             tracker_repo = GitOperations.setup_tracker_repo()
             if tracker_repo is None:
@@ -178,7 +183,12 @@ class Operations:
         am = ApkMirror(android_version)
         apk_mirror_tracker, isexists = Operations.get_tracker(android_version, tracker_repo, am.oem)
         if apk_mirror_tracker is not None:
-            am_dict = am.get_apk_mirror_dict(NikGappsPackages.get_packages("all"))
+            appset_list = []
+            if appsets is not None:
+                for appset in appsets:
+                    for app in NikGappsPackages.get_packages(appset):
+                        appset_list.append(app)
+            am_dict = am.get_apk_mirror_dict(appset_list if appsets is not None else NikGappsPackages.get_packages("all"))
             if am_dict is not None:
                 Json.write_dict_to_file(am_dict, apk_mirror_tracker)
                 if isexists:

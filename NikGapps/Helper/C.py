@@ -8,6 +8,7 @@ import pytz
 from colorama import Fore
 
 import Config
+from NikGapps.Telegram.TelegramApi import TelegramApi
 
 
 class C:
@@ -65,8 +66,8 @@ class C:
     progress_complete = "▰"
     # progress_complete = "/"
     progress_remaining = "▱"
-
     # progress_remaining = "\\"
+    telegram = TelegramApi()
 
     @staticmethod
     def get_file_bytes(file_name):

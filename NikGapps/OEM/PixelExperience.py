@@ -12,6 +12,7 @@ class PixelExperience:
         self.branch = self.android_dict[self.android_version]
         self.repo_url = f"https://gitlab.com/{self.oem}/{self.branch}/vendor_gapps.git"
         self.tracker = self.oem
+        self.is_supported = self.android_version_supported(self.android_version)
 
     def android_version_supported(self, android_version):
         return android_version in self.android_dict

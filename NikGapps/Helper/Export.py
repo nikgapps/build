@@ -109,6 +109,7 @@ class Export:
             self.z.writefiletozip(Assets.busybox, "busybox")
             zip_execution_status = True
             print('The zip ' + self.file_name + ' is created successfully!')
+            C.telegram.message("- The zip " + str(os.path.basename(self.file_name)) + " is created successfully!")
         except Exception as e:
             print("Exception occurred while creating the zip " + str(e))
         finally:
@@ -131,6 +132,7 @@ class Export:
                     if output.__eq__("Success!"):
                         file_name = file_name[:-4] + "-signed.zip"
                         print("The zip signed successfully: " + file_name)
+                        C.telegram.message("- The zip signed successfully: " + str(os.path.basename(file_name)))
                         zip_execution_status = True
                 C.end_of_function(start_time, "Total time taken to sign the zip")
             if SEND_ZIP_DEVICE:
