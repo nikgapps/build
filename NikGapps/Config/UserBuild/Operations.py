@@ -21,6 +21,7 @@ class Operations:
         # Create a zip out of filtered packages
         config_obj.config_package_list = Build.build_from_directory(config_obj.config_package_list)
         print("Exporting " + str(file_name))
+        C.telegram.message("Exporting " + str(file_name))
         z = Export(file_name)
         result = z.zip(app_set_list=config_obj.config_package_list, config_string=config_obj.get_nikgapps_config())
         if result[1]:

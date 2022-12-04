@@ -109,6 +109,7 @@ class Export:
             self.z.writefiletozip(Assets.busybox, "busybox")
             zip_execution_status = True
             print('The zip ' + self.file_name + ' is created successfully!')
+            C.telegram.message("The zip " + self.file_name + " is created successfully!")
         except Exception as e:
             print("Exception occurred while creating the zip " + str(e))
         finally:
