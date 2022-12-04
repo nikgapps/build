@@ -12,6 +12,8 @@ class TelegramApi:
         self.msg = None
 
     def send_message(self, text, chat_id=None):
+        if self.token is None:
+            return None
         if chat_id is None:
             chat_id = self.chat_id
         if text is None or str(text).__eq__(""):
@@ -26,6 +28,8 @@ class TelegramApi:
         return response
 
     def message(self, text, chat_id=None):
+        if self.token is None:
+            return None
         if chat_id is None:
             chat_id = self.chat_id
         if self.message_id is None:
