@@ -63,8 +63,8 @@ class Operations:
             FileOp.move_file(source_config_file, destination)
             # commit the changes
 
-            commit_message = f"Moved {android_version + os.path.sep + config_file_name}.config to archive" \
-                             f"{os.path.sep + android_version + os.path.sep + todays_date + os.path.sep}" \
+            commit_message = f"Moved {str(android_version) + os.path.sep + config_file_name}.config to archive" \
+                             f"{os.path.sep + str(android_version) + os.path.sep + todays_date + os.path.sep}" \
                              f"{config_file_name}_{todays_date}.config"
             print(commit_message)
             config_repo.update_config_changes(commit_message)
