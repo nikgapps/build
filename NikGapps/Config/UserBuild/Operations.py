@@ -18,7 +18,8 @@ class Operations:
         file_name = file_name + C.dir_sep + Logs.get_file_name(config_file_name, android_version)
         # Build the packages from the directory
         print("Building for " + str(config_obj.config_path))
-        C.telegram.message("- Building for " + str(os.path.basename(config_obj.config_path)))
+        C.telegram.message(
+            "- Building for " + str(android_version) + "/" + str(os.path.basename(config_obj.config_path)))
         # Create a zip out of filtered packages
         config_obj.config_package_list = Build.build_from_directory(config_obj.config_package_list)
         print("Exporting " + str(file_name))
