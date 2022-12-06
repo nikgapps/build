@@ -7,7 +7,9 @@ class TelegramApi:
     def __init__(self, token=Config.TELEGRAM_BOT_TOKEN):
         self.token = token
         self.base = "https://api.telegram.org"
+        # self.chat_id = Config.TELEGRAM_CHAT_ID if Config.NIKGAPPS_CHAT_ID is None else Config.NIKGAPPS_CHAT_ID
         self.chat_id = Config.TELEGRAM_CHAT_ID
+        self.message_thread_id = Config.MESSAGE_THREAD_ID
         self.message_id = None
         self.msg = None
 
@@ -19,7 +21,13 @@ class TelegramApi:
         if text is None or str(text).__eq__(""):
             print("No text to send")
             return None
-        url = f"{self.base}/bot{self.token}/sendMessage?chat_id={chat_id}&text={text}"
+        for i in '_*[]()~`>#+-=|{}.!':
+            text = text.replace(i, "\\" + i)
+        url = f"{self.base}/bot{self.token}/sendMessage" \
+              f"?chat_id={chat_id}" \
+              f"&text={text}" \
+              f"&parse_mode=MarkdownV2" \
+              + (f"&message_thread_id={self.message_thread_id}" if self.message_thread_id is not None else "")
         r = Requests.get(url)
         response = r.json()
         if response["ok"]:
@@ -38,7 +46,14 @@ class TelegramApi:
             print("No text to send")
             return None
         text = self.msg + "\n" + text
-        url = f"{self.base}/bot{self.token}/editMessageText?chat_id={chat_id}&message_id={self.message_id}&text={text}"
+        for i in '_*[]()~`>#+-=|{}.!':
+            text = text.replace(i, "\\" + i)
+        url = f"{self.base}/bot{self.token}/editMessageText" \
+              f"?chat_id={chat_id}" \
+              f"&message_id={self.message_id}" \
+              f"&text={text}" \
+              f"&parse_mode=MarkdownV2" \
+              + (f"&message_thread_id={self.message_thread_id}" if self.message_thread_id is not None else "")
         r = Requests.get(url)
         response = r.json()
         if response["ok"]:
