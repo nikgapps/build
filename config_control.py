@@ -18,8 +18,7 @@ if workflow_count > 1:
     exit(0)
 if Config.BUILD_CONFIG:
     args = Args()
-    # android_versions = args.get_android_versions()
-    android_versions = [13]
+    android_versions = args.get_android_versions()
     print("---------------------------------------")
     print("Android Versions to build: " + str(android_versions))
     print("---------------------------------------")
