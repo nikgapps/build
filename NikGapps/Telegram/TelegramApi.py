@@ -45,19 +45,19 @@ class TelegramApi:
         if text is None or str(text).__eq__(""):
             print("No text to send")
             return None
-        text = self.msg + "\n" + text
-        for i in '_*[]()~`>#+-=|{}.!':
+        for i in '[]()~`>#+-=|{}.!':
             text = text.replace(i, "\\" + i)
+        sending_text = self.msg + "\n" + text
         url = f"{self.base}/bot{self.token}/editMessageText" \
               f"?chat_id={chat_id}" \
               f"&message_id={self.message_id}" \
-              f"&text={text}" \
+              f"&text={sending_text}" \
               f"&parse_mode=MarkdownV2" \
               + (f"&message_thread_id={self.message_thread_id}" if self.message_thread_id is not None else "")
         r = Requests.get(url)
         response = r.json()
         if response["ok"]:
-            self.msg = response["result"]["text"]
+            self.msg = self.msg + "\n" + text
         return response
 
     def reset_message(self):

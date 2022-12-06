@@ -18,28 +18,31 @@ class Operations:
         file_name = file_name + C.dir_sep + Logs.get_file_name(config_file_name, android_version)
         # Build the packages from the directory
         print("Building for " + str(config_obj.config_path))
-        C.telegram.message(
-            "- Building for " + str(android_version) + "/" + str(os.path.basename(config_obj.config_path)))
         # Create a zip out of filtered packages
         config_obj.config_package_list = Build.build_from_directory(config_obj.config_package_list)
         print("Exporting " + str(file_name))
-        C.telegram.message("- Exporting " + str(os.path.basename(file_name)))
+        initial_message = "Android Version: " + str(android_version) + "\n"
+        initial_message += "Building Config: " + str(os.path.basename(config_obj.config_path)) + "\n"
+        initial_message += "File Name: " + str(os.path.basename(file_name)) + "\n"
+        C.telegram.message(initial_message)
+        initial_message = "__Running Status:__"
+        C.telegram.message(initial_message)
+        initial_message = "- Gapps is building..."
         z = Export(file_name)
+        C.telegram.message(initial_message)
         result = z.zip(app_set_list=config_obj.config_package_list, config_string=config_obj.get_nikgapps_config())
         if result[1]:
             if Config.UPLOAD_FILES:
                 u = upload if upload is not None else Upload()
                 print("Uploading " + str(result[0]))
-                C.telegram.message("- Uploading " + str(os.path.basename(result[0])))
                 execution_status = u.upload(result[0])
                 print("Done")
             else:
                 execution_status = True
             if execution_status:
-                C.telegram.message("- Done")
                 Operations.archive_the_config(config_obj.config_path, android_version, config_file_name, config_repo)
             else:
-                C.telegram.message("- Upload failed for " + str(os.path.basename(result[0])))
+                C.telegram.message("- Upload failed!")
                 print("Cannot move to archive as upload failed!")
             C.telegram.reset_message()
             return execution_status
