@@ -130,6 +130,7 @@ class Upload:
         system_name = platform.system()
         execution_status = False
         C.telegram.message("- The zip is uploading...")
+        download_link = None
         if system_name != "Windows" and UPLOAD_FILES:
             start_time = C.start_of_function()
             # make the connection and initialize the parameters
@@ -156,7 +157,6 @@ class Upload:
                     self.upload_file(file_name)
                     download_link = C.get_download_link(file_name, cd)
                     print("Download Link: " + download_link)
-                    C.telegram.message("- [Download Link](" + download_link + ")")
                     print("uploading file finished...")
                     execution_status = True
                 else:
@@ -171,6 +171,9 @@ class Upload:
             if execution_status:
                 C.telegram.message(
                     f"- The zip {file_size_mb} MB ({file_size_kb} Kb) uploaded in {str(round(time_taken, 0))} seconds")
+                if download_link is not None:
+                    C.telegram.message(f"- Download link should start working in 10 minutes\n")
+                    C.telegram.message(F"[Download {file_name}](" + download_link + ")", escape_text=False)
         else:
             print("System incompatible or upload disabled!")
         return execution_status
