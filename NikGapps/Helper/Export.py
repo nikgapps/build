@@ -30,9 +30,12 @@ class Export:
         try:
             app_set_count = len(app_set_list)
             app_set_index = 1
+            C.telegram.message(f"- {app_set_count} AppSets to build...")
+            C.telegram.message("- Gapps is building...")
             for app_set in app_set_list:
                 app_set: AppSet
                 app_set_progress = round(float(100 * app_set_index / app_set_count))
+                C.telegram.message(f"- Gapps is building... {str(app_set_progress)}% done", replace_last_message=True)
                 package_count = len(app_set.package_list)
                 package_index = 0
                 for pkg in app_set.package_list:
@@ -109,12 +112,12 @@ class Export:
             self.z.writefiletozip(Assets.busybox, "busybox")
             zip_execution_status = True
             print('The zip ' + self.file_name + ' is created successfully!')
-            C.telegram.message("- The zip " + str(os.path.basename(self.file_name)) + " is created successfully!")
         except Exception as e:
             print("Exception occurred while creating the zip " + str(e))
         finally:
             self.z.close()
-            C.end_of_function(start_time, "Total time taken to build the zip")
+            time_taken = C.end_of_function(start_time, "Total time taken to build the zip")
+            C.telegram.message("- Completed in: " + str(round(time_taken, 0)) + " seconds")
             file_name = self.file_name
             if SIGN_PACKAGE:
                 # it means we already signed the packages, now, we just need to rename the package to file-signed.zip
@@ -125,20 +128,23 @@ class Export:
             elif SIGN_ZIP:
                 start_time = C.start_of_function()
                 print('Signing The Zip')
-                # until the issue is resolved with Java 17, commenting below line
-                # zip_execution_status = False
+                C.telegram.message("- The zip is Signing...")
+                # the issue (cannot access class sun.security.pkcs.SignerInfo) is pending with Java 17
+                # https://intellij-support.jetbrains.com/hc/en-us/community/posts/5153987456018-Java-17-cannot-access-class-sun-security-pkcs-PKCS7
+                zip_execution_status = False
                 cmd = Cmd()
                 output_list = cmd.sign_zip_file(file_name)
                 for output in output_list:
                     if output.__eq__("Success!"):
                         file_name = file_name[:-4] + "-signed.zip"
                         print("The zip signed successfully: " + file_name)
-                        C.telegram.message("- The zip signed successfully: " + str(os.path.basename(file_name)))
                         zip_execution_status = True
                     elif output.startswith("Exception occurred while executing"):
                         print("The zip could not be signed: " + output)
                         C.telegram.message("- The zip could not be signed: " + output)
-                C.end_of_function(start_time, "Total time taken to sign the zip")
+                time_taken = C.end_of_function(start_time, "Total time taken to sign the zip")
+                if zip_execution_status:
+                    C.telegram.message("- Completed in: " + str(round(time_taken, 0)) + " seconds")
             if SEND_ZIP_DEVICE:
                 start_time = C.start_of_function()
                 cmd = Cmd()
