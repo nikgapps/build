@@ -12,6 +12,7 @@ class TelegramApi:
         self.message_thread_id = Config.MESSAGE_THREAD_ID
         self.message_id = None
         self.msg = None
+        self.last_msg = None
 
     def send_message(self, text, chat_id=None):
         if self.token is None:
@@ -29,13 +30,17 @@ class TelegramApi:
               f"&parse_mode=MarkdownV2" \
               + (f"&message_thread_id={self.message_thread_id}" if self.message_thread_id is not None else "")
         r = Requests.get(url)
+        if r.status_code != 200:
+            print(f"Error sending message: {r.json()}")
+            return None
         response = r.json()
         if response["ok"]:
+            self.last_msg = text
             self.message_id = response["result"]["message_id"]
             self.msg = text
         return response
 
-    def message(self, text, chat_id=None):
+    def message(self, text, chat_id=None, replace_last_message=False):
         if self.token is None:
             return None
         if chat_id is None:
@@ -47,7 +52,7 @@ class TelegramApi:
             return None
         for i in '[]()~`>#+-=|{}.!':
             text = text.replace(i, "\\" + i)
-        sending_text = self.msg + "\n" + text
+        sending_text = self.msg.replace(self.last_msg, text) if replace_last_message else (self.msg + "\n" + text)
         url = f"{self.base}/bot{self.token}/editMessageText" \
               f"?chat_id={chat_id}" \
               f"&message_id={self.message_id}" \
@@ -57,7 +62,8 @@ class TelegramApi:
         r = Requests.get(url)
         response = r.json()
         if response["ok"]:
-            self.msg = self.msg + "\n" + text
+            self.last_msg = text
+            self.msg = sending_text
         return response
 
     def reset_message(self):

@@ -27,9 +27,7 @@ class Operations:
         C.telegram.message(initial_message)
         initial_message = "__Running Status:__"
         C.telegram.message(initial_message)
-        initial_message = "- Gapps is building..."
         z = Export(file_name)
-        C.telegram.message(initial_message)
         result = z.zip(app_set_list=config_obj.config_package_list, config_string=config_obj.get_nikgapps_config())
         if result[1]:
             if Config.UPLOAD_FILES:

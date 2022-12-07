@@ -129,7 +129,7 @@ class Upload:
     def upload(self, file_name):
         system_name = platform.system()
         execution_status = False
-        C.telegram.message("- The zip is uploading")
+        C.telegram.message("- The zip is uploading...")
         if system_name != "Windows" and UPLOAD_FILES:
             start_time = C.start_of_function()
             # make the connection and initialize the parameters
