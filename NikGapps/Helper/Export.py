@@ -117,7 +117,7 @@ class Export:
         finally:
             self.z.close()
             time_taken = C.end_of_function(start_time, "Total time taken to build the zip")
-            C.telegram.message("- Completed in: " + str(round(time_taken, 0)) + " seconds")
+            C.telegram.message("- Completed in: " + str(round(time_taken)) + " seconds")
             file_name = self.file_name
             if SIGN_PACKAGE:
                 # it means we already signed the packages, now, we just need to rename the package to file-signed.zip
@@ -144,7 +144,7 @@ class Export:
                         C.telegram.message("- The zip could not be signed: " + output)
                 time_taken = C.end_of_function(start_time, "Total time taken to sign the zip")
                 if zip_execution_status:
-                    C.telegram.message("- Completed in: " + str(round(time_taken, 0)) + " seconds")
+                    C.telegram.message("- Completed in: " + str(round(time_taken)) + " seconds")
             if SEND_ZIP_DEVICE:
                 start_time = C.start_of_function()
                 cmd = Cmd()

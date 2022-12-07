@@ -26,7 +26,7 @@ class Operations:
         initial_message += "File Name: " + str(os.path.basename(file_name)) + "\n"
         C.telegram.message(initial_message)
         initial_message = "__Running Status:__"
-        C.telegram.message(initial_message)
+        C.telegram.message(initial_message, escape_text=False)
         z = Export(file_name)
         result = z.zip(app_set_list=config_obj.config_package_list, config_string=config_obj.get_nikgapps_config())
         if result[1]:
@@ -61,7 +61,6 @@ class Operations:
                           f"{config_file_name}_{todays_date}.config"
             print("Destination: " + destination)
             print("Moving the config file to archive")
-            C.telegram.message("- Moving the config file to archive")
             FileOp.move_file(source_config_file, destination)
             # commit the changes
 
@@ -70,7 +69,6 @@ class Operations:
                              f"{config_file_name}_{todays_date}.config"
             print(commit_message)
             config_repo.update_config_changes(commit_message)
-            C.telegram.message("- Done")
             return True
         except Exception as e:
             print("Error while moving the config file to archive")
