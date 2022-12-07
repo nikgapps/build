@@ -173,7 +173,7 @@ class Upload:
                     f"- The zip {file_size_mb} MB ({file_size_kb} Kb) uploaded in {str(round(time_taken, 0))} seconds")
                 if download_link is not None:
                     C.telegram.message(f"- Download link should start working in 10 minutes\n")
-                    C.telegram.message(F"[Download {file_name}](" + download_link + ")", escape_text=False)
+                    C.telegram.message(F"[Download](" + download_link + ")", escape_text=False)
         else:
             print("System incompatible or upload disabled!")
         return execution_status
