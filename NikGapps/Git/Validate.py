@@ -48,7 +48,8 @@ class Validate:
                     f"{file_name} is not an aphanumeric name, "
                     f"make sure the name of config file is between A-Z and 0-9 "
                     f"additionally, accepted symbols are - (dash) or _ (underscore) "
-                    f"any symbols including but not limited to (, ' . # ! *) are not accepted in the name")
+                    f"any symbols including but not limited to (, ' . # ! *) or space are not accepted in the name "
+                    f"try renaming the file to a name that doesn't contain any spaces or special characters")
                 print(regex_match)
             print("- checking file status")
             file_status = str(files_changed[i]["status"])
@@ -63,7 +64,7 @@ class Validate:
                     config_obj = NikGappsConfig(raw_nikgapps_config)
                     if not version.__eq__(str(config_obj.config_version)):
                         failure_reason.append(
-                            f"{file_name} is not on the latest version of NikGapps Config, "
+                            f"{file_name} is on version {version} which is not the latest version of NikGapps Config, "
                             f"please update the config file to version {config_obj.config_version}")
                     break
 
