@@ -117,11 +117,11 @@ class ConfigOperations:
         return 0
 
     @staticmethod
-    def update_configs_with_pr_details(pr_list, config_repo):
+    def update_configs_with_pr_details(pr_list, config_repo: Git):
         for pr in pr_list:
             pr: PullRequest
             for file in pr.file_names:
-                filepath = config_repo + os.path.sep + file
+                filepath = config_repo.working_tree_dir + os.path.sep + file
                 if FileOp.file_exists(filepath):
                     print("Updating " + filepath)
                     file_contents = FileOp.read_string_file(filepath)
