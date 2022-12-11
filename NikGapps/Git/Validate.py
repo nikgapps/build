@@ -55,8 +55,8 @@ class Validate:
             file_status = str(files_changed[i]["status"])
             if not file_status.__eq__("added"):
                 failure_reason.append(
-                    f"Cannot merge the changes automatically since {file_name} is either modified or removed, "
-                    "Wait for someone to manually review!")
+                    f"Cannot merge the changes automatically since status of {file_name} is {file_status}, "
+                    "kindly start fresh with forking the repository again!")
             print("- checking version compatibility")
             for line in raw_nikgapps_config.splitlines():
                 if line.startswith("Version="):
