@@ -13,7 +13,7 @@ class Validate:
     @staticmethod
     def pull_request(pr: PullRequest):
         failure_reason = []
-        files_changed = pr.get_files_changed(True)
+        files_changed = pr.files_changed
         total = len(files_changed)
         regex = '[^a-zA-Z0-9_-]'
         print("Total files changed: " + str(total))
@@ -61,7 +61,7 @@ class Validate:
             for line in raw_nikgapps_config.splitlines():
                 if line.startswith("Version="):
                     version = line.split("=")[1]
-                    config_obj = NikGappsConfig(raw_nikgapps_config)
+                    config_obj = NikGappsConfig()
                     if not version.__eq__(str(config_obj.config_version)):
                         failure_reason.append(
                             f"{file_name} is on version {version} which is not the latest version of NikGapps Config, "

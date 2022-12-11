@@ -3,6 +3,7 @@ import time
 import NikGapps.Git.GitConfig as Config
 import json
 
+from NikGapps.Git import PullRequest
 from NikGapps.Web.Requests import Requests
 
 
@@ -156,10 +157,10 @@ class GitApi:
         return execution_status
 
     @staticmethod
-    def merge_pull_request(pull_number, message=None):
-        query_url = f"https://api.github.com/repos/{Config.owner}/{Config.repo}/pulls/{pull_number}/merge"
+    def merge_pull_request(pr: PullRequest, message=None):
+        query_url = f"https://api.github.com/repos/{Config.owner}/{Config.repo}/pulls/{pr.pull_number}/merge"
         params = {
-            "commit_title": f"{message if message is not None else f'Merged #{pull_number}'}",
+            "commit_title": f"{message if message is not None else f'Merged #{pr.pull_number}'}",
             "commit_message": "Merging automatically",
             "merge_method": "squash"
         }

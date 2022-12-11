@@ -1,21 +1,15 @@
-import sys
 from pathlib import Path
 import Config
 
 from NikGapps.Config.UserBuild.OnDemand import OnDemand
-from NikGapps.Git.Workflow import Workflow
-from NikGapps.Helper import Git, Args
+from NikGapps.Git.Operations import Operations
+from NikGapps.Helper import Args
 from Operation import Operation
 from NikGapps.Helper.C import C
 from NikGapps.Helper.FileOp import FileOp
 
 actual_start_time = C.start_of_function()
-workflows = Workflow.get_open_workflows()
-workflow_count = len(workflows)
-print("Total Open Workflows: " + str(workflow_count))
-if workflow_count > 1:
-    print("Open workflows detected, Let's wait for open workflows to finish")
-    exit(0)
+Operations.process_pull_requests()
 if Config.BUILD_CONFIG:
     args = Args()
     android_versions = args.get_android_versions()

@@ -16,3 +16,18 @@ class Workflow:
                 print(str(e))
                 workflows = []
         return workflows
+
+    @staticmethod
+    def validate():
+        workflows = Workflow.get_open_workflows()
+        workflow_count = len(workflows)
+        print("Total Open Workflows: " + str(workflow_count))
+        if workflow_count > 1:
+            print("Total Open Workflows: " + str(workflow_count) + f", most recent being {workflows[0]['run_number']}")
+
+        if workflow_count > 1:
+            print(f"Open workflows detected, Let's wait for open workflows to finish")
+            for workflow in workflows:
+                print(workflow["run_number"])
+            exit(0)
+        return True
