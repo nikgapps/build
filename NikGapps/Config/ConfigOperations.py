@@ -127,7 +127,7 @@ class ConfigOperations:
                     file_contents = FileOp.read_string_file(filepath)
                     file_contents.insert(0, f"# PR_NUMBER={pr.pull_number}")
                     file_contents.insert(1, f"# PR_NAME={pr.pr_name}")
-                    FileOp.write_string_in_lf_file(file_contents, filepath)
+                    FileOp.write_string_in_lf_file(str(file_contents), filepath)
                 else:
                     print("File doesn't exist: " + filepath)
         if config_repo.due_changes():
