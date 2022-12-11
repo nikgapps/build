@@ -3,6 +3,7 @@ import os
 
 import Config
 from NikGapps.Config.NikGappsConfig import NikGappsConfig
+from NikGapps.Git import PullRequest
 from NikGapps.Helper import C, Git, FileOp, Upload
 
 
@@ -114,3 +115,20 @@ class ConfigOperations:
             if str(config_obj.config_path).__contains__(os.path.sep + android_version + os.path.sep):
                 return android_version
         return 0
+
+    @staticmethod
+    def update_configs_with_pr_details(pr_list, config_repo):
+        for pr in pr_list:
+            pr: PullRequest
+            for file in pr.file_names:
+                filepath = config_repo + os.path.sep + file
+                if FileOp.file_exists(filepath):
+                    print("Updating " + filepath)
+                    file_contents = FileOp.read_string_file(filepath)
+                    file_contents.insert(0, f"# PR_NUMBER={pr.pull_number}")
+                    file_contents.insert(1, f"# PR_NAME={pr.pr_name}")
+                    FileOp.write_string_in_lf_file(file_contents, filepath)
+                else:
+                    print("File doesn't exist: " + filepath)
+        if config_repo.due_changes():
+            config_repo.git_push("Updated config files with PR details", push_untracked_files=True)

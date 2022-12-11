@@ -40,7 +40,7 @@ class Operations:
         Workflow.validate()
         requests = Operations.find_open_pull_request()
         print("Total Open Pull Requests: " + str(len(requests)))
-
+        merged_pr_list = []
         for request in requests:
             print("-------------------------------------------------------------------------------------")
             pr_number = request["number"]
@@ -94,6 +94,8 @@ class Operations:
                 print("Requesting a merge")
                 if GitApi.merge_pull_request(pr, f"Squash Merge pull request #{pr.pull_number} from @{pr.pr_name}"):
                     print("Successfully merged!")
+                    merged_pr_list.append(pr)
                 else:
                     print("Failed to merge!")
             print()
+        return merged_pr_list

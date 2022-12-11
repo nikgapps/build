@@ -1,5 +1,7 @@
 from pathlib import Path
 import Config
+from NikGapps.Config.ConfigDirectoy import ConfigDirectory
+from NikGapps.Config.ConfigOperations import ConfigOperations
 
 from NikGapps.Config.UserBuild.OnDemand import OnDemand
 from NikGapps.Git.Operations import Operations
@@ -9,7 +11,15 @@ from NikGapps.Helper.C import C
 from NikGapps.Helper.FileOp import FileOp
 
 actual_start_time = C.start_of_function()
-Operations.process_pull_requests()
+
+config_dir = ConfigDirectory()
+config_repo = config_dir.setup(override_dir=True)
+if config_repo is None:
+    print("Failed to setup config directory")
+    exit(1)
+pr_list = Operations.process_pull_requests()
+if len(pr_list) > 0:
+    ConfigOperations.update_configs_with_pr_details(pr_list=pr_list, config_repo=config_repo)
 if Config.BUILD_CONFIG:
     args = Args()
     android_versions = args.get_android_versions()
