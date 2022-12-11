@@ -125,8 +125,9 @@ class ConfigOperations:
                 if FileOp.file_exists(filepath):
                     print("Updating " + filepath)
                     file_contents = FileOp.read_string_file(filepath)
-                    file_contents.insert(0, f"# PR_NUMBER={pr.pull_number}")
-                    file_contents.insert(1, f"# PR_NAME={pr.pr_name}")
+                    if not file_contents[0].__contains__("# PR_NUMBER"):
+                        file_contents.insert(0, f"# PR_NUMBER={pr.pull_number}\n")
+                        file_contents.insert(1, f"# PR_NAME={pr.pr_name}\n")
                     file_string = "".join(file_contents)
                     FileOp.write_string_in_lf_file(file_string, filepath)
                 else:
