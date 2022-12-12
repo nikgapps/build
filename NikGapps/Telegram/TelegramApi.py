@@ -14,7 +14,7 @@ class TelegramApi:
         self.msg = None
         self.last_msg = None
 
-    def message(self, text, chat_id=None, replace_last_message=False, escape_text=True):
+    def message(self, text, chat_id=None, replace_last_message=False, escape_text=True, parse_mode="MarkdownV2"):
         if self.token is None:
             return None
         if chat_id is None:
@@ -23,12 +23,12 @@ class TelegramApi:
             print("No text to send")
             return None
         if escape_text:
-            for i in '[]()~`>#+-=|{}.!':
+            for i in '_*[]()~`>#+-=|{}.!':
                 text = text.replace(i, "\\" + i)
         sending_text = text
         if self.message_id is not None:
             sending_text = self.msg.replace(self.last_msg, text) if replace_last_message else (self.msg + "\n" + text)
-        url = self.get_url(chat_id, sending_text)
+        url = self.get_url(chat_id, sending_text, parse_mode)
         r = Requests.get(url)
         if r.status_code != 200:
             print(f"Error sending message: {r.json()}")
@@ -40,11 +40,11 @@ class TelegramApi:
             self.message_id = response["result"]["message_id"]
         return response
 
-    def get_url(self, chat_id, sending_text):
+    def get_url(self, chat_id, sending_text, parse_mode="MarkdownV2"):
         return f"{self.base}/bot{self.token}/" \
             + (f"sendMessage?" if self.message_id is None else f"editMessageText?&message_id={self.message_id}") \
             + f"&chat_id={chat_id}" \
-            + f"&parse_mode=MarkdownV2" \
+            + (f"&parse_mode={parse_mode}" if parse_mode is not None else "") \
             + f"&text={sending_text}" \
             + (f"&message_thread_id={self.message_thread_id}" if self.message_thread_id is not None else "")
 

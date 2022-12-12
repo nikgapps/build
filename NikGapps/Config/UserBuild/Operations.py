@@ -24,9 +24,17 @@ class Operations:
         initial_message = "Android Version: " + str(android_version) + "\n"
         initial_message += "Building Config: " + str(os.path.basename(config_obj.config_path)) + "\n"
         initial_message += "File Name: " + str(os.path.basename(file_name)) + "\n"
+        pr_number = config_obj.config_dict["PR_NUMBER"]
         C.telegram.message(initial_message)
+        if pr_number is not None:
+            pr_name = config_obj.config_dict["PR_NAME"]
+            pr_name = " by _" + str(pr_name) + "_" if pr_name is not None else ""
+            C.telegram.message(
+                f"\nPull Request: [{str(pr_number)}](https://github.com/nikgapps/config/pull/{pr_number})",
+                escape_text=False)
+            C.telegram.message(f"Pull Request by: [{pr_name}](https://github.com/{pr_name})\n", escape_text=False)
         initial_message = "__Running Status:__"
-        C.telegram.message(initial_message)
+        C.telegram.message(initial_message, escape_text=False)
         z = Export(file_name)
         result = z.zip(app_set_list=config_obj.config_package_list, config_string=config_obj.get_nikgapps_config())
         if result[1]:
@@ -61,7 +69,6 @@ class Operations:
                           f"{config_file_name}_{todays_date}.config"
             print("Destination: " + destination)
             print("Moving the config file to archive")
-            C.telegram.message("- Moving the config file to archive")
             FileOp.move_file(source_config_file, destination)
             # commit the changes
 
@@ -70,7 +77,6 @@ class Operations:
                              f"{config_file_name}_{todays_date}.config"
             print(commit_message)
             config_repo.update_config_changes(commit_message)
-            C.telegram.message("- Done")
             return True
         except Exception as e:
             print("Error while moving the config file to archive")
