@@ -13,6 +13,8 @@ class GitApi:
         if params is None:
             params = {"": ""}
         if authenticate:
+            if Config.git_token_admin is None or Config.git_token_admin.__eq__(""):
+                return None
             headers = {'Authorization': f'token {Config.git_token_admin}'}
         else:
             headers = {'Accept': 'application/vnd.github.v3+json'}
@@ -30,6 +32,8 @@ class GitApi:
         if params is None:
             params = {"": ""}
         if authenticate:
+            if Config.git_token_admin is None or Config.git_token_admin.__eq__(""):
+                return None
             headers = {'Content-Type': 'application/json',
                        'Authorization': f'token {Config.git_token_admin}'}
         else:
@@ -48,6 +52,8 @@ class GitApi:
         if params is None:
             params = {"": ""}
         if authenticate:
+            if Config.git_token_admin is None or Config.git_token_admin.__eq__(""):
+                return None
             headers = {'Content-Type': 'application/json',
                        'Authorization': f'token {Config.git_token_admin}'}
         else:
@@ -66,6 +72,8 @@ class GitApi:
         if params is None:
             params = {"": ""}
         if authenticate:
+            if Config.git_token_admin is None or Config.git_token_admin.__eq__(""):
+                return None
             headers = {'Content-Type': 'application/json',
                        'Authorization': f'token {Config.git_token_admin}'}
         else:

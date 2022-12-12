@@ -28,9 +28,11 @@ class Operations:
         C.telegram.message(initial_message)
         if pr_number is not None:
             pr_name = config_obj.config_dict["PR_NAME"]
-            pr_name = " by _" + pr_name + "_" if pr_name is not None else ""
-            initial_message = "Pull Request *" + str(pr_number) + "*" + pr_name + "\n"
-            C.telegram.message(initial_message, escape_text=False)
+            pr_name = " by _" + str(pr_name) + "_" if pr_name is not None else ""
+            C.telegram.message(
+                f"\nPull Request: [{str(pr_number)}](https://github.com/nikgapps/config/pull/{pr_number})",
+                escape_text=False)
+            C.telegram.message(f"Pull Request by: [{pr_name}](https://github.com/{pr_name})\n", escape_text=False)
         initial_message = "__Running Status:__"
         C.telegram.message(initial_message, escape_text=False)
         z = Export(file_name)
