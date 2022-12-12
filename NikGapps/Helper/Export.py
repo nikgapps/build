@@ -35,7 +35,9 @@ class Export:
             for app_set in app_set_list:
                 app_set: AppSet
                 app_set_progress = round(float(100 * app_set_index / app_set_count))
-                C.telegram.message(f"- Gapps is building... {str(app_set_progress)}% done", replace_last_message=True)
+                C.telegram.message(
+                    f"- Gapps ({app_set_index}/{app_set_count}) is building... {str(app_set_progress)}% done",
+                    replace_last_message=True)
                 package_count = len(app_set.package_list)
                 package_index = 0
                 for pkg in app_set.package_list:

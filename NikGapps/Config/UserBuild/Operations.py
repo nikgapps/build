@@ -24,7 +24,13 @@ class Operations:
         initial_message = "Android Version: " + str(android_version) + "\n"
         initial_message += "Building Config: " + str(os.path.basename(config_obj.config_path)) + "\n"
         initial_message += "File Name: " + str(os.path.basename(file_name)) + "\n"
+        pr_number = config_obj.config_dict["PR_NUMBER"]
         C.telegram.message(initial_message)
+        if pr_number is not None:
+            pr_name = config_obj.config_dict["PR_NAME"]
+            pr_name = " by _" + pr_name + "_" if pr_name is not None else ""
+            initial_message = "Pull Request *" + str(pr_number) + "*" + pr_name + "\n"
+            C.telegram.message(initial_message, escape_text=False)
         initial_message = "__Running Status:__"
         C.telegram.message(initial_message, escape_text=False)
         z = Export(file_name)
