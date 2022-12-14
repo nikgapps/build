@@ -28,7 +28,6 @@ class Operations:
         C.telegram.message(initial_message)
         if pr_number is not None:
             pr_name = config_obj.config_dict["PR_NAME"]
-            pr_name = " by _" + str(pr_name) + "_" if pr_name is not None else ""
             C.telegram.message(
                 f"\nPull Request: [{str(pr_number)}](https://github.com/nikgapps/config/pull/{pr_number})",
                 escape_text=False)
