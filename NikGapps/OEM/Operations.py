@@ -15,15 +15,16 @@ class Operations:
 
     @staticmethod
     def sync_tracker(oem, android_version, tracker_repo=None, appsets=None):
-        if oem == "PixelExperience":
+        oem = oem.lower()
+        if oem == "pixelexperience":
             Operations.sync_with_pixel_experience_tracker(android_version, tracker_repo, appsets)
-        elif oem == "EvoX":
+        elif oem == "evox":
             Operations.sync_with_evo_x_tracker(android_version, tracker_repo, appsets)
         elif oem == "apk_mirror":
             Operations.sync_with_apk_mirror(android_version, tracker_repo, appsets)
-        elif oem == "NikGapps":
+        elif oem == "nikgapps":
             Operations.sync_with_nikgapps_tracker(android_version, tracker_repo)
-        elif oem == "Cheetah":
+        elif oem == "cheetah":
             Operations.sync_with_cheetah_tracker(android_version, tracker_repo, appsets)
         else:
             raise Exception(f"Unknown OEM: {oem}")
