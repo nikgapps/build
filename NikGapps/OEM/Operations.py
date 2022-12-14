@@ -3,6 +3,7 @@ import json
 from NikGapps.Helper import FileOp, C
 from NikGapps.Helper.Json import Json
 from NikGapps.OEM.ApkMirror import ApkMirror
+from NikGapps.OEM.Cheetah import Cheetah
 from NikGapps.OEM.EvoX import EvoX
 from NikGapps.OEM.NikGapps import NikGapps
 from NikGapps.OEM.PixelExperience import PixelExperience
@@ -22,6 +23,8 @@ class Operations:
             Operations.sync_with_apk_mirror(android_version, tracker_repo, appsets)
         elif oem == "NikGapps":
             Operations.sync_with_nikgapps_tracker(android_version, tracker_repo)
+        elif oem == "Cheetah":
+            Operations.sync_with_cheetah_tracker(android_version, tracker_repo, appsets)
         else:
             raise Exception(f"Unknown OEM: {oem}")
 
@@ -120,6 +123,31 @@ class Operations:
                 print("NikGapps Tracker is None!")
         else:
             print("NikGapps Tracker is None!")
+
+    @staticmethod
+    def sync_with_cheetah_tracker(android_version, tracker_repo=None, appsets=None):
+        if tracker_repo is None:
+            tracker_repo = GitOperations.setup_tracker_repo()
+            if tracker_repo is None:
+                print("Failed to setup tracker repo!")
+                return
+        c = Cheetah(android_version)
+        tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo, c.oem)
+        if tracker_file is not None:
+            c_gapps_dict = c.get_gapps_dict()
+            if c_gapps_dict is not None:
+                Json.write_dict_to_file(c_gapps_dict, tracker_file)
+                if isexists:
+                    print(f"Updated {tracker_file}")
+                    tracker_repo.update_repo_changes("Synced with Cheetah Tracker for " + android_version)
+                else:
+                    print("File is empty!")
+                    tracker_repo.update_repo_changes(
+                        "Initial commit for Cheetah tracker for android version: " + android_version)
+            else:
+                print("Failed to get Cheetah GApps Dict!")
+        else:
+            print("Cheetah Tracker is None!")
 
     @staticmethod
     def sync_with_evo_x_tracker(android_version, tracker_repo=None, appsets=None):
