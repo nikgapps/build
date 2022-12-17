@@ -46,6 +46,7 @@ class TelegramApi:
             + f"&chat_id={chat_id}" \
             + (f"&parse_mode={parse_mode}" if parse_mode is not None else "") \
             + f"&text={sending_text}" \
+            + f"&disable_web_page_preview=true" \
             + (f"&message_thread_id={self.message_thread_id}" if self.message_thread_id is not None else "")
 
     def delete_message(self, message_id=None, chat_id=None):
