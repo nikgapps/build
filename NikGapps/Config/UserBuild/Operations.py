@@ -26,10 +26,14 @@ class Operations:
         initial_message += "File Name: " + str(os.path.basename(file_name)) + "\n"
         pr_number = config_obj.config_dict["PR_NUMBER"]
         C.telegram.message(initial_message)
+        tg_name = config_obj.config_dict["TelegramUsername"]
+        if tg_name is not None:
+            C.telegram.message(
+                "Telegram User: " + ("@" + str(tg_name) if not str(tg_name).startswith('@') else str(tg_name)) + "\n")
         if pr_number is not None:
             pr_name = config_obj.config_dict["PR_NAME"]
             C.telegram.message(
-                f"\nPull Request: [{str(pr_number)}](https://github.com/nikgapps/config/pull/{pr_number})",
+                f"Pull Request: [{str(pr_number)}](https://github.com/nikgapps/config/pull/{pr_number})",
                 escape_text=False)
             C.telegram.message(f"Pull Request by: [{pr_name}](https://github.com/{pr_name})\n", escape_text=False)
         initial_message = "__Running Status:__"
