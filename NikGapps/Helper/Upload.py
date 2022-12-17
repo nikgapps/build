@@ -174,7 +174,7 @@ class Upload:
                     replace_last_message=True)
                 if download_link is not None:
                     C.telegram.message(f"[Download]({download_link})\n", escape_text=False)
-                    C.telegram.message(f"*Note:-* Download link should start working in 10 minutes", escape_text=False)
+                    C.telegram.message(f"*Note:* Download link should start working in 10 minutes", escape_text=False)
         else:
             print("System incompatible or upload disabled!")
         return execution_status
