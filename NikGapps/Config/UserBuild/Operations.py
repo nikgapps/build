@@ -24,18 +24,19 @@ class Operations:
         initial_message = "Android Version: " + str(android_version) + "\n"
         initial_message += "Building Config: " + str(os.path.basename(config_obj.config_path)) + "\n"
         initial_message += "File Name: " + str(os.path.basename(file_name)) + "\n"
-        pr_number = config_obj.config_dict["PR_NUMBER"]
         C.telegram.message(initial_message)
-        tg_name = config_obj.config_dict["TelegramUsername"]
-        if tg_name is not None:
+        if "TelegramUsername" in config_obj.config_dict:
+            tg_name = config_obj.config_dict["TelegramUsername"]
             C.telegram.message(
                 "Telegram User: " + ("@" + str(tg_name) if not str(tg_name).startswith('@') else str(tg_name)) + "\n")
-        if pr_number is not None:
-            pr_name = config_obj.config_dict["PR_NAME"]
-            C.telegram.message(
-                f"Pull Request: [{str(pr_number)}](https://github.com/nikgapps/config/pull/{pr_number})",
-                escape_text=False)
-            C.telegram.message(f"Pull Request by: [{pr_name}](https://github.com/{pr_name})\n", escape_text=False)
+        if "PR_NUMBER" in config_obj.config_dict:
+            pr_number = config_obj.config_dict["PR_NUMBER"]
+            if "PR_NAME" in config_obj.config_dict:
+                pr_name = config_obj.config_dict["PR_NAME"]
+                C.telegram.message(
+                    f"Pull Request: [{str(pr_number)}](https://github.com/nikgapps/config/pull/{pr_number})",
+                    escape_text=False)
+                C.telegram.message(f"Pull Request by: [{pr_name}](https://github.com/{pr_name})\n", escape_text=False)
         initial_message = "__Running Status:__"
         C.telegram.message(initial_message, escape_text=False)
         z = Export(file_name)
