@@ -20,6 +20,6 @@ for android_version in android_versions:
     Operations.update_nikgapps_controller(android_version, list_of_supported_appsets, tracker_repo)
     s = Sync(list_of_supported_appsets, tracker_repo)
     list_of_oems = args.get_oems()
-    s.do(android_version, list_of_supported_oems=None if len(list_of_oems) == 0 else list_of_oems)
+    s.do(android_version, list_of_supported_oems=list_of_oems)
 
 
