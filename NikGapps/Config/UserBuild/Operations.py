@@ -40,12 +40,16 @@ class Operations:
         initial_message = "__Running Status:__"
         C.telegram.message(initial_message, escape_text=False)
         z = Export(file_name)
-        result = z.zip(app_set_list=config_obj.config_package_list, config_string=config_obj.get_nikgapps_config())
-        if result[1]:
+        file_name, zip_execution_status = z.zip(app_set_list=config_obj.config_package_list,
+                                                config_string=config_obj.get_nikgapps_config())
+        if Config.SIGN_ZIP and (not zip_execution_status) and (not str(file_name).endswith("-signed.zip")):
+            # this probably happened because the zip failed to sign, we still want to upload the unsigned zip
+            zip_execution_status = True
+        if zip_execution_status:
             if Config.UPLOAD_FILES:
                 u = upload if upload is not None else Upload()
-                print("Uploading " + str(result[0]))
-                execution_status = u.upload(result[0])
+                print("Uploading " + str(file_name))
+                execution_status = u.upload(file_name)
                 print("Done")
             else:
                 execution_status = True
