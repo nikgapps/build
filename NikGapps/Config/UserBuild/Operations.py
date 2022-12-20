@@ -24,23 +24,32 @@ class Operations:
         initial_message = "Android Version: " + str(android_version) + "\n"
         initial_message += "Building Config: " + str(os.path.basename(config_obj.config_path)) + "\n"
         initial_message += "File Name: " + str(os.path.basename(file_name)) + "\n"
-        pr_number = config_obj.config_dict["PR_NUMBER"]
         C.telegram.message(initial_message)
-        if pr_number is not None:
-            pr_name = config_obj.config_dict["PR_NAME"]
+        if "TelegramUsername" in config_obj.config_dict:
+            tg_name = config_obj.config_dict["TelegramUsername"]
             C.telegram.message(
-                f"\nPull Request: [{str(pr_number)}](https://github.com/nikgapps/config/pull/{pr_number})",
-                escape_text=False)
-            C.telegram.message(f"Pull Request by: [{pr_name}](https://github.com/{pr_name})\n", escape_text=False)
+                "Telegram User: " + ("@" + str(tg_name) if not str(tg_name).startswith('@') else str(tg_name)) + "\n")
+        if "PR_NUMBER" in config_obj.config_dict:
+            pr_number = config_obj.config_dict["PR_NUMBER"]
+            if "PR_NAME" in config_obj.config_dict:
+                pr_name = config_obj.config_dict["PR_NAME"]
+                C.telegram.message(
+                    f"Pull Request: [{str(pr_number)}](https://github.com/nikgapps/config/pull/{pr_number})",
+                    escape_text=False)
+                C.telegram.message(f"Pull Request by: [{pr_name}](https://github.com/{pr_name})\n", escape_text=False)
         initial_message = "__Running Status:__"
         C.telegram.message(initial_message, escape_text=False)
         z = Export(file_name)
-        result = z.zip(app_set_list=config_obj.config_package_list, config_string=config_obj.get_nikgapps_config())
-        if result[1]:
+        file_name, zip_execution_status = z.zip(app_set_list=config_obj.config_package_list,
+                                                config_string=config_obj.get_nikgapps_config())
+        if Config.SIGN_ZIP and (not zip_execution_status) and (not str(file_name).endswith("-signed.zip")):
+            # this probably happened because the zip failed to sign, we still want to upload the unsigned zip
+            zip_execution_status = True
+        if zip_execution_status:
             if Config.UPLOAD_FILES:
                 u = upload if upload is not None else Upload()
-                print("Uploading " + str(result[0]))
-                execution_status = u.upload(result[0])
+                print("Uploading " + str(file_name))
+                execution_status = u.upload(file_name)
                 print("Done")
             else:
                 execution_status = True

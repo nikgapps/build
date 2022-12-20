@@ -45,7 +45,6 @@ class Cheetah(AndroidDump):
             return None
 
     def get_android_dump_dict(self):
-        print(f"Getting {self.oem} GApps Dict")
         supported_partitions = ["system", "system_ext", "product", "vendor"]
         gapps_dict = {}
         cmd = Cmd()

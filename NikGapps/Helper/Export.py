@@ -30,13 +30,12 @@ class Export:
         try:
             app_set_count = len(app_set_list)
             app_set_index = 1
-            C.telegram.message(f"- {app_set_count} AppSets to build...")
             C.telegram.message("- Gapps is building...")
             for app_set in app_set_list:
                 app_set: AppSet
                 app_set_progress = round(float(100 * app_set_index / app_set_count))
                 C.telegram.message(
-                    f"- Gapps ({app_set_index}/{app_set_count}) is building... {str(app_set_progress)}% done",
+                    f"- Gapps ({app_set_index}/{app_set_count} appsets) is building... {str(app_set_progress)}% done",
                     replace_last_message=True)
                 package_count = len(app_set.package_list)
                 package_index = 0
@@ -146,7 +145,8 @@ class Export:
                         C.telegram.message("- The zip could not be signed: " + output)
                 time_taken = C.end_of_function(start_time, "Total time taken to sign the zip")
                 if zip_execution_status:
-                    C.telegram.message("- Completed in: " + str(round(time_taken)) + " seconds")
+                    C.telegram.message("- The zip signed in: " + str(round(time_taken)) + " seconds",
+                                       replace_last_message=True)
             if SEND_ZIP_DEVICE:
                 start_time = C.start_of_function()
                 cmd = Cmd()
