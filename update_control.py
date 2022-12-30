@@ -8,8 +8,8 @@ from NikGapps.OEM.Operations import Operations
 from NikGapps.Git.Operations import Operations as GitOperations
 from NikGapps.OEM.Sync import Sync
 
-list_of_supported_appsets = ["GoogleDialer"]
-
+list_of_supported_appsets = ["Core"]
+update_all_oems = True
 args = Args()
 android_versions = args.get_android_versions()
 tracker_repo = GitOperations.setup_tracker_repo()
@@ -34,7 +34,8 @@ for android_version in android_versions:
         if oem not in supported_oems:
             supported_oems.append(oem)
     for oem in supported_oems:
-        appset_oem_dict = Operations.get_appsets_from_controller_dict(controller_dict, filter_oem=oem)
+        appset_oem_dict = Operations.get_appsets_from_controller_dict(controller_dict,
+                                                                      filter_oem=None if update_all_oems else oem)
         tracker_file_dict = Operations.get_tracker_dict(android_version=android_version, oem=oem,
                                                         tracker_repo=tracker_repo)
         if Operations.update_nikgapps_controller_version(controller_dict_file=controller_dict_file,

@@ -113,7 +113,7 @@ class NikGapps:
                     package_version = cmd.get_package_version(str(path))
                     file_path = str(path)[len(package_path) + 1:]
                     version = ''.join([i for i in package_version if i.isdigit()])
-                    update_source = "EvoX"
+                    update_source = "cheetah"
                     if nikgapps_dict is not None:
                         gapps_dict = nikgapps_dict
                     f_dict = {"file_path": file_path, "version": package_version, "update_source": update_source,

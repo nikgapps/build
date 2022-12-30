@@ -31,6 +31,7 @@ class Operations:
 
     @staticmethod
     def get_tracker_dict(oem, android_version, tracker_repo, appsets=None):
+        oem = oem.lower()
         if oem == "pixelexperience":
             return Operations.sync_with_pixel_experience_tracker(android_version, tracker_repo, appsets,
                                                                  return_dict=True)
@@ -143,18 +144,21 @@ class Operations:
                 if appset in appset_dict:
                     for pkg_dict in controller_dict[appset]:
                         for pkg in pkg_dict:
-                            for file_dict in pkg_dict[pkg]:
-                                oem_pkg_dict = oem_dict[pkg]
-                                if oem_pkg_dict is not None:
-                                    # file_name = str(Path(file_dict["file_path"]).name)
-                                    oem_pkg_dict: dict
-                                    # oem_length = len(oem_pkg_dict)
-                                    for oem_file in oem_pkg_dict:
-                                        oem_pkg = oem_file["package"]
-                                        if oem_pkg == pkg:
-                                            # oem_file_name = str(Path(oem_file["file"]).name)
-                                            file_dict[f"{oem}_version"] = oem_file["version"]
-                                            file_dict[f"{oem}_version_code"] = oem_file["version_code"]
+                            if pkg in oem_dict:
+                                for file_dict in pkg_dict[pkg]:
+                                    oem_pkg_dict = oem_dict[pkg]
+                                    if oem_pkg_dict is not None:
+                                        # file_name = str(Path(file_dict["file_path"]).name)
+                                        oem_pkg_dict: dict
+                                        # oem_length = len(oem_pkg_dict)
+                                        for oem_file in oem_pkg_dict:
+                                            oem_pkg = oem_file["package"]
+                                            if oem_pkg == pkg:
+                                                # oem_file_name = str(Path(oem_file["file"]).name)
+                                                file_dict[f"{oem}_version"] = oem_file["version"]
+                                                file_dict[f"{oem}_version_code"] = oem_file["version_code"]
+                            else:
+                                print(f"Package {pkg} not found in {oem}!")
             Json.write_dict_to_file(controller_dict, controller_dict_file)
             return True
         return False
@@ -172,9 +176,13 @@ class Operations:
         if list_of_appsets is not None:
             for appset in list_of_appsets:
                 for app in NikGappsPackages.get_packages(appset):
-                    appset_list.append(app)
+                    if app is not None:
+                        appset_list.append(app)
         else:
             appset_list = NikGappsPackages.get_packages("all")
+        if len(appset_list) == 0:
+            print("No appsets found!")
+            return None
         n_gapps_dict = n.get_nikgapps_controller(appset_list=appset_list,
                                                  nikgapps_dict=Json.read_dict_from_file(tracker_file))
         if return_dict:
