@@ -15,7 +15,6 @@ class NikGapps:
         self.android_dict = {}
         for v in Config.ANDROID_VERSIONS:
             self.android_dict[v] = "main"
-        print(self.android_dict)
         self.branch = self.android_dict[self.android_version]
         self.tracker_key = self.oem
         self.version_key = f"{self.oem}_version_controller"

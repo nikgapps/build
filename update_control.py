@@ -16,11 +16,10 @@ tracker_repo = GitOperations.setup_tracker_repo()
 if tracker_repo is None:
     print("Failed to setup tracker repo!")
     exit(1)
-
+list_of_oems = args.get_oems()
 for android_version in android_versions:
     Operations.update_nikgapps_controller(android_version, list_of_supported_appsets, tracker_repo)
     s = Sync(list_of_supported_appsets, tracker_repo)
-    list_of_oems = args.get_oems()
     s.do(android_version, list_of_supported_oems=list_of_oems)
 
 for android_version in android_versions:
@@ -31,7 +30,9 @@ for android_version in android_versions:
         continue
     controller_dict = Json.read_dict_from_file(controller_dict_file)
     supported_oems, controller_appsets = Operations.get_oems_from_controller_dict(controller_dict)
-
+    for oem in list_of_oems:
+        if oem not in supported_oems:
+            supported_oems.append(oem)
     for oem in supported_oems:
         appset_oem_dict = Operations.get_appsets_from_controller_dict(controller_dict, filter_oem=oem)
         tracker_file_dict = Operations.get_tracker_dict(android_version=android_version, oem=oem,
