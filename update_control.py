@@ -106,4 +106,5 @@ for android_version in android_versions:
                             C.print_red(f"No update code found for {package} in {appset} in {android_version}")
                     else:
                         C.print_red(f"No update indicator found for {package} in {appset} in {android_version}")
-    print(Json.print_json_dict(update_dict))
+    Operations.update_nikgapps_updater_dict(android_version=android_version, update_dict=update_dict,
+                                            tracker_repo=tracker_repo)

@@ -19,6 +19,7 @@ class NikGapps:
         self.branch = self.android_dict[self.android_version]
         self.tracker_key = self.oem
         self.version_key = f"{self.oem}_version_controller"
+        self.update_key = f"{self.oem}_update_controller"
 
     def android_version_supported(self, android_version):
         return android_version in self.android_dict

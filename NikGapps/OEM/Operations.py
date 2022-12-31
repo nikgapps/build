@@ -111,6 +111,18 @@ class Operations:
             return None
 
     @staticmethod
+    def update_nikgapps_updater_dict(android_version, update_dict, tracker_repo=None):
+        if tracker_repo is None:
+            tracker_repo = GitOperations.setup_tracker_repo()
+            if tracker_repo is None:
+                print("Failed to setup tracker repo!")
+                return
+        n = NikGapps(android_version)
+        tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo, n.update_key)
+        Json.write_dict_to_file(update_dict, tracker_file)
+        tracker_repo.update_repo_changes(f"The updater for {android_version} is updated")
+
+    @staticmethod
     def get_oems_from_controller(android_version, tracker_repo=None, return_dict=False, return_file=False):
         if tracker_repo is None:
             tracker_repo = GitOperations.setup_tracker_repo()
