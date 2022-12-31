@@ -11,6 +11,7 @@ class Cheetah(AndroidDump):
     def __init__(self, android_version):
         super().__init__()
         self.oem = "cheetah"
+        self.oem = self.oem.lower()
         self.url = self.host + self.oem
         self.repo_dir = C.pwd + C.dir_sep + f"{self.oem}_" + str(android_version)
         self.branch = "cheetah-user-13-TQ1A.221205.011-9244662-release-keys"

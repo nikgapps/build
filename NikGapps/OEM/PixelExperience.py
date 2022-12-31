@@ -7,6 +7,7 @@ class PixelExperience:
     def __init__(self, android_version):
         self.android_version = str(android_version)
         self.oem = "PixelExperience"
+        self.oem = self.oem.lower()
         self.repo_dir = C.pwd + C.dir_sep + f"{self.oem}_" + str(self.android_version)
         self.android_dict = {"13": "thirteen"}
         self.branch = self.android_dict[self.android_version]

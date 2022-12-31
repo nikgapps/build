@@ -10,6 +10,7 @@ class NikGapps:
     def __init__(self, android_version):
         self.android_version = str(android_version)
         self.oem = "nikgapps"
+        self.oem = self.oem.lower()
         self.repo_dir = C.pwd + C.dir_sep + f"{self.oem}_" + str(self.android_version)
         self.repo_url = f"https://gitlab.com/{self.oem}/{str(self.android_version)}.git"
         self.android_dict = {}

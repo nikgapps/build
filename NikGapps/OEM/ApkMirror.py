@@ -9,6 +9,7 @@ class ApkMirror:
     def __init__(self, android_version):
         self.android_version = str(android_version)
         self.oem = "apk_mirror"
+        self.oem = self.oem.lower()
         self.tracker = self.oem
         self.host = "https://www.apkmirror.com"
         self.regex = '^https?://www.apkmirror.com/apk/[^/]+/[^/]+'
