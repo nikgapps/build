@@ -62,6 +62,26 @@ class Operations:
         return None, False
 
     @staticmethod
+    def get_oem_repo_dir(oem, android_version):
+        oem = oem.lower()
+        if oem == "pixelexperience":
+            pe = PixelExperience(android_version)
+            return pe.repo_dir
+        elif oem == "evox":
+            evox = EvoX(android_version)
+            return evox.repo_dir
+        elif oem == "apk_mirror":
+            # this is TBD, we need to create a repo and then add the apks there
+            return None
+        elif oem == "nikgapps":
+            ng = NikGapps(android_version)
+            return ng.repo_dir
+        elif oem == "cheetah":
+            cheetah = Cheetah(android_version)
+            return cheetah.repo_dir
+        return None
+
+    @staticmethod
     def sync_with_nikgapps_tracker(android_version, tracker_repo=None, return_dict=False):
         if tracker_repo is None:
             tracker_repo = GitOperations.setup_tracker_repo()
@@ -158,6 +178,7 @@ class Operations:
                                                 # oem_file_name = str(Path(oem_file["file"]).name)
                                                 file_dict[f"{oem}_version"] = oem_file["version"]
                                                 file_dict[f"{oem}_version_code"] = oem_file["version_code"]
+                                                file_dict[f"{oem}_location"] = oem_file["location"]
                             else:
                                 print(f"Package {pkg} not found in {oem}!")
             Json.write_dict_to_file(controller_dict, controller_dict_file)

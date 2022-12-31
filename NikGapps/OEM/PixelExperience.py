@@ -44,6 +44,7 @@ class PixelExperience:
                 for path in Path(partition_dir).rglob("*.apk"):
                     if path.is_file():
                         file_path = str(path)
+                        file_location = file_path[len(self.repo_dir) + 1:]
                         file_path = file_path[len(partition_dir):]
                         folder_name = file_path.split("/")[0]
                         package_name = cmd.get_package_name(str(path))
@@ -53,7 +54,7 @@ class PixelExperience:
                         g_dict = {"partition": partition, "type": supported_types[supported_type],
                                   "folder": folder_name, "version_code": version,
                                   "file": file_path, "package": package_name, "version": package_version,
-                                  "md5": FileOp.get_md5(str(path))}
+                                  "md5": FileOp.get_md5(str(path)), "location": file_location}
                         if folder_name in gapps_dict:
                             gapps_list = gapps_dict[folder_name]
                             gapps_list.append(g_dict)
