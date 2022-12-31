@@ -1,4 +1,4 @@
-from NikGapps.Helper import Args
+from NikGapps.Helper import Args, C
 from NikGapps.Helper.Json import Json
 from NikGapps.OEM.Operations import Operations
 from NikGapps.Git.Operations import Operations as GitOperations
@@ -50,6 +50,8 @@ for android_version in android_versions:
             print(f"No update for {oem} in {android_version}")
 
 for android_version in android_versions:
+    C.print_magenta(f"Working on {android_version}")
+    update_dict = {}
     controller_dict_file = Operations.get_oems_from_controller(android_version,
                                                                tracker_repo, return_file=True)
     if controller_dict_file is None:
@@ -57,25 +59,51 @@ for android_version in android_versions:
         continue
     controller_dict = Json.read_dict_from_file(controller_dict_file)
     for appset in controller_dict:
+        C.print_blue(appset)
         for packages in controller_dict[appset]:
             for package in packages:
-                print(package)
                 for file in packages[package]:
                     update_indicator = file["update_indicator"]
-                    oem = file["update_source"]
-                    version_code = file["version_code"]
-                    if f"{oem}_version_code" in file:
-                        oem_version_code = file[f"{oem}_version_code"]
-                        len_of_oem_version_code = len(oem_version_code)
-                        len_of_version_code = len(version_code)
-                        temp_oem_version_code = oem_version_code
-                        temp_version_code = version_code
-                        if len_of_oem_version_code > 6:
-                            temp_oem_version_code = oem_version_code[:int(len_of_oem_version_code/2)]
-                            temp_version_code = version_code[:int(len_of_oem_version_code/2)]
-                        if int(temp_oem_version_code) > int(temp_version_code):
-                            print(f"Update available for {package} in {appset} in {android_version}")
+                    if update_indicator == "1":
+                        oem = file["update_source"]
+                        version_code = file["version_code"]
+                        if f"{oem}_version_code" in file:
+                            oem_version_code = file[f"{oem}_version_code"]
+                            file_source = file[f"{oem}_location"]
+                            len_of_oem_version_code = len(oem_version_code)
+                            len_of_version_code = len(version_code)
+                            temp_oem_version_code = oem_version_code
+                            temp_version_code = version_code
+                            if len_of_oem_version_code > 6:
+                                temp_oem_version_code = oem_version_code[:int(len_of_oem_version_code / 2)]
+                                temp_version_code = version_code[:int(len_of_oem_version_code / 2)]
+                            update_available = False
+                            if int(temp_oem_version_code) > int(temp_version_code):
+                                update_available = True
+                                C.print_green(f"Update available for {package} in {appset} in {android_version}")
+                            else:
+                                C.print_yellow(f"No update available for {package} in {appset} in {android_version}")
+                            f_dict = {"oem": oem, "oem_source": file_source, "oem_version": file[f"{oem}_version"],
+                                      "nikgapps_source": file["file_path"], "nikgapps_version": file["version"],
+                                      "update_available": update_available}
+                            if appset not in update_dict:
+                                # the appset is new, so will be the package list
+                                pkg_dict = {package: [f_dict]}
+                                pkg_list = [pkg_dict]
+                                update_dict[appset] = pkg_list
+                            else:
+                                pkg_list = update_dict[appset]
+                                pkg_found = False
+                                for pkg_dict in pkg_list:
+                                    if package in pkg_dict:
+                                        pkg_dict[package].append(f_dict)
+                                        pkg_found = True
+                                        break
+                                if not pkg_found:
+                                    pkg_dict = {package: [f_dict]}
+                                    pkg_list.append(pkg_dict)
                         else:
-                            print(f"No update available for {package} in {appset} in {android_version}")
+                            C.print_red(f"No update code found for {package} in {appset} in {android_version}")
                     else:
-                        print(f"No update code found for {package} in {appset} in {android_version}")
+                        C.print_red(f"No update indicator found for {package} in {appset} in {android_version}")
+    print(Json.print_json_dict(update_dict))

@@ -176,3 +176,23 @@ class C:
         if not os.path.exists(Path(output).parent):
             os.makedirs(Path(output).parent)
         return Path(output)
+
+    @staticmethod
+    def print_yellow(message):
+        print(Fore.YELLOW + message + Fore.RESET)
+
+    @staticmethod
+    def print_red(message):
+        print(Fore.RED + message + Fore.RESET)
+
+    @staticmethod
+    def print_green(message):
+        print(Fore.GREEN + message + Fore.RESET)
+
+    @staticmethod
+    def print_blue(message):
+        print(Fore.BLUE + message + Fore.RESET)
+
+    @staticmethod
+    def print_magenta(message):
+        print(Fore.MAGENTA + message + Fore.RESET)
