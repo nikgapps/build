@@ -50,7 +50,6 @@ class Operations:
     def get_tracker(android_version, tracker_repo, oem):
         repo_dir = tracker_repo.working_tree_dir
         if FileOp.dir_exists(repo_dir):
-            print(f"{repo_dir} exists!")
             tracker_file = repo_dir + C.dir_sep + android_version + C.dir_sep + f"{oem}_{android_version}.json"
             if FileOp.file_exists(tracker_file):
                 return tracker_file, True

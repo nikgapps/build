@@ -7,7 +7,7 @@ from NikGappsPackages import NikGappsPackages
 
 class NikGapps:
 
-    def __init__(self, android_version):
+    def __init__(self, android_version, branch=None):
         self.android_version = str(android_version)
         self.oem = "nikgapps"
         self.oem = self.oem.lower()
@@ -15,7 +15,7 @@ class NikGapps:
         self.repo_url = f"https://gitlab.com/{self.oem}/{str(self.android_version)}.git"
         self.android_dict = {}
         for v in Config.ANDROID_VERSIONS:
-            self.android_dict[v] = "main"
+            self.android_dict[v] = "canary" if branch is None else branch
         self.branch = self.android_dict[self.android_version]
         self.tracker_key = self.oem
         self.version_key = f"{self.oem}_version_controller"
