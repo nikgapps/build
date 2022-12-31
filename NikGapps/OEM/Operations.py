@@ -138,6 +138,7 @@ class Operations:
 
     @staticmethod
     def update_nikgapps_controller_version(controller_dict_file, appset_dict, oem_dict, oem):
+        oem = oem.lower()
         controller_dict = Json.read_dict_from_file(controller_dict_file)
         if controller_dict is not None:
             for appset in controller_dict:
