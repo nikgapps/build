@@ -7,15 +7,15 @@ from NikGappsPackages import NikGappsPackages
 
 class NikGapps:
 
-    def __init__(self, android_version):
+    def __init__(self, android_version, branch=None):
         self.android_version = str(android_version)
         self.oem = "nikgapps"
+        self.oem = self.oem.lower()
         self.repo_dir = C.pwd + C.dir_sep + f"{self.oem}_" + str(self.android_version)
         self.repo_url = f"https://gitlab.com/{self.oem}/{str(self.android_version)}.git"
         self.android_dict = {}
         for v in Config.ANDROID_VERSIONS:
-            self.android_dict[v] = "main"
-        print(self.android_dict)
+            self.android_dict[v] = "canary" if branch is None else branch
         self.branch = self.android_dict[self.android_version]
         self.tracker_key = self.oem
         self.version_key = f"{self.oem}_version_controller"
@@ -114,7 +114,7 @@ class NikGapps:
                     package_version = cmd.get_package_version(str(path))
                     file_path = str(path)[len(package_path) + 1:]
                     version = ''.join([i for i in package_version if i.isdigit()])
-                    update_source = "EvoX"
+                    update_source = "cheetah"
                     if nikgapps_dict is not None:
                         gapps_dict = nikgapps_dict
                     f_dict = {"file_path": file_path, "version": package_version, "update_source": update_source,

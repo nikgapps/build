@@ -31,6 +31,7 @@ class Operations:
 
     @staticmethod
     def get_tracker_dict(oem, android_version, tracker_repo, appsets=None):
+        oem = oem.lower()
         if oem == "pixelexperience":
             return Operations.sync_with_pixel_experience_tracker(android_version, tracker_repo, appsets,
                                                                  return_dict=True)
@@ -49,7 +50,6 @@ class Operations:
     def get_tracker(android_version, tracker_repo, oem):
         repo_dir = tracker_repo.working_tree_dir
         if FileOp.dir_exists(repo_dir):
-            print(f"{repo_dir} exists!")
             tracker_file = repo_dir + C.dir_sep + android_version + C.dir_sep + f"{oem}_{android_version}.json"
             if FileOp.file_exists(tracker_file):
                 return tracker_file, True
@@ -59,6 +59,26 @@ class Operations:
         else:
             print(f"{repo_dir} doesn't exist!")
         return None, False
+
+    @staticmethod
+    def get_oem_repo_dir(oem, android_version):
+        oem = oem.lower()
+        if oem == "pixelexperience":
+            pe = PixelExperience(android_version)
+            return pe.repo_dir
+        elif oem == "evox":
+            evox = EvoX(android_version)
+            return evox.repo_dir
+        elif oem == "apk_mirror":
+            # this is TBD, we need to create a repo and then add the apks there
+            return None
+        elif oem == "nikgapps":
+            ng = NikGapps(android_version)
+            return ng.repo_dir
+        elif oem == "cheetah":
+            cheetah = Cheetah(android_version)
+            return cheetah.repo_dir
+        return None
 
     @staticmethod
     def sync_with_nikgapps_tracker(android_version, tracker_repo=None, return_dict=False):
@@ -137,24 +157,29 @@ class Operations:
 
     @staticmethod
     def update_nikgapps_controller_version(controller_dict_file, appset_dict, oem_dict, oem):
+        oem = oem.lower()
         controller_dict = Json.read_dict_from_file(controller_dict_file)
         if controller_dict is not None:
             for appset in controller_dict:
                 if appset in appset_dict:
                     for pkg_dict in controller_dict[appset]:
                         for pkg in pkg_dict:
-                            for file_dict in pkg_dict[pkg]:
-                                oem_pkg_dict = oem_dict[pkg]
-                                if oem_pkg_dict is not None:
-                                    # file_name = str(Path(file_dict["file_path"]).name)
-                                    oem_pkg_dict: dict
-                                    # oem_length = len(oem_pkg_dict)
-                                    for oem_file in oem_pkg_dict:
-                                        oem_pkg = oem_file["package"]
-                                        if oem_pkg == pkg:
-                                            # oem_file_name = str(Path(oem_file["file"]).name)
-                                            file_dict[f"{oem}_version"] = oem_file["version"]
-                                            file_dict[f"{oem}_version_code"] = oem_file["version_code"]
+                            if pkg in oem_dict:
+                                for file_dict in pkg_dict[pkg]:
+                                    oem_pkg_dict = oem_dict[pkg]
+                                    if oem_pkg_dict is not None:
+                                        # file_name = str(Path(file_dict["file_path"]).name)
+                                        oem_pkg_dict: dict
+                                        # oem_length = len(oem_pkg_dict)
+                                        for oem_file in oem_pkg_dict:
+                                            oem_pkg = oem_file["package"]
+                                            if oem_pkg == pkg:
+                                                # oem_file_name = str(Path(oem_file["file"]).name)
+                                                file_dict[f"{oem}_version"] = oem_file["version"]
+                                                file_dict[f"{oem}_version_code"] = oem_file["version_code"]
+                                                file_dict[f"{oem}_location"] = oem_file["location"]
+                            else:
+                                print(f"Package {pkg} not found in {oem}!")
             Json.write_dict_to_file(controller_dict, controller_dict_file)
             return True
         return False
@@ -172,9 +197,13 @@ class Operations:
         if list_of_appsets is not None:
             for appset in list_of_appsets:
                 for app in NikGappsPackages.get_packages(appset):
-                    appset_list.append(app)
+                    if app is not None:
+                        appset_list.append(app)
         else:
             appset_list = NikGappsPackages.get_packages("all")
+        if len(appset_list) == 0:
+            print("No appsets found!")
+            return None
         n_gapps_dict = n.get_nikgapps_controller(appset_list=appset_list,
                                                  nikgapps_dict=Json.read_dict_from_file(tracker_file))
         if return_dict:

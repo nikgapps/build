@@ -17,6 +17,7 @@ class Sync:
             if appset not in list_of_appsets:
                 list_of_appsets.append(appset)
         for oem in list_of_supported_oems:
+            # sync the tracker to be on the latest version
             Operations.sync_tracker(android_version=android_version, oem=oem, appsets=list_of_appsets,
                                     tracker_repo=self.tracker_repo)
         Operations.sync_with_nikgapps_tracker(android_version, self.tracker_repo)
