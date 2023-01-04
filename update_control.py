@@ -12,6 +12,7 @@ sync_sources = True
 update_controller = True
 # Update the final updater file which will capture which appsets have updates available
 update_updater = True
+execute_updater = True
 args = Args()
 android_versions = args.get_android_versions()
 tracker_repo = GitOperations.setup_tracker_repo()
@@ -54,7 +55,6 @@ for android_version in android_versions:
                 tracker_repo.update_repo_changes(f"The app versions are updated for {oem} in {android_version}")
             else:
                 print(f"No update for {oem} in {android_version}")
-
     if update_updater:
         C.print_magenta(f"Working on {android_version}")
         update_dict = {}
@@ -86,9 +86,9 @@ for android_version in android_versions:
                                 update_available = False
                                 if int(temp_oem_version_code) > int(temp_version_code):
                                     update_available = True
-                                    C.print_green(f"Update available for {package} in {appset} in {android_version}")
+                                    C.print_green(f"Update available for {package}")
                                 else:
-                                    C.print_yellow(f"No update available for {package} in {appset} in {android_version}")
+                                    C.print_yellow(f"No update available for {package}")
                                 f_dict = {"oem": oem, "oem_source": file_source, "oem_version": file[f"{oem}_version"],
                                           "nikgapps_source": file["file_path"], "nikgapps_version": file["version"],
                                           "update_available": update_available}
@@ -109,8 +109,34 @@ for android_version in android_versions:
                                         pkg_dict = {package: [f_dict]}
                                         pkg_list.append(pkg_dict)
                             else:
-                                C.print_red(f"No update code found for {package} in {appset} in {android_version}")
+                                C.print_red(f"No update code found for {package}")
                         else:
                             C.print_red(f"No update indicator found for {package} in {appset} in {android_version}")
         Operations.update_nikgapps_updater_dict(android_version=android_version, update_dict=update_dict,
                                                 tracker_repo=tracker_repo)
+    if execute_updater:
+        updater_dict, isexists = Operations.get_updater_dict(android_version=android_version, tracker_repo=tracker_repo)
+        if updater_dict is None:
+            print(f"Failed to get updater dict for {android_version}")
+            continue
+        updater_dict = Json.read_dict_from_file(updater_dict)
+        for appset in updater_dict:
+            print(appset)
+            n_appset = Operations.get_nikgapps_appset(appset)
+            for packages in updater_dict[appset]:
+                for package in packages:
+                    print(package)
+                    n_package = Operations.get_nikgapps_package(n_appset, package)
+                    if n_package is None:
+                        print(f"Failed to get nikgapps package for {package}")
+                        continue
+                    for file in packages[package]:
+                        if file["update_available"]:
+                            nikgapps_version = file["nikgapps_version"]
+                            oem_version = file["oem_version"]
+                            C.print_green(f"Update available for {package} from {nikgapps_version} to {oem_version}")
+                            oem = file["oem"]
+                            oem_source = file["oem_source"]
+                            nikgapps_source = file["nikgapps_source"]
+                        else:
+                            C.print_yellow(f"No update available for {package}")

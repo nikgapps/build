@@ -14,7 +14,7 @@ class Cheetah(AndroidDump):
         self.oem = self.oem.lower()
         self.url = self.host + self.oem
         self.repo_dir = C.pwd + C.dir_sep + f"{self.oem}_" + str(android_version)
-        self.branch = "cheetah-user-13-TQ1A.221205.011-9244662-release-keys"
+        self.branch = self.get_latest_branch()
 
     def get_latest_branch(self):
         page_response = Requests.get(self.url + "/-/branches", headers=self.header)

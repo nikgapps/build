@@ -1,6 +1,6 @@
 import json
 
-from NikGapps.Helper import FileOp, C
+from NikGapps.Helper import FileOp, C, Package
 from NikGapps.Helper.Json import Json
 from NikGapps.OEM.ApkMirror import ApkMirror
 from NikGapps.OEM.Cheetah import Cheetah
@@ -81,6 +81,22 @@ class Operations:
         return None
 
     @staticmethod
+    def get_nikgapps_appset(appset):
+        appset_list = NikGappsPackages.get_packages(appset)
+        for app_set in appset_list:
+            if str(app_set.title).lower() == appset.lower():
+                return app_set
+        return None
+
+    @staticmethod
+    def get_nikgapps_package(appset, package):
+        for pkg in appset.package_list:
+            pkg: Package
+            if pkg.package_name == package:
+                return pkg
+        return None
+
+    @staticmethod
     def sync_with_nikgapps_tracker(android_version, tracker_repo=None, return_dict=False):
         if tracker_repo is None:
             tracker_repo = GitOperations.setup_tracker_repo()
@@ -111,7 +127,7 @@ class Operations:
             return None
 
     @staticmethod
-    def update_nikgapps_updater_dict(android_version, update_dict, tracker_repo=None):
+    def get_updater_dict(android_version, tracker_repo):
         if tracker_repo is None:
             tracker_repo = GitOperations.setup_tracker_repo()
             if tracker_repo is None:
@@ -119,8 +135,16 @@ class Operations:
                 return
         n = NikGapps(android_version)
         tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo, n.update_key)
-        Json.write_dict_to_file(update_dict, tracker_file)
-        tracker_repo.update_repo_changes(f"The updater for {android_version} is updated")
+        return tracker_file, isexists
+
+    @staticmethod
+    def update_nikgapps_updater_dict(android_version, update_dict, tracker_repo=None):
+        tracker_file, isexists = Operations.get_updater_dict(android_version, tracker_repo)
+        if isexists:
+            Json.write_dict_to_file(update_dict, tracker_file)
+            tracker_repo.update_repo_changes(f"The updater for {android_version} is updated")
+        else:
+            print("Updater File doesn't exist!")
 
     @staticmethod
     def get_oems_from_controller(android_version, tracker_repo=None, return_dict=False, return_file=False):
