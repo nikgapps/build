@@ -28,6 +28,9 @@ class Cheetah(AndroidDump):
                 if str(link['href']).startswith(f'/dumps/google/{self.oem}/'):
                     return link.text.strip()
 
+    def get_repo_dir(self):
+        return self.repo_dir
+
     def clone_gapps_image(self):
         print(f"Cloning {self.oem} GApps Image")
         if self.branch is None:

@@ -179,15 +179,15 @@ class C:
 
     @staticmethod
     def print_yellow(message):
-        print(Fore.YELLOW + message + Fore.RESET)
+        print(Fore.YELLOW + str(message) + Fore.RESET)
 
     @staticmethod
     def print_red(message):
-        print(Fore.RED + message + Fore.RESET)
+        print(Fore.RED + str(message) + Fore.RESET)
 
     @staticmethod
     def print_green(message):
-        print(Fore.GREEN + message + Fore.RESET)
+        print(Fore.GREEN + str(message) + Fore.RESET)
 
     @staticmethod
     def print_blue(message):
@@ -195,4 +195,4 @@ class C:
 
     @staticmethod
     def print_magenta(message):
-        print(Fore.MAGENTA + message + Fore.RESET)
+        print(Fore.MAGENTA + str(message) + Fore.RESET)

@@ -21,6 +21,9 @@ class NikGapps:
         self.version_key = f"{self.oem}_version_controller"
         self.update_key = f"{self.oem}_update_controller"
 
+    def get_repo_dir(self):
+        return self.repo_dir
+
     def android_version_supported(self, android_version):
         return android_version in self.android_dict
 
@@ -39,13 +42,11 @@ class NikGapps:
             return None
 
     def clone_gapps_image(self):
-        print("Cloning NikGapps Image")
         repo = Git(self.repo_dir)
         result = repo.clone_repo(self.repo_url, branch=self.branch, fresh_clone=False)
         return repo if result else None
 
     def get_gapps_dict(self, appset_list):
-        print("Getting NikGapps GApps Dict")
         gapps_dict = {}
         cmd = Cmd()
         for appset in appset_list:
@@ -96,7 +97,6 @@ class NikGapps:
         return gapps_dict
 
     def get_version_dict(self, appset_list, nikgapps_dict=None):
-        print("Getting NikGapps GApps Dict")
         gapps_dict = {}
         cmd = Cmd()
         for appset in appset_list:

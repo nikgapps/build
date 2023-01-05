@@ -17,15 +17,15 @@ class Operations:
     def sync_tracker(oem, android_version, tracker_repo=None, appsets=None):
         oem = oem.lower()
         if oem == "pixelexperience":
-            Operations.sync_with_pixel_experience_tracker(android_version, tracker_repo, appsets)
+            return Operations.sync_with_pixel_experience_tracker(android_version, tracker_repo, appsets)
         elif oem == "evox":
-            Operations.sync_with_evo_x_tracker(android_version, tracker_repo, appsets)
+            return Operations.sync_with_evo_x_tracker(android_version, tracker_repo, appsets)
         elif oem == "apk_mirror":
-            Operations.sync_with_apk_mirror(android_version, tracker_repo, appsets)
+            return Operations.sync_with_apk_mirror(android_version, tracker_repo, appsets)
         elif oem == "nikgapps":
-            Operations.sync_with_nikgapps_tracker(android_version, tracker_repo)
+            return Operations.sync_with_nikgapps_tracker(android_version, tracker_repo)
         elif oem == "cheetah":
-            Operations.sync_with_cheetah_tracker(android_version, tracker_repo, appsets)
+            return Operations.sync_with_cheetah_tracker(android_version, tracker_repo, appsets)
         else:
             raise Exception(f"Unknown OEM: {oem}")
 
@@ -47,8 +47,7 @@ class Operations:
             raise Exception(f"Unknown OEM: {oem}")
 
     @staticmethod
-    def get_tracker(android_version, tracker_repo, oem):
-        repo_dir = tracker_repo.working_tree_dir
+    def get_tracker(android_version, repo_dir, oem):
         if FileOp.dir_exists(repo_dir):
             tracker_file = repo_dir + C.dir_sep + android_version + C.dir_sep + f"{oem}_{android_version}.json"
             if FileOp.file_exists(tracker_file):
@@ -97,14 +96,9 @@ class Operations:
         return None
 
     @staticmethod
-    def sync_with_nikgapps_tracker(android_version, tracker_repo=None, return_dict=False):
-        if tracker_repo is None:
-            tracker_repo = GitOperations.setup_tracker_repo()
-            if tracker_repo is None:
-                print("Failed to setup tracker repo!")
-                return None
+    def sync_with_nikgapps_tracker(android_version, tracker_repo, return_dict=False):
         n = NikGapps(android_version)
-        tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo, n.tracker_key)
+        tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo.working_tree_dir, n.tracker_key)
         if tracker_file is not None:
             n_gapps_dict = n.get_nikgapps_dict(NikGappsPackages.get_packages("all"))
             if return_dict:
@@ -112,13 +106,13 @@ class Operations:
             if n_gapps_dict is not None:
                 Json.write_dict_to_file(n_gapps_dict, tracker_file)
                 if isexists:
-                    print(f"Updated {tracker_file}")
+                    print(f"Updating {tracker_file}")
                     tracker_repo.update_repo_changes("Synced with NikGapps Tracker for " + android_version)
                 else:
                     print("File is empty!")
                     tracker_repo.update_repo_changes(
                         "Initial commit for NikGapps tracker for android version: " + android_version)
-                return n_gapps_dict
+                return tracker_file
             else:
                 print("Failed to get NikGapps GApps Dict!")
                 return None
@@ -134,7 +128,7 @@ class Operations:
                 print("Failed to setup tracker repo!")
                 return
         n = NikGapps(android_version)
-        tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo, n.update_key)
+        tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo.working_tree_dir, n.update_key)
         return tracker_file, isexists
 
     @staticmethod
@@ -154,7 +148,7 @@ class Operations:
                 print("Failed to setup tracker repo!")
                 return
         n = NikGapps(android_version)
-        tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo, n.version_key)
+        tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo.working_tree_dir, n.version_key)
         if return_file:
             return tracker_file
         nikgapps_dict = Json.read_dict_from_file(tracker_file)
@@ -221,14 +215,7 @@ class Operations:
         return False
 
     @staticmethod
-    def update_nikgapps_controller(android_version, list_of_appsets=None, tracker_repo=None, return_dict=False):
-        if tracker_repo is None:
-            tracker_repo = GitOperations.setup_tracker_repo()
-            if tracker_repo is None:
-                print("Failed to setup tracker repo!")
-                return None
-        n = NikGapps(android_version)
-        tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo, n.version_key)
+    def get_nikgapps_controller_app_sets(list_of_appsets):
         appset_list = []
         if list_of_appsets is not None:
             for appset in list_of_appsets:
@@ -240,23 +227,28 @@ class Operations:
         if len(appset_list) == 0:
             print("No appsets found!")
             return None
+        return appset_list
+
+    @staticmethod
+    def update_nikgapps_controller(android_version, tracker_repo, list_of_appsets=None):
+        n = NikGapps(android_version)
+        tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo.working_tree_dir, n.version_key)
+        appset_list = Operations.get_nikgapps_controller_app_sets(list_of_appsets)
         n_gapps_dict = n.get_nikgapps_controller(appset_list=appset_list,
                                                  nikgapps_dict=Json.read_dict_from_file(tracker_file))
-        if return_dict:
-            return n_gapps_dict
         if tracker_file is not None:
             if n_gapps_dict is not None:
                 Json.write_dict_to_file(n_gapps_dict, tracker_file)
                 if isexists:
                     print(f"Updating {tracker_file}")
-                    tracker_repo.update_repo_changes("Synced with NikGapps Tracker for " + android_version)
+                    tracker_repo.update_repo_changes("Synced with NikGapps Controller for " + android_version)
                 else:
                     print("File is empty!")
                     tracker_repo.update_repo_changes(
-                        "Initial commit for NikGapps tracker for android version: " + android_version)
-                return n_gapps_dict
+                        "Initial commit for NikGapps Controller for android version: " + android_version)
+                return tracker_file
             else:
-                print("NikGapps Tracker is None!")
+                print("NikGapps Controller is None!")
                 return None
         else:
             print("NikGapps Tracker is None!")
@@ -270,7 +262,7 @@ class Operations:
                 print("Failed to setup tracker repo!")
                 return None
         c = Cheetah(android_version)
-        tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo, c.oem)
+        tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo.working_tree_dir, c.oem)
         if tracker_file is not None:
             c_gapps_dict = c.get_gapps_dict()
             if return_dict:
@@ -278,13 +270,13 @@ class Operations:
             if c_gapps_dict is not None:
                 Json.write_dict_to_file(c_gapps_dict, tracker_file)
                 if isexists:
-                    print(f"Updated {tracker_file}")
+                    print(f"Updating {tracker_file}")
                     tracker_repo.update_repo_changes("Synced with Cheetah Tracker for " + android_version)
                 else:
                     print("File is empty!")
                     tracker_repo.update_repo_changes(
                         "Initial commit for Cheetah tracker for android version: " + android_version)
-                return c_gapps_dict
+                return tracker_file
             else:
                 print("Failed to get Cheetah GApps Dict!")
                 return None
@@ -300,7 +292,7 @@ class Operations:
                 print("Failed to setup tracker repo!")
                 return None
         evo = EvoX(android_version)
-        tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo, evo.oem)
+        tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo.working_tree_dir, evo.oem)
         if tracker_file is not None:
             evo_gapps_dict = evo.get_evo_x_dict()
             if return_dict:
@@ -308,13 +300,13 @@ class Operations:
             if evo_gapps_dict is not None:
                 Json.write_dict_to_file(evo_gapps_dict, tracker_file)
                 if isexists:
-                    print(f"Updated {tracker_file}")
+                    print(f"Updating {tracker_file}")
                     tracker_repo.update_repo_changes("Synced with Evo X Tracker for " + android_version)
                 else:
                     print("File is empty!")
                     tracker_repo.update_repo_changes(
                         "Initial commit for Evo X tracker for android version: " + android_version)
-                return evo_gapps_dict
+                return tracker_file
             else:
                 print("Evo X Tracker is None!")
                 return None
@@ -333,7 +325,7 @@ class Operations:
         if not pe.is_supported:
             print(f"{android_version} is not supported by at the moment!")
             return None
-        tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo, pe.oem)
+        tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo.working_tree_dir, pe.oem)
         if tracker_file is not None:
             pixel_experience_dict = pe.get_pixel_experience_dict()
             if return_dict:
@@ -341,12 +333,12 @@ class Operations:
             if pixel_experience_dict is not None:
                 Json.write_dict_to_file(pixel_experience_dict, tracker_file)
                 if isexists:
-                    print(f"Updated {tracker_file}")
+                    print(f"Updating {tracker_file}")
                     tracker_repo.update_repo_changes("Synced with PixelExperience Tracker")
                 else:
                     print("File is empty!")
                     tracker_repo.update_repo_changes("Initial commit for Pixel Experience tracker")
-                return pixel_experience_dict
+                return tracker_file
             else:
                 print("Pixel Experience Tracker is None!")
                 return None
@@ -362,7 +354,7 @@ class Operations:
                 print("Failed to setup tracker repo!")
                 return None
         am = ApkMirror(android_version)
-        apk_mirror_tracker, isexists = Operations.get_tracker(android_version, tracker_repo, am.oem)
+        apk_mirror_tracker, isexists = Operations.get_tracker(android_version, tracker_repo.working_tree_dir, am.oem)
         if apk_mirror_tracker is not None:
             appset_list = []
             if appsets is not None:
@@ -376,13 +368,13 @@ class Operations:
             if am_dict is not None:
                 Json.write_dict_to_file(am_dict, apk_mirror_tracker)
                 if isexists:
-                    print(f"Updated {apk_mirror_tracker}")
+                    print(f"Updating {apk_mirror_tracker}")
                     tracker_repo.update_repo_changes("Synced with Apk Mirror Tracker for " + android_version)
                 else:
                     print("File is empty!")
                     tracker_repo.update_repo_changes(
                         "Initial commit for Apk Mirror tracker for android version: " + android_version)
-                return am_dict
+                return apk_mirror_tracker
             else:
                 print("Failed to get Apk Mirror Dict!")
                 return None

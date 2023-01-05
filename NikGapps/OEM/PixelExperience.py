@@ -18,6 +18,9 @@ class PixelExperience:
     def android_version_supported(self, android_version):
         return android_version in self.android_dict
 
+    def get_repo_dir(self):
+        return self.repo_dir
+
     def get_pixel_experience_dict(self):
         if self.clone_gapps_image() is not None:
             return self.get_gapps_dict()
