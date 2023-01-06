@@ -48,7 +48,7 @@ for android_version in android_versions:
                                                          appset_dict=appset_oem_dict, oem_dict=tracker_file_dict,
                                                          oem=oem):
             print(f"Updating controller for {oem} in {android_version}")
-            # tracker_repo.update_repo_changes(f"The app versions are updated for {oem} in {android_version}")
+            tracker_repo.update_repo_changes(f"The app versions are updated for {oem} in {android_version}")
         else:
             print(f"No update for {oem} in {android_version}")
 
