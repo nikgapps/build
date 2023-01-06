@@ -12,7 +12,7 @@ class NikGapps:
         self.oem = "nikgapps"
         self.oem = self.oem.lower()
         self.repo_dir = C.pwd + C.dir_sep + f"{self.oem}_" + str(self.android_version)
-        self.repo_url = f"https://gitlab.com/{self.oem}/{str(self.android_version)}.git"
+        self.repo_url = f"git@gitlab.com:{self.oem}/{str(self.android_version)}.git"
         self.android_dict = {}
         for v in Config.ANDROID_VERSIONS:
             self.android_dict[v] = "canary" if branch is None else branch
