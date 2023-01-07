@@ -29,7 +29,7 @@ class Operation:
         apk_source_repo = C.apk_source_repo + str(android_version) + ".git"
         repository = Git(apk_source_directory)
         result = repository.clone_repo(repo_url=apk_source_repo, fresh_clone=fresh_clone, branch=branch)
-        return repository.repo if result else None
+        return repository if result else None
 
     @staticmethod
     def get_last_commit_date(repo_dir=C.cwd, repo_url=None,
