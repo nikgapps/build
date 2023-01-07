@@ -104,7 +104,8 @@ class Operation:
         website_repo = None
         source_last_commit_datetime = None
         if git_check:
-            source_last_commit_datetime = self.get_last_commit_date(branch="main")
+            source_last_commit_datetime = self.get_last_commit_date(
+                branch="main" if Config.RELEASE_TYPE.__eq__("stable") else "dev")
             print(f"Last {str(Config.RELEASE_TYPE).capitalize()} Source Commit: " + str(source_last_commit_datetime))
             release_repo = self.get_release_repo()
             website_repo = self.get_website_repo_for_changelog()
