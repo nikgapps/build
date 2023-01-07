@@ -134,10 +134,6 @@ class Operation:
                     Config.BUILD_PACKAGE_LIST.append("go")
                 C.update_android_version_dependencies()
                 today = datetime.now(pytz.timezone('Europe/London')).strftime("%a")
-                if Config.RELEASE_TYPE.__eq__("canary"):
-                    C.update_sourceforge_release_directory("canary")
-                else:
-                    C.update_sourceforge_release_directory("")
                 Release.zip(package_list, upload)
                 if release_repo is not None and git_check:
                     release_repo.git_push(str(android_version) + ": " + str(commit_message))
