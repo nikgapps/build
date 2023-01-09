@@ -8,12 +8,13 @@ from NikGapps.Web.Requests import Requests
 
 
 class Cheetah(AndroidDump):
-    def __init__(self, android_version):
+    def __init__(self, android_version, gapps_dict=None):
         super().__init__()
         self.oem = "cheetah"
         self.oem = self.oem.lower()
         self.url = self.host + self.oem
         self.repo_dir = C.pwd + C.dir_sep + f"{self.oem}_" + str(android_version)
+        self.gapps_dict = {} if gapps_dict is None else gapps_dict
         self.branch = self.get_latest_branch()
 
     def get_latest_branch(self):
@@ -50,7 +51,7 @@ class Cheetah(AndroidDump):
 
     def get_android_dump_dict(self):
         supported_partitions = ["system", "system_ext", "product", "vendor"]
-        gapps_dict = {}
+        self.gapps_dict = {"branch": self.branch}
         cmd = Cmd()
         for partition in supported_partitions:
             supported_types = {"priv-app": "priv-app", "app": "app"}
@@ -70,11 +71,36 @@ class Cheetah(AndroidDump):
                         g_dict = {"partition": partition, "type": supported_types[supported_type],
                                   "folder": folder_name, "version_code": version,
                                   "file": file_path, "package": package_name, "version": package_version,
-                                  "md5": FileOp.get_md5(str(path)), "location": file_location}
-                        if package_name in gapps_dict:
-                            gapps_list = gapps_dict[package_name]
+                                  "location": file_location}
+                        if package_name in self.gapps_dict:
+                            gapps_list = self.gapps_dict[package_name]
                             gapps_list.append(g_dict)
                         else:
                             gapps_list.append(g_dict)
-                            gapps_dict[package_name] = gapps_list
-        return gapps_dict
+                            self.gapps_dict[package_name] = gapps_list
+        return self.gapps_dict
+
+    def get_file_list_dict(self, pkg):
+        oem_file_list_dict = {}
+        folder = None
+        file_list = []
+        # get the folder from the package as pkg is of primary apk, so that folder counts
+        for oem_pkg in self.gapps_dict:
+            if str(pkg).__eq__(str(oem_pkg)) and folder is None:
+                for oem_file in self.gapps_dict[oem_pkg]:
+                    folder = str(oem_file["folder"])
+                    break
+        if folder is not None:
+            for oem_pkg in self.gapps_dict:
+                if str(oem_pkg).__eq__("branch"):
+                    continue
+                for oem_file in self.gapps_dict[oem_pkg]:
+                    if str(folder).__eq__(str(oem_file["folder"])):
+                        f_dict = {"partition": oem_file["partition"], "type": oem_file["type"],
+                                  "folder": folder, "package": oem_file["package"],
+                                  "file": oem_file["file"], "version_code": oem_file["version_code"],
+                                  "version": oem_file["version"], "location": oem_file["location"]}
+                        file_list.append(f_dict)
+        if len(file_list) > 0:
+            oem_file_list_dict[pkg] = file_list
+        return oem_file_list_dict

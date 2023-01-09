@@ -58,7 +58,7 @@ class EvoX:
                         g_dict = {"partition": partition, "type": supported_types[supported_type],
                                   "folder": folder_name, "version_code": version,
                                   "file": file_path, "package": package_name, "version": package_version,
-                                  "md5": FileOp.get_md5(str(path)), "location": file_location}
+                                  "location": file_location}
                         if package_name in gapps_dict:
                             gapps_list = gapps_dict[package_name]
                             gapps_list.append(g_dict)

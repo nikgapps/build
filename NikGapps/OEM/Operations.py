@@ -215,6 +215,32 @@ class Operations:
         return False
 
     @staticmethod
+    def get_oem_file_list_dict(pkg, oem_dict):
+        oem_file_list_dict = {}
+        folder = None
+        file_list = []
+        # get the folder from the package as pkg is of primary apk, so that folder counts
+        for oem_pkg in oem_dict:
+            if str(pkg).__eq__(str(oem_pkg)) and folder is None:
+                for oem_file in oem_dict[oem_pkg]:
+                    folder = str(oem_file["folder"])
+                    break
+        if folder is not None:
+            for oem_pkg in oem_dict:
+                if str(oem_pkg).__eq__("branch"):
+                    continue
+                for oem_file in oem_dict[oem_pkg]:
+                    if str(folder).__eq__(str(oem_file["folder"])):
+                        f_dict = {"partition": oem_file["partition"], "type": oem_file["type"],
+                                  "folder": folder, "package": oem_file["package"],
+                                  "file": oem_file["file"], "version_code": oem_file["version_code"],
+                                  "version": oem_file["version"], "location": oem_file["location"]}
+                        file_list.append(f_dict)
+        if len(file_list) > 0:
+            oem_file_list_dict[pkg] = file_list
+        return oem_file_list_dict
+
+    @staticmethod
     def get_nikgapps_controller_app_sets(list_of_appsets):
         appset_list = []
         if list_of_appsets is not None:

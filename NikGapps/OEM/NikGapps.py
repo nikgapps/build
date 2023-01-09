@@ -1,8 +1,7 @@
 from pathlib import Path
 
 import Config
-from NikGapps.Helper import C, Git, Cmd, FileOp, Package
-from NikGappsPackages import NikGappsPackages
+from NikGapps.Helper import C, Git, Cmd, Package
 
 
 class NikGapps:
@@ -76,8 +75,7 @@ class NikGapps:
                     version = ''.join([i for i in package_version if i.isdigit()])
                     f_dict = {"partition": "system", "type": supported_type,
                               "folder": folder_name, "file": file_path, "package": package_name,
-                              "package_title": pkg_name, "version": package_version, "version_code": version,
-                              "md5": FileOp.get_md5(str(path))}
+                              "package_title": pkg_name, "version": package_version, "version_code": version}
                     if appset_name not in gapps_dict:
                         # the appset is new, so will be the package list
                         pkg_dict = {package_name: [f_dict]}
