@@ -44,8 +44,6 @@ class Rules:
         for packages in updater_dict[n_appset.title]:
             for package in packages:
                 print(package)
-                if not package.__eq__("com.android.vending"):
-                    continue
                 # all the files have update flag, so we can check the first file before performing any operations
                 update_available = False
                 for file in packages[package]:
