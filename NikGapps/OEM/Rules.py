@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from NikGapps.Helper import FileOp, Git, C
+from NikGapps.Helper import FileOp, C
 from NikGapps.Helper.Json import Json
 from NikGapps.OEM.Operations import Operations
 
@@ -16,6 +16,7 @@ class Rules:
         nikgapps_repo = oem_repo_dict["nikgapps"]
         working_dir = os.path.join(nikgapps_repo, n_appset_title, n_package.package_title)
         folders_to_delete = []
+        changelog = {}
         # operation on nikgapps
         for file in Path(working_dir).rglob("*.apk*"):
             if str(file).__contains__("overlay"):
@@ -37,10 +38,13 @@ class Rules:
             print(source)
             print(destination)
             FileOp.copy_file(source, destination)
+            if file["package"] == n_package.package_name:
+                changelog[n_package.package_title] = file["version"]
             print("")
+        return changelog
 
     @staticmethod
-    def update_appset(n_appset, updater_dict, oem_repo_dict, oem_tracker_dict):
+    def update_appset(n_appset, updater_dict, oem_repo_dict, oem_tracker_dict, changelog_dict):
         for packages in updater_dict[n_appset.title]:
             for package in packages:
                 print(package)
@@ -60,5 +64,6 @@ class Rules:
                         continue
                     match package:
                         case _:
-                            Rules.update_package(n_package, oem, n_appset.title, oem_repo_dict,
-                                                 oem_tracker_dict)
+                            changelog = Rules.update_package(n_package, oem, n_appset.title, oem_repo_dict,
+                                                             oem_tracker_dict)
+                    changelog_dict[n_package.package_title] = changelog[n_package.package_title]

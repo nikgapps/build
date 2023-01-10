@@ -19,6 +19,7 @@ class NikGapps:
         self.tracker_key = self.oem
         self.version_key = f"{self.oem}_version_controller"
         self.update_key = f"{self.oem}_update_controller"
+        self.changelog_key = f"{self.oem}_changelog_controller"
 
     def get_repo_dir(self):
         return self.repo_dir

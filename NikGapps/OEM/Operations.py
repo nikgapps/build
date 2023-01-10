@@ -256,6 +256,20 @@ class Operations:
         return appset_list
 
     @staticmethod
+    def get_changelog_controller(android_version, tracker_repo):
+        n = NikGapps(android_version)
+        tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo.working_tree_dir, n.changelog_key)
+        if isexists:
+            return tracker_file
+        else:
+            # create an empty changelog file
+            Json.write_dict_to_file({}, tracker_file)
+            print("File is empty!")
+            tracker_repo.update_repo_changes(
+                "Initial commit for Changelog Controller for android version: " + android_version)
+            return tracker_file
+
+    @staticmethod
     def update_nikgapps_controller(android_version, tracker_repo, list_of_appsets=None):
         n = NikGapps(android_version)
         tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo.working_tree_dir, n.version_key)

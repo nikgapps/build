@@ -76,6 +76,17 @@ class Git:
             return commit_datetime
         return None
 
+    def get_changed_files(self):
+        files_list = []
+        files = self.repo.git.diff(None, name_only=True)
+        if files != "":
+            for f in files.split('\n'):
+                files_list.append(f)
+        if self.repo.untracked_files.__len__() > 0:
+            for f in self.repo.untracked_files:
+                files_list.append(f)
+        return files_list
+
     def due_changes(self):
         files = self.repo.git.diff(None, name_only=True)
         if files != "":

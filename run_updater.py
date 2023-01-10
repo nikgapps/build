@@ -1,5 +1,4 @@
-import os
-from pathlib import Path
+from datetime import datetime
 
 from NikGapps.Helper import Args, Git
 from NikGapps.Git.Operations import Operations as GitOperations
@@ -70,36 +69,63 @@ for android_version in android_versions:
                                 len_of_oem_version_code / 2)] if len_of_oem_version_code > 6 else oem_version_code
                             temp_version_code = version_code[:int(
                                 len_of_oem_version_code / 2)] if len_of_oem_version_code > 6 else version_code
-                            update_available = False
                             if int(temp_oem_version_code) > int(temp_version_code):
-                                update_available = True
-                            f_dict = {"oem": oem, "oem_source": file_source, "oem_version": file[f"{oem}_version"],
-                                      "nikgapps_source": file["file_path"], "nikgapps_version": file["version"],
-                                      "update_available": update_available}
-                            if appset not in update_dict:
-                                # the appset is new, so will be the package list
-                                pkg_dict = {package: [f_dict]}
-                                pkg_list = [pkg_dict]
-                                update_dict[appset] = pkg_list
-                            else:
-                                pkg_list = update_dict[appset]
-                                pkg_found = False
-                                for pkg_dict in pkg_list:
-                                    if package in pkg_dict:
-                                        pkg_dict[package].append(f_dict)
-                                        pkg_found = True
-                                        break
-                                if not pkg_found:
+                                f_dict = {"oem": oem, "oem_source": file_source, "oem_version": file[f"{oem}_version"],
+                                          "nikgapps_source": file["file_path"], "nikgapps_version": file["version"],
+                                          "update_available": True}
+                                if appset not in update_dict:
+                                    # the appset is new, so will be the package list
                                     pkg_dict = {package: [f_dict]}
-                                    pkg_list.append(pkg_dict)
+                                    pkg_list = [pkg_dict]
+                                    update_dict[appset] = pkg_list
+                                else:
+                                    pkg_list = update_dict[appset]
+                                    pkg_found = False
+                                    for pkg_dict in pkg_list:
+                                        if package in pkg_dict:
+                                            pkg_dict[package].append(f_dict)
+                                            pkg_found = True
+                                            break
+                                    if not pkg_found:
+                                        pkg_dict = {package: [f_dict]}
+                                        pkg_list.append(pkg_dict)
     Operations.update_nikgapps_updater_dict(android_version=android_version, update_dict=update_dict,
                                             tracker_repo=tracker_repo)
     # execute updater
+    changelog_file = Operations.get_changelog_controller(android_version=android_version, tracker_repo=tracker_repo)
+    changelog_dict = Json.read_dict_from_file(changelog_file)
     updater_dict, isexists = Operations.get_updater_dict(android_version=android_version, tracker_repo=tracker_repo)
     updater_dict = Json.read_dict_from_file(updater_dict)
+    changelog = {}
     for appset in updater_dict:
         print(appset)
         n_appset = Operations.get_nikgapps_appset(appset)
-        Rules.update_appset(n_appset, updater_dict, oem_repo_dict, oem_tracker_dict)
+        Rules.update_appset(n_appset, updater_dict, oem_repo_dict, oem_tracker_dict, changelog)
     nikgapps_repo = Git(oem_repo_dict["nikgapps"])
-    nikgapps_repo.update_repo_changes(f"Updated {android_version} app versions")
+    today = datetime.utcnow().strftime('%Y-%m-%d')
+    for file in nikgapps_repo.get_changed_files():
+        package_title = file.split("/")[1]
+        if today not in changelog_dict:
+            changelog_dict[today] = []
+        if today in changelog_dict:
+            package_list = changelog_dict[today]
+            pkg_found = False
+            for pkg in package_list:
+                if package_title in pkg:
+                    pkg_found = True
+                    pkg[package_title] = changelog[package_title]
+                    break
+            if not pkg_found and package_title in changelog:
+                package_list.append({package_title: changelog[package_title]})
+        print(file)
+    commit_message = "Google Apps are updated as of " + str(today)
+    if today in changelog_dict:
+        package_list = changelog_dict[today]
+        for pkg_dict in package_list:
+            for key in pkg_dict:
+                commit_message += f"\n{key}: {pkg_dict[key]}"
+
+    print(commit_message)
+    nikgapps_repo.update_repo_changes(f"{commit_message}")
+    tracker_repo.update_repo_changes(f"{commit_message}")
+
