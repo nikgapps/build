@@ -230,7 +230,8 @@ class Operations:
                 if str(oem_pkg).__eq__("branch"):
                     continue
                 for oem_file in oem_dict[oem_pkg]:
-                    if str(folder).__eq__(str(oem_file["folder"])):
+                    file_pkg = oem_file["package"]
+                    if str(folder).__eq__(str(oem_file["folder"])) or str(pkg).__eq__(file_pkg):
                         f_dict = {"partition": oem_file["partition"], "type": oem_file["type"],
                                   "folder": folder, "package": oem_file["package"],
                                   "file": oem_file["file"], "version_code": oem_file["version_code"],
@@ -273,9 +274,16 @@ class Operations:
     def update_nikgapps_controller(android_version, tracker_repo, list_of_appsets=None):
         n = NikGapps(android_version)
         tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo.working_tree_dir, n.version_key)
+
+        controller_dict = Json.read_dict_from_file(tracker_file)
+        controller_oems, controller_appsets = Operations.get_oems_from_controller_dict(controller_dict)
+        if len(controller_appsets) > 0:
+            for appset in controller_appsets:
+                if appset not in list_of_appsets:
+                    list_of_appsets.append(appset)
         appset_list = Operations.get_nikgapps_controller_app_sets(list_of_appsets)
         n_gapps_dict = n.get_nikgapps_controller(appset_list=appset_list,
-                                                 nikgapps_dict=Json.read_dict_from_file(tracker_file))
+                                                 nikgapps_dict=controller_dict)
         if tracker_file is not None:
             if n_gapps_dict is not None:
                 Json.write_dict_to_file(n_gapps_dict, tracker_file)

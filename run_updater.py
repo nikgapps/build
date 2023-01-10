@@ -6,7 +6,7 @@ from NikGapps.Helper.Json import Json
 from NikGapps.OEM.Operations import Operations
 from NikGapps.OEM.Rules import Rules
 
-list_of_appsets = ["Core"]
+list_of_appsets = ["GoogleChrome"]
 update_all_oems = True
 args = Args()
 android_versions = args.get_android_versions()
@@ -119,11 +119,8 @@ for android_version in android_versions:
                 package_list.append({package_title: changelog[package_title]})
         print(file)
     commit_message = "Google Apps updated as of " + str(today)
-    if today in changelog_dict:
-        package_list = changelog_dict[today]
-        for pkg_dict in package_list:
-            for key in pkg_dict:
-                commit_message += f"\n{key}: {pkg_dict[key]}"
+    for key in changelog:
+        commit_message += f"\n{key}: {changelog[key]}"
     Json.write_dict_to_file(changelog_dict, changelog_file)
     nikgapps_repo.update_repo_changes(f"{commit_message}")
     tracker_repo.update_repo_changes(f"{commit_message}")
