@@ -118,7 +118,7 @@ for android_version in android_versions:
             if not pkg_found and package_title in changelog:
                 package_list.append({package_title: changelog[package_title]})
         print(file)
-    commit_message = "Google Apps are updated as of " + str(today)
+    commit_message = "Google Apps updated as of " + str(today)
     if today in changelog_dict:
         package_list = changelog_dict[today]
         for pkg_dict in package_list:
