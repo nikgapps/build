@@ -124,8 +124,7 @@ for android_version in android_versions:
         for pkg_dict in package_list:
             for key in pkg_dict:
                 commit_message += f"\n{key}: {pkg_dict[key]}"
-
-    print(commit_message)
+    Json.write_dict_to_file(changelog_dict, changelog_file)
     nikgapps_repo.update_repo_changes(f"{commit_message}")
     tracker_repo.update_repo_changes(f"{commit_message}")
 
