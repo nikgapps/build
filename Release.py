@@ -25,7 +25,7 @@ class Release:
                         "addons") + C.dir_sep + "NikGapps-Addon-"
                                         + C.android_version_folder + "-" + app_set.title + "-" + str(
                         Logs.get_current_time()) + ".zip", [app_set], upload=upload)
-            elif pkg_type == "debloater":
+            elif str(pkg_type).lower() == "debloater":
                 if Config.CREATE_DEBLOATER_ZIP:
                     file_name = C.release_directory + C.dir_sep + "Debloater-" + str(
                         Logs.get_current_time()) + ".zip"

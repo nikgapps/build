@@ -56,9 +56,11 @@ class NikGapps:
                     continue
                 package_path = self.repo_dir + C.dir_sep + appset.title + C.dir_sep + pkg.package_title
                 for path in Path(package_path).rglob("*.apk"):
-                    if "overlay" in str(path) or "split" in str(path):
+                    path = str(path)
+                    if "overlay" in path or "split" in path:
                         continue
-                    file_path = str(path)[len(self.repo_dir) + 1:]
+                    file_path = path[len(self.repo_dir) + 1:]
+                    file_size = C.get_file_bytes(path)
                     path_split = file_path.split("/")
                     appset_name = path_split[0]
                     pkg_name = path_split[1]
@@ -70,13 +72,15 @@ class NikGapps:
                         supported_type = "app"
                     folder_name = supported_type if supported_type == "unknown" else folder_name[
                                                                                      len(supported_type) + 6:]
-                    package_name = cmd.get_package_name(str(path))
-                    package_version = cmd.get_package_version(str(path))
-                    file_path = str(path)[len(package_path) + 1:]
+                    package_name = cmd.get_package_name(path)
+                    package_version = cmd.get_package_version(path)
+                    version_code = cmd.get_package_version_code(path)
+                    file_path = path[len(package_path) + 1:]
                     version = ''.join([i for i in package_version if i.isdigit()])
                     f_dict = {"partition": "system", "type": supported_type,
                               "folder": folder_name, "file": file_path, "package": package_name,
-                              "package_title": pkg_name, "version": package_version, "version_code": version}
+                              "package_title": pkg_name, "version": package_version, "version_code": version_code,
+                              "v_code": version, "size": file_size}
                     if appset_name not in gapps_dict:
                         # the appset is new, so will be the package list
                         pkg_dict = {package_name: [f_dict]}
@@ -105,20 +109,24 @@ class NikGapps:
                     continue
                 package_path = self.repo_dir + C.dir_sep + appset.title + C.dir_sep + pkg.package_title
                 for path in Path(package_path).rglob("*.apk"):
-                    if "overlay" in str(path) or "split" in str(path):
+                    path = str(path)
+                    if "overlay" in path or "split" in path:
                         continue
-                    file_path = str(path)[len(self.repo_dir) + 1:]
+                    file_path = path[len(self.repo_dir) + 1:]
+                    file_size = C.get_file_bytes(path)
                     path_split = file_path.split("/")
                     appset_name = path_split[0]
-                    package_name = cmd.get_package_name(str(path))
-                    package_version = cmd.get_package_version(str(path))
-                    file_path = str(path)[len(package_path) + 1:]
+                    package_name = cmd.get_package_name(path)
+                    package_version = cmd.get_package_version(path)
+                    version_code = cmd.get_package_version_code(path)
+                    file_path = path[len(package_path) + 1:]
                     version = ''.join([i for i in package_version if i.isdigit()])
                     update_source = "cheetah"
                     if nikgapps_dict is not None:
                         gapps_dict = nikgapps_dict
                     f_dict = {"file_path": file_path, "version": package_version, "update_source": update_source,
-                              "update_indicator": "1", "version_code": version}
+                              "update_indicator": "1", "version_code": version_code, "v_code": version,
+                              "size": file_size}
                     if appset_name not in gapps_dict:
                         # the appset is new, so will be the package list
                         pkg_dict = {package_name: [f_dict]}

@@ -9,6 +9,19 @@ from NikGapps.OEM.Operations import Operations
 class Rules:
 
     @staticmethod
+    def is_update_available(oem_v_code, nikgapps_v_code, oem_version_code, nikgapps_version_code, oem_size,
+                            nikgapps_size):
+        if oem_v_code > nikgapps_v_code:
+            return True
+        elif oem_v_code == nikgapps_v_code:
+            if oem_version_code > nikgapps_version_code:
+                return True
+            elif oem_version_code == nikgapps_version_code:
+                if oem_size > nikgapps_size:
+                    return True
+        return False
+
+    @staticmethod
     def update_package(n_package, oem, n_appset_title, oem_repo_dict, oem_tracker_dict):
         oem_repo = oem_repo_dict[oem]
         oem_dict = Json.read_dict_from_file(oem_tracker_dict[oem])

@@ -6,7 +6,7 @@ from NikGapps.Helper.Json import Json
 from NikGapps.OEM.Operations import Operations
 from NikGapps.OEM.Rules import Rules
 
-list_of_appsets = ["GoogleChrome"]
+list_of_appsets = []
 update_all_oems = True
 args = Args()
 android_versions = args.get_android_versions()
@@ -52,7 +52,7 @@ for android_version in android_versions:
             tracker_repo.update_repo_changes(f"The app versions are updated for {oem} in {android_version}")
         else:
             print(f"No update for {oem} in {android_version}")
-
+    n_version_controller_dict = Json.read_dict_from_file(n_version_controller_file)
     update_dict = {}
     for appset in n_version_controller_dict:
         for packages in n_version_controller_dict[appset]:
@@ -61,17 +61,25 @@ for android_version in android_versions:
                     if file["update_indicator"] == "1":
                         oem = file["update_source"]
                         version_code = file["version_code"]
+                        v_code = file["v_code"]
+                        size = file["size"]
                         if f"{oem}_version_code" in file:
                             oem_version_code = file[f"{oem}_version_code"]
+                            oem_v_code = file[f"{oem}_v_code"]
+                            oem_size = file[f"{oem}_size"]
                             file_source = file[f"{oem}_location"]
-                            len_of_oem_version_code = len(oem_version_code)
-                            temp_oem_version_code = oem_version_code[:int(
-                                len_of_oem_version_code / 2)] if len_of_oem_version_code > 6 else oem_version_code
-                            temp_version_code = version_code[:int(
-                                len_of_oem_version_code / 2)] if len_of_oem_version_code > 6 else version_code
-                            if int(temp_oem_version_code) > int(temp_version_code):
+                            len_of_oem_ver_code = len(oem_version_code)
+                            len_of_oem_ver_code = int(
+                                len_of_oem_ver_code / 2) if len_of_oem_ver_code > 10 else len_of_oem_ver_code
+                            temp_oem_version_code = oem_version_code[:len_of_oem_ver_code]
+                            temp_version_code = version_code[:len_of_oem_ver_code]
+                            if Rules.is_update_available(oem_v_code, v_code, temp_oem_version_code, temp_version_code,
+                                                         oem_size, size):
                                 f_dict = {"oem": oem, "oem_source": file_source, "oem_version": file[f"{oem}_version"],
+                                          f"{oem}_size": oem_size, f"{oem}_version_code": oem_version_code,
+                                          f"{oem}_v_code": oem_v_code,
                                           "nikgapps_source": file["file_path"], "nikgapps_version": file["version"],
+                                          "size": size, "version_code": version_code, "v_code": v_code,
                                           "update_available": True}
                                 if appset not in update_dict:
                                     # the appset is new, so will be the package list
@@ -94,8 +102,10 @@ for android_version in android_versions:
     # execute updater
     changelog_file = Operations.get_changelog_controller(android_version=android_version, tracker_repo=tracker_repo)
     changelog_dict = Json.read_dict_from_file(changelog_file)
-    updater_dict, isexists = Operations.get_updater_dict(android_version=android_version, tracker_repo=tracker_repo)
-    updater_dict = Json.read_dict_from_file(updater_dict)
+    updater_file, isexists = Operations.get_updater_dict(android_version=android_version, tracker_repo=tracker_repo)
+    updater_dict = {}
+    if isexists:
+        updater_dict = Json.read_dict_from_file(updater_file)
     changelog = {}
     for appset in updater_dict:
         print(appset)
@@ -124,4 +134,3 @@ for android_version in android_versions:
     Json.write_dict_to_file(changelog_dict, changelog_file)
     nikgapps_repo.update_repo_changes(f"{commit_message}")
     tracker_repo.update_repo_changes(f"{commit_message}")
-

@@ -46,18 +46,21 @@ class PixelExperience:
                                 "packages" + C.dir_sep + supported_type + C.dir_sep
                 for path in Path(partition_dir).rglob("*.apk"):
                     if path.is_file():
+                        path = str(path)
+                        file_size = C.get_file_bytes(path)
                         file_path = str(path)
                         file_location = file_path[len(self.repo_dir) + 1:]
                         file_path = file_path[len(partition_dir):]
                         folder_name = file_path.split("/")[0]
                         package_name = cmd.get_package_name(str(path))
                         package_version = cmd.get_package_version(str(path))
+                        version_code = cmd.get_package_version_code(str(path))
                         version = ''.join([i for i in package_version if i.isdigit()])
                         gapps_list = []
                         g_dict = {"partition": partition, "type": supported_types[supported_type],
-                                  "folder": folder_name, "version_code": version,
+                                  "folder": folder_name, "version_code": version_code,
                                   "file": file_path, "package": package_name, "version": package_version,
-                                  "location": file_location}
+                                  "v_code:": version, "location": file_location, "size": file_size}
                         if folder_name in gapps_dict:
                             gapps_list = gapps_dict[folder_name]
                             gapps_list.append(g_dict)

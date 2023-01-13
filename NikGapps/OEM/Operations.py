@@ -82,9 +82,10 @@ class Operations:
     @staticmethod
     def get_nikgapps_appset(appset):
         appset_list = NikGappsPackages.get_packages(appset)
-        for app_set in appset_list:
-            if str(app_set.title).lower() == appset.lower():
-                return app_set
+        if appset_list is not None:
+            for app_set in appset_list:
+                if str(app_set.title).lower() == appset.lower():
+                    return app_set
         return None
 
     @staticmethod
@@ -134,11 +135,8 @@ class Operations:
     @staticmethod
     def update_nikgapps_updater_dict(android_version, update_dict, tracker_repo=None):
         tracker_file, isexists = Operations.get_updater_dict(android_version, tracker_repo)
-        if isexists:
-            Json.write_dict_to_file(update_dict, tracker_file)
-            tracker_repo.update_repo_changes(f"The updater for {android_version} is updated")
-        else:
-            print("Updater File doesn't exist!")
+        Json.write_dict_to_file(update_dict, tracker_file)
+        tracker_repo.update_repo_changes(f"The updater for {android_version} is updated")
 
     @staticmethod
     def get_oems_from_controller(android_version, tracker_repo=None, return_dict=False, return_file=False):
@@ -202,11 +200,17 @@ class Operations:
                                         oem_pkg_dict: dict
                                         # oem_length = len(oem_pkg_dict)
                                         for oem_file in oem_pkg_dict:
+                                            file_name = oem_file["file"]
+                                            if file_name.endswith(".apk.gz"):
+                                                print(f"Updating {file_name} for {oem}")
+                                                continue
                                             oem_pkg = oem_file["package"]
                                             if oem_pkg == pkg:
                                                 # oem_file_name = str(Path(oem_file["file"]).name)
                                                 file_dict[f"{oem}_version"] = oem_file["version"]
                                                 file_dict[f"{oem}_version_code"] = oem_file["version_code"]
+                                                file_dict[f"{oem}_v_code"] = oem_file["v_code"]
+                                                file_dict[f"{oem}_size"] = oem_file["size"]
                                                 file_dict[f"{oem}_location"] = oem_file["location"]
                             else:
                                 print(f"Package {pkg} not found in {oem}!")
@@ -244,7 +248,7 @@ class Operations:
     @staticmethod
     def get_nikgapps_controller_app_sets(list_of_appsets):
         appset_list = []
-        if list_of_appsets is not None:
+        if len(list_of_appsets) > 0:
             for appset in list_of_appsets:
                 for app in NikGappsPackages.get_packages(appset):
                     if app is not None:
@@ -271,19 +275,20 @@ class Operations:
             return tracker_file
 
     @staticmethod
-    def update_nikgapps_controller(android_version, tracker_repo, list_of_appsets=None):
+    def update_nikgapps_controller(android_version, tracker_repo, list_of_appsets):
         n = NikGapps(android_version)
         tracker_file, isexists = Operations.get_tracker(android_version, tracker_repo.working_tree_dir, n.version_key)
-
-        controller_dict = Json.read_dict_from_file(tracker_file)
-        controller_oems, controller_appsets = Operations.get_oems_from_controller_dict(controller_dict)
-        if len(controller_appsets) > 0:
-            for appset in controller_appsets:
-                if appset not in list_of_appsets:
-                    list_of_appsets.append(appset)
+        controller_dict = {}
+        if isexists:
+            controller_dict = Json.read_dict_from_file(tracker_file)
+            controller_oems, controller_appsets = Operations.get_oems_from_controller_dict(controller_dict)
+            if len(controller_appsets) > 0 and len(list_of_appsets) > 0:
+                for appset in controller_appsets:
+                    if appset not in list_of_appsets:
+                        list_of_appsets.append(appset)
         appset_list = Operations.get_nikgapps_controller_app_sets(list_of_appsets)
         n_gapps_dict = n.get_nikgapps_controller(appset_list=appset_list,
-                                                 nikgapps_dict=controller_dict)
+                                                 nikgapps_dict=controller_dict if isexists else None)
         if tracker_file is not None:
             if n_gapps_dict is not None:
                 Json.write_dict_to_file(n_gapps_dict, tracker_file)

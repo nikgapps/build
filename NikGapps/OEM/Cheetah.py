@@ -60,32 +60,36 @@ class Cheetah(AndroidDump):
                                 supported_type + C.dir_sep
                 for path in Path(partition_dir).rglob("*.apk"):
                     if path.is_file():
+                        path = str(path)
+                        file_size = C.get_file_bytes(path)
                         file_path = str(path)
                         file_location = file_path[len(self.repo_dir) + 1:]
                         file_path = file_path[len(partition_dir):]
                         folder_name = file_path.split("/")[0]
                         isstub = True if folder_name.__contains__("-Stub") else False
-                        package_name = cmd.get_package_name(str(path))
-                        package_version = cmd.get_package_version(str(path))
+                        package_name = cmd.get_package_name(path)
+                        package_version = cmd.get_package_version(path)
+                        version_code = cmd.get_package_version_code(path)
                         version = ''.join([i for i in package_version if i.isdigit()])
                         gapps_list = self.gapps_dict[package_name] if package_name in self.gapps_dict else []
                         g_dict = {"partition": partition, "type": supported_types[supported_type],
-                                  "folder": folder_name, "version_code": version,
+                                  "folder": folder_name, "version_code": version_code, "v_code": version,
                                   "file": file_path, "package": package_name, "version": package_version,
-                                  "location": file_location, "isstub": isstub}
+                                  "location": file_location, "isstub": isstub, "size": file_size}
                         gapps_list.append(g_dict)
                         if isstub:
                             apk_gz_folder = folder_name.replace("-Stub", "")
                             for apk_gz_path in Path(str(partition_dir) + apk_gz_folder).rglob("*.apk.gz"):
                                 if apk_gz_path.is_file():
                                     apk_gz_file_path = str(apk_gz_path)
+                                    file_size = C.get_file_bytes(apk_gz_file_path)
                                     apk_gz_file_path = apk_gz_file_path[len(partition_dir):]
                                     apk_gz_file_location = str(apk_gz_path)[len(self.repo_dir) + 1:]
                                     gz_dict = {"partition": partition, "type": supported_types[supported_type],
-                                               "folder": apk_gz_folder, "version_code": version,
+                                               "folder": apk_gz_folder, "version_code": version_code, "v_code": version,
                                                "file": apk_gz_file_path, "package": package_name,
                                                "version": package_version, "location": apk_gz_file_location,
-                                               "isstub": isstub}
+                                               "isstub": isstub, "size": file_size}
                                     gapps_list.append(gz_dict)
                         if package_name not in self.gapps_dict:
                             self.gapps_dict[package_name] = gapps_list
