@@ -58,14 +58,26 @@ class Validate:
                     f"Cannot merge the changes automatically since status of {file_name} is {file_status}, "
                     "kindly start fresh with forking the repository again!")
             print("- checking version compatibility")
-            for line in raw_nikgapps_config.splitlines():
-                if line.startswith("Version="):
-                    version = line.split("=")[1]
-                    config_obj = NikGappsConfig()
-                    if not version.__eq__(str(config_obj.config_version)):
-                        failure_reason.append(
-                            f"{file_name} is on version {version} which is not the latest version of NikGapps Config, "
-                            f"please update the config file to version {config_obj.config_version}")
-                    break
-
+            config_obj = NikGappsConfig(raw_config=raw_nikgapps_config)
+            version = config_obj.config_dict["Version"]
+            if not version.__eq__(str(config_obj.config_version)):
+                failure_reason.append(
+                    f"{file_name} is on version {version} which is not the latest version of NikGapps Config, "
+                    f"please update the config file to version {config_obj.config_version}")
+            core_enabled = False
+            core_go_enabled = False
+            for appset in config_obj.config_package_list:
+                match str(appset.title).lower():
+                    case "googlechrome":
+                        enabled_pkg_count = len(appset.package_list)
+                        if enabled_pkg_count < 3:
+                            failure_reason.append("All the packages under Google Chrome needs to be enabled, "
+                                                  "you cannot disable any of the packages under Google Chrome")
+                    case "core":
+                        core_enabled = True
+                    case "corego":
+                        core_go_enabled = True
+            if core_enabled and core_go_enabled:
+                failure_reason.append(
+                    "You cannot enable both Core and Core Go, you can only enable one of them")
         return failure_reason
