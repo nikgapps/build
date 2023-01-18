@@ -19,6 +19,9 @@ class EvoX:
     def android_version_supported(self, android_version):
         return android_version in self.android_dict
 
+    def get_repo_dir(self):
+        return self.repo_dir
+
     def get_evo_x_dict(self):
         if self.clone_gapps_image() is not None:
             return self.get_gapps_dict()
@@ -44,18 +47,21 @@ class EvoX:
                                 "packages" + C.dir_sep + supported_type + C.dir_sep
                 for path in Path(partition_dir).rglob("*.apk"):
                     if path.is_file():
+                        path = str(path)
+                        file_size = C.get_file_bytes(path)
                         file_path = str(path)
                         file_location = file_path[len(self.repo_dir) + 1:]
                         file_path = file_path[len(partition_dir):]
                         folder_name = file_path.split("/")[0]
-                        package_name = cmd.get_package_name(str(path))
-                        package_version = cmd.get_package_version(str(path))
+                        package_name = cmd.get_package_name(path)
+                        package_version = cmd.get_package_version(path)
+                        version_code = cmd.get_package_version_code(path)
                         version = ''.join([i for i in package_version if i.isdigit()])
                         gapps_list = []
                         g_dict = {"partition": partition, "type": supported_types[supported_type],
-                                  "folder": folder_name, "version_code": version,
+                                  "folder": folder_name, "version_code": version_code, "v_code": version,
                                   "file": file_path, "package": package_name, "version": package_version,
-                                  "md5": FileOp.get_md5(str(path)), "location": file_location}
+                                  "location": file_location, "size": file_size}
                         if package_name in gapps_dict:
                             gapps_list = gapps_dict[package_name]
                             gapps_list.append(g_dict)
@@ -63,4 +69,3 @@ class EvoX:
                             gapps_list.append(g_dict)
                             gapps_dict[package_name] = gapps_list
         return gapps_dict
-

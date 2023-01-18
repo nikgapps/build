@@ -76,6 +76,17 @@ class Git:
             return commit_datetime
         return None
 
+    def get_changed_files(self):
+        files_list = []
+        files = self.repo.git.diff(None, name_only=True)
+        if files != "":
+            for f in files.split('\n'):
+                files_list.append(f)
+        if self.repo.untracked_files.__len__() > 0:
+            for f in self.repo.untracked_files:
+                files_list.append(f)
+        return files_list
+
     def due_changes(self):
         files = self.repo.git.diff(None, name_only=True)
         if files != "":
@@ -114,10 +125,10 @@ class Git:
 
     def update_repo_changes(self, message):
         if self.due_changes():
-            print(message)
+            C.print_green(message)
             self.git_push(message, push_untracked_files=True)
         else:
-            print("There is nothing to update!")
+            C.print_red("There is nothing to update!")
 
     def get_status(self, path):
         changed = [item.a_path for item in self.repo.index.diff(None)]

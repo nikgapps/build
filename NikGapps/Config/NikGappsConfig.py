@@ -5,7 +5,7 @@ from NikGappsPackages import NikGappsPackages
 
 class NikGappsConfig:
 
-    def __init__(self, config_path=None, config_version=None, use_zip_config=None):
+    def __init__(self, config_path=None, config_version=None, use_zip_config=None, raw_config=None):
         self.config_version = 23
         if config_version is not None:
             self.config_version = config_version
@@ -19,13 +19,15 @@ class NikGappsConfig:
         self.config_objects = self.build_config_objects()
         self.config_package_list = []
         self.config_dict = None
+        if raw_config is not None:
+            self.config_dict = self.get_config_dictionary(raw_config)
         if config_path is not None:
             self.config_path = config_path
             self.config_dict = self.get_config_dictionary()
-            if self.config_dict is not None:
-                for config_obj in self.config_objects:
-                    if config_obj.key in self.config_dict:
-                        config_obj.value = str(self.config_dict[config_obj.key])
+        if self.config_dict is not None:
+            for config_obj in self.config_objects:
+                if config_obj.key in self.config_dict:
+                    config_obj.value = str(self.config_dict[config_obj.key])
             self.config_package_list = self.get_config_packages()
 
     def build_config_objects(self):
@@ -59,9 +61,9 @@ class NikGappsConfig:
                        execute_d, use_zip_config, gms_optimization]
         return config_list
 
-    def get_config_dictionary(self):
+    def get_config_dictionary(self, raw_config=None):
         lines = {}
-        for line in FileOp.read_string_file(self.config_path):
+        for line in FileOp.read_string_file(self.config_path) if raw_config is None else raw_config.splitlines():
             if line.__eq__('') or line.__eq__('\n') or line.startswith('#') \
                     or line.startswith("File Not Found") \
                     or line.startswith("use_zip_config=") \

@@ -29,7 +29,7 @@ class Operation:
         apk_source_repo = C.apk_source_repo + str(android_version) + ".git"
         repository = Git(apk_source_directory)
         result = repository.clone_repo(repo_url=apk_source_repo, fresh_clone=fresh_clone, branch=branch)
-        return repository.repo if result else None
+        return repository if result else None
 
     @staticmethod
     def get_last_commit_date(repo_dir=C.cwd, repo_url=None,
@@ -104,7 +104,8 @@ class Operation:
         website_repo = None
         source_last_commit_datetime = None
         if git_check:
-            source_last_commit_datetime = self.get_last_commit_date(branch="main")
+            source_last_commit_datetime = self.get_last_commit_date(
+                branch="main" if Config.RELEASE_TYPE.__eq__("stable") else "dev")
             print(f"Last {str(Config.RELEASE_TYPE).capitalize()} Source Commit: " + str(source_last_commit_datetime))
             release_repo = self.get_release_repo()
             website_repo = self.get_website_repo_for_changelog()
@@ -133,10 +134,6 @@ class Operation:
                     Config.BUILD_PACKAGE_LIST.append("go")
                 C.update_android_version_dependencies()
                 today = datetime.now(pytz.timezone('Europe/London')).strftime("%a")
-                if Config.RELEASE_TYPE.__eq__("canary"):
-                    C.update_sourceforge_release_directory("canary")
-                else:
-                    C.update_sourceforge_release_directory("")
                 Release.zip(package_list, upload)
                 if release_repo is not None and git_check:
                     release_repo.git_push(str(android_version) + ": " + str(commit_message))

@@ -48,6 +48,8 @@ if PROJECT_MODE.__eq__("fetch"):
     operation.fetch()
 else:
     operation = Operation()
+    if Config.RELEASE_TYPE.__eq__("canary"):
+        C.update_sourceforge_release_directory("canary")
     u = Upload()
     operation.build(git_check=args.enable_git_check, android_versions=android_versions,
                     package_list=package_list, commit_message=commit_message, upload=u)

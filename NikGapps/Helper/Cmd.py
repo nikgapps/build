@@ -262,6 +262,30 @@ class Cmd:
             return_list = "Exception: Version Not Found"
         return return_list
 
+    def get_package_version_code(self, apk_path):
+        self.COMMAND_AAPT_DUMP_BADGING[3] = apk_path
+        temp_file = "temp.txt"  # A temporary file where the output will be stored
+        self.COMMAND_AAPT_DUMP_BADGING[5] = temp_file
+        output_list = self.execute_cmd(self.COMMAND_AAPT_DUMP_BADGING)
+        if FileOp.file_exists(temp_file):
+            return_list = FileOp.read_package_version(temp_file)
+        elif output_list.__len__() >= 1:
+            if output_list[0].startswith("Exception") and len(output_list) == 2:
+                text = output_list[1]
+            else:
+                text = output_list[0]
+            if text.__contains__("versionCode="):
+                index1 = text.find("versionCode='")
+                text = text[index1 + 13: -1]
+                index1 = text.find("'")
+                text = text[0: index1]
+            else:
+                text = "Exception: Version Not found!"
+            return text
+        else:
+            return_list = "Exception: Version Not Found"
+        return return_list
+
     def sign_zip_file(self, zip_path):
         zip_path = C.path.abspath(zip_path)
         self.COMMAND_SIGN_ZIP[3] = zip_path
