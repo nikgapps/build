@@ -37,7 +37,7 @@ class Operations:
                     f"Pull Request: #{str(pr_number)}", escape_text=False,
                     ur_link={f"#{str(pr_number)}": f"https://github.com/nikgapps/config/pull/{pr_number}"})
                 C.telegram.message(f"Pull Request by: #{pr_name}\n", escape_text=False,
-                                   ur_link={f"{pr_name}'s profile": f"https://github.com/{pr_name}"})
+                                   ur_link={f"Github Profile": f"https://github.com/{pr_name}"})
         initial_message = "__Running Status:__"
         C.telegram.message(initial_message, escape_text=False)
         z = Export(file_name)
