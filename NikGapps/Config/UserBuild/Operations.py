@@ -34,9 +34,10 @@ class Operations:
             if "PR_NAME" in config_obj.config_dict:
                 pr_name = config_obj.config_dict["PR_NAME"]
                 C.telegram.message(
-                    f"Pull Request: [{str(pr_number)}](https://github.com/nikgapps/config/pull/{pr_number})",
-                    escape_text=False)
-                C.telegram.message(f"Pull Request by: [{pr_name}](https://github.com/{pr_name})\n", escape_text=False)
+                    f"Pull Request: #{str(pr_number)}", escape_text=False,
+                    ur_link={f"#{str(pr_number)}": f"https://github.com/nikgapps/config/pull/{pr_number}"})
+                C.telegram.message(f"Pull Request by: #{pr_name}\n", escape_text=False,
+                                   ur_link={f"{pr_name}'s profile": f"https://github.com/{pr_name}"})
         initial_message = "__Running Status:__"
         C.telegram.message(initial_message, escape_text=False)
         z = Export(file_name)

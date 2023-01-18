@@ -1,3 +1,5 @@
+import requests
+
 import Config
 from NikGapps.Web.Requests import Requests
 
@@ -13,8 +15,10 @@ class TelegramApi:
         self.message_id = None
         self.msg = None
         self.last_msg = None
+        self.urls = {}
 
-    def message(self, text, chat_id=None, replace_last_message=False, escape_text=True, parse_mode="MarkdownV2"):
+    def message(self, text, chat_id=None, replace_last_message=False, escape_text=True, parse_mode="markdown",
+                ur_link=None):
         if self.token is None:
             return None
         if chat_id is None:
@@ -23,13 +27,42 @@ class TelegramApi:
             print("No text to send")
             return None
         if escape_text:
-            for i in '_*[]()~`>#+-=|{}.!':
+            for i in '_*[]~`>+=|{}':
                 text = text.replace(i, "\\" + i)
         sending_text = text
         if self.message_id is not None:
             sending_text = self.msg.replace(self.last_msg, text) if replace_last_message else (self.msg + "\n" + text)
-        url = self.get_url(chat_id, sending_text, parse_mode)
-        r = Requests.get(url)
+        data = {
+            "chat_id": chat_id,
+            "text": f"{sending_text}",
+            "parse_mode": f"{parse_mode}",
+            "disable_web_page_preview": True
+        }
+        url = f"{self.base}/bot{self.token}/sendMessage"
+        if self.message_id is not None:
+            data["message_id"] = self.message_id
+            url = f"{self.base}/bot{self.token}/editMessageText"
+        if ur_link is not None:
+            ur_link: dict
+            for key in ur_link:
+                self.urls[key] = ur_link[key]
+        if len(self.urls) > 0:
+            row_list = []
+            inline_list = []
+            max_col = 1 if len(self.urls) > 1 else len(self.urls)
+            for count, key in enumerate(self.urls):
+                inline_list.append({"text": key, "url": self.urls[key]})
+                if count == max_col:
+                    row_list.append(inline_list)
+                    inline_list = []
+            if len(inline_list) > 0:
+                row_list.append(inline_list)
+            data["reply_markup"] = {
+                "inline_keyboard": [
+                    row for row in row_list
+                ]
+            }
+        r = requests.post(url, json=data)
         if r.status_code != 200:
             print(f"Error sending message: {r.json()}")
             return None
@@ -39,15 +72,6 @@ class TelegramApi:
             self.msg = sending_text
             self.message_id = response["result"]["message_id"]
         return response
-
-    def get_url(self, chat_id, sending_text, parse_mode="MarkdownV2"):
-        return f"{self.base}/bot{self.token}/" \
-            + (f"sendMessage?" if self.message_id is None else f"editMessageText?&message_id={self.message_id}") \
-            + f"&chat_id={chat_id}" \
-            + (f"&parse_mode={parse_mode}" if parse_mode is not None else "") \
-            + f"&text={sending_text}" \
-            + f"&disable_web_page_preview=true" \
-            + (f"&message_thread_id={self.message_thread_id}" if self.message_thread_id is not None else "")
 
     def delete_message(self, message_id=None, chat_id=None):
         if self.token is None:
