@@ -126,7 +126,7 @@ class NikGapps:
                         gapps_dict = nikgapps_dict
                     f_dict = {"file_path": file_path, "version": package_version, "update_source": update_source,
                               "update_indicator": "1", "version_code": version_code, "v_code": version,
-                              "size": file_size}
+                              "size": file_size, "package": package_name}
                     if appset_name not in gapps_dict:
                         # the appset is new, so will be the package list
                         pkg_dict = {package_name: [f_dict]}
@@ -140,9 +140,10 @@ class NikGapps:
                                 file_list = pkg_dict[package_name]
                                 file_found = False
                                 for file_dict in file_list:
-                                    if file_dict["file_path"] == file_path:
+                                    if file_dict["file_path"] == file_path or file_dict["package"] == package_name:
                                         file_dict["version"] = package_version
-                                        file_dict["version_code"] = version
+                                        file_dict["version_code"] = version_code
+                                        file_dict["v_code"] = version
                                         file_found = True
                                         break
                                 if not file_found:
