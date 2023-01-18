@@ -125,10 +125,10 @@ class Git:
 
     def update_repo_changes(self, message):
         if self.due_changes():
-            print(message)
+            C.print_green(message)
             self.git_push(message, push_untracked_files=True)
         else:
-            print("There is nothing to update!")
+            C.print_red("There is nothing to update!")
 
     def get_status(self, path):
         changed = [item.a_path for item in self.repo.index.diff(None)]
