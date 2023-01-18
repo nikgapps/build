@@ -170,7 +170,7 @@ class Upload:
                                            f"{file_size_kb} Kb)")
             if execution_status:
                 C.telegram.message(
-                    f"- The zip {file_size_mb} MB ({file_size_kb} Kb) uploaded in {str(round(time_taken))} seconds\n",
+                    f"- The zip {file_size_mb} MB uploaded in {str(round(time_taken))} seconds\n",
                     replace_last_message=True)
                 if download_link is not None:
                     C.telegram.message(f"[Download]({download_link})\n", escape_text=False)
