@@ -1,3 +1,5 @@
+import time
+
 import requests
 
 import Config
@@ -63,10 +65,14 @@ class TelegramApi:
                 ]
             }
         r = requests.post(url, json=data)
-        if r.status_code != 200:
-            print(f"Error sending message: {r.json()}")
-            return None
         response = r.json()
+        if r.status_code != 200:
+            print(f"Error sending message: {response}")
+            if r.status_code == 429:
+                print(f"Sleeping for {response['parameters']['retry_after']} seconds")
+                time.sleep(response['parameters']['retry_after'])
+            else:
+                return None
         if response["ok"]:
             self.last_msg = text
             self.msg = sending_text
