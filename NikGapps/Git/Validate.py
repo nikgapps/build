@@ -72,7 +72,8 @@ class Validate:
                         enabled_pkg_count = len(appset.package_list)
                         if enabled_pkg_count < 3:
                             failure_reason.append("All the packages under Google Chrome needs to be enabled, "
-                                                  "you cannot disable any of the packages under Google Chrome")
+                                                  "you cannot disable any of the packages under Google Chrome.\n"
+                                                  "Either enable all or disable all.")
                     case "core":
                         core_enabled = True
                     case "corego":
