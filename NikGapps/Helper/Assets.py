@@ -9,7 +9,7 @@ class Assets:
     cwd = assets_folder + C.dir_sep
     system_name = platform.system()
     apksigner_path = cwd + "apksigner.jar"
-    apktool_path = cwd + "apktool_2.6.1.jar"
+    apktool_path = cwd + "apktool_2.7.0.jar"
     key_path = cwd + "cert.pk8"
     cert_path = cwd + "cert.x509.pem"
     if system_name == "Windows":
