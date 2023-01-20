@@ -126,7 +126,7 @@ class C:
             C.android_version_folder)
         android_version_code = Config.ANDROID_VERSIONS[str(Config.TARGET_ANDROID_VERSION)]['code']
         overlay_android_version = f"overlays_{android_version_code}"
-        overlay_directory = str(Path(C.cwd).parent) + os.path.sep + overlay_android_version
+        C.overlay_directory = str(Path(C.cwd).parent) + os.path.sep + overlay_android_version
 
     @staticmethod
     def get_mtime(pkg_zip_path):
