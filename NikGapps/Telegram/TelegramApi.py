@@ -98,3 +98,4 @@ class TelegramApi:
     def reset_message(self):
         self.message_id = None
         self.msg = None
+        self.urls = {}
