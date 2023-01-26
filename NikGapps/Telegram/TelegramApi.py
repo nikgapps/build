@@ -40,6 +40,8 @@ class TelegramApi:
             "parse_mode": f"{parse_mode}",
             "disable_web_page_preview": True
         }
+        if self.message_thread_id is not None:
+            data["message_thread_id"] = self.message_thread_id
         url = f"{self.base}/bot{self.token}/sendMessage"
         if self.message_id is not None:
             data["message_id"] = self.message_id
@@ -98,3 +100,4 @@ class TelegramApi:
     def reset_message(self):
         self.message_id = None
         self.msg = None
+        self.urls = {}

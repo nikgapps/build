@@ -81,7 +81,7 @@ class Cmd:
         if len(output_line) > 0:
             for line in output_line:
                 print(line)
-                if line.__contains__("Built apk..."):
+                if line.__contains__("Built apk"):
                     built_apk = True
                     break
         apk_path = os.path.join(folder_name, "dist", f"{Path(folder_name).name}.apk")

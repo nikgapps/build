@@ -612,6 +612,8 @@ find_install_type() {
       addToLog "- runtime-permissions.xml found at $i with wipe permission $value"
       if [ "$value" = "1" ]; then
         rm -rf "$i"
+        ui_print "- Wiped RuntimePermissions"
+        install_type="now clean"
       fi
     fi;
   done

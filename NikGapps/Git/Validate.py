@@ -59,11 +59,16 @@ class Validate:
                     "kindly start fresh with forking the repository again!")
             print("- checking version compatibility")
             config_obj = NikGappsConfig(raw_config=raw_nikgapps_config)
-            version = config_obj.config_dict["Version"]
-            if not version.__eq__(str(config_obj.config_version)):
+            if "Version" in config_obj.config_dict:
+                version = config_obj.config_dict["Version"]
+                if not version.__eq__(str(config_obj.config_version)):
+                    failure_reason.append(
+                        f"{file_name} is on version {version} which is not the latest version of NikGapps Config, "
+                        f"please update the config file to version {config_obj.config_version}")
+            else:
                 failure_reason.append(
-                    f"{file_name} is on version {version} which is not the latest version of NikGapps Config, "
-                    f"please update the config file to version {config_obj.config_version}")
+                    f"{file_name} is missing version information, please use latest version of NikGapps Config "
+                    f"i.e. {config_obj.config_version}")
             core_enabled = False
             core_go_enabled = False
             for appset in config_obj.config_package_list:
