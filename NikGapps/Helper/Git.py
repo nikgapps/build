@@ -2,6 +2,7 @@ import git.exc
 from git import Repo, Commit
 from shutil import copyfile
 from colorama import Fore
+import Config
 from NikGapps.Helper.FileOp import FileOp
 from NikGapps.Helper.Assets import Assets
 from NikGapps.Helper.C import C
@@ -97,6 +98,9 @@ class Git:
         return False
 
     def git_push(self, commit_message, push_untracked_files=None):
+        if not Config.GIT_PUSH:
+            print("Git push is disabled, skipping push!")
+            return
         self.repo.git.add(update=True)
         if push_untracked_files is not None:
             for file in self.repo.untracked_files:
