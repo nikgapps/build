@@ -396,6 +396,7 @@ class NikGappsPackages:
         google_board.delete("LatinIME")
         google_board.clean_flash_only = True
         app_set_list.append(AppSet("GBoard", [google_board]))
+        app_set_list.append(AddonSet.get_pixel_launcher())
         if TARGET_ANDROID_VERSION >= 11:
             app_set_list.append(NikGappsPackages.get_google_files())
         google_recorder = Package("RecorderPrebuilt", "com.google.android.apps.recorder", C.is_priv_app,
