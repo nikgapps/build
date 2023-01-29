@@ -90,6 +90,10 @@ class NikGappsConfig:
                 new_app_set = AppSet(app_set.title)
                 for pkg in app_set.package_list:
                     pkg: Package
+                    if app_set.title.lower() == "corego":
+                        # corego will be added by default
+                        new_app_set.add_package(pkg)
+                        continue
                     if str(">>" + pkg.package_title) not in config_dict:
                         if app_set.title in pre_defined_addons:
                             # these will be the addons who can be directly added
