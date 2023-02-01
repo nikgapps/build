@@ -1,3 +1,14 @@
+- date: 1st Feb 2023 (Android 10-13)
+  changes:
+      - item: Implement framework to auto update the apks (beta) with latest available versions in Pixel 7 pro oem image (Android 13 for now)
+      - item: Update the apps to latest available versions in Pixel 7 pro oem image (Android 13)
+      - item: Fix Pixel Launcher crashes (Android 12.1)
+      - item: Fix WipeRuntimePermissions config treating the installation dirty (and skips gboard, gclock when it should not)
+      - item: Update the overlays for android 13 with missing features (such as fast pair)
+      - item: Fix the issues with DPS (AIS) crashing in some cases (for e.g. select text feature).
+      - item: Merge all the script fixes in Debloater
+      - item: Update nikgapps.config version to v24 (bring back Pixel Launcher in stock)
+      - item: Many more improvements and fixes under the hood
 - date: 8th Sept 2022 (Android 10-13)
   changes:
       - item: Fix Pixel Launcher crashes on android 12.1 and below

@@ -17,10 +17,7 @@ class AddonSet:
             AddonSet.get_youtube(),
             AddonSet.get_google_tts(),
             AddonSet.get_pixel_setup_wizard(),
-            AddonSet.get_google_talkback(),
-            AddonSet.get_pixel_launcher(),
-            AddonSet.get_device_personalization_services(),
-            AddonSet.get_google_wallpaper()
+            AddonSet.get_google_talkback()
         ]
         # if TARGET_ANDROID_VERSION in (10, 11):
         #     addon_set_list.append(AddonSet.get_pixel_setup_wizard())
