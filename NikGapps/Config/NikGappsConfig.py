@@ -1,4 +1,6 @@
 import json
+
+import Config
 from NikGapps.Helper import ConfigObj, FileOp, AppSet, Package, C, Logs
 from NikGappsPackages import NikGappsPackages
 
@@ -6,7 +8,7 @@ from NikGappsPackages import NikGappsPackages
 class NikGappsConfig:
 
     def __init__(self, config_path=None, config_version=None, use_zip_config=None, raw_config=None):
-        self.config_version = 23
+        self.config_version = 24
         if config_version is not None:
             self.config_version = config_version
         self.default_mode = "default"
@@ -31,6 +33,7 @@ class NikGappsConfig:
             self.config_package_list = self.get_config_packages()
 
     def build_config_objects(self):
+        android_version = ConfigObj("AndroidVersion", Config.TARGET_ANDROID_VERSION)
         version = ConfigObj("Version", self.config_version)
         log_directory = ConfigObj("LogDirectory", self.default_mode)
         log_directory.description = """# set this to the directory you want to copy the logs to.
@@ -57,8 +60,8 @@ class NikGappsConfig:
         gms_optimization.description = "# set this to 1 if you want to enable gms optimization, " \
                                        "careful while doing it, you may experience issues like delayed notification " \
                                        "with some Roms"
-        config_list = [version, log_directory, install_partition, mode, wipe_dalvik_cache, wipe_runtime_permissions,
-                       execute_d, use_zip_config, gms_optimization]
+        config_list = [android_version, version, log_directory, install_partition, mode, wipe_dalvik_cache,
+                       wipe_runtime_permissions, execute_d, use_zip_config, gms_optimization]
         return config_list
 
     def get_config_dictionary(self, raw_config=None):
@@ -93,6 +96,8 @@ class NikGappsConfig:
                     if app_set.title.lower() == "corego":
                         # corego will be added by default
                         new_app_set.add_package(pkg)
+                        if pkg.package_title != "ExtraFilesGo":
+                            self.config_dict[str(">>" + pkg.package_title)] = "1"
                         continue
                     if str(">>" + pkg.package_title) not in config_dict:
                         if app_set.title in pre_defined_addons:
