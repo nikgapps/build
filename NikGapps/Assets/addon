@@ -23,7 +23,7 @@ if $BOOTMODE; then
   mkdir -p "$COMMONDIR"
 fi
 addonDir="/sdcard/NikGapps/addonLogs"
-nikGappsAddonLogFile="$addonDir/NikGapps_addon.log"
+nikGappsAddonLogFile="$addonDir/NikGapps_addon_$(date +%Y_%m_%d).log"
 nikGappsTestLog="$addonDir/logfiles/NikGapps.log"
 newline='
 '
