@@ -91,6 +91,7 @@ class Build:
                 for delete_file in pkg_to_build.delete_files_list:
                     delete_files_list.append(delete_file)
                 pkg.delete_files_list = delete_files_list
+                pkg.validation_script = pkg_to_build.validation_script
                 package_list.append(pkg)
             if package_list.__len__() > 0:
                 app_set_to_build = AppSet(app_set.title, package_list)

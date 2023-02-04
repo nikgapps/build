@@ -111,6 +111,15 @@ class AddonSet:
                                  C.is_priv_app, "PixelLauncher", partition="system_ext")
         pixel_launcher.priv_app_permissions.append("android.permission.PACKAGE_USAGE_STATS")
         pixel_launcher.delete("TrebuchetQuickStep")
+        pixel_launcher.validation_script = """
+crdroid_version=$(ReadConfigValue "ro.crdroid.version" "/system/build.prop")
+addToLog "- CrDroid version: $crdroid_version"
+if [ -n "$crdroid_version" ] && [ "$crdroid_version" = "13.0" ]; then
+    ui_print "- Skipping Pixel Launcher as it is not compatible with CrDroid for now"
+else
+    find_install_mode
+fi
+        """
         device_personalization_services = Package("MatchmakerPrebuiltPixel4", "com.google.android.as",
                                                   C.is_priv_app, "DevicePersonalizationServices")
         gapps_list = [pixel_launcher]
@@ -146,29 +155,8 @@ class AddonSet:
 
     @staticmethod
     def get_lawnchair():
-        lawnchair_set = AppSet("Lawnchair")
-        from Config import TARGET_ANDROID_VERSION
-        if TARGET_ANDROID_VERSION == 9:
-            lawnchair = Package("Lawnchair", "ch.deletescape.lawnchair.plah", C.is_priv_app)
-            lawnchair_set.add_package(lawnchair)
-        if TARGET_ANDROID_VERSION == 10:
-            lawnchair_ci = Package("Lawnchair", "ch.deletescape.lawnchair.ci", C.is_priv_app)
-            if "etc/permissions/privapp-permissions-lawnchair.xml" not in lawnchair_ci.predefined_file_list:
-                lawnchair_ci.predefined_file_list.append("etc/permissions/privapp-permissions-lawnchair.xml")
-            if "etc/sysconfig/lawnchair-hiddenapi-package-whitelist.xml" not in lawnchair_ci.predefined_file_list:
-                lawnchair_ci.predefined_file_list.append("etc/sysconfig/lawnchair-hiddenapi-package-whitelist.xml")
-            overlay = "overlay/LawnchairRecentsProvider/LawnchairRecentsProvider.apk"
-            lawnchair_recents_provider = Package("LawnchairRecentsProvider", "com.android.overlay.shady.recents", None)
-            if overlay not in lawnchair_recents_provider.predefined_file_list:
-                lawnchair_recents_provider.predefined_file_list.append(overlay)
-            lawnchair_set.add_package(lawnchair_ci)
-            lawnchair_recents_provider.enabled = 0
-            lawnchair_set.add_package(lawnchair_recents_provider)
-        if TARGET_ANDROID_VERSION == 11:
-            return [None]
-        lawnfeed = Package("Lawnfeed", "ch.deletescape.lawnchair.lawnfeed", C.is_system_app)
-        lawnchair_set.add_package(lawnfeed)
-        return lawnchair_set
+        lawnchair = Package("Lawnchair", "app.lawnchair", C.is_system_app)
+        return AppSet("Lawnchair", [lawnchair])
 
     @staticmethod
     def get_pixel_live_wallpapers():

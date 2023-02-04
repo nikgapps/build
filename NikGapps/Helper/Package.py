@@ -38,6 +38,7 @@ class Package:
         self.additional_installer_script = ""
         self.failure_logs = ""
         self.pkg_size = 0
+        self.validation_script = None
 
     def delete(self, data):
         if not str(data).startswith("/"):
@@ -133,7 +134,7 @@ class Package:
                     "\"\n"
         str_data += "}\n"
         str_data += "\n"
-        str_data += "find_install_mode\n"
+        str_data += self.validation_script + "\n" if self.validation_script is not None else "find_install_mode\n"
         str_data += "\n"
         return str_data
 
