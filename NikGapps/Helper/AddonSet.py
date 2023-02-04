@@ -121,10 +121,10 @@ if [ "$skip_validation_check" = "0" ]; then
     if [ -n "$crdroid_version" ] && [ "$crdroid_version" = "13.0" ]; then
         ui_print "- Skipping Pixel Launcher as it is not compatible with CrDroid for now"
     else
-        ui_print "- would have installed here"
+        find_install_mode
     fi
 else
-    ui_print "- would have installed here too"
+    find_install_mode
 fi
         """
         device_personalization_services = Package("MatchmakerPrebuiltPixel4", "com.google.android.as",
