@@ -112,12 +112,19 @@ class AddonSet:
         pixel_launcher.priv_app_permissions.append("android.permission.PACKAGE_USAGE_STATS")
         pixel_launcher.delete("TrebuchetQuickStep")
         pixel_launcher.validation_script = """
-crdroid_version=$(ReadConfigValue "ro.crdroid.version" "/system/build.prop")
-addToLog "- CrDroid version: $crdroid_version"
-if [ -n "$crdroid_version" ] && [ "$crdroid_version" = "13.0" ]; then
-    ui_print "- Skipping Pixel Launcher as it is not compatible with CrDroid for now"
+skip_validation_check=$(ReadConfigValue "skip_validation_check" "$nikgapps_config_file_name")
+[ -z "$skip_validation_check" ] && skip_validation_check=0
+addToLog "- Skip validation check: $skip_validation_check"
+if [ "$skip_validation_check" = "0" ]; then
+    crdroid_version=$(ReadConfigValue "ro.crdroid.version" "/system/build.prop")
+    addToLog "- CrDroid version: $crdroid_version"
+    if [ -n "$crdroid_version" ] && [ "$crdroid_version" = "13.0" ]; then
+        ui_print "- Skipping Pixel Launcher as it is not compatible with CrDroid for now"
+    else
+        ui_print "- would have installed here"
+    fi
 else
-    find_install_mode
+    ui_print "- would have installed here too"
 fi
         """
         device_personalization_services = Package("MatchmakerPrebuiltPixel4", "com.google.android.as",
