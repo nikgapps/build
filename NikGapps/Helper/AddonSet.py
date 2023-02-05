@@ -113,6 +113,8 @@ class AddonSet:
                                  C.is_priv_app, "PixelLauncher", partition="system_ext")
         pixel_launcher.priv_app_permissions.append("android.permission.PACKAGE_USAGE_STATS")
         pixel_launcher.delete("TrebuchetQuickStep")
+        pixel_launcher.delete("Lawnchair")
+        pixel_launcher.delete_overlay("Lawnchair")
         pixel_launcher.validation_script = """
 skip_validation_check=$(ReadConfigValue "skip_validation_check" "$nikgapps_config_file_name")
 [ -z "$skip_validation_check" ] && skip_validation_check=0
@@ -165,6 +167,9 @@ fi
     @staticmethod
     def get_lawnchair():
         lawnchair = Package("Lawnchair", "app.lawnchair", C.is_system_app)
+        lawnchair.delete_overlay("PixelLauncher")
+        lawnchair.delete("NexusLauncherPrebuilt")
+        lawnchair.delete("NexusLauncherRelease")
         return AppSet("Lawnchair", [lawnchair])
 
     @staticmethod

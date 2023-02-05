@@ -32,6 +32,7 @@ class Package:
         self.file_dict = dict()  # Stores the file location on server as key and on device as value
         self.delete_files_list = []  # Stores the path of file to delete. Helpful for removing AOSP counterpart
         self.priv_app_permissions = []  # Stores the priv-app whitelist permissions for the package
+        self.delete_overlay_list = []  # Stores the list of overlays to delete
         self.enabled = 1
         self.validated = True
         self.clean_flash_only = False
@@ -39,6 +40,10 @@ class Package:
         self.failure_logs = ""
         self.pkg_size = 0
         self.validation_script = None
+
+    def delete_overlay(self, overlay):
+        if overlay not in self.delete_overlay_list:
+            self.delete_overlay_list.append(overlay)
 
     def delete(self, data):
         if not str(data).startswith("/"):
@@ -84,10 +89,21 @@ class Package:
             str_data += f"{delete_folder}\n"
         str_data += "\"\n"
         str_data += "\n"
+        str_data += f"delete_overlays=\"\n"
+        for delete_overlay in self.delete_overlay_list:
+            str_data += f"{delete_overlay}\n"
+        str_data += "\"\n"
+        str_data += "\n"
         str_data += f"file_list=\"\n"
         for file in self.file_dict:
             str_data += str(file)[str(file).find("___"):].replace("\\", "/") + "\n"
         str_data += "\"\n"
+        str_data += "\n"
+        str_data += "remove_overlays() {\n"
+        str_data += "   for i in $delete_overlays; do\n"
+        str_data += "       delete_overlays \"$i\" \"$propFilePath\"\n"
+        str_data += "   done\n"
+        str_data += "}\n"
         str_data += "\n"
         str_data += "remove_existing_package() {\n"
         str_data += "   # remove the existing folder for clean install of " + self.package_title + "\n"
@@ -106,6 +122,7 @@ class Package:
         str_data += "install_package() {\n"
         str_data += "   remove_existing_package\n"
         str_data += "   remove_aosp_apps\n"
+        str_data += "   remove_overlays\n"
         str_data += "   # Create folders and set the permissions\n"
         for folder in self.folder_dict:
             str_data += "   make_dir \"" + folder + "\"\n"

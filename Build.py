@@ -32,6 +32,7 @@ class Build:
                 app_type = None
                 primary_app_location = None
                 delete_files_list = []
+                delete_overlay_list = []
                 # copy over any overlay.apk that exists to pkg_path!
                 overlay_dir = C.overlay_directory + C.dir_sep + f"{package_title}Overlay"
                 if FileOp.dir_exists(overlay_dir):
@@ -91,6 +92,9 @@ class Build:
                 for delete_file in pkg_to_build.delete_files_list:
                     delete_files_list.append(delete_file)
                 pkg.delete_files_list = delete_files_list
+                for delete_overlay in pkg_to_build.delete_overlay_list:
+                    delete_overlay_list.append(delete_overlay)
+                pkg.delete_overlay_list = delete_overlay_list
                 pkg.validation_script = pkg_to_build.validation_script
                 package_list.append(pkg)
             if package_list.__len__() > 0:

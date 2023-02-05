@@ -1169,6 +1169,14 @@ ReadConfigValue() {
   return $?
 }
 
+delete_overlays(){
+  addToLog "- Deleting Overlays"
+  for i in $(find "$system/product/overlay" "$system/system_ext/overlay" "/product/overlay" "/system_ext/overlay" -type f -name "*$1*.apk" 2>/dev/null); do
+    addToLog "- Deleting $i"
+    rm -rf "$i"
+  done
+}
+
 RemoveAospAppsFromRom() {
   addToLog "- Removing AOSP App from Rom"
   if [ "$configValue" -eq 2 ]; then
