@@ -1,7 +1,7 @@
+import Config
 from .Package import Package
 from .C import C
 from .AppSet import AppSet
-from Config import TARGET_ANDROID_VERSION
 
 
 class AddonSet:
@@ -19,11 +19,13 @@ class AddonSet:
             AddonSet.get_pixel_setup_wizard(),
             AddonSet.get_google_talkback()
         ]
+        if float(Config.TARGET_ANDROID_VERSION) == float(12.1):
+            addon_set_list.append(AddonSet.get_lawnchair())
         # if TARGET_ANDROID_VERSION in (10, 11):
         #     addon_set_list.append(AddonSet.get_pixel_setup_wizard())
-        if TARGET_ANDROID_VERSION >= 11:
+        if float(Config.TARGET_ANDROID_VERSION) >= 11:
             addon_set_list.append(AddonSet.get_flipendo())
-        if TARGET_ANDROID_VERSION < 13:
+        if float(Config.TARGET_ANDROID_VERSION) < 13:
             addon_set_list.append(AddonSet.get_pixel_live_wallpapers())
         if addon_name is None:
             return addon_set_list
@@ -98,7 +100,7 @@ class AddonSet:
     @staticmethod
     def get_google_fi():
         google_fi_set = AppSet("GoogleFi")
-        if TARGET_ANDROID_VERSION == 11:
+        if float(Config.TARGET_ANDROID_VERSION) == 11:
             google_fi = Package("Tycho", "com.google.android.apps.tycho", C.is_system_app)
             google_fi_set.add_package(google_fi)
             gcs = Package("GCS", "com.google.android.apps.gcs", C.is_priv_app)
@@ -130,10 +132,10 @@ fi
         device_personalization_services = Package("MatchmakerPrebuiltPixel4", "com.google.android.as",
                                                   C.is_priv_app, "DevicePersonalizationServices")
         gapps_list = [pixel_launcher]
-        if TARGET_ANDROID_VERSION >= 9:
+        if float(Config.TARGET_ANDROID_VERSION) >= 9:
             device_personalization_services.delete("DevicePersonalizationPrebuiltPixel4")
             gapps_list.append(device_personalization_services)
-        if TARGET_ANDROID_VERSION >= 11:
+        if float(Config.TARGET_ANDROID_VERSION) >= 11:
             quick_access_wallet = Package("QuickAccessWallet", "com.android.systemui.plugin.globalactions.wallet",
                                           C.is_priv_app)
             gapps_list.append(quick_access_wallet)
@@ -177,7 +179,7 @@ fi
         pixel_live_wallpaper_set.add_package(wallpapers_breel_2020a)
         pixel_live_wallpaper_set.add_package(pixel_live_wallpaper)
         pixel_live_wallpaper_set.add_package(wallpapers_breel_2020)
-        if TARGET_ANDROID_VERSION >= 12:
+        if float(Config.TARGET_ANDROID_VERSION) >= 12:
             pixel_wallpapers_2021 = Package("PixelWallpapers2021", "com.google.android.apps.wallpaper.pixel",
                                             C.is_system_app)
             micropaper = Package("MicropaperPrebuilt", "com.google.pixel.dynamicwallpapers", C.is_system_app,
@@ -241,16 +243,16 @@ fi
         setup_wizard_set = AppSet("PixelSetupWizard")
         setup_wizard_set.add_package(setup_wizard)
         setup_wizard_set.add_package(google_restore)
-        if TARGET_ANDROID_VERSION >= 10:
+        if float(Config.TARGET_ANDROID_VERSION) >= 10:
             google_one_time_initializer = Package("GoogleOneTimeInitializer", "com.google.android.onetimeinitializer",
                                                   C.is_priv_app, partition="system_ext")
             setup_wizard_set.add_package(google_one_time_initializer)
-        if TARGET_ANDROID_VERSION == 10:
+        if float(Config.TARGET_ANDROID_VERSION) == 10:
             setup_wizard_set.add_package(pixel_setup_wizard_overlay)
             setup_wizard_set.add_package(pixel_setup_wizard_aod_overlay)
-        if TARGET_ANDROID_VERSION >= 10:
+        if float(Config.TARGET_ANDROID_VERSION) >= 10:
             setup_wizard_set.add_package(pixel_setup_wizard)
-            if TARGET_ANDROID_VERSION < 12:
+            if float(Config.TARGET_ANDROID_VERSION) < 12:
                 setup_wizard_set.add_package(android_migrate_prebuilt)
             # setup_wizard_set.add_package(pixel_tips)
         # if TARGET_ANDROID_VERSION == 11:
