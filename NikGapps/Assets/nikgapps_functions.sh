@@ -1170,11 +1170,39 @@ ReadConfigValue() {
 }
 
 delete_overlays(){
+  overlays_deleted=""
   addToLog "- Deleting Overlays"
   for i in $(find "$system/product/overlay" "$system/system_ext/overlay" "/product/overlay" "/system_ext/overlay" -type f -name "*$1*.apk" 2>/dev/null); do
     addToLog "- Deleting $i"
     rm -rf "$i"
+    overlays_deleted="$overlays_deleted":"$i"
   done
+  if [ -n "$overlays_deleted" ]; then
+    addToLog "- Deleted Overlays: $overlays_deleted"
+    OLD_IFS="$IFS"
+    IFS=":"
+    for i in $overlays_deleted; do
+      if [ -n "$i" ]; then
+        overlayPath=$(echo "$i" | sed "s|^$system/||")
+        overlayPath=${overlayPath#/}
+        if [ -f "$2" ]; then
+          line=$(grep -n "delete=$overlayPath" "$2" | cut -d: -f1)
+          if [ -z "$line" ]; then
+            echo "delete=$overlayPath" >> "$2"
+            addToLog "- delete=$overlayPath >> $2"
+          else
+            addToLog "- $overlayPath deleted already"
+          fi
+        else
+          echo "delete=$overlayPath" >> "$2"
+          addToLog "- delete=$overlayPath >> $2"
+        fi
+      fi
+    done
+    IFS="$OLD_IFS"
+  else
+    addToLog "- No $1 overlay to remove"
+  fi
 }
 
 RemoveAospAppsFromRom() {
