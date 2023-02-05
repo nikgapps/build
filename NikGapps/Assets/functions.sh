@@ -43,9 +43,8 @@ CopyFile() {
 
 delete_recursive() {
   # delete if directory exists
-  addToLog "- Deleting $*"
   if [ -d "$1" ]; then
-    addToLog "- worked this time!"
+    addToLog "- Deleting $*"
     rm -rf "$*"
   fi
 }

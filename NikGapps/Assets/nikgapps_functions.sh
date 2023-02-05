@@ -181,10 +181,11 @@ clean_recursive() {
       folders_that_exists="$folders_that_exists":"$1"
     fi
   else
-    for i in $(find "$system" "$product" "$system_ext" -name "$1" 2>/dev/null;); do
+    for i in $(find "$system" "$product" "$system_ext" "/product" "/system_ext" -iname "$1" 2>/dev/null;); do
+      addToLog "- Found $i"
       if [ -d "$i" ]; then
-        addToLog "- Deleting $i"
-         rm -rf "$i"
+        addToLog "- Deleting $1"
+        rm -rf "$i"
         folders_that_exists="$folders_that_exists":"$i"
       fi
     done
@@ -197,8 +198,6 @@ clean_recursive() {
               addToLog "- Hardcoded and Deleting $sys$subsys$folder/$1"
               rm -rf "$sys$subsys$folder/$1"
               folders_that_exists="$folders_that_exists":"$sys$subsys$folder/$1"
-            else
-              addToLog "- Can't remove $sys$subsys$folder/$1"
             fi
           done
         done
@@ -362,10 +361,17 @@ debloat() {
               for j in $debloated_folders; do
                 if [ -n "$j" ]; then
                   debloatPath=$(echo "$j" | sed "s|^$system/||")
-                  if grep -q "debloat=$debloatPath" "$TMPDIR/addon/$debloaterFilesPath"; then
-                    addToLog "- $debloatPath debloated already"
+                  debloatPath=${debloatPath#/}
+                  if [ -f "$TMPDIR/addon/$debloaterFilesPath" ]; then
+                    line=$(grep -n "debloat=$debloatPath" "$TMPDIR/addon/$debloaterFilesPath" | cut -d: -f1)
+                    if [ -z "$line" ]; then
+                      echo "debloat=$debloatPath" >> "$TMPDIR/addon/$debloaterFilesPath"
+                      addToLog "- debloat=$debloatPath >> $TMPDIR/addon/$debloaterFilesPath"
+                    else
+                      addToLog "- $debloatPath debloated already"
+                    fi
                   else
-                    echo "debloat=$debloatPath" >>$TMPDIR/addon/$debloaterFilesPath
+                    echo "debloat=$debloatPath" >> "$TMPDIR/addon/$debloaterFilesPath"
                     addToLog "- debloat=$debloatPath >> $TMPDIR/addon/$debloaterFilesPath"
                   fi
                 fi
@@ -377,10 +383,17 @@ debloat() {
           else
             rmv "$i"
             debloatPath=$(echo "$i" | sed "s|^$system/||")
-            if grep -q "debloat=$debloatPath" "$TMPDIR/addon/$debloaterFilesPath"; then
-              addToLog "- $debloatPath debloated already"
+            debloatPath=${debloatPath#/}
+            if [ -f "$TMPDIR/addon/$debloaterFilesPath" ]; then
+              line=$(grep -n "debloat=$debloatPath" "$TMPDIR/addon/$debloaterFilesPath" | cut -d: -f1)
+              if [ -z "$line" ]; then
+                echo "debloat=$debloatPath" >> "$TMPDIR/addon/$debloaterFilesPath"
+                addToLog "- debloat=$debloatPath >> $TMPDIR/addon/$debloaterFilesPath"
+              else
+                addToLog "- $debloatPath debloated already"
+              fi
             else
-              echo "debloat=$debloatPath" >>$TMPDIR/addon/$debloaterFilesPath
+              echo "debloat=$debloatPath" >> "$TMPDIR/addon/$debloaterFilesPath"
               addToLog "- debloat=$debloatPath >> $TMPDIR/addon/$debloaterFilesPath"
             fi
           fi
@@ -1156,6 +1169,42 @@ ReadConfigValue() {
   return $?
 }
 
+delete_overlays(){
+  overlays_deleted=""
+  addToLog "- Deleting Overlays"
+  for i in $(find "$system/product/overlay" "$system/system_ext/overlay" "/product/overlay" "/system_ext/overlay" -type f -name "*$1*.apk" 2>/dev/null); do
+    addToLog "- Deleting $i"
+    rm -rf "$i"
+    overlays_deleted="$overlays_deleted":"$i"
+  done
+  if [ -n "$overlays_deleted" ]; then
+    addToLog "- Deleted Overlays: $overlays_deleted"
+    OLD_IFS="$IFS"
+    IFS=":"
+    for i in $overlays_deleted; do
+      if [ -n "$i" ]; then
+        overlayPath=$(echo "$i" | sed "s|^$system/||")
+        overlayPath=${overlayPath#/}
+        if [ -f "$2" ]; then
+          line=$(grep -n "delete=$overlayPath" "$2" | cut -d: -f1)
+          if [ -z "$line" ]; then
+            echo "delete=$overlayPath" >> "$2"
+            addToLog "- delete=$overlayPath >> $2"
+          else
+            addToLog "- $overlayPath deleted already"
+          fi
+        else
+          echo "delete=$overlayPath" >> "$2"
+          addToLog "- delete=$overlayPath >> $2"
+        fi
+      fi
+    done
+    IFS="$OLD_IFS"
+  else
+    addToLog "- No $1 overlay to remove"
+  fi
+}
+
 RemoveAospAppsFromRom() {
   addToLog "- Removing AOSP App from Rom"
   if [ "$configValue" -eq 2 ]; then
@@ -1169,10 +1218,17 @@ RemoveAospAppsFromRom() {
       for i in $deleted_folders; do
         if [ -n "$i" ]; then
           deletePath=$(echo "$i" | sed "s|^$system/||")
-          if [ -f "$2" ] && [ grep -q "delete=$deletePath" "$2" ]; then
-            addToLog "- $deletePath deleted already"
+          deletePath=${deletePath#/}
+          if [ -f "$2" ]; then
+            line=$(grep -n "delete=$deletePath" "$2" | cut -d: -f1)
+            if [ -z "$line" ]; then
+              echo "delete=$deletePath" >> "$2"
+              addToLog "- DeletePath=$deletePath >> $2"
+            else
+              addToLog "- $deletePath deleted already"
+            fi
           else
-            echo "delete=$deletePath" >>$2
+            echo "delete=$deletePath" >> "$2"
             addToLog "- DeletePath=$deletePath >> $2"
           fi
         fi

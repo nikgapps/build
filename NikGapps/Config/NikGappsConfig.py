@@ -60,8 +60,12 @@ class NikGappsConfig:
         gms_optimization.description = "# set this to 1 if you want to enable gms optimization, " \
                                        "careful while doing it, you may experience issues like delayed notification " \
                                        "with some Roms"
+        skip_validation_check = ConfigObj("skip_validation_check", self.disabled_mode)
+        skip_validation_check.description = """# skip validation check that is to prevent crashes on some specific Roms
+# for e.g. Pixel Launcher crashes on CrDroid, so by default, it will be skipped for now
+# if you still want to install it, set skip_validation_check to 1 to force the installer to skip the validation"""
         config_list = [android_version, version, log_directory, install_partition, mode, wipe_dalvik_cache,
-                       wipe_runtime_permissions, execute_d, use_zip_config, gms_optimization]
+                       wipe_runtime_permissions, execute_d, use_zip_config, gms_optimization, skip_validation_check]
         return config_list
 
     def get_config_dictionary(self, raw_config=None):
