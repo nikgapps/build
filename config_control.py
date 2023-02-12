@@ -21,6 +21,7 @@ if config_repo is None:
 if len(pr_list) > 0:
     ConfigOperations.update_configs_with_pr_details(pr_list=pr_list, config_repo=config_repo)
 if Config.BUILD_CONFIG:
+    Config.SIGN_ZIP = False
     args = Args()
     android_versions = args.get_android_versions()
     print("---------------------------------------")
