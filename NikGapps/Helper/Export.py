@@ -1,10 +1,7 @@
-from NikGappsPackages import NikGappsPackages
 from Config import FRESH_BUILD
-from Config import SIGN_ZIP
 from Config import SEND_ZIP_DEVICE
 from Config import SIGN_PACKAGE
 import Config
-from Config import UPLOAD_FILES
 from .ZipOp import ZipOp
 from .FileOp import FileOp
 from .C import C
@@ -13,7 +10,6 @@ from .Package import Package
 from .AppSet import AppSet
 from .Cmd import Cmd
 import os
-from NikGapps.Helper.Upload import Upload
 
 
 class Export:
@@ -126,7 +122,7 @@ class Export:
                 os.rename(file_name, file_name[:-4] + "-signed.zip")
                 file_name = file_name[:-4] + "-signed.zip"
                 print("File renamed to: " + file_name)
-            elif SIGN_ZIP:
+            elif Config.SIGN_ZIP:
                 start_time = C.start_of_function()
                 print('Signing The Zip')
                 C.telegram.message("- The zip is Signing...")
