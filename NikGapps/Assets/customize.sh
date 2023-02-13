@@ -139,6 +139,13 @@ unpack() {
   chmod 755 "$2";
 }
 
+# example: tar -xf py-archive.tar.xz -C test
+unpack_tar_xz(){
+  mkdir -p "$(dirname "$2")"
+  addToLog "- unpacking $1"
+  tar -xf "$1" -C "$2"
+}
+
 nikGappsLogo
 setup_flashable
 addToLog "- Stock busybox version: $stock_busybox_version"
