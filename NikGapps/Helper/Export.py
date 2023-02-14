@@ -106,6 +106,7 @@ class Export:
             self.z.add_file(Assets.nikgapps_functions, "common/nikgapps_functions.sh")
             self.z.add_file(Assets.mount_path, "common/mount.sh")
             self.z.add_file(Assets.unmount_path, "common/unmount.sh")
+            self.z.add_string(os.path.basename(os.path.splitext(self.file_name)[0]), "zip_name.txt")
             self.z.add_string(self.get_customize_sh(self.file_name), "customize.sh")
             self.z.add_file(Assets.module_path, "module.prop")
             self.z.add_file(Assets.busybox, "busybox")
