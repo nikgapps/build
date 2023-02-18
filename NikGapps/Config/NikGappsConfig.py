@@ -8,7 +8,7 @@ from NikGappsPackages import NikGappsPackages
 class NikGappsConfig:
 
     def __init__(self, config_path=None, config_version=None, use_zip_config=None, raw_config=None):
-        self.config_version = 24
+        self.config_version = 25
         if config_version is not None:
             self.config_version = config_version
         self.default_mode = "default"
