@@ -29,6 +29,9 @@ class Validate:
             if file_name.__contains__("#") or file_name.__contains__("!"):
                 failure_reason.append(f"{file_name} contains symbols in the name which are not allowed. "
                                       f"Only alphanumeric names are allowed!")
+            if file_name.__contains__("Addon"):
+                failure_reason.append(f"{file_name} contains Addon in the name, please avoid using Addon in the name. "
+                                      f"It conflicts with the official Addon naming convention!")
             if not file_name.endswith(".config"):
                 failure_reason.append(f"{file_name} doesn't have .config extension, we only accept config files!")
             print("- checking if android version is present")
@@ -76,7 +79,8 @@ class Validate:
                     case "googlechrome":
                         enabled_pkg_count = len(appset.package_list)
                         if enabled_pkg_count < 3:
-                            failure_reason.append("All the packages under Google Chrome needs to be enabled, "
+                            failure_reason.append(f"Update {file_name}, "
+                                                  "All the packages under Google Chrome needs to be enabled, "
                                                   "you cannot disable any of the packages under Google Chrome.\n"
                                                   "Either enable all or disable all.")
                     case "core":
@@ -84,6 +88,6 @@ class Validate:
                     case "corego":
                         core_go_enabled = True
             if core_enabled and core_go_enabled:
-                failure_reason.append(
-                    "You cannot enable both Core and Core Go, you can only enable one of them")
+                failure_reason.append(f"Update {file_name}, "
+                                      "You cannot enable both Core and Core Go, you can only enable one of them")
         return failure_reason

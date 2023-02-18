@@ -59,6 +59,15 @@ addSizeToLog() {
   printf "%18s | %18s | %30s | %9s | %9s | %9s | %7s\n" "$1" "$2" "$3" "$4" "$5" "$6" "$7" >> "$installation_size_log"
 }
 
+cat_file() {
+  if [ -f "$1" ]; then
+    cat "$1"
+  else
+    addToLog "- File not found: $1"
+    echo ""
+  fi
+}
+
 initializeSizeLog(){
   echo "-------------------------------------------------------------" >> "$installation_size_log"
   echo "- File Name: $actual_file_name" >> "$installation_size_log"
@@ -131,12 +140,23 @@ setup_flashable() {
   echo "$PATH" | grep -q "^$BBDIR" || export PATH=$BBDIR:$PATH
 }
 
+tolower() {
+  echo "$@" | tr '[:upper:]' '[:lower:]'
+}
+
 unpack() {
   mkdir -p "$(dirname "$2")"
   addToLog "- unpacking $1"
   addToLog "  -> to $2"
   $BB unzip -o "$ZIPFILE" "$1" -p >"$2"
   chmod 755 "$2";
+}
+
+# example: tar -xf py-archive.tar.xz -C test
+unpack_tar_xz(){
+  mkdir -p "$(dirname "$2")"
+  addToLog "- unpacking $1"
+  tar -xf "$1" -C "$2"
 }
 
 nikGappsLogo
@@ -154,6 +174,7 @@ unpack "common/addon" "$COMMONDIR/addon"
 unpack "common/header" "$COMMONDIR/header"
 unpack "common/functions" "$COMMONDIR/functions"
 unpack "common/nikgapps.sh" "$COMMONDIR/nikgapps.sh"
+unpack "zip_name.txt" "$TMPDIR/zip_name.txt"
 
 # load all NikGapps functions
 . "$COMMONDIR/nikgapps_functions.sh"
@@ -189,7 +210,11 @@ calculate_space "system" "product" "system_ext"
 ui_print " "
 mode=$(ReadConfigValue "mode" "$nikgapps_config_file_name")
 [ -z "$mode" ] && mode="install"
+mode=$(tolower "$mode")
 [ "$ZIP_NAME_LOWER" = "uninstall" ] && mode="uninstall_by_name"
+zip_name=$(tolower "$(cat_file "$TMPDIR/zip_name.txt")")
+[ "$sideloading" = "true" ] && [ "$zip_name" == "uninstall" ] && mode="uninstall_by_name"
+[ "$sideloading" = "true" ] && [ "$zip_name" == "uninstall.zip" ] && mode="uninstall_by_name"
 addToLog "- Install mode is $mode"
 # run the debloater
 debloat

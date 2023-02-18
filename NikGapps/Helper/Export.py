@@ -1,11 +1,7 @@
-from NikGappsPackages import NikGappsPackages
 from Config import FRESH_BUILD
-from Config import SIGN_ZIP
 from Config import SEND_ZIP_DEVICE
 from Config import SIGN_PACKAGE
 import Config
-from Config import UPLOAD_FILES
-from .ZipOp import ZipOp
 from .FileOp import FileOp
 from .C import C
 from .Assets import Assets
@@ -13,15 +9,18 @@ from .Package import Package
 from .AppSet import AppSet
 from .Cmd import Cmd
 import os
-from NikGapps.Helper.Upload import Upload
+
+from ..Compression.CompOps import CompOps
+from ..Compression.Modes import Modes
+from ..Compression.Zip import Zip
 
 
 class Export:
     def __init__(self, file_name):
         self.file_name = file_name
-        self.z = ZipOp(file_name)
+        self.z = Zip(file_name)
 
-    def zip(self, app_set_list, config_string):
+    def zip(self, app_set_list, config_string, compression_mode=Modes.ZIP):
         total_packages = 0
         print_progress = ""
         start_time = C.start_of_function()
@@ -45,9 +44,8 @@ class Export:
                     pkg: Package
                     package_progress = round(float(100 * package_index / package_count))
                     pkg_zip_path = C.temp_packages_directory + C.dir_sep + "Packages" + C.dir_sep + str(
-                        pkg.package_title) + ".zip"
-                    pkg_txt_path = C.temp_packages_directory + C.dir_sep + "Packages" + C.dir_sep + str(
-                        pkg.package_title) + ".txt"
+                        pkg.package_title) + compression_mode
+                    pkg_txt_path = pkg_zip_path.replace(compression_mode, ".txt")
                     print_value = "AppSet (" + str(
                         app_set_progress) + "%): " + app_set.title + " Zipping (" + str(
                         package_progress) + "%): " + pkg.package_title
@@ -58,18 +56,18 @@ class Export:
                     old_file = True if (
                             file_exists and C.get_mtime(pkg_zip_path) < C.local_datetime) else False
                     if (FRESH_BUILD and old_file) or (not file_exists) or (not txt_file_exists):
-                        zpkg = ZipOp(pkg_zip_path)
+                        cpkg = CompOps.get_compression_obj(pkg_zip_path, compression_mode)
                         file_index = 1
                         for x in pkg.file_dict:
                             file_index = file_index + 1
                             pkg_size = pkg_size + C.get_file_bytes(x)
-                            zpkg.writefiletozip(x, str(x)[str(x).find("___"):].replace("\\", "/"))
+                            cpkg.add_file(x, str(x)[str(x).find("___"):].replace("\\", "/"))
                         if pkg.clean_flash_only:
-                            zpkg.writestringtozip("", "___etc___permissions/" + pkg.package_title + ".prop")
+                            cpkg.add_string("", "___etc___permissions/" + pkg.package_title + ".prop")
                         pkg.pkg_size = pkg_size
-                        zpkg.writestringtozip(pkg.get_installer_script(str(pkg_size)), "installer.sh")
-                        zpkg.writestringtozip(pkg.get_uninstaller_script(), "uninstaller.sh")
-                        zpkg.close()
+                        cpkg.add_string(pkg.get_installer_script(str(pkg_size)), "installer.sh")
+                        cpkg.add_string(pkg.get_uninstaller_script(), "uninstaller.sh")
+                        cpkg.close()
                         FileOp.write_string_file(str(pkg_size), pkg_txt_path)
                         if SIGN_PACKAGE:
                             cmd = Cmd()
@@ -85,32 +83,33 @@ class Export:
                         for size_on_file in FileOp.read_string_file(pkg_txt_path):
                             pkg_size = size_on_file
                             pkg.pkg_size = pkg_size
-                    self.z.writefiletozip(pkg_zip_path,
-                                          "AppSet/" + str(app_set.title) + "/" + str(pkg.package_title) + ".zip")
+                    self.z.add_file(pkg_zip_path,
+                                    "AppSet/" + str(app_set.title) + "/" + str(pkg.package_title) + compression_mode)
                     package_index = package_index + 1
                     total_packages += 1
                     file_sizes = file_sizes + str(pkg.package_title) + "=" + str(pkg_size) + "\n"
                 app_set_index = app_set_index + 1
             # Writing additional script files to the zip
-            self.z.writestringtozip(self.get_installer_script(total_packages, app_set_list), "common/install.sh")
-            self.z.writestringtozip("#MAGISK", C.meta_inf_dir + "updater-script")
-            self.z.writefiletozip(Assets.magisk_update_binary, C.meta_inf_dir + "update-binary")
-            self.z.writestringtozip(config_string, "afzc/nikgapps.config")
+            self.z.add_string(self.get_installer_script(total_packages, app_set_list), "common/install.sh")
+            self.z.add_string("#MAGISK", C.meta_inf_dir + "updater-script")
+            self.z.add_file(Assets.magisk_update_binary, C.meta_inf_dir + "update-binary")
+            self.z.add_string(config_string, "afzc/nikgapps.config")
             debloater_config_lines = ""
             for line in Assets.get_string_resource(Assets.debloater_config):
                 debloater_config_lines += line
-            self.z.writestringtozip(debloater_config_lines, "afzc/debloater.config")
-            self.z.writefiletozip(Assets.changelog, "changelog.yaml")
-            self.z.writefiletozip(Assets.addon_path, "common/addon")
-            self.z.writefiletozip(Assets.header_path, "common/header")
-            self.z.writefiletozip(Assets.functions_path, "common/functions")
-            self.z.writestringtozip(file_sizes, "common/file_size")
-            self.z.writefiletozip(Assets.nikgapps_functions, "common/nikgapps_functions.sh")
-            self.z.writefiletozip(Assets.mount_path, "common/mount.sh")
-            self.z.writefiletozip(Assets.unmount_path, "common/unmount.sh")
-            self.z.writestringtozip(self.get_customize_sh(self.file_name), "customize.sh")
-            self.z.writefiletozip(Assets.module_path, "module.prop")
-            self.z.writefiletozip(Assets.busybox, "busybox")
+            self.z.add_string(debloater_config_lines, "afzc/debloater.config")
+            self.z.add_file(Assets.changelog, "changelog.yaml")
+            self.z.add_file(Assets.addon_path, "common/addon")
+            self.z.add_file(Assets.header_path, "common/header")
+            self.z.add_file(Assets.functions_path, "common/functions")
+            self.z.add_string(file_sizes, "common/file_size")
+            self.z.add_file(Assets.nikgapps_functions, "common/nikgapps_functions.sh")
+            self.z.add_file(Assets.mount_path, "common/mount.sh")
+            self.z.add_file(Assets.unmount_path, "common/unmount.sh")
+            self.z.add_string(os.path.basename(os.path.splitext(self.file_name)[0]), "zip_name.txt")
+            self.z.add_string(self.get_customize_sh(self.file_name), "customize.sh")
+            self.z.add_file(Assets.module_path, "module.prop")
+            self.z.add_file(Assets.busybox, "busybox")
             zip_execution_status = True
             print('The zip ' + self.file_name + ' is created successfully!')
         except Exception as e:
@@ -126,7 +125,7 @@ class Export:
                 os.rename(file_name, file_name[:-4] + "-signed.zip")
                 file_name = file_name[:-4] + "-signed.zip"
                 print("File renamed to: " + file_name)
-            elif SIGN_ZIP:
+            elif Config.SIGN_ZIP:
                 start_time = C.start_of_function()
                 print('Signing The Zip')
                 C.telegram.message("- The zip is Signing...")

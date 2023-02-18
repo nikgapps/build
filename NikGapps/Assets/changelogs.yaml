@@ -1,3 +1,14 @@
+- date: 18th Feb 2023 (Android 10-13)
+  changes:
+      - item: Remove Notepad with installation of Google Keep
+      - item: Remove Launcher3Quickstep with installation of Pixel Launcher (it won't be there to cause crashes)
+      - item: Fix Setup Wizard Crash on Voltage OS
+      - item: Ability to recognize the instruction by name (such as uninstall.zip) during sideloading the zip
+      - item: Add more validations to avoid failures in the config releases
+      - item: Add the ability to remove conflicting overlays just as we remove aosp apps
+      - item: Fix the broken 'find' function while searching for existing folders apps
+      - item: Rename the addonlog file to include date in it
+      - item: Removed Pixel Setup Wizard and Flipendo as addons (while we work on fixing it)
 - date: 1st Feb 2023 (Android 10-13)
   changes:
       - item: Implement framework to auto update the apks (beta) with latest available versions in Pixel 7 pro oem image (Android 13 for now)

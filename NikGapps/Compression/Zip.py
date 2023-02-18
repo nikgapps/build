@@ -1,17 +1,17 @@
-from zipfile import ZipFile
-from zipfile import ZIP_DEFLATED
-from .FileOp import FileOp
+from zipfile import ZipFile, ZIP_DEFLATED
+
+from NikGapps.Helper.FileOp import FileOp
 
 
-class ZipOp:
+class Zip:
     def __init__(self, name):
         FileOp.create_file_dir(name)
         self.zipObj = ZipFile(name, 'w', compression=ZIP_DEFLATED)
 
-    def writefiletozip(self, filename, zippath):
+    def add_file(self, filename, zippath):
         self.zipObj.write(filename, zippath)
 
-    def writestringtozip(self, text, filename):
+    def add_string(self, text, filename):
         self.zipObj.writestr(filename, text)
 
     def close(self):

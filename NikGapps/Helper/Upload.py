@@ -135,7 +135,7 @@ class Upload:
             start_time = C.start_of_function()
             # make the connection and initialize the parameters
             file_type = "gapps"
-            if C.get_base_name(file_name).__contains__("Addon"):
+            if C.get_base_name(file_name).__contains__("-Addon-"):
                 file_type = "addons"
             elif C.get_base_name(file_name).__contains__("Debloater"):
                 file_type = "debloater"

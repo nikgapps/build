@@ -432,6 +432,7 @@ class NikGappsPackages:
     def get_full_package():
         app_set_list = NikGappsPackages.get_stock_package()
         google_keep = Package("PrebuiltKeep", "com.google.android.keep", C.is_priv_app, "GoogleKeep")
+        google_keep.delete("Notepad")
         app_set_list.append(AppSet("GoogleKeep", [google_keep]))
         google_play_books = Package("Books", "com.google.android.apps.books", C.is_system_app)
         app_set_list.append(AppSet("Books", [google_play_books]))
@@ -506,6 +507,8 @@ class NikGappsPackages:
         setup_wizard = Package("SetupWizardPrebuilt", "com.google.android.setupwizard", C.is_priv_app,
                                "SetupWizard")
         setup_wizard.delete("Provision")
+        setup_wizard.delete("SetupWizard")
+        setup_wizard.delete("LineageSetupWizard")
         setup_wizard.additional_installer_script = """
 set_prop "setupwizard.feature.baseline_setupwizard_enabled" "true" "$install_partition/build.prop"
 set_prop "ro.setupwizard.enterprise_mode" "1" "$install_partition/build.prop"

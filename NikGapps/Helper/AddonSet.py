@@ -16,15 +16,15 @@ class AddonSet:
             AddonSet.get_google_sheets(),
             AddonSet.get_youtube(),
             AddonSet.get_google_tts(),
-            AddonSet.get_pixel_setup_wizard(),
+            # AddonSet.get_pixel_setup_wizard(),
             AddonSet.get_google_talkback()
         ]
-        if float(Config.TARGET_ANDROID_VERSION) == float(12.1):
-            addon_set_list.append(AddonSet.get_lawnchair())
+        # if float(Config.TARGET_ANDROID_VERSION) == float(12.1):
+        #     addon_set_list.append(AddonSet.get_lawnchair())
         # if TARGET_ANDROID_VERSION in (10, 11):
         #     addon_set_list.append(AddonSet.get_pixel_setup_wizard())
-        if float(Config.TARGET_ANDROID_VERSION) >= 11:
-            addon_set_list.append(AddonSet.get_flipendo())
+        # if float(Config.TARGET_ANDROID_VERSION) >= 11:
+        #     addon_set_list.append(AddonSet.get_flipendo())
         if float(Config.TARGET_ANDROID_VERSION) < 13:
             addon_set_list.append(AddonSet.get_pixel_live_wallpapers())
         if addon_name is None:
@@ -113,24 +113,9 @@ class AddonSet:
                                  C.is_priv_app, "PixelLauncher", partition="system_ext")
         pixel_launcher.priv_app_permissions.append("android.permission.PACKAGE_USAGE_STATS")
         pixel_launcher.delete("TrebuchetQuickStep")
+        pixel_launcher.delete("Launcher3QuickStep")
         pixel_launcher.delete("Lawnchair")
         pixel_launcher.delete_overlay("Lawnchair")
-        pixel_launcher.validation_script = """
-skip_validation_check=$(ReadConfigValue "skip_validation_check" "$nikgapps_config_file_name")
-[ -z "$skip_validation_check" ] && skip_validation_check=0
-addToLog "- Skip validation check: $skip_validation_check"
-if [ "$skip_validation_check" = "0" ]; then
-    crdroid_version=$(ReadConfigValue "ro.crdroid.version" "/system/build.prop")
-    addToLog "- CrDroid version: $crdroid_version"
-    if [ -n "$crdroid_version" ] && [ "$crdroid_version" = "13.0" ]; then
-        ui_print "- Skipping Pixel Launcher as it is not compatible with CrDroid for now"
-    else
-        find_install_mode
-    fi
-else
-    find_install_mode
-fi
-        """
         device_personalization_services = Package("MatchmakerPrebuiltPixel4", "com.google.android.as",
                                                   C.is_priv_app, "DevicePersonalizationServices")
         gapps_list = [pixel_launcher]
