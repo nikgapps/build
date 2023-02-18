@@ -19,12 +19,12 @@ class AddonSet:
             # AddonSet.get_pixel_setup_wizard(),
             AddonSet.get_google_talkback()
         ]
-        if float(Config.TARGET_ANDROID_VERSION) == float(12.1):
-            addon_set_list.append(AddonSet.get_lawnchair())
+        # if float(Config.TARGET_ANDROID_VERSION) == float(12.1):
+        #     addon_set_list.append(AddonSet.get_lawnchair())
         # if TARGET_ANDROID_VERSION in (10, 11):
         #     addon_set_list.append(AddonSet.get_pixel_setup_wizard())
-        if float(Config.TARGET_ANDROID_VERSION) >= 11:
-            addon_set_list.append(AddonSet.get_flipendo())
+        # if float(Config.TARGET_ANDROID_VERSION) >= 11:
+        #     addon_set_list.append(AddonSet.get_flipendo())
         if float(Config.TARGET_ANDROID_VERSION) < 13:
             addon_set_list.append(AddonSet.get_pixel_live_wallpapers())
         if addon_name is None:
@@ -113,6 +113,7 @@ class AddonSet:
                                  C.is_priv_app, "PixelLauncher", partition="system_ext")
         pixel_launcher.priv_app_permissions.append("android.permission.PACKAGE_USAGE_STATS")
         pixel_launcher.delete("TrebuchetQuickStep")
+        pixel_launcher.delete("Launcher3QuickStep")
         pixel_launcher.delete("Lawnchair")
         pixel_launcher.delete_overlay("Lawnchair")
         device_personalization_services = Package("MatchmakerPrebuiltPixel4", "com.google.android.as",

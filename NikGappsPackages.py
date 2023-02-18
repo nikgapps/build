@@ -432,6 +432,7 @@ class NikGappsPackages:
     def get_full_package():
         app_set_list = NikGappsPackages.get_stock_package()
         google_keep = Package("PrebuiltKeep", "com.google.android.keep", C.is_priv_app, "GoogleKeep")
+        google_keep.delete("Notepad")
         app_set_list.append(AppSet("GoogleKeep", [google_keep]))
         google_play_books = Package("Books", "com.google.android.apps.books", C.is_system_app)
         app_set_list.append(AppSet("Books", [google_play_books]))
