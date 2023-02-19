@@ -94,11 +94,13 @@ if FileOp.dir_exists(repo_dir):
         json.dump(count_today, file, indent=2, sort_keys=True)
     try:
         print("Updating the download count in tracker repository")
+        message = ""
         for key in count_today:
             todays_custom_builds_count += count_today[key]
+            message += f"{key}:{count_today[key]} "
         print("Custom builds so far created today: " + str(todays_custom_builds_count))
         tracker_repo = Git(repo_dir)
-        tracker_repo.update_repo_changes("Custom builds so far created today: " + str(todays_custom_builds_count))
+        tracker_repo.update_repo_changes(message)
     except Exception as e:
         print(str(e))
 else:
