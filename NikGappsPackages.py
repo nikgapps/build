@@ -379,6 +379,7 @@ class NikGappsPackages:
         google_velvet.priv_app_permissions.append("android.permission.START_ACTIVITIES_FROM_BACKGROUND")
         google_velvet.priv_app_permissions.append("android.permission.WRITE_APN_SETTINGS")
         google_velvet.priv_app_permissions.append("android.permission.BLUETOOTH_PRIVILEGED")
+        google_velvet.priv_app_permissions.append("android.permission.MODIFY_AUDIO_ROUTING")
         google_velvet.clean_flash_only = True
         google_velvet.additional_installer_script = """
     set_prop "ro.opa.eligible_device" "true" "$install_partition/build.prop"
