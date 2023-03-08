@@ -539,41 +539,6 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
         return setup_wizard_set
 
     @staticmethod
-    def get_pixelize_set():
-        pixel_setup_wizard_overlay = Package("PixelSetupWizardOverlay", "com.google.android.pixel.setupwizard.overlay",
-                                             C.is_system_app)
-        pixel_setup_wizard_aod_overlay = Package("PixelSetupWizardAodOverlay",
-                                                 "com.google.android.pixel.setupwizard.overlay.aod",
-                                                 C.is_system_app)
-        pixel_setup_wizard = Package("PixelSetupWizard", "com.google.android.pixel.setupwizard", C.is_priv_app,
-                                     partition="system_ext")
-        android_migrate_prebuilt = Package("AndroidMigratePrebuilt", "com.google.android.apps.pixelmigrate",
-                                           C.is_priv_app)
-        pixel_tips = Package("TipsPrebuilt", "com.google.android.apps.tips", C.is_priv_app, "PixelTips")
-        pixel_config_overlays = Package("PixelConfigOverlays", None, None)
-        pixel_config_overlays.predefined_file_list.append(
-            "overlay/IconPackRoundedPixelLauncher/IconPackRoundedPixelLauncherOverlay.apk")
-        pixel_config_overlays.predefined_file_list.append(
-            "overlay/IconPackFilledPixelLauncher/IconPackFilledPixelLauncherOverlay.apk")
-        pixel_config_overlays.predefined_file_list.append(
-            "overlay/IconPackCircularPixelLauncher/IconPackCircularPixelLauncherOverlay.apk")
-        pixel_config_overlays.predefined_file_list.append("overlay/PixelConfigOverlay2018.apk")
-        pixel_config_overlays.predefined_file_list.append("overlay/PixelConfigOverlay2019.apk")
-        pixel_config_overlays.predefined_file_list.append("overlay/PixelConfigOverlay2019Midyear.apk")
-        pixel_config_overlays.predefined_file_list.append("overlay/PixelConfigOverlaySunfish.apk")
-        pixelize_set = AppSet("Pixelize")
-        if TARGET_ANDROID_VERSION == 10:
-            pixelize_set.add_package(pixel_setup_wizard_overlay)
-            pixelize_set.add_package(pixel_setup_wizard_aod_overlay)
-        if TARGET_ANDROID_VERSION in (10, 11):
-            pixelize_set.add_package(pixel_setup_wizard)
-            pixelize_set.add_package(android_migrate_prebuilt)
-            pixelize_set.add_package(pixel_tips)
-        if TARGET_ANDROID_VERSION == 11:
-            pixelize_set.add_package(pixel_config_overlays)
-        return pixelize_set
-
-    @staticmethod
     def get_lawnchair():
         lawnchair_set = AppSet("Lawnchair")
         from Config import TARGET_ANDROID_VERSION
