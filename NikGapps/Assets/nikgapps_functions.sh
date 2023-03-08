@@ -1041,6 +1041,7 @@ install_app_set() {
             [ $androidVersion -le 10 ] && default_partition=product && addToLog "- default_partition is overridden"
             ;;
           esac
+          uninstall_the_package "$appset_name" "$current_package_title" "1"
           install_partition=$(get_install_partition "$default_partition" "$default_partition" "$package_size")
           addToLog "- $current_package_title required size: $package_size Kb, installing to $install_partition ($default_partition)"
           if [ "$install_partition" != "-1" ]; then
@@ -1365,7 +1366,8 @@ uninstall_file() {
 uninstall_the_package() {
   extn="zip"
   package_name="$2"
-  addToLog "- Uninstalling $package_name"
+  print_on_screen="$3"
+  [ "$print_on_screen" != "1" ] && ui_print "- Uninstalling $package_name"
   pkgFile="$TMPDIR/$package_name.zip"
   pkgContent="pkgContent"
   unpack "AppSet/$1/$package_name.$extn" "$pkgFile"
