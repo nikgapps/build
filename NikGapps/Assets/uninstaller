@@ -1,7 +1,6 @@
 #!/sbin/sh
 
 uninstall_package() {
-    ui_print "- Uninstalling $package_title"
     # Remove the files when we're uninstalling NiKGapps
     for i in $file_list; do
         uninstall_file "$i" "$package_name"
