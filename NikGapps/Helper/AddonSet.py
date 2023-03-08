@@ -15,7 +15,7 @@ class AddonSet:
             AddonSet.get_google_slides(),
             AddonSet.get_google_sheets(),
             AddonSet.get_youtube(),
-            AddonSet.get_google_tts(),
+            # AddonSet.get_google_tts(),
             # AddonSet.get_pixel_setup_wizard(),
             AddonSet.get_google_talkback()
         ]
@@ -129,6 +129,10 @@ class AddonSet:
         google_wallpaper = Package("WallpaperPickerGooglePrebuilt", "com.google.android.apps.wallpaper",
                                    C.is_priv_app, "GoogleWallpaper", partition="system_ext")
         gapps_list.append(google_wallpaper)
+        if float(Config.TARGET_ANDROID_VERSION) >= 13:
+            settings_services = Package("SettingsIntelligenceGooglePrebuilt", "com.google.android.settings.intelligence",
+                                        C.is_priv_app, "SettingsServices")
+            gapps_list.append(settings_services)
         return AppSet("PixelLauncher", gapps_list)
 
     @staticmethod

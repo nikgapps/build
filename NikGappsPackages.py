@@ -316,6 +316,7 @@ class NikGappsPackages:
         google_dialer.predefined_file_list.append("framework/com.google.android.dialer.support.jar")
         google_dialer.delete("Dialer")
         app_set_list.append(AppSet("GoogleDialer", [google_dialer]))
+        app_set_list.append(AddonSet.get_google_tts())
 
         google_contacts = Package("GoogleContacts", "com.google.android.contacts", C.is_system_app)
         google_contacts.delete("Contacts")
