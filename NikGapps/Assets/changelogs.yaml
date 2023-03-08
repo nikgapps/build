@@ -1,6 +1,10 @@
+- date: 1st Mar 2023 Hotfix build (Android 10-13)
+  changes:
+      - item: Fixed the issue with Google Photos not being able to edit images
+      - item: Fixed Recorder app crashing on android 12.1 and lower
 - date: 28th Feb 2023 Hotfix build (Android 10-13)
   changes:
-      - item: Fixes the bootloop on stock, full builds and Google Search addon.
+      - item: Fixed the bootloop on stock, full builds and Google Search addon.
 - date: 18th Feb 2023 (Android 10-13)
   changes:
       - item: Remove Notepad with installation of Google Keep
