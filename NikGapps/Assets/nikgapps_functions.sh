@@ -1092,8 +1092,16 @@ install_file() {
     # $1 will start with ___ which needs to be skipped so replacing it with blank value
     blank=""
     file_location=$(echo "$1" | sed "s/___/$blank/" | sed "s/___/\//g")
-    # install_location is dynamic location where package would be installed (usually /system, /system/product)
-    install_location="$install_partition/$file_location"
+    enforced_partition=$(echo "$file_location" | cut -d'/' -f 1)
+    case "$enforced_partition" in
+      "system"|"system_ext"|"product"|"vendor")
+        addToLog "- /$file_location is forced to be installed in $enforced_partition"
+        install_location="/$file_location"
+        ;;
+      *)
+        install_location="$install_partition/$file_location"
+        ;;
+    esac
     # Make sure the directory exists, if not, copying the file would fail
     mkdir -p "$(dirname "$install_location")"
     set_perm 0 0 0755 "$(dirname "$install_location")"
@@ -1114,11 +1122,19 @@ install_file() {
       esac
       set_perm 0 0 0644 "$install_location"
       # Addon stuff!
-      case "$install_partition" in
-          *"/product") installPath="product/$file_location" ;;
-          *"/system_ext") installPath="system_ext/$file_location" ;;
-          *) installPath="$file_location" ;;
-      esac
+      case "$enforced_partition" in
+      "system"|"system_ext"|"product"|"vendor")
+        installPath=$(echo "$file_location" | sed "s/$enforced_partition\///")
+        installPath="$installPath"
+        ;;
+      *)
+        case "$install_partition" in
+            *"/product") installPath="product/$file_location" ;;
+            *"/system_ext") installPath="system_ext/$file_location" ;;
+            *) installPath="$file_location" ;;
+        esac
+        ;;
+    esac
       addToPackageLog "- InstallPath=$installPath" "$package_title"
       echo "install=$installPath" >>"$TMPDIR/addon/$packagePath"
     else

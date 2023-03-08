@@ -65,6 +65,9 @@ class Build:
                         elif str(primary_app_location).__contains__("___app___"):
                             app_type = C.is_system_app
                     for folder in FileOp.get_dir_list(pkg_files_path):
+                        if folder.startswith("system") or folder.startswith("vendor") \
+                                or folder.startswith("product") or folder.startswith("system_ext"):
+                            continue
                         folder_dict[folder] = folder
                     # We don't need this but for the sake of consistency
                     install_list.append(pkg_files_path.replace("___", "/"))
@@ -79,6 +82,7 @@ class Build:
                 pkg.clean_flash_only = pkg_to_build.clean_flash_only
                 pkg.file_dict = file_dict
                 pkg.folder_dict = folder_dict
+                pkg.addon_index = pkg_to_build.addon_index
                 pkg.additional_installer_script = pkg_to_build.additional_installer_script
                 pkg.primary_app_location = primary_app_location
                 # Generate priv-app permissions whitelist

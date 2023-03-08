@@ -175,7 +175,8 @@ class NikGappsPackages:
         googlecalendarsync = Package("GoogleCalendarSyncAdapter", "com.google.android.syncadapters.calendar",
                                      C.is_system_app)
         core_go.add_package(googlecalendarsync)
-
+        for pkg in core_go.package_list:
+            pkg.addon_index = 5
         app_set_list = [core_go]
 
         google_go = Package("GoogleGo", "com.google.android.apps.searchlite", C.is_priv_app)
@@ -292,6 +293,8 @@ class NikGappsPackages:
                                      C.is_system_app)
         gapps_list = [files, phonesky, googleservicesframework, googlecontactssyncadapter, googlecalendarsync,
                       prebuiltgmscore]
+        for pkg in gapps_list:
+            pkg.addon_index = 5
         return [AppSet("Core", gapps_list)]
 
     @staticmethod
