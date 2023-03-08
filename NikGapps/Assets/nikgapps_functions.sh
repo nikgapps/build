@@ -1122,11 +1122,19 @@ install_file() {
       esac
       set_perm 0 0 0644 "$install_location"
       # Addon stuff!
-      case "$install_partition" in
-          *"/product") installPath="product/$file_location" ;;
-          *"/system_ext") installPath="system_ext/$file_location" ;;
-          *) installPath="$file_location" ;;
-      esac
+      case "$enforced_partition" in
+      "system"|"system_ext"|"product"|"vendor")
+        installPath=$(echo "$file_location" | sed "s/$enforced_partition\///")
+        installPath="$installPath"
+        ;;
+      *)
+        case "$install_partition" in
+            *"/product") installPath="product/$file_location" ;;
+            *"/system_ext") installPath="system_ext/$file_location" ;;
+            *) installPath="$file_location" ;;
+        esac
+        ;;
+    esac
       addToPackageLog "- InstallPath=$installPath" "$package_title"
       echo "install=$installPath" >>"$TMPDIR/addon/$packagePath"
     else
