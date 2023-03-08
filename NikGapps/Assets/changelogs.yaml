@@ -1,3 +1,8 @@
+- date: 7th Mar 2023 (Android 10-13)
+  changes:
+      - item: Fixed the issue where dirty flashing ran into storage space issue
+      - item: Fixed the select text issue with Pixel Launcher
+      - item: Reorder the addon.d scripts to execute core apps first
 - date: 1st Mar 2023 Hotfix build (Android 10-13)
   changes:
       - item: Fixed the issue with Google Photos not being able to edit images

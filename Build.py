@@ -79,6 +79,7 @@ class Build:
                 pkg.clean_flash_only = pkg_to_build.clean_flash_only
                 pkg.file_dict = file_dict
                 pkg.folder_dict = folder_dict
+                pkg.addon_index = pkg_to_build.addon_index
                 pkg.additional_installer_script = pkg_to_build.additional_installer_script
                 pkg.primary_app_location = primary_app_location
                 # Generate priv-app permissions whitelist

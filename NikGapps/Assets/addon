@@ -7,14 +7,13 @@
 shift 1
 destDir=$system/addon.d
 NikGappsDir=$destDir
-destDir=$NikGappsDir
 addon_index=10
-dest="$destDir/$addon_index-$1.sh"
 fileName=$1
-shift 1
-installSource=$1
-deleteSource=$2
-debloaterSource=$3
+installSource=$2
+deleteSource=$3
+debloaterSource=$4
+[ -n "$5" ] && addon_index=$5
+dest="$destDir/$addon_index-$fileName.sh"
 mkdir -p "$destDir"
 TMPDIR=/dev/tmp
 COMMONDIR=$TMPDIR/NikGappsScripts
