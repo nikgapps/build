@@ -129,7 +129,7 @@ class AddonSet:
         google_wallpaper = Package("WallpaperPickerGooglePrebuilt", "com.google.android.apps.wallpaper",
                                    C.is_priv_app, "GoogleWallpaper", partition="system_ext")
         gapps_list.append(google_wallpaper)
-        if float(Config.TARGET_ANDROID_VERSION) >= 13:
+        if float(Config.TARGET_ANDROID_VERSION) >= 12:
             settings_services = Package("SettingsIntelligenceGooglePrebuilt", "com.google.android.settings.intelligence",
                                         C.is_priv_app, "SettingsServices")
             gapps_list.append(settings_services)
