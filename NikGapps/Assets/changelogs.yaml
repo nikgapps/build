@@ -1,6 +1,7 @@
 - date: 9th Mar 2023 (Android 10-13)
   changes:
       - item: Fixed the select text issue with Pixel Launcher
+      - item: Fixed Live Captions (ability to download languages and detect captions)
       - item: Fixed At a Glance widget not showing up weather in Pixel Launcher
       - item: Fixed the issue where dirty flashing ran into storage space issue
       - item: Enabled call recording with google dialer from gapps end (still require server support)
