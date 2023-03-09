@@ -15,6 +15,8 @@ class AddonSet:
             AddonSet.get_google_slides(),
             AddonSet.get_google_sheets(),
             AddonSet.get_youtube(),
+            AddonSet.get_youtube_music(),
+            AddonSet.get_google_play_books(),
             # AddonSet.get_google_tts(),
             # AddonSet.get_pixel_setup_wizard(),
             AddonSet.get_google_talkback()
@@ -130,16 +132,37 @@ class AddonSet:
                                    C.is_priv_app, "GoogleWallpaper", partition="system_ext")
         gapps_list.append(google_wallpaper)
         if float(Config.TARGET_ANDROID_VERSION) >= 12:
-            settings_services = Package("SettingsIntelligenceGooglePrebuilt", "com.google.android.settings.intelligence",
+            settings_services = Package("SettingsIntelligenceGooglePrebuilt",
+                                        "com.google.android.settings.intelligence",
                                         C.is_priv_app, "SettingsServices")
+            device_intelligence_network_prebuilt = Package("DeviceIntelligenceNetworkPrebuilt",
+                                                           "com.google.android.as.oss",
+                                                           C.is_priv_app, "PrivateComputeServices")
             gapps_list.append(settings_services)
+            gapps_list.append(device_intelligence_network_prebuilt)
         return AppSet("PixelLauncher", gapps_list)
+
+    @staticmethod
+    def get_google_play_books():
+        google_play_books = Package("Books", "com.google.android.apps.books", C.is_system_app)
+        return AppSet("Books", [google_play_books])
 
     @staticmethod
     def get_google_wallpaper():
         google_wallpaper = Package("WallpaperPickerGooglePrebuilt", "com.google.android.apps.wallpaper",
                                    C.is_priv_app, "GoogleWallpaper", partition="system_ext")
         return AppSet("GoogleWallpaper", [google_wallpaper])
+
+    @staticmethod
+    def get_youtube_music():
+        youtube_music = Package("YouTubeMusicPrebuilt", "com.google.android.apps.youtube.music",
+                                C.is_system_app,
+                                "YouTubeMusic")
+        youtube_music.delete("SnapdragonMusic")
+        youtube_music.delete("GooglePlayMusic")
+        youtube_music.delete("Eleven")
+        return AppSet("YouTubeMusic", [youtube_music])
+
 
     @staticmethod
     def get_mixplorer():

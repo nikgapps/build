@@ -316,7 +316,6 @@ class NikGappsPackages:
         google_dialer.predefined_file_list.append("framework/com.google.android.dialer.support.jar")
         google_dialer.delete("Dialer")
         app_set_list.append(AppSet("GoogleDialer", [google_dialer]))
-        app_set_list.append(AddonSet.get_google_tts())
 
         google_contacts = Package("GoogleContacts", "com.google.android.contacts", C.is_system_app)
         google_contacts.delete("Contacts")
@@ -350,10 +349,6 @@ class NikGappsPackages:
             google_location_history = Package("LocationHistoryPrebuilt", "com.google.android.gms.location.history",
                                               C.is_system_app, "GoogleLocationHistory")
             app_set_list.append(AppSet("GoogleLocationHistory", [google_location_history]))
-        gmail = Package("PrebuiltGmail", "com.google.android.gm", C.is_system_app, "Gmail")
-        gmail.delete("Email")
-        gmail.delete("PrebuiltEmailGoogle")
-        app_set_list.append(AppSet("Gmail", [gmail]))
         google_photos = Package("Photos", "com.google.android.apps.photos", C.is_system_app, "GooglePhotos")
         google_photos.delete("Gallery")
         google_photos.delete("SimpleGallery")
@@ -369,12 +364,43 @@ class NikGappsPackages:
         google_turbo = Package("Turbo", "com.google.android.apps.turbo", C.is_priv_app, "DeviceHealthServices")
         google_turbo.delete("TurboPrebuilt")
         app_set_list.append(AppSet("DeviceHealthServices", [google_turbo]))
-
+        google_board = Package("LatinIMEGooglePrebuilt", "com.google.android.inputmethod.latin",
+                               C.is_system_app, "GBoard")
+        google_board.additional_installer_script = """
+        set_prop "ro.com.google.ime.bs_theme" "true" "$install_partition/build.prop"
+        set_prop "ro.com.google.ime.theme_id" "5" "$install_partition/build.prop"
+        set_prop "ro.com.google.ime.system_lm_dir" "$install_partition/usr/share/ime/google/d3_lms" "$install_partition/build.prop"
+             """
+        google_board.delete("LatinIME")
+        google_board.clean_flash_only = True
+        app_set_list.append(AppSet("GBoard", [google_board]))
+        google_calendar = Package("CalendarGooglePrebuilt", "com.google.android.calendar", C.is_priv_app,
+                                  "GoogleCalendar")
+        google_calendar.delete("Calendar")
+        google_calendar.delete("Etar")
+        google_calendar.delete("SimpleCalendar")
+        app_set_list.append(AppSet("GoogleCalendar", [google_calendar]))
+        google_keep = Package("PrebuiltKeep", "com.google.android.keep", C.is_priv_app, "GoogleKeep")
+        google_keep.delete("Notepad")
+        app_set_list.append(AppSet("GoogleKeep", [google_keep]))
         return app_set_list
 
     @staticmethod
     def get_stock_package():
         app_set_list = NikGappsPackages.get_omni_package()
+        play_games = Package("PlayGames", "com.google.android.play.games", C.is_system_app)
+        app_set_list.append(AppSet("PlayGames", [play_games]))
+        app_set_list.append(AddonSet.get_pixel_launcher())
+        if TARGET_ANDROID_VERSION >= 11:
+            app_set_list.append(NikGappsPackages.get_google_files())
+        google_recorder = Package("RecorderPrebuilt", "com.google.android.apps.recorder", C.is_priv_app,
+                                  "GoogleRecorder")
+        google_recorder.delete("Recorder")
+        google_recorder.delete("QtiSoundRecorder")
+        app_set_list.append(AppSet("GoogleRecorder", [google_recorder]))
+        google_markup = Package("MarkupGoogle", "com.google.android.markup", C.is_system_app)
+        app_set_list.append(AppSet("MarkupGoogle", [google_markup]))
+        app_set_list.append(AddonSet.get_google_tts())
         google_velvet = Package("Velvet", "com.google.android.googlequicksearchbox", C.is_priv_app)
         google_velvet.priv_app_permissions.append("android.permission.EXPAND_STATUS_BAR")
         google_velvet.priv_app_permissions.append("android.permission.SET_MEDIA_KEY_LISTENER")
@@ -386,70 +412,25 @@ class NikGappsPackages:
         google_velvet.priv_app_permissions.append("android.permission.MODIFY_AUDIO_ROUTING")
         google_velvet.clean_flash_only = True
         google_velvet.additional_installer_script = """
-    set_prop "ro.opa.eligible_device" "true" "$install_partition/build.prop"
-                        """
+                    set_prop "ro.opa.eligible_device" "true" "$install_partition/build.prop"
+                                        """
         google_assistant = Package("Assistant", "com.google.android.apps.googleassistant", C.is_priv_app)
         google_assistant.clean_flash_only = True
         app_set_list.append(AppSet("GoogleSearch", [google_velvet, google_assistant]))
-        google_board = Package("LatinIMEGooglePrebuilt", "com.google.android.inputmethod.latin",
-                               C.is_system_app, "GBoard")
-        google_board.additional_installer_script = """
-   set_prop "ro.com.google.ime.bs_theme" "true" "$install_partition/build.prop"
-   set_prop "ro.com.google.ime.theme_id" "5" "$install_partition/build.prop"
-   set_prop "ro.com.google.ime.system_lm_dir" "$install_partition/usr/share/ime/google/d3_lms" "$install_partition/build.prop"
-        """
-        google_board.delete("LatinIME")
-        google_board.clean_flash_only = True
-        app_set_list.append(AppSet("GBoard", [google_board]))
-        app_set_list.append(AddonSet.get_pixel_launcher())
-        if TARGET_ANDROID_VERSION >= 11:
-            app_set_list.append(NikGappsPackages.get_google_files())
-        google_recorder = Package("RecorderPrebuilt", "com.google.android.apps.recorder", C.is_priv_app,
-                                  "GoogleRecorder")
-        google_recorder.delete("Recorder")
-        google_recorder.delete("QtiSoundRecorder")
-        app_set_list.append(AppSet("GoogleRecorder", [google_recorder]))
-        google_calendar = Package("CalendarGooglePrebuilt", "com.google.android.calendar", C.is_priv_app,
-                                  "GoogleCalendar")
-        google_calendar.delete("Calendar")
-        google_calendar.delete("Etar")
-        google_calendar.delete("SimpleCalendar")
-        app_set_list.append(AppSet("GoogleCalendar", [google_calendar]))
-        google_markup = Package("MarkupGoogle", "com.google.android.markup", C.is_system_app)
-        app_set_list.append(AppSet("MarkupGoogle", [google_markup]))
-        google_feedback = Package("GoogleFeedback", "com.google.android.feedback", C.is_priv_app,
-                                  partition="system_ext")
-        app_set_list.append(AppSet("GoogleFeedback", [google_feedback]))
-        google_partner_setup = Package("PartnerSetupPrebuilt", "com.google.android.partnersetup", C.is_priv_app,
-                                       "GooglePartnerSetup")
-        app_set_list.append(AppSet("GooglePartnerSetup", [google_partner_setup]))
         google_sounds = Package("SoundPickerPrebuilt", "com.google.android.soundpicker", C.is_system_app,
                                 "GoogleSounds")
         google_sounds.clean_flash_only = True
         app_set_list.append(AppSet("GoogleSounds", [google_sounds]))
-        if TARGET_ANDROID_VERSION >= 10:
-            android_device_policy = Package("DevicePolicyPrebuilt", "com.google.android.apps.work.clouddpc",
-                                            C.is_system_app, "AndroidDevicePolicy")
-            app_set_list.append(AppSet("AndroidDevicePolicy", [android_device_policy]))
         return app_set_list
 
     @staticmethod
     def get_full_package():
         app_set_list = NikGappsPackages.get_stock_package()
-        google_keep = Package("PrebuiltKeep", "com.google.android.keep", C.is_priv_app, "GoogleKeep")
-        google_keep.delete("Notepad")
-        app_set_list.append(AppSet("GoogleKeep", [google_keep]))
-        google_play_books = Package("Books", "com.google.android.apps.books", C.is_system_app)
-        app_set_list.append(AppSet("Books", [google_play_books]))
-        youtube_music = Package("YouTubeMusicPrebuilt", "com.google.android.apps.youtube.music",
-                                C.is_system_app,
-                                "YouTubeMusic")
-        youtube_music.delete("SnapdragonMusic")
-        youtube_music.delete("GooglePlayMusic")
-        youtube_music.delete("Eleven")
-        app_set_list.append(AppSet("YouTubeMusic", [youtube_music]))
-        play_games = Package("PlayGames", "com.google.android.play.games", C.is_system_app)
-        app_set_list.append(AppSet("PlayGames", [play_games]))
+        app_set_list.append(NikGappsPackages.get_chrome())
+        gmail = Package("PrebuiltGmail", "com.google.android.gm", C.is_system_app, "Gmail")
+        gmail.delete("Email")
+        gmail.delete("PrebuiltEmailGoogle")
+        app_set_list.append(AppSet("Gmail", [gmail]))
         if TARGET_ANDROID_VERSION >= 10:
             google_device_setup = Package("OTAConfigPrebuilt", "com.google.android.apps.work.oobconfig",
                                           C.is_priv_app, "DeviceSetup")
@@ -458,7 +439,17 @@ class NikGappsPackages:
                                C.is_priv_app, "AndroidAuto")
         android_auto.clean_flash_only = True
         app_set_list.append(AppSet("AndroidAuto", [android_auto]))
-        app_set_list.append(NikGappsPackages.get_chrome())
+        google_feedback = Package("GoogleFeedback", "com.google.android.feedback", C.is_priv_app,
+                                  partition="system_ext")
+        app_set_list.append(AppSet("GoogleFeedback", [google_feedback]))
+        google_partner_setup = Package("PartnerSetupPrebuilt", "com.google.android.partnersetup", C.is_priv_app,
+                                       "GooglePartnerSetup")
+        app_set_list.append(AppSet("GooglePartnerSetup", [google_partner_setup]))
+        if TARGET_ANDROID_VERSION >= 10:
+            android_device_policy = Package("DevicePolicyPrebuilt", "com.google.android.apps.work.clouddpc",
+                                            C.is_system_app, "AndroidDevicePolicy")
+            app_set_list.append(AppSet("AndroidDevicePolicy", [android_device_policy]))
+
         return app_set_list
 
     @staticmethod

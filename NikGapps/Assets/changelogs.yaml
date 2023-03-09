@@ -1,10 +1,12 @@
 - date: 9th Mar 2023 (Android 10-13)
   changes:
-      - item: Fixed the issue where dirty flashing ran into storage space issue
       - item: Fixed the select text issue with Pixel Launcher
-      - item: Reordered the addon.d scripts to execute core apps first
-      - item: Moved GoogleTTS to basic
-      - item: Added SettingsServices to PixelLauncher (android 12/12.1/13)
+      - item: Fixed At a Glance widget not showing up weather in Pixel Launcher
+      - item: Fixed the issue where dirty flashing ran into storage space issue
+      - item: Enabled call recording with google dialer from gapps end (still require server support)
+      - item: Reordered the addon.d scripts to execute core apps first (some of the scripts will start with 5, 9 and 10)
+      - item: Redefined the variants (omni, stock, full, go) check the website for their definition
+      - item: Added SettingsServices and PrivateComputeServices to PixelLauncher (android 12/12.1/13)
       - item: Bump the config version to 26
 - date: 1st Mar 2023 Hotfix build (Android 10-13)
   changes:
