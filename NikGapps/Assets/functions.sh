@@ -59,16 +59,13 @@ delete_aosp_apps(){
 
 debloat_apps(){
   for i in $(debloat_folders); do
-    # A/B device will have /postinstall
-    if [ -d "/postinstall" ]; then
-      delete_recursive "/postinstall$S/$i"
-    # if /postinstall doesn't exist, then it must be A-only device
-    elif [ -d "$S/$i" ]; then
-      delete_recursive "$S/$i"
-    # if the folder doesn't exist on either /postinstall or /system
-    else
-      addToLog "- $i cannot be located"
-    fi
+    addToLog "- Debloating /$i"
+    for j in "/postinstall$S/$i" "/postinstall/$i" "$S/$i" "/$i"; do
+      if [ -f "$j" ] || [ -d "$j" ]; then
+        addToLog "- Found, deleting $j"
+        rm -rf "$j"
+      fi
+    done
   done
 }
 
