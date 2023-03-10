@@ -41,19 +41,15 @@ CopyFile() {
   fi
 }
 
-delete_recursive() {
-  # delete if directory exists
-  if [ -d "$1" ]; then
-    addToLog "- Deleting $*"
-    rm -rf "$*"
-  fi
-}
-
 delete_aosp_apps(){
   for i in $(delete_folders); do
-    # A/B device will have /postinstall
-    delete_recursive "/postinstall$S/$i"
-    delete_recursive "$S/$i"
+    addToLog "- Deleting /$i"
+    for j in "/postinstall$S/$i" "/postinstall/$i" "$S/$i" "/$i"; do
+      if [ -f "$j" ] || [ -d "$j" ]; then
+        addToLog "- Found, deleting $j"
+        rm -rf "$j"
+      fi
+    done
   done
 }
 
