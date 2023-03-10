@@ -40,7 +40,7 @@ class Package:
         self.failure_logs = ""
         self.pkg_size = 0
         self.validation_script = None
-        self.addon_index = 9
+        self.addon_index = "09"
 
     def delete_overlay(self, overlay):
         if overlay not in self.delete_overlay_list:
