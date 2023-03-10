@@ -1,3 +1,8 @@
+- date: 11th Mar 2023 (Android 10-13)
+  changes:
+      - item: Fixed the files not being debloated with OTA update
+      - item: Fixed the aosp apps not being deleted with OTA update for devices with dedicated partition
+      - item: Append 0 before addon index to sort the files execution in correct order
 - date: 9th Mar 2023 (Android 10-13)
   changes:
       - item: Fixed the select text issue with Pixel Launcher
