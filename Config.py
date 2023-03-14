@@ -33,9 +33,6 @@ SEND_ZIP_DEVICE = True
 if ENVIRONMENT_TYPE.__eq__("production"):
     SEND_ZIP_DEVICE = False
 
-# This will create a Debloater Zip
-CREATE_DEBLOATER_ZIP = True
-
 # This will allow the program to sign the zip
 SIGN_ZIP = True
 
@@ -50,9 +47,6 @@ if ENVIRONMENT_TYPE.__eq__("production"):
 
 # True if we want the files to upload as soon as they get created
 UPLOAD_FILES = True
-
-# Release day can be any of the 7 days
-RELEASE_DAY = "Sat"
 
 # Override the execution if we re-trigger the workflow
 OVERRIDE_RELEASE = False
