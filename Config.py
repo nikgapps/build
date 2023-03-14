@@ -58,6 +58,7 @@ GIT_PUSH = True
 
 # Enabling this will enable the feature of building NikGapps using config file
 BUILD_CONFIG = True
+BUILD_EXCLUSIVE = False
 
 # Possible Values are ['fetch', 'build']
 # PROJECT_MODE = "fetch"

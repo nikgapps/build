@@ -2,6 +2,7 @@ from datetime import datetime
 
 from NikGapps.Config.ConfigOperations import ConfigOperations
 from NikGapps.Config.NikGappsConfig import NikGappsConfig
+from NikGapps.Config.UserBuild.OnDemand import OnDemand
 from NikGapps.Helper import FileOp, Git, Upload
 from NikGapps.Helper.C import C
 from Release import Release
@@ -101,7 +102,6 @@ class Operation:
         if commit_message is None:
             commit_message = datetime.now(pytz.timezone('Europe/London')).strftime("%Y-%m-%d %H:%M:%S")
         release_repo = None
-        website_repo = None
         source_last_commit_datetime = None
         if git_check:
             source_last_commit_datetime = self.get_last_commit_date(
@@ -132,12 +132,14 @@ class Operation:
                 if Config.TARGET_ANDROID_VERSION == 10 and "go" not in Config.BUILD_PACKAGE_LIST:
                     Config.BUILD_PACKAGE_LIST.append("go")
                 C.update_android_version_dependencies()
-                today = datetime.now(pytz.timezone('Europe/London')).strftime("%a")
                 Release.zip(package_list, upload)
                 if release_repo is not None and git_check:
                     release_repo.git_push(str(android_version) + ": " + str(commit_message))
+                if Config.BUILD_EXCLUSIVE:
+                    OnDemand.build_all_configs(android_version, exclusive=True)
 
         if git_check:
+            website_repo = None
             website_repo = self.get_website_repo_for_changelog()
             if website_repo is not None:
                 website_repo.update_changelog()
