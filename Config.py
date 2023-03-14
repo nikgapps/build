@@ -38,15 +38,6 @@ CREATE_DEBLOATER_ZIP = True
 
 # This will allow the program to sign the zip
 SIGN_ZIP = True
-# This will allow the program to sign the individual packages
-SIGN_PACKAGE = False
-if ENVIRONMENT_TYPE.__eq__("production"):
-    SIGN_ZIP = True
-    SIGN_PACKAGE = False
-
-# if we're signing the packages, we don't need to sign the zip
-if SIGN_PACKAGE:
-    SIGN_ZIP = False
 
 # When Fresh Build is True, the installer will freshly build the zip (Comparatively Slower)
 # When Fresh Build is False, the installer picks up existing zip and builds gapps package (Faster)

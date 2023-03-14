@@ -1,6 +1,5 @@
 from Config import FRESH_BUILD
 from Config import SEND_ZIP_DEVICE
-from Config import SIGN_PACKAGE
 import Config
 from .FileOp import FileOp
 from .C import C
@@ -69,15 +68,6 @@ class Export:
                         cpkg.add_string(pkg.get_uninstaller_script(), "uninstaller.sh")
                         cpkg.close()
                         FileOp.write_string_file(str(pkg_size), pkg_txt_path)
-                        if SIGN_PACKAGE:
-                            cmd = Cmd()
-                            output_list = cmd.sign_zip_file(pkg_zip_path)
-                            for output in output_list:
-                                if output.__eq__("Success!"):
-                                    pkg_zip_path = pkg_zip_path[:-4] + "-signed.zip"
-                                    os.rename(pkg_zip_path, pkg_zip_path[:-11] + ".zip")
-                                    pkg_zip_path = pkg_zip_path[:-11] + ".zip"
-                                    print("The zip signed successfully: " + pkg_zip_path)
                     else:
                         print(f"Using cached package: {C.get_base_name(pkg_zip_path)}")
                         for size_on_file in FileOp.read_string_file(pkg_txt_path):
@@ -119,13 +109,7 @@ class Export:
             time_taken = C.end_of_function(start_time, "Total time taken to build the zip")
             C.telegram.message("- Completed in: " + str(round(time_taken)) + " seconds")
             file_name = self.file_name
-            if SIGN_PACKAGE:
-                # it means we already signed the packages, now, we just need to rename the package to file-signed.zip
-                FileOp.remove_file(file_name[:-4] + "-signed.zip")
-                os.rename(file_name, file_name[:-4] + "-signed.zip")
-                file_name = file_name[:-4] + "-signed.zip"
-                print("File renamed to: " + file_name)
-            elif Config.SIGN_ZIP:
+            if Config.SIGN_ZIP:
                 start_time = C.start_of_function()
                 print('Signing The Zip')
                 C.telegram.message("- The zip is Signing...")
