@@ -417,7 +417,11 @@ debloat() {
       fi
     done
     if [ $debloaterRan = 1 ]; then
-      . $COMMONDIR/addon "$OFD" "Debloater" "" "" "$propFilePath" ""
+      if [ -f "$propFilePath" ]; then
+        echo "install=$(echo "$propFilePath" | sed "s|^$system/||")" >>"$TMPDIR/addon/installDebloaterFilesPath"
+        addToPackageLog "- Adding $propFilePath to $TMPDIR/addon/installDebloaterFilesPath" "$debloaterFilesPath"
+     fi
+      . $COMMONDIR/addon "$OFD" "Debloater" "$TMPDIR/addon/installDebloaterFilesPath" "" "$propFilePath" "$addon_index"
       copy_file "$system/addon.d/$addon_index-Debloater.sh" "$logDir/addonscripts/$addon_index-Debloater.sh"
       copy_file "$propFilePath" "$logDir/addonfiles/Debloater.addon"
     fi
