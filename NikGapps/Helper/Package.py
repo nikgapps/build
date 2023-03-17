@@ -83,7 +83,7 @@ class Package:
             str_data += "package_name=\"\"" + "\n"
         str_data += "packagePath=install" + self.package_title + "Files\n"
         str_data += "deleteFilesPath=delete" + self.package_title + "Files\n"
-        str_data += "propFilePath=$(get_prop_file_path)\n"
+        str_data += "propFilePath=$(get_prop_file_path $package_title)\n"
         str_data += "\n"
         str_data += f"remove_aosp_apps_from_rom=\"\n"
         for delete_folder in self.delete_files_list:
