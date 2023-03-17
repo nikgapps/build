@@ -22,7 +22,6 @@ if $BOOTMODE; then
   mkdir -p "$COMMONDIR"
 fi
 addonDir="/sdcard/NikGapps/addonLogs"
-nikGappsAddonLogFile="$addonDir/NikGapps_addon_$(date +%Y_%m_%d).log"
 nikGappsTestLog="$addonDir/logfiles/NikGapps.log"
 newline='
 '
@@ -30,7 +29,7 @@ newline='
 echo_add_to_log() {
   echo ""
   echo "addToLog() {"
-  echo "  echo \"\$(date +%Y_%m_%d_%H_%M_%S): \$1\" >> $nikGappsAddonLogFile"
+  echo "  echo \"\$(date +%Y_%m_%d_%H_%M_%S): \$1\" >> \$nikGappsAddonLogFile"
   echo "}"
   echo ""
 }
