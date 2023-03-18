@@ -53,10 +53,11 @@ class OnDemand:
         return result
 
     @staticmethod
-    def build_all_configs(android_version):
+    def build_all_configs(android_version, exclusive=False):
         Config.TARGET_ANDROID_VERSION = str(android_version)
         config_repo = Git(C.config_directory)
-        config_folder = Path(C.config_directory + C.dir_sep + str(android_version))
+        config_folder = Path(C.config_directory + C.dir_sep + str(android_version)) if not exclusive else Path(
+            C.config_directory + C.dir_sep + "exclusive" + C.dir_sep + str(android_version))
         for config_file in config_folder.rglob("*.config"):
             if not OnDemand.build_from_config_file(config_file, android_version, config_repo):
                 print("Failed to build from config file: " + str(config_file))

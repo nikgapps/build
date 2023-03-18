@@ -200,6 +200,7 @@ nikGappsLogFile="Logs-$device-"$actual_file_name.tar.gz
 test "$zip_type" != "debloater" && find_install_type
 # check if partitions are mounted as rw or not
 check_if_partitions_are_mounted_rw
+copy_file_logs "before"
 ls -alR /system >"$logDir/partitions/System_Files_Before.txt"
 ls -alR /product >"$logDir/partitions/Product_Files_Before.txt"
 # fetch available system size

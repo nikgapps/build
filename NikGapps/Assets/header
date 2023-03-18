@@ -9,6 +9,6 @@ $BOOTMODE || ps -A 2>/dev/null | grep zygote | grep -v grep >/dev/null && BOOTMO
 . /tmp/backuptool.functions
 
 nikGappsDir="/sdcard/NikGapps"
-
-nikGappsAddonLogFile="/sdcard/NikGapps/addonLogs/NikGapps_addon.log"
+addonDir="$nikGappsDir/addonLogs"
+nikGappsAddonLogFile="$addonDir/NikGapps_addon_$(date +%Y_%m_%d).log"
 mkdir -p "$(dirname $nikGappsAddonLogFile)";

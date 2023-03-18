@@ -8,16 +8,3 @@ make_dir() {
   mkdir -p "$install_partition/$1"
   set_perm 1000 1000 0755 "$install_partition/$1"
 }
-
-get_prop_file_path() {
-  propFilePath=""
-  for i in $(find /system/etc/permissions -iname "$package_title.prop" 2>/dev/null;); do
-    prop_file_path="$i"
-    addToPackageLog "- Found prop file: $prop_file_path" "$package_title"
-    break
-  done
-  addToPackageLog "- Prop file path before: $prop_file_path" "$package_title"
-  [ -z "$prop_file_path" ] && prop_file_path="/system/etc/permissions/$package_title.prop"
-  addToPackageLog "- Prop file path after: $prop_file_path" "$package_title"
-  echo "$prop_file_path"
-}

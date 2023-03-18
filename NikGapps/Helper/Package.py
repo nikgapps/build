@@ -83,7 +83,7 @@ class Package:
             str_data += "package_name=\"\"" + "\n"
         str_data += "packagePath=install" + self.package_title + "Files\n"
         str_data += "deleteFilesPath=delete" + self.package_title + "Files\n"
-        str_data += "propFilePath=$(get_prop_file_path)\n"
+        str_data += "propFilePath=$(get_prop_file_path $package_title)\n"
         str_data += "\n"
         str_data += f"remove_aosp_apps_from_rom=\"\n"
         for delete_folder in self.delete_files_list:
@@ -146,7 +146,7 @@ class Package:
                     "\"- Adding $propFilePath to $TMPDIR/addon/$packagePath\" \"" + self.package_title + "\" \n"
         str_data += "   fi\n"
         str_data += "   . $COMMONDIR/addon \"$OFD\" \"" + self.package_title + "\" \"$TMPDIR/addon/$packagePath\"" \
-                    + " \"$propFilePath\"" + " \"\" " + f"\"{self.addon_index}\""
+                    + " \"$propFilePath\"" + " \"\" " + f"\"{self.addon_index}\"\n"
         str_data += "   copy_file \"$TMPDIR/addon/$packagePath\" \"$logDir/addonfiles/" + "$packagePath" + ".addon\"\n"
         str_data += "   rm -rf \"$TMPDIR/addon/$packagePath\"\n"
         str_data += "   copy_file \"$propFilePath\" \"$logDir/addonfiles/" + "$package_title.prop" + \

@@ -33,20 +33,8 @@ SEND_ZIP_DEVICE = True
 if ENVIRONMENT_TYPE.__eq__("production"):
     SEND_ZIP_DEVICE = False
 
-# This will create a Debloater Zip
-CREATE_DEBLOATER_ZIP = True
-
 # This will allow the program to sign the zip
 SIGN_ZIP = True
-# This will allow the program to sign the individual packages
-SIGN_PACKAGE = False
-if ENVIRONMENT_TYPE.__eq__("production"):
-    SIGN_ZIP = True
-    SIGN_PACKAGE = False
-
-# if we're signing the packages, we don't need to sign the zip
-if SIGN_PACKAGE:
-    SIGN_ZIP = False
 
 # When Fresh Build is True, the installer will freshly build the zip (Comparatively Slower)
 # When Fresh Build is False, the installer picks up existing zip and builds gapps package (Faster)
@@ -60,9 +48,6 @@ if ENVIRONMENT_TYPE.__eq__("production"):
 # True if we want the files to upload as soon as they get created
 UPLOAD_FILES = True
 
-# Release day can be any of the 7 days
-RELEASE_DAY = "Sat"
-
 # Override the execution if we re-trigger the workflow
 OVERRIDE_RELEASE = False
 
@@ -73,6 +58,7 @@ GIT_PUSH = True
 
 # Enabling this will enable the feature of building NikGapps using config file
 BUILD_CONFIG = True
+BUILD_EXCLUSIVE = False
 
 # Possible Values are ['fetch', 'build']
 # PROJECT_MODE = "fetch"

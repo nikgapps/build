@@ -226,6 +226,19 @@ contains() {
   esac
 }
 
+get_prop_file_path() {
+  propFilePath=""
+  for i in $(find /system/etc/permissions -iname "$1.prop" 2>/dev/null;); do
+    prop_file_path="$i"
+    addToPackageLog "- Found prop file: $prop_file_path" "$1"
+    break
+  done
+  addToPackageLog "- Prop file path before: $prop_file_path" "$1"
+  [ -z "$prop_file_path" ] && prop_file_path="/system/etc/permissions/$1.prop"
+  addToPackageLog "- Prop file path after: $prop_file_path" "$1"
+  echo "$prop_file_path"
+}
+
 get_available_size_again() {
   input_data=$1
   case $1 in
@@ -260,6 +273,11 @@ get_available_size_again() {
   echo $available_size
 }
 
+copy_file_logs() {
+  mkdir -p "$logDir/partitions/$1"
+  find /product /system /system_ext | sort >>"$logDir/partitions/$1/all_files.txt"
+}
+
 copy_logs() {
   copy_file "$system/build.prop" "$logDir/propfiles/build.prop"
   # Store the size of partitions after installation starts
@@ -272,6 +290,7 @@ copy_logs() {
   copy_file "$COMMONDIR/size_after_readable.txt" "$logDir/partitions/size_after_readable.txt"
   ls -alR /system >"$logDir/partitions/System_Files_After.txt"
   ls -alR /product >"$logDir/partitions/Product_Files_After.txt"
+  copy_file_logs "after"
   for f in $PROPFILES; do
     copy_file "$f" "$logDir/propfiles/$f"
   done
@@ -331,7 +350,8 @@ copy_logs() {
 }
 
 debloat() {
-  debloaterFilesPath="DebloaterFiles"
+  debloaterFilesPath="Debloater"
+  propFilePath=$(get_prop_file_path $debloaterFilesPath)
   debloaterRan=0
   addon_index=10
   if [ -f "$debloater_config_file_name" ]; then
@@ -362,17 +382,17 @@ debloat() {
                 if [ -n "$j" ]; then
                   debloatPath=$(echo "$j" | sed "s|^$system/||")
                   debloatPath=${debloatPath#/}
-                  if [ -f "$TMPDIR/addon/$debloaterFilesPath" ]; then
-                    line=$(grep -n "debloat=$debloatPath" "$TMPDIR/addon/$debloaterFilesPath" | cut -d: -f1)
+                  if [ -f "$propFilePath" ]; then
+                    line=$(grep -n "debloat=$debloatPath" "$propFilePath" | cut -d: -f1)
                     if [ -z "$line" ]; then
-                      echo "debloat=$debloatPath" >> "$TMPDIR/addon/$debloaterFilesPath"
-                      addToLog "- debloat=$debloatPath >> $TMPDIR/addon/$debloaterFilesPath"
+                      echo "debloat=$debloatPath" >> "$propFilePath"
+                      addToLog "- debloat=$debloatPath >> $propFilePath"
                     else
                       addToLog "- $debloatPath debloated already"
                     fi
                   else
-                    echo "debloat=$debloatPath" >> "$TMPDIR/addon/$debloaterFilesPath"
-                    addToLog "- debloat=$debloatPath >> $TMPDIR/addon/$debloaterFilesPath"
+                    echo "debloat=$debloatPath" >> "$propFilePath"
+                    addToLog "- debloat=$debloatPath >> $propFilePath"
                   fi
                 fi
               done
@@ -384,17 +404,17 @@ debloat() {
             rmv "$i"
             debloatPath=$(echo "$i" | sed "s|^$system/||")
             debloatPath=${debloatPath#/}
-            if [ -f "$TMPDIR/addon/$debloaterFilesPath" ]; then
-              line=$(grep -n "debloat=$debloatPath" "$TMPDIR/addon/$debloaterFilesPath" | cut -d: -f1)
+            if [ -f "$propFilePath" ]; then
+              line=$(grep -n "debloat=$debloatPath" "$propFilePath" | cut -d: -f1)
               if [ -z "$line" ]; then
-                echo "debloat=$debloatPath" >> "$TMPDIR/addon/$debloaterFilesPath"
-                addToLog "- debloat=$debloatPath >> $TMPDIR/addon/$debloaterFilesPath"
+                echo "debloat=$debloatPath" >> "$propFilePath"
+                addToLog "- debloat=$debloatPath >> $propFilePath"
               else
                 addToLog "- $debloatPath debloated already"
               fi
             else
-              echo "debloat=$debloatPath" >> "$TMPDIR/addon/$debloaterFilesPath"
-              addToLog "- debloat=$debloatPath >> $TMPDIR/addon/$debloaterFilesPath"
+              echo "debloat=$debloatPath" >> "$propFilePath"
+              addToLog "- debloat=$debloatPath >> $propFilePath"
             fi
           fi
         fi
@@ -403,10 +423,13 @@ debloat() {
       fi
     done
     if [ $debloaterRan = 1 ]; then
-      . $COMMONDIR/addon "$OFD" "Debloater" "" "" "$TMPDIR/addon/$debloaterFilesPath" ""
+      if [ -f "$propFilePath" ]; then
+        echo "install=$(echo "$propFilePath" | sed "s|^$system/||")" >>"$TMPDIR/addon/installDebloaterFilesPath"
+        addToPackageLog "- Adding $propFilePath to $TMPDIR/addon/installDebloaterFilesPath" "$debloaterFilesPath"
+     fi
+      . $COMMONDIR/addon "$OFD" "Debloater" "$TMPDIR/addon/installDebloaterFilesPath" "" "$propFilePath" "$addon_index"
       copy_file "$system/addon.d/$addon_index-Debloater.sh" "$logDir/addonscripts/$addon_index-Debloater.sh"
-      copy_file "$TMPDIR/addon/$debloaterFilesPath" "$logDir/addonfiles/Debloater.addon"
-      rmv "$TMPDIR/addon/$debloaterFilesPath"
+      copy_file "$propFilePath" "$logDir/addonfiles/Debloater.addon"
     fi
   else
     addToLog "- Debloater.config not found!"

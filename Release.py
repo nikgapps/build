@@ -26,21 +26,20 @@ class Release:
                                         + C.android_version_folder + "-" + app_set.title + "-" + str(
                         Logs.get_current_time()) + ".zip", [app_set], upload=upload)
             elif str(pkg_type).lower() == "debloater":
-                if Config.CREATE_DEBLOATER_ZIP:
-                    file_name = C.release_directory + C.dir_sep + "Debloater-" + str(
-                        Logs.get_current_time()) + ".zip"
-                    z = Export(file_name)
-                    config_obj = NikGappsConfig()
-                    result = z.zip(app_set_list=config_obj.config_package_list,
-                                   config_string=config_obj.get_nikgapps_config())
-                    if result[1] and Config.UPLOAD_FILES:
-                        u = upload if upload is not None else Upload()
-                        print("Uploading " + str(result[0]))
-                        execution_status = u.upload(result[0])
-                        print("Done")
-                        return execution_status
-                    else:
-                        print("Failed to create zip!")
+                file_name = C.release_directory + C.dir_sep + "Debloater-" + str(
+                    Logs.get_current_time()) + ".zip"
+                z = Export(file_name)
+                config_obj = NikGappsConfig()
+                result = z.zip(app_set_list=config_obj.config_package_list,
+                               config_string=config_obj.get_nikgapps_config())
+                if result[1] and Config.UPLOAD_FILES:
+                    u = upload if upload is not None else Upload()
+                    print("Uploading " + str(result[0]))
+                    execution_status = u.upload(result[0])
+                    print("Done")
+                    return execution_status
+                else:
+                    print("Failed to create zip!")
             else:
                 if pkg_type in Config.BUILD_PACKAGE_LIST:
                     file_name = C.release_directory
