@@ -1,3 +1,10 @@
+- date: 19th Mar 2023 (Android 10-13)
+  changes:
+      - item: Fixed the incorrect naming convention of addonlogs
+      - item: Fixed the debloater not surviving OTA update in some scenarios
+      - item: Enable pixel launcher animations
+      - item: Update the Go apps (android 12+) to latest available versions
+      - item: Minor Script Improvements
 - date: 11th Mar 2023 (Android 10-13)
   changes:
       - item: Fixed the files not being debloated with OTA update
