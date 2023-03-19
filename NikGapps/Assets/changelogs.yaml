@@ -4,6 +4,7 @@
       - item: Fixed the debloater not surviving OTA update in some scenarios
       - item: Enable pixel launcher animations
       - item: Update the Go apps (android 12+) to latest available versions
+      - item: Update NikGapps Logo in recovery
       - item: Minor Script Improvements
 - date: 11th Mar 2023 (Android 10-13)
   changes:
