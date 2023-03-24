@@ -353,7 +353,7 @@ debloat() {
   debloaterFilesPath="Debloater"
   propFilePath=$(get_prop_file_path $debloaterFilesPath)
   debloaterRan=0
-  addon_index=10
+  addon_index="04"
   if [ -f "$debloater_config_file_name" ]; then
     addToLog "- Debloater.config found!"
     g=$(sed -e '/^[[:blank:]]*#/d;s/[\t\n\r ]//g;/^$/d' "$debloater_config_file_name")
