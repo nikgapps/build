@@ -1,3 +1,8 @@
+- date: 23rd Mar 2023 (Android 10-13)
+  changes:
+      - item: Fixed the generation of duplicate prop values in list_files (addon.d)
+      - item: Set the Debloater index to 04 to make sure debloater runs first (to make space for gapps restoration)
+      - item: Minor Script Improvements
 - date: 19th Mar 2023 (Android 10-13)
   changes:
       - item: Fixed the incorrect naming convention of addonlogs
