@@ -73,6 +73,7 @@ for android_version in android_versions:
                                 len_of_oem_ver_code / 2) if len_of_oem_ver_code > 10 else len_of_oem_ver_code
                             temp_oem_version_code = oem_version_code[:len_of_oem_ver_code]
                             temp_version_code = version_code[:len_of_oem_ver_code]
+                            print(f"Checking for update for {oem} in {android_version} for {package} in {appset} ")
                             if Rules.is_update_available(oem_v_code, v_code, temp_oem_version_code, temp_version_code,
                                                          oem_size, size):
                                 f_dict = {"oem": oem, "oem_source": file_source, "oem_version": file[f"{oem}_version"],
@@ -110,7 +111,10 @@ for android_version in android_versions:
     for appset in updater_dict:
         print(appset)
         n_appset = Operations.get_nikgapps_appset(appset)
-        Rules.update_appset(n_appset, updater_dict, oem_repo_dict, oem_tracker_dict, changelog)
+        if n_appset is not None:
+            Rules.update_appset(n_appset, updater_dict, oem_repo_dict, oem_tracker_dict, changelog)
+        else:
+            print(f"Appset {appset} is not supported currently in NikGapps")
     nikgapps_repo = Git(oem_repo_dict["nikgapps"])
     today = datetime.utcnow().strftime('%Y-%m-%d')
     for file in nikgapps_repo.get_changed_files():
