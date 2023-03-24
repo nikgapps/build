@@ -84,7 +84,7 @@ class Operations:
         appset_list = NikGappsPackages.get_packages(appset)
         if appset_list is not None:
             for app_set in appset_list:
-                if str(app_set.title).lower() == appset.lower():
+                if app_set is not None and str(app_set.title).lower() == appset.lower():
                     return app_set
         return None
 
@@ -213,7 +213,7 @@ class Operations:
                                                 file_dict[f"{oem}_size"] = oem_file["size"]
                                                 file_dict[f"{oem}_location"] = oem_file["location"]
                             else:
-                                print(f"Package {pkg} not found in {oem}!")
+                                C.print_red(f"Package {pkg} not found in {oem}!")
             Json.write_dict_to_file(controller_dict, controller_dict_file)
             return True
         return False
