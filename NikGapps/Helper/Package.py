@@ -139,18 +139,11 @@ class Package:
             str_data += self.additional_installer_script
             str_data += "\n"
         str_data += "   chmod 755 \"$COMMONDIR/addon\";\n"
-        str_data += "   if [ -f \"$propFilePath\" ]; then\n"
-        str_data += "       echo \"install=$(echo \"$propFilePath\" | sed \"s|^$system/||\")\" " \
-                    ">>\"$TMPDIR/addon/$packagePath\"\n"
-        str_data += "       addToPackageLog " \
-                    "\"- Adding $propFilePath to $TMPDIR/addon/$packagePath\" \"" + self.package_title + "\" \n"
-        str_data += "   fi\n"
-        str_data += "   . $COMMONDIR/addon \"$OFD\" \"" + self.package_title + "\" \"$TMPDIR/addon/$packagePath\"" \
-                    + " \"$propFilePath\"" + " \"\" " + f"\"{self.addon_index}\"\n"
-        str_data += "   copy_file \"$TMPDIR/addon/$packagePath\" \"$logDir/addonfiles/" + "$packagePath" + ".addon\"\n"
-        str_data += "   rm -rf \"$TMPDIR/addon/$packagePath\"\n"
-        str_data += "   copy_file \"$propFilePath\" \"$logDir/addonfiles/" + "$package_title.prop" + \
-                    "\"\n"
+        str_data += "   update_prop \"$propFilePath\"" \
+                    " \"install\"" \
+                    " \"$propFilePath\" \n"
+        str_data += "   . $COMMONDIR/addon \"" + self.package_title + "\" \"$propFilePath\"" + f"\"{self.addon_index}\"\n"
+        str_data += "   copy_file \"$propFilePath\" \"$logDir/addonfiles/" + "$package_title.prop" + "\n"
         str_data += "}\n"
         str_data += "\n"
         str_data += self.validation_script + "\n" if self.validation_script is not None else "find_install_mode\n"

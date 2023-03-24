@@ -1,18 +1,13 @@
 #!/sbin/sh
 
-#OUTFD=$1;
-
-#echo "executing addon" >> $OUTFD
-
-shift 1
 destDir=$system/addon.d
 NikGappsDir=$destDir
 addon_index=10
 fileName=$1
 installSource=$2
-deleteSource=$3
-debloaterSource=$4
-[ -n "$5" ] && addon_index=$5
+deleteSource=$2
+debloaterSource=$2
+[ -n "$3" ] && addon_index=$3
 dest="$destDir/$addon_index-$fileName.sh"
 mkdir -p "$destDir"
 TMPDIR=/dev/tmp
