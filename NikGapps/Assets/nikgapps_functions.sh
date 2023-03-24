@@ -353,7 +353,7 @@ debloat() {
   debloaterFilesPath="Debloater"
   propFilePath=$(get_prop_file_path $debloaterFilesPath)
   debloaterRan=0
-  addon_index=10
+  addon_index="04"
   if [ -f "$debloater_config_file_name" ]; then
     addToLog "- Debloater.config found!"
     g=$(sed -e '/^[[:blank:]]*#/d;s/[\t\n\r ]//g;/^$/d' "$debloater_config_file_name")
@@ -362,74 +362,39 @@ debloat() {
         ui_print " "
         ui_print "--> Starting the debloating process"
       fi
-      value=$($i | grep "^WipeDalvikCache=" | cut -d'=' -f 1)
-      if [ "$i" != "WipeDalvikCache" ]; then
-        addToLog "- Deleting $i"
-        if [ -z "$i" ]; then
-          ui_print "Cannot delete blank folder!"
-        else
-          debloaterRan=1
-          startswith=$(beginswith / "$i")
-          ui_print "x Removing $i"
-          if [ "$startswith" = "false" ]; then
-            addToLog "- value of i is $i"
-            debloated_folders=$(clean_recursive "$i")
-            if [ -n "$debloated_folders" ]; then
-              addToLog "- Removed folders: $debloated_folders"
-              OLD_IFS="$IFS"
-              IFS=":"
-              for j in $debloated_folders; do
-                if [ -n "$j" ]; then
-                  debloatPath=$(echo "$j" | sed "s|^$system/||")
-                  debloatPath=${debloatPath#/}
-                  if [ -f "$propFilePath" ]; then
-                    line=$(grep -n "debloat=$debloatPath" "$propFilePath" | cut -d: -f1)
-                    if [ -z "$line" ]; then
-                      echo "debloat=$debloatPath" >> "$propFilePath"
-                      addToLog "- debloat=$debloatPath >> $propFilePath"
-                    else
-                      addToLog "- $debloatPath debloated already"
-                    fi
-                  else
-                    echo "debloat=$debloatPath" >> "$propFilePath"
-                    addToLog "- debloat=$debloatPath >> $propFilePath"
-                  fi
-                fi
-              done
-              IFS="$OLD_IFS"
-            else
-              addToLog "- No $i folders to debloat"
-            fi
-          else
-            rmv "$i"
-            debloatPath=$(echo "$i" | sed "s|^$system/||")
-            debloatPath=${debloatPath#/}
-            if [ -f "$propFilePath" ]; then
-              line=$(grep -n "debloat=$debloatPath" "$propFilePath" | cut -d: -f1)
-              if [ -z "$line" ]; then
-                echo "debloat=$debloatPath" >> "$propFilePath"
-                addToLog "- debloat=$debloatPath >> $propFilePath"
-              else
-                addToLog "- $debloatPath debloated already"
-              fi
-            else
-              echo "debloat=$debloatPath" >> "$propFilePath"
-              addToLog "- debloat=$debloatPath >> $propFilePath"
-            fi
-          fi
-        fi
+      addToLog "- Deleting $i"
+      if [ -z "$i" ]; then
+        ui_print "Cannot delete blank folder!"
       else
-        addToLog "- WipeDalvikCache config found!"
+        debloaterRan=1
+        startswith=$(beginswith / "$i")
+        ui_print "x Removing $i"
+        if [ "$startswith" = "false" ]; then
+          addToLog "- value of i is $i"
+          debloated_folders=$(clean_recursive "$i")
+          if [ -n "$debloated_folders" ]; then
+            addToLog "- Removed folders: $debloated_folders"
+            OLD_IFS="$IFS"
+            IFS=":"
+            for j in $debloated_folders; do
+              if [ -n "$j" ]; then
+                update_prop "$j" "debloat" "$propFilePath"
+              fi
+            done
+            IFS="$OLD_IFS"
+          else
+            addToLog "- No $i folders to debloat"
+          fi
+        else
+          rmv "$i"
+          update_prop "$i" "debloat" "$propFilePath"
+        fi
       fi
     done
     if [ $debloaterRan = 1 ]; then
-      if [ -f "$propFilePath" ]; then
-        echo "install=$(echo "$propFilePath" | sed "s|^$system/||")" >>"$TMPDIR/addon/installDebloaterFilesPath"
-        addToPackageLog "- Adding $propFilePath to $TMPDIR/addon/installDebloaterFilesPath" "$debloaterFilesPath"
-     fi
-      . $COMMONDIR/addon "$OFD" "Debloater" "$TMPDIR/addon/installDebloaterFilesPath" "" "$propFilePath" "$addon_index"
+      update_prop "$propFilePath" "install"
+      . $COMMONDIR/addon "Debloater" "$propFilePath" "$addon_index"
       copy_file "$system/addon.d/$addon_index-Debloater.sh" "$logDir/addonscripts/$addon_index-Debloater.sh"
-      copy_file "$propFilePath" "$logDir/addonfiles/Debloater.addon"
     fi
   else
     addToLog "- Debloater.config not found!"
@@ -1157,9 +1122,9 @@ install_file() {
             *) installPath="$file_location" ;;
         esac
         ;;
-    esac
+      esac
+      update_prop "$installPath" "install" "$propFilePath"
       addToPackageLog "- InstallPath=$installPath" "$package_title"
-      echo "install=$installPath" >>"$TMPDIR/addon/$packagePath"
     else
       ui_print "- Failed to write $install_location"
       ui_print " "
@@ -1223,20 +1188,7 @@ delete_overlays(){
     IFS=":"
     for i in $overlays_deleted; do
       if [ -n "$i" ]; then
-        overlayPath=$(echo "$i" | sed "s|^$system/||")
-        overlayPath=${overlayPath#/}
-        if [ -f "$2" ]; then
-          line=$(grep -n "delete=$overlayPath" "$2" | cut -d: -f1)
-          if [ -z "$line" ]; then
-            echo "delete=$overlayPath" >> "$2"
-            addToLog "- delete=$overlayPath >> $2"
-          else
-            addToLog "- $overlayPath deleted already"
-          fi
-        else
-          echo "delete=$overlayPath" >> "$2"
-          addToLog "- delete=$overlayPath >> $2"
-        fi
+        update_prop "$i" "delete" "$2"
       fi
     done
     IFS="$OLD_IFS"
@@ -1257,20 +1209,7 @@ RemoveAospAppsFromRom() {
       IFS=":"
       for i in $deleted_folders; do
         if [ -n "$i" ]; then
-          deletePath=$(echo "$i" | sed "s|^$system/||")
-          deletePath=${deletePath#/}
-          if [ -f "$2" ]; then
-            line=$(grep -n "delete=$deletePath" "$2" | cut -d: -f1)
-            if [ -z "$line" ]; then
-              echo "delete=$deletePath" >> "$2"
-              addToLog "- DeletePath=$deletePath >> $2"
-            else
-              addToLog "- $deletePath deleted already"
-            fi
-          else
-            echo "delete=$deletePath" >> "$2"
-            addToLog "- DeletePath=$deletePath >> $2"
-          fi
+          update_prop "$i" "delete" "$2"
         fi
       done
       IFS="$OLD_IFS"
@@ -1377,6 +1316,26 @@ restore_env() {
     fi;
   done;
   $BB umount -l /dev/random) 2>/dev/null;
+}
+
+update_prop() {
+  propFilePath=$1
+  dataPath=$1
+  dataType=$2
+  [ -n "$3" ] && propFilePath=$3
+  if [ ! -f "$propFilePath" ]; then
+    touch "$propFilePath"
+    addToLog "- Creating $propFilePath"
+  fi
+  dataTypePath=$(echo "$dataPath" | sed "s|^$system/||")
+  dataTypePath=${dataTypePath#/}
+  line=$(grep -n "$dataType=$dataTypePath" "$propFilePath" | cut -d: -f1)
+  if [ -z "$line" ]; then
+    echo "$dataType=$dataTypePath" >> "$propFilePath"
+    addToLog "- $dataType=$dataTypePath >> $propFilePath"
+  else
+    addToLog "- $dataTypePath $dataType-ed already in $propFilePath"
+  fi
 }
 
 uninstall_file() {
