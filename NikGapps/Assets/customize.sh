@@ -56,10 +56,6 @@ addToGeneralLog(){
   echo "$1" >> "$2"
 }
 
-addToPackageLog(){
-  echo "$1" >> "$package_logDir/$2.log"
-}
-
 addSizeToLog() {
   printf "%18s | %18s | %30s | %9s | %9s | %9s | %7s\n" "$1" "$2" "$3" "$4" "$5" "$6" "$7" >> "$installation_size_log"
 }
@@ -160,8 +156,8 @@ unpack() {
 
 unpack_pkg() {
   mkdir -p "$(dirname "$2")"
-  addToPackageLog "- unpacking $1" "$3"
-  addToPackageLog "  -> to $2" "$3"
+  addToLog "- unpacking $1" "$3"
+  addToLog "  -> to $2" "$3"
   $BB unzip -o "$ZIPFILE" "$1" -p >"$2"
   chmod 755 "$2";
 }
