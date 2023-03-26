@@ -288,8 +288,6 @@ copy_logs() {
   copy_file "/etc/fstab" "$logDir/fstab/fstab"
   copy_file "$COMMONDIR/size_after.txt" "$logDir/partitions/size_after.txt"
   copy_file "$COMMONDIR/size_after_readable.txt" "$logDir/partitions/size_after_readable.txt"
-  ls -alR /system >"$logDir/partitions/System_Files_After.txt"
-  ls -alR /product >"$logDir/partitions/Product_Files_After.txt"
   copy_file_logs "after"
   for f in $PROPFILES; do
     copy_file "$f" "$logDir/propfiles/$f"

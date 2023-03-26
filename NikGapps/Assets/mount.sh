@@ -155,8 +155,6 @@ mount_all() {
     fi
   fi
   addToGeneralLog "----------------------------------------------------------------------------" "$mountLog"
-  ls -alR /system > "$COMMONDIR/System_Files_Before.txt"
-  ls -alR /product > "$COMMONDIR/Product_Files_Before.txt"
   df > "$COMMONDIR/size_before.txt"
   df -h > "$COMMONDIR/readable_size_before.txt"
   copy_file "$COMMONDIR/size_before.txt" "$logDir/partitions/size_before.txt"
