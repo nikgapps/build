@@ -40,6 +40,7 @@ addon_scripts_logDir="$logDir/addonscripts"
 package_logDir="$logDir/package_log"
 nikGappsDir="/sdcard/NikGapps"
 nikGappsLog=$TMPDIR/NikGapps.log
+mountLog=$TMPDIR/Mount.log
 installation_size_log=$TMPDIR/installation_size.log
 busyboxLog=$TMPDIR/busybox.log
 addonDir="$TMPDIR/addon"
@@ -48,7 +49,11 @@ addon_index=10
 master_addon_file="$addon_index-nikgapps-addon.sh"
 
 addToLog() {
-  echo "$1" >>"$nikGappsLog"
+  [ -z "$2" ] && echo "$1" >> "$nikGappsLog" || echo "$1" >> "$package_logDir/$2.log"
+}
+
+addToGeneralLog(){
+  echo "$1" >> "$2"
 }
 
 addToPackageLog(){
@@ -85,6 +90,7 @@ nikGappsLogo() {
   ui_print "| | |\  | |   <| |_| | (_| | |_) | |_) \__ \ |"
   ui_print "| |_| \_|_|_|\_\_____|\__,_| .__/| .__/|___/ |"
   ui_print "|                          |_|   |_|         |"
+  ui_print "|                                            |"
   ui_print "|-->      Created by Nikhil Menghani      <--|"
   ui_print "----------------------------------------------"
   ui_print " "
@@ -152,6 +158,14 @@ unpack() {
   chmod 755 "$2";
 }
 
+unpack_pkg() {
+  mkdir -p "$(dirname "$2")"
+  addToPackageLog "- unpacking $1" "$3"
+  addToPackageLog "  -> to $2" "$3"
+  $BB unzip -o "$ZIPFILE" "$1" -p >"$2"
+  chmod 755 "$2";
+}
+
 # example: tar -xf py-archive.tar.xz -C test
 unpack_tar_xz(){
   mkdir -p "$(dirname "$2")"
@@ -183,12 +197,13 @@ unpack "zip_name.txt" "$TMPDIR/zip_name.txt"
 # mount all the partitions
 . "$COMMONDIR/mount.sh"
 
-[ -n "$actual_file_name" ] && ui_print "- File Name: $actual_file_name" && initializeSizeLog
+[ -n "$actual_file_name" ] && ui_print "- File Name: $actual_file_name" "$mountLog" && initializeSizeLog
 find_zip_type
 find_device_block
 begin_unmounting
 begin_mounting
 # find if the device has dedicated partition or it's symlinked
+addToGeneralLog " " "$nikGappsLog"
 find_partitions_type
 find_config
 find_log_directory

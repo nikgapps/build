@@ -2,8 +2,8 @@
 
 begin_unmounting() {
   $BOOTMODE && return 1;
-  ui_print " "
-  ui_print "--> Unmounting partitions for fresh install"
+  ui_print " " "$mountLog"
+  ui_print "--> Unmounting partitions for fresh install" "$mountLog"
   $BB mount -o bind /dev/urandom /dev/random;
   if [ -L /etc ]; then
     setup_mountpoint /etc;
@@ -17,26 +17,26 @@ begin_unmounting() {
 umount_all() {
   local mount;
   (if [ ! -d /postinstall/tmp ]; then
-    ui_print "- Unmounting /system"
+    ui_print "- Unmounting /system" "$mountLog"
     $BB umount /system;
     $BB umount -l /system;
   fi) 2>/dev/null;
   umount_apex;
   (if [ ! -d /postinstall/tmp ]; then
-    ui_print "- Unmounting /system_root"
+    ui_print "- Unmounting /system_root" "$mountLog"
     $BB umount /system_root;
     $BB umount -l /system_root;
   fi;
-  ui_print "- Unmounting /vendor"
+  ui_print "- Unmounting /vendor" "$mountLog"
   umount /vendor; # busybox umount /vendor breaks recovery on some hacky devices
   umount -l /vendor;
   for mount in /mnt/system /mnt/vendor /product /mnt/product /system_ext /mnt/system_ext /persist; do
-    addToLog "- Unmounting $mount"
+    addToGeneralLog "- Unmounting $mount" "$mountLog"
     $BB umount $mount;
     $BB umount -l $mount;
   done;
   if [ "$UMOUNT_DATA" ]; then
-    ui_print "- Unmounting /data"
+    ui_print "- Unmounting /data" "$mountLog"
     $BB umount /data;
     $BB umount -l /data;
   fi

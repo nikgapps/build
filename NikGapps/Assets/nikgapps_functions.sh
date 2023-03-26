@@ -28,71 +28,71 @@ beginswith() {
 calc_progress() { awk "BEGIN{print $*}" | awk '{print sprintf("%.2f", $1)}'; }
 
 calculate_space_after(){
-  addToLog "----------------------------------------------------------------------------"
-  addToLog "- calculating space after installing $1"
+  addToPackageLog "----------------------------------------------------------------------------" "$1"
+  addToPackageLog "- calculating space after installing $1" "$1"
   size_before=$3
   case "$2" in
     "/product") size_left=$(get_available_size_again "/product");
-      addToLog "- product_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)";
+      addToPackageLog "- product_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)" "$1";
       addSizeToLog "/product" "$2" "$1" "$size_before" "$size_left" "$pkg_size" "$((size_before-size_left))"
     ;;
     "/system_ext") size_left=$(get_available_size_again "/system_ext");
-      addToLog "- system_ext_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)";
+      addToPackageLog "- system_ext_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)" "$1";
       addSizeToLog "/system_ext" "$2" "$1" "$size_before" "$size_left" "$pkg_size" "$((size_before-size_left))"
     ;;
     "/system") size_left=$(get_available_size_again "/system");
-      addToLog "- system_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)";
+      addToPackageLog "- system_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)" "$1";
       addSizeToLog "/system" "$2" "$1" "$size_before" "$size_left" "$pkg_size" "$((size_before-size_left))"
     ;;
     "/system/product")
       if [ -n "$PRODUCT_BLOCK" ]; then
         size_left=$(get_available_size_again "/product");
-        addToLog "- product_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)";
+        addToPackageLog "- product_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)" "$1";
         addSizeToLog "/product" "$2" "$1" "$size_before" "$size_left" "$pkg_size" "$((size_before-size_left))"
       else
         size_left=$(get_available_size_again "/system");
-        addToLog "- system_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)";
+        addToPackageLog "- system_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)" "$1";
         addSizeToLog "/system" "$2" "$1" "$size_before" "$size_left" "$pkg_size" "$((size_before-size_left))"
       fi
     ;;
     "/system/system_ext")
       if [ -n "$SYSTEM_EXT_BLOCK" ]; then
         size_left=$(get_available_size_again "/system_ext");
-        addToLog "- system_ext_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)";
+        addToPackageLog "- system_ext_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)" "$1";
         addSizeToLog "/system_ext" "$2" "$1" "$size_before" "$size_left" "$pkg_size" "$((size_before-size_left))"
       else
         size_left=$(get_available_size_again "/system");
-        addToLog "- system_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)";
+        addToPackageLog "- system_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)" "$1";
         addSizeToLog "/system" "$2" "$1" "$size_before" "$size_left" "$pkg_size" "$((size_before-size_left))"
       fi
     ;;
   esac
-  addToLog "----------------------------------------------------------------------------"
+  addToPackageLog "----------------------------------------------------------------------------" "$1"
   [ -z "$size_left" ] && size_left=0
   echo "$size_left"
 }
 
 calculate_space_before(){
-  addToLog "----------------------------------------------------------------------------"
-  addToLog "- calculating space before installing $1"
+  addToPackageLog "----------------------------------------------------------------------------" "$1"
+  addToPackageLog "- calculating space before installing $1" "$1"
   size_left=0
   case "$2" in
     "/product")
       size_left=$(get_available_size_again "/product");
-      addToLog "- product_size_left=$size_left" ;;
+      addToPackageLog "- product_size_left=$size_left" "$1" ;;
     "/system_ext")
       size_left=$(get_available_size_again "/system_ext");
-      addToLog "- system_ext_size_left=$size_left" ;;
+      addToPackageLog "- system_ext_size_left=$size_left" "$1" ;;
     "/system")
       size_left=$(get_available_size_again "/system");
-      addToLog "- system_size_left=$size_left" ;;
+      addToPackageLog "- system_size_left=$size_left" "$1" ;;
     "/system/product")
       if [ -n "$PRODUCT_BLOCK" ]; then
         size_left=$(get_available_size_again "/product"); 
-        addToLog "- product_size_left=$size_left";
+        addToPackageLog "- product_size_left=$size_left" "$1";
       else
         size_left=$(get_available_size_again "/system"); 
-        addToLog "- system_size_left=$size_left";
+        addToPackageLog "- system_size_left=$size_left" "$1";
       fi
     ;;
     "/system/system_ext")
@@ -103,7 +103,7 @@ calculate_space_before(){
       fi
     ;;
   esac
-  addToLog "----------------------------------------------------------------------------"
+  addToPackageLog "----------------------------------------------------------------------------" "$1"
   [ -z "$size_left" ] && size_left=0
   echo $size_left
 }
@@ -230,12 +230,12 @@ get_prop_file_path() {
   propFilePath=""
   for i in $(find /system/etc/permissions -iname "$1.prop" 2>/dev/null;); do
     prop_file_path="$i"
-    addToPackageLog "- Found prop file: $prop_file_path" "$1"
+    addToLog "- Found prop file: $prop_file_path" "$1"
     break
   done
-  addToPackageLog "- Prop file path before: $prop_file_path" "$1"
+  addToLog "- Prop file path before: $prop_file_path" "$1"
   [ -z "$prop_file_path" ] && prop_file_path="/system/etc/permissions/$1.prop"
-  addToPackageLog "- Prop file path after: $prop_file_path" "$1"
+  addToLog "- Prop file path after: $prop_file_path" "$1"
   echo "$prop_file_path"
 }
 
@@ -306,6 +306,7 @@ copy_logs() {
   addToLog "- Start Time: $start_time"
   addToLog "- End Time: $(date +%Y_%m_%d_%H_%M_%S)"
   copy_file "$nikGappsLog" "$logDir/logfiles/NikGapps.log"
+  copy_file "$mountLog" "$logDir/logfiles/Mount.log"
   copy_file "$busyboxLog" "$logDir/logfiles/busybox.log"
   copy_file "$installation_size_log" "$logDir/logfiles/installation_size.log"
   cd "$logDir" || return
@@ -427,6 +428,14 @@ extract_file() {
   $BB unzip -o "$1" "$2" -p >"$3"
 }
 
+extract_pkg() {
+  mkdir -p "$(dirname "$3")"
+  addToPackageLog "- Unzipping $1" "$4"
+  addToPackageLog "  -> copying $2" "$4"
+  addToPackageLog "  -> to $3" "$4"
+  $BB unzip -o "$1" "$2" -p >"$3"
+}
+
 exit_install() {
   ui_print " "
   wipedalvik=$(ReadConfigValue "WipeDalvikCache" "$nikgapps_config_file_name")
@@ -462,9 +471,9 @@ find_block() {
       dev="${BLK_PATH}/${name}${SLOT_SUFFIX}"
     fi
   fi
-  addToLog "- checking if $dev is block"
+  addToGeneralLog "- checking if $dev is block" "$mountLog"
   if [ -b "$dev" ]; then
-    addToLog "- Block Dev: $dev"
+    addToGeneralLog "- Block Dev: $dev" "$mountLog"
     echo "$dev"
   fi
 }
@@ -536,14 +545,14 @@ find_device_block() {
   device_ab=$(getprop ro.build.ab_update 2>/dev/null)
   dynamic_partitions=$(getprop ro.boot.dynamic_partitions)
   [ -z "$dynamic_partitions" ] && dynamic_partitions="false"
-  addToLog "- variable dynamic_partitions = $dynamic_partitions"
+  addToGeneralLog "- variable dynamic_partitions = $dynamic_partitions" "$mountLog"
   BLK_PATH=/dev/block/bootdevice/by-name
   if [ -d /dev/block/mapper ]; then
     dynamic_partitions="true"
     BLK_PATH="/dev/block/mapper"
-    addToLog "- Directory method! Device with dynamic partitions Found"
+    addToGeneralLog "- Directory method! Device with dynamic partitions Found" "$mountLog"
   else
-    addToLog "- Device doesn't have dynamic partitions"
+    addToGeneralLog "- Device doesn't have dynamic partitions" "$mountLog"
   fi
 
 
@@ -672,25 +681,25 @@ find_log_directory() {
 }
 
 find_partitions_type() {
-  addToLog "- Finding partition type for /system"
+  addToGeneralLog "- Finding partition type for /system" "$mountLog"
   SYSTEM_BLOCK=$(find_block "system")
-  [ -n "$SYSTEM_BLOCK" ] && addToLog "- Found block for /system"
+  [ -n "$SYSTEM_BLOCK" ] && addToGeneralLog "- Found block for /system" "$mountLog"
   system="/system"
   system_size=$(get_available_size_again "/system")
-  [ "$system_size" != "0" ] && ui_print "- /system is mounted as dedicated partition"
+  [ "$system_size" != "0" ] && addToGeneralLog "- /system is mounted as dedicated partition" "$mountLog"
   is_system_writable="$(is_mounted_rw "$system" 2>/dev/null)"
   [ ! "$is_system_writable" ] && system=""
-  addToLog "- system=$system is writable? $is_system_writable"
-  [ -f "/system/build.prop" ] && addToLog "- /system/build.prop exists"
+  addToGeneralLog "- system=$system is writable? $is_system_writable" "$mountLog"
+  [ -f "/system/build.prop" ] && addToGeneralLog "- /system/build.prop exists" "$mountLog"
 
   for partition in "product" "system_ext"; do
-    addToLog "----------------------------------------------------------------------------"
-    addToLog "- Finding partition type for /$partition"
+    addToGeneralLog "----------------------------------------------------------------------------" "$mountLog"
+    addToGeneralLog "- Finding partition type for /$partition" "$mountLog"
     mnt_point="/$partition"
     already_mounted=false
     already_symlinked=false
-    mountpoint "$mnt_point" >/dev/null 2>&1 && already_mounted=true && addToLog "- $mnt_point already mounted!"
-    [ -L "$system$mnt_point" ] && already_symlinked=true && addToLog "- $system$mnt_point symlinked!"
+    mountpoint "$mnt_point" >/dev/null 2>&1 && already_mounted=true && addToGeneralLog "- $mnt_point already mounted!" "$mountLog"
+    [ -L "$system$mnt_point" ] && already_symlinked=true && addToGeneralLog "- $system$mnt_point symlinked!" "$mountLog"
     case "$partition" in
       "product")
         # set the partition default to /system/$partition
@@ -699,23 +708,23 @@ find_partitions_type() {
         PRODUCT_BLOCK=$(find_block "$partition")
         # if block exists, set the partition to /$partition and get it's size
         if [ -n "$PRODUCT_BLOCK" ]; then
-          addToLog "- Found block for $mnt_point"
+          addToGeneralLog "- Found block for $mnt_point" "$mountLog"
           product="/product"
           product_size=$(get_available_size_again "/product")
-          ui_print "- /$partition is a dedicated partition"
+          ui_print "- /$partition is a dedicated partition" "$mountLog"
         else
-          addToLog "- /$partition block not found in this device"
+          addToGeneralLog "- /$partition block not found in this device" "$mountLog"
         fi
         # check if partition is symlinked, if it is, set the partition back to /system/$partition
         if [ -L "$system$mnt_point" ]; then
-          addToLog "- $system$mnt_point symlinked!"
+          addToGeneralLog "- $system$mnt_point symlinked!" "$mountLog"
           product=$system$mnt_point
-          ui_print "- /$partition is symlinked to $system$mnt_point"
+          ui_print "- /$partition is symlinked to $system$mnt_point" "$mountLog"
         fi
         # check if the partitions are writable
         is_product_writable="$(is_mounted_rw "$product" 2>/dev/null)"
         [ ! "$is_product_writable" ] && product=""
-        addToLog "- product=$product is writable? $is_product_writable"
+        addToGeneralLog "- product=$product is writable? $is_product_writable" "$mountLog"
       ;;
       "system_ext")
         # set the partition default to /system/$partition
@@ -724,23 +733,23 @@ find_partitions_type() {
         SYSTEM_EXT_BLOCK=$(find_block "$partition")
         # if block exists, set the partition to /$partition and get it's size
         if [ -n "$SYSTEM_EXT_BLOCK" ]; then
-          addToLog "- Found block for $mnt_point"
+          addToGeneralLog "- Found block for $mnt_point" "$mountLog"
           system_ext="/system_ext"
           system_ext_size=$(get_available_size_again "/system_ext")
-          ui_print "- /$partition is a dedicated partition"
+          ui_print "- /$partition is a dedicated partition" "$mountLog"
         else
-          addToLog "- /$partition block not found in this device"
+          addToGeneralLog "- /$partition block not found in this device" "$mountLog"
         fi
         # check if partition is symlinked, if it is, set the partition back to /system/$partition
         if [ -L "$system$mnt_point" ]; then
-          addToLog "- $system$mnt_point symlinked!"
+          addToGeneralLog "- $system$mnt_point symlinked!" "$mountLog"
           system_ext=$system$mnt_point
-          ui_print "- /$partition is symlinked to $system$mnt_point"
+          ui_print "- /$partition is symlinked to $system$mnt_point" "$mountLog"
         fi
         # check if the partitions are writable
         is_system_ext_writable="$(is_mounted_rw "$system_ext" 2>/dev/null)"
         [ ! "$is_system_ext_writable" ] && system_ext=""
-        addToLog "- system_ext=$system_ext is writable? $is_system_ext_writable"
+        addToGeneralLog "- system_ext=$system_ext is writable? $is_system_ext_writable" "$mountLog"
       ;;
     esac
   done
@@ -754,7 +763,7 @@ find_product_prefix() {
     *"/system_ext") product_prefix="system_ext/" ;;
     *) product_prefix="" ;;
   esac
-  addToLog "- product_prefix=$product_prefix"
+  addToGeneralLog "- product_prefix=$product_prefix" "$mountLog"
   echo "$product_prefix"
 }
 
@@ -825,25 +834,26 @@ get_file_prop() {
 get_install_partition(){
   chain_partition=$2
   size_required=$3
+  pkg_name=$4
   case $1 in
     system)
       install_partition="" 
-      addToLog "- fetch the system size to check if it's enough"
+      addToPackageLog "- fetch the system size to check if it's enough" "$pkg_name"
       system_available_size=$(get_available_size_again "/system")
       if [ $system_available_size -gt $size_required ]; then
-        addToLog "- it's big enough"
+        addToPackageLog "- it's big enough" "$pkg_name"
         install_partition="$system"
       else
-        addToLog "- check if chain_partition contains -system"
+        addToPackageLog "- check if chain_partition contains -system" "$pkg_name"
         if [ "$(contains "-system" "$chain_partition")" = "true" ]; then
-          addToLog "- we've reached a complete loop, no space available now"
+          addToPackageLog "- we've reached a complete loop, no space available now" "$pkg_name"
           install_partition="-1"
         else
-          addToLog "- system is too big, let's try the system_ext (which will loop through product and system to confirm no partitions are big enough)"
+          addToPackageLog "- system is too big, let's try the system_ext (which will loop through product and system to confirm no partitions are big enough)" "$pkg_name"
           if [ -n "$SYSTEM_EXT_BLOCK" ] || [ -n "$PRODUCT_BLOCK" ]; then
-            install_partition="$(get_install_partition system_ext system_ext-$chain_partition $size_required)"
+            install_partition="$(get_install_partition system_ext system_ext-$chain_partition $size_required "$pkg_name")"
           else
-            addToLog "- no space available"
+            addToPackageLog "- no space available" "$pkg_name"
             install_partition="-1"
           fi
         fi
@@ -851,63 +861,63 @@ get_install_partition(){
     ;;
     product)
       install_partition="" 
-      addToLog "- if product is a block, we will check if it's big enough"
+      addToPackageLog "- if product is a block, we will check if it's big enough" "$pkg_name"
       if [ -n "$PRODUCT_BLOCK" ]; then
         product_available_size=$(get_available_size_again "/product")
         if [ $product_available_size -gt $size_required ]; then
-          addToLog "- it's big enough, we'll use it"
+          addToPackageLog "- it's big enough, we'll use it" "$pkg_name"
           install_partition="$product"
         else
-          addToLog "- check if chain_partition ends with -product"
+          addToPackageLog "- check if chain_partition ends with -product" "$pkg_name"
           if [ "$(contains "-product" "$chain_partition")" = "true" ]; then
-            addToLog "- we've reached a complete loop, no space available now"
+            addToPackageLog "- we've reached a complete loop, no space available now" "$pkg_name"
             install_partition="-1"
           else
-            addToLog "- it's not, we'll try system"
-            install_partition="$(get_install_partition system system-$chain_partition $size_required)"
+            addToPackageLog "- it's not, we'll try system" "$pkg_name"
+            install_partition="$(get_install_partition system system-$chain_partition $size_required "$pkg_name")"
           fi
         fi
       else
-        addToLog "- product is not a block, we'll try system and install to /system/product as it will take up system space"
+        addToPackageLog "- product is not a block, we'll try system and install to /system/product as it will take up system space" "$pkg_name"
         system_available_size=$(get_available_size_again "/system")
         if [ $system_available_size -gt $size_required ]; then
-          addToLog "- system is big enough, we'll use it"
+          addToPackageLog "- system is big enough, we'll use it" "$pkg_name"
           install_partition="/system/product"
         else
-          addToLog "- if product is not a block and system is not big enough, we're out of options"
+          addToPackageLog "- if product is not a block and system is not big enough, we're out of options" "$pkg_name"
           install_partition="-1"
         fi
       fi
     ;;
     system_ext) 
       install_partition=""
-      addToLog "- if system_ext is a block, we will check if it's big enough"
+      addToPackageLog "- if system_ext is a block, we will check if it's big enough" "$pkg_name"
       if [ -n "$SYSTEM_EXT_BLOCK" ]; then
         system_ext_available_size=$(get_available_size_again "/system_ext")
         if [ $system_ext_available_size -gt $size_required ]; then
-          addToLog "- it's big enough, we'll use it"
+          addToPackageLog "- it's big enough, we'll use it" "$pkg_name"
           install_partition="$system_ext"
         else
-          addToLog "- check if chain_partition ends with -system_ext"
+          addToPackageLog "- check if chain_partition ends with -system_ext" "$pkg_name"
           if [ "$(contains "-system_ext" "$chain_partition")" = "true" ]; then
-            addToLog "- we've reached a complete loop, no space available now"
+            addToPackageLog "- we've reached a complete loop, no space available now" "$pkg_name"
             install_partition="-1"
           else
-            install_partition="$(get_install_partition product product-$chain_partition $size_required)"
+            install_partition="$(get_install_partition product product-$chain_partition $size_required "$pkg_name")"
           fi
         fi
       else
-        addToLog "- system_ext isn't a block, we'll try product and see if it has space"
+        addToPackageLog "- system_ext isn't a block, we'll try product and see if it has space" "$pkg_name"
         if [ -n "$PRODUCT_BLOCK" ]; then
-          install_partition="$(get_install_partition product product-$chain_partition $size_required)"
+          install_partition="$(get_install_partition product product-$chain_partition $size_required "$pkg_name")"
         else
-          addToLog "- product isn't a block, we'll try system and see if it has space"
+          addToPackageLog "- product isn't a block, we'll try system and see if it has space" "$pkg_name"
           system_available_size=$(get_available_size_again "/system")
           if [ $system_available_size -gt $size_required ]; then
-            addToLog "- system is big enough, we'll use it"
+            addToPackageLog "- system is big enough, we'll use it" "$pkg_name"
             install_partition="$system_ext"
           else
-            addToLog "- if system_ext is not a block and system is not big enough, we're out of options"
+            addToPackageLog "- if system_ext is not a block and system is not big enough, we're out of options" "$pkg_name"
             install_partition="-1"
           fi
         fi
@@ -923,9 +933,9 @@ get_install_partition(){
       "data") install_partition="/data/extra" ;;
       /*) install_partition=$install_partition_val ;;
     esac
-    addToLog "- InstallPartition = $install_partition"
+    addToPackageLog "- InstallPartition = $install_partition" "$pkg_name"
   else
-    addToLog "- nikgapps.config file doesn't exist!"
+    addToPackageLog "- nikgapps.config file doesn't exist!" "$pkg_name"
   fi
   echo "$install_partition"
 }
@@ -977,7 +987,7 @@ install_app_set() {
       value=1
     fi
   fi
-  addToLog " "
+  addToLog "----------------------------------------------------------------------------"
   addToLog "- Current Appset=$appset_name, value=$value"
   if [ "$value" -eq 0 ]; then
     ui_print "x Skipping $appset_name"
@@ -1002,9 +1012,8 @@ install_app_set() {
     fi
     for i in $package_list; do
       current_package_title=$(echo $i | cut -d',' -f1)
-      addToLog " "
-      addToLog "----------------------------------------------------------------------------"
-      addToLog "- Working for $current_package_title"
+      addToPackageLog " " "$current_package_title"
+      addToPackageLog "----------------------------------------------------------------------------" "$current_package_title"
       addToPackageLog "- Working for $current_package_title" "$current_package_title"
       value=1
       if [ -f "$nikgapps_config_file_name" ]; then
@@ -1012,38 +1021,38 @@ install_app_set() {
         [ -z "$value" ] && value=$(ReadConfigValue "$current_package_title" "$nikgapps_config_file_name")
       fi
       [ -z "$value" ] && value=1
-      addToLog "- Config Value is $value"
+      addToPackageLog "- Config Value is $value" "$current_package_title"
       if [ "$mode" = "uninstall" ]; then
         if [ "$value" -eq -1 ] ; then
           uninstall_the_package "$appset_name" "$current_package_title"
         fi
       elif [ "$mode" = "install" ]; then
-        addToLog "- Config Value of $i is $value"
+        addToPackageLog "- Config Value of $i is $value" "$current_package_title"
         if [ "$value" -ge 1 ] ; then
           package_size=$(echo $i | cut -d',' -f2)
-          addToLog "- package_size = $package_size"
+          addToPackageLog "- package_size = $package_size" "$current_package_title"
           default_partition=$(echo $i | cut -d',' -f3)
-          addToLog "- default_partition = $default_partition"
+          addToPackageLog "- default_partition = $default_partition" "$current_package_title"
           case "$default_partition" in
             "system_ext") 
-            [ $androidVersion -le 10 ] && default_partition=product && addToLog "- default_partition is overridden"
+            [ $androidVersion -le 10 ] && default_partition=product && addToPackageLog "- default_partition is overridden" "$current_package_title"
             ;;
           esac
           uninstall_the_package "$appset_name" "$current_package_title" "1"
-          install_partition=$(get_install_partition "$default_partition" "$default_partition" "$package_size")
-          addToLog "- $current_package_title required size: $package_size Kb, installing to $install_partition ($default_partition)"
+          install_partition=$(get_install_partition "$default_partition" "$default_partition" "$package_size" "$current_package_title")
+          addToPackageLog "- $current_package_title required size: $package_size Kb, installing to $install_partition ($default_partition)" "$current_package_title"
           if [ "$install_partition" != "-1" ]; then
             size_before=$(calculate_space_before "$current_package_title" "$install_partition")
             install_the_package "$appset_name" "$i" "$current_package_title" "$value" "$install_partition"
             size_after=$(calculate_space_after "$current_package_title" "$install_partition" "$size_before")
           else
-            ui_print "x Skipping $current_package_title as no space is left"
+            ui_print "x Skipping $current_package_title as no space is left" "$package_logDir/$current_package_title.log"
           fi
         elif [ "$value" -eq -1 ] ; then
-          addToLog "- uninstalling $current_package_title"
+          addToPackageLog "- uninstalling $current_package_title" "$current_package_title"
           uninstall_the_package "$appset_name" "$current_package_title"
         elif [ "$value" -eq 0 ] ; then
-          ui_print "x Skipping $current_package_title"
+          ui_print "x Skipping $current_package_title" "$package_logDir/$current_package_title.log"
         fi
       elif [ "$mode" = "uninstall_by_name" ]; then
         for i in "$2"; do
@@ -1063,11 +1072,11 @@ install_the_package() {
   package_name="$3"
   config_value="$4"
   install_partition="$5"
-  addToLog "- Install_Partition=$install_partition"
+  addToPackageLog "- Install_Partition=$install_partition" "$package_name"
   pkgFile="$TMPDIR/$package_name.zip"
   pkgContent="pkgContent"
-  unpack "AppSet/$1/$package_name.$extn" "$pkgFile"
-  extract_file "$pkgFile" "installer.sh" "$TMPDIR/$pkgContent/installer.sh"
+  unpack_pkg "AppSet/$1/$package_name.$extn" "$pkgFile" "$package_name"
+  extract_pkg "$pkgFile" "installer.sh" "$TMPDIR/$pkgContent/installer.sh" "$package_name"
   chmod 755 "$TMPDIR/$pkgContent/installer.sh"
   # shellcheck source=src/installer.sh
   . "$TMPDIR/$pkgContent/installer.sh" "$config_value" "$nikgapps_config_file_name" "$install_partition"
@@ -1126,8 +1135,8 @@ install_file() {
       update_prop "$installPath" "install" "$propFilePath"
       addToPackageLog "- InstallPath=$installPath" "$package_title"
     else
-      ui_print "- Failed to write $install_location"
-      ui_print " "
+      ui_print "- Failed to write $install_location" "$package_logDir/$package_title.log"
+      ui_print " " "$package_logDir/$package_title.log"
       find_system_size
       abort "Installation Failed! Looks like Storage space is full!"
     fi
@@ -1149,7 +1158,7 @@ is_on_top_of_nikgapps() {
 
 # Check if the partition is mounted
 is_mounted() {
-  addToLog "- Checking if $1 is mounted"
+  addToGeneralLog "- Checking if $1 is mounted" "$mountLog"
   $BB mount | $BB grep -q " $1 ";
 }
 
@@ -1291,7 +1300,7 @@ show_device_info() {
 
 # Setting up mount point
 setup_mountpoint() {
-  addToLog "- Setting up mount point $1 before actual mount"
+  addToGeneralLog "- Setting up mount point $1 before actual mount" "$mountLog"
   test -L "$1" && $BB mv -f "$1" "${1}"_link;
   if [ ! -d "$1" ]; then
     rm -f "$1";
@@ -1339,7 +1348,7 @@ update_prop() {
 }
 
 uninstall_file() {
-  addToLog "- Uninstalling $1"
+  addToPackageLog "- Uninstalling $1" "$2"
   # $1 will start with ___ which needs to be skipped so replacing it with blank value
   blank=""
   file_location=$(echo "$1" | sed "s/___/$blank/" | sed "s/___/\//g")
@@ -1347,7 +1356,7 @@ uninstall_file() {
   for sys in "/system"; do
     for subsys in "/system" "/product" "/system_ext"; do
       if [ -f "${sys}${subsys}/${file_location}" ]; then
-        addToLog "- deleting ${sys}${subsys}/${file_location}"
+        addToPackageLog "- deleting ${sys}${subsys}/${file_location}" "$2"
         delete_recursive "${sys}${subsys}/${file_location}"
       fi;
     done
@@ -1369,7 +1378,7 @@ uninstall_the_package() {
   pkgFile="$TMPDIR/$package_name.zip"
   pkgContent="pkgContent"
   unpack "AppSet/$1/$package_name.$extn" "$pkgFile"
-  extract_file "$pkgFile" "uninstaller.sh" "$TMPDIR/$pkgContent/uninstaller.sh"
+  extract_pkg "$pkgFile" "uninstaller.sh" "$TMPDIR/$pkgContent/uninstaller.sh" "$package_name"
   chmod 755 "$TMPDIR/$pkgContent/uninstaller.sh"
   # shellcheck source=src/uninstaller.sh
   . "$TMPDIR/$pkgContent/uninstaller.sh"
