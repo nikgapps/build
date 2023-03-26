@@ -142,8 +142,8 @@ class Package:
         str_data += "   update_prop \"$propFilePath\"" \
                     " \"install\"" \
                     " \"$propFilePath\" \n"
-        str_data += "   . $COMMONDIR/addon \"" + self.package_title + "\" \"$propFilePath\"" + f"\"{self.addon_index}\"\n"
-        str_data += "   copy_file \"$propFilePath\" \"$logDir/addonfiles/" + "$package_title.prop" + "\n"
+        str_data += "   . $COMMONDIR/addon \"" + self.package_title + "\" \"$propFilePath\" " + f"\"{self.addon_index}\"\n"
+        str_data += "   copy_file \"$propFilePath\" \"$logDir/addonfiles/" + "$package_title.prop" + "\"\n"
         str_data += "}\n"
         str_data += "\n"
         str_data += self.validation_script + "\n" if self.validation_script is not None else "find_install_mode\n"
