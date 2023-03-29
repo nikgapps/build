@@ -149,7 +149,7 @@ check_if_system_mounted_rw() {
 clean_recursive() {
   folders_that_exists=""
   func_result="$(beginswith / "$1")"
-  addToLog "- Deleting $1 with func_result: $func_result"
+  addToLog "- Deleting $1 with func_result: $func_result" "$2"
   if [ "$func_result" = "true" ]; then
     if [ -e "$1" ]; then
        rm -rf "$1"
@@ -157,9 +157,9 @@ clean_recursive() {
     fi
   else
     for i in $(find "$system" "$product" "$system_ext" "/product" "/system_ext" -iname "$1" 2>/dev/null;); do
-      addToLog "- Found $i"
+      addToLog "- Found $i" "$2"
       if [ -d "$i" ]; then
-        addToLog "- Deleting $1"
+        addToLog "- Deleting $1" "$2"
         rm -rf "$i"
         folders_that_exists="$folders_that_exists":"$i"
       fi
@@ -170,7 +170,7 @@ clean_recursive() {
         for subsys in "/system" "/product" "/system_ext"; do
           for folder in "/app" "/priv-app"; do
             if [ -d "$sys$subsys$folder/$1" ] && [ "$sys$subsys$folder/" != "$sys$subsys$folder/$1" ]; then
-              addToLog "- Hardcoded and Deleting $sys$subsys$folder/$1"
+              addToLog "- Hardcoded and Deleting $sys$subsys$folder/$1" "$2"
               rm -rf "$sys$subsys$folder/$1"
               folders_that_exists="$folders_that_exists":"$sys$subsys$folder/$1"
             fi
@@ -178,7 +178,7 @@ clean_recursive() {
         done
       done
     else
-      addToLog "- search finished, $folders_that_exists deleted"
+      addToLog "- search finished, $folders_that_exists deleted" "$2"
     fi
   fi
   echo "$folders_that_exists"
@@ -345,7 +345,7 @@ debloat() {
         ui_print "x Removing $i"
         if [ "$startswith" = "false" ]; then
           addToLog "- value of i is $i"
-          debloated_folders=$(clean_recursive "$i")
+          debloated_folders=$(clean_recursive "$i" "$debloaterFilesPath")
           if [ -n "$debloated_folders" ]; then
             addToLog "- Removed folders: $debloated_folders"
             OLD_IFS="$IFS"
@@ -380,7 +380,7 @@ debloat() {
 }
 
 delete_package() {
-  deleted_folders=$(clean_recursive "$1")
+  deleted_folders=$(clean_recursive "$1" "$2")
   addToLog "- Deleted $deleted_folders as part of package $1"
 }
 
@@ -463,15 +463,9 @@ find_config_path() {
 }
 
 find_config() {
-  mkdir -p "$nikGappsDir"
-  mkdir -p "$addonDir"
-  mkdir -p "$logDir"
-  mkdir -p "$package_logDir"
-  mkdir -p "$addon_scripts_logDir"
-  mkdir -p "$TMPDIR/addon"
+  mkdir -p "$nikGappsDir" "$addonDir" "$logDir" "$package_logDir" "$addon_scripts_logDir" "$TMPDIR/addon"
   ui_print " "
   ui_print "--> Finding config files"
-  nikgapps_config_file_name="$nikGappsDir/nikgapps.config"
   unpack "afzc/nikgapps.config" "$COMMONDIR/nikgapps.config"
   unpack "afzc/debloater.config" "$COMMONDIR/debloater.config"
   use_zip_config=$(ReadConfigValue "use_zip_config" "$COMMONDIR/nikgapps.config")
@@ -483,36 +477,37 @@ find_config() {
   else
     found_config="$(find_config_path nikgapps.config)"
     if [ "$found_config" ]; then
-      nikgapps_config_file_name="$found_config"
       addToLog "- Found custom location of nikgapps.config"
       copy_file "$found_config" "$nikGappsDir/nikgapps.config"
+      nikgapps_config_file_name="$nikGappsDir/nikgapps.config"
+    else
+      nikgapps_config_file_name="$COMMONDIR/nikgapps.config"
     fi
-    nikgapps_config_dir=$(dirname "$nikgapps_config_file_name")
     debloater_config_file_name="/sdcard/NikGapps/debloater.config"
     found_config="$(find_config_path debloater.config)"
     if [ "$found_config" ]; then
-      debloater_config_file_name="$found_config"
       addToLog "- Found custom location of debloater.config"
       copy_file "$found_config" "$nikGappsDir/debloater.config"
+      debloater_config_file_name="$nikGappsDir/debloater.config"
     fi
     nikgappsConfig="$sdcard/NikGapps/nikgapps.config"
     debloaterConfig="$sdcard/NikGapps/debloater.config"
-    if [ ! -f $nikgappsConfig ]; then
-      unpack "afzc/nikgapps.config" "/sdcard/NikGapps/nikgapps.config"
-      [ ! -f "/sdcard/NikGapps/nikgapps.config" ] && unpack "afzc/nikgapps.config" "/storage/emulated/NikGapps/nikgapps.config"
-      addToLog "nikgapps.config is copied to $nikgappsConfig"
-    fi
-    if [ ! -f $debloaterConfig ]; then
-      unpack "afzc/debloater.config" "$COMMONDIR/debloater.config"
-      unpack "afzc/debloater.config" "/sdcard/NikGapps/debloater.config"
-      [ ! -f "/sdcard/NikGapps/debloater.config" ] && unpack "afzc/debloater.config" "/storage/emulated/NikGapps/debloater.config"
-      addToLog "debloater.config is copied to $debloaterConfig"
-    fi
+    unpack "afzc/nikgapps.config" "$nikgappsConfig"
+    [ ! -f "$nikgappsConfig" ] && unpack "afzc/nikgapps.config" "/storage/emulated/NikGapps/nikgapps.config"
+    addToLog "nikgapps.config is copied to $nikgappsConfig"
+    unpack "afzc/debloater.config" "$debloaterConfig"
+    unpack "afzc/debloater.config" "/sdcard/NikGapps/debloater.config"
+    [ ! -f "/sdcard/NikGapps/debloater.config" ] && unpack "afzc/debloater.config" "/storage/emulated/NikGapps/debloater.config"
+    addToLog "debloater.config is copied to $debloaterConfig"
   fi
 
-  test "$zip_type" != "debloater" && ui_print "- nikgapps.config used from $nikgapps_config_file_name"
-  test "$zip_type" = "debloater" && ui_print "- debloater.config used from $debloater_config_file_name"
+  if [ "$zip_type" != "debloater" ]; then
+    ui_print "- nikgapps.config used from $nikgapps_config_file_name"
+  else
+    ui_print "- debloater.config used from $debloater_config_file_name"
+  fi
 }
+
 
 find_device_block() {
   device_ab=$(getprop ro.build.ab_update 2>/dev/null)
@@ -569,7 +564,7 @@ find_install_mode() {
     prop_file_exists="false"
     for i in "$system/etc/permissions" "$system/product/etc/permissions" "$system/system_ext/etc/permissions"; do
       if [ -f "$i/$package_title.prop" ]; then
-        addToLog "- Found $i/$package_title.prop"
+        addToLog "- Found $i/$package_title.prop" "$package_logDir/$package_title.log"
         prop_file_exists="true"
         break
       fi
@@ -580,7 +575,7 @@ find_install_mode() {
     fi
   fi
   addToLog "----------------------------------------------------------------------------"
-  ui_print "- Installing $package_title"
+  ui_print "- Installing $package_title" "$package_logDir/$package_title.log"
   install_package
   delete_recursive "$pkgFile"  
 }
@@ -1160,12 +1155,12 @@ delete_overlays(){
   overlays_deleted=""
   addToLog "- Deleting Overlays"
   for i in $(find "$system/product/overlay" "$system/system_ext/overlay" "/product/overlay" "/system_ext/overlay" -type f -name "*$1*.apk" 2>/dev/null); do
-    addToLog "- Deleting $i"
+    addToLog "- Deleting $i" "$3"
     rm -rf "$i"
     overlays_deleted="$overlays_deleted":"$i"
   done
   if [ -n "$overlays_deleted" ]; then
-    addToLog "- Deleted Overlays: $overlays_deleted"
+    addToLog "- Deleted Overlays: $overlays_deleted" "$3"
     OLD_IFS="$IFS"
     IFS=":"
     for i in $overlays_deleted; do
@@ -1175,28 +1170,28 @@ delete_overlays(){
     done
     IFS="$OLD_IFS"
   else
-    addToLog "- No $1 overlay to remove"
+    addToLog "- No $1 overlay to remove" "$3"
   fi
 }
 
 RemoveAospAppsFromRom() {
-  addToLog "- Removing AOSP App from Rom"
+  addToLog "- Removing AOSP App from Rom" "$3"
   if [ "$configValue" -eq 2 ]; then
-    addToLog "- Not creating addon.d script for $*"
+    addToLog "- Not creating addon.d script for $*" "$3"
   else
-    deleted_folders=$(clean_recursive "$1")
+    deleted_folders=$(clean_recursive "$1" "$3")
     if [ -n "$deleted_folders" ]; then
-      addToLog "- Removed folders: $deleted_folders"
+      addToLog "- Removed folders: $deleted_folders" "$3"
       OLD_IFS="$IFS"
       IFS=":"
       for i in $deleted_folders; do
         if [ -n "$i" ]; then
-          update_prop "$i" "delete" "$2"
+          update_prop "$i" "delete" "$2" "$3"
         fi
       done
       IFS="$OLD_IFS"
     else
-      addToLog "- No $1 folders to remove"
+      addToLog "- No $1 folders to remove" "$3"
     fi
   fi
 }

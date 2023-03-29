@@ -95,7 +95,7 @@ class NikGappsPackages:
                         installPath=$product_prefix"etc/permissions/com.google.android.dialer.support.xml"
                         echo "install=$installPath" >> $TMPDIR/addon/$packagePath
                         if [ -f "$install_partition/etc/permissions/com.google.android.dialer.support.xml" ]; then
-                          addToPackageLog "- $install_partition/etc/permissions/com.google.android.dialer.support.xml Successfully Written!" "$package_title"
+                          addToLog "- $install_partition/etc/permissions/com.google.android.dialer.support.xml Successfully Written!" "$package_title"
                         fi"""
         extra_files_go.additional_installer_script += """
                         script_text="<permissions>
@@ -107,7 +107,7 @@ class NikGappsPackages:
                         installPath=$product_prefix"etc/permissions/com.google.android.maps.xml"
                         echo "install=$installPath" >> $TMPDIR/addon/$packagePath
                         if [ -f "$install_partition/etc/permissions/com.google.android.maps.xml" ]; then
-                          addToPackageLog "- $install_partition/etc/permissions/com.google.android.maps.xml Successfully Written!" "$package_title"
+                          addToLog "- $install_partition/etc/permissions/com.google.android.maps.xml Successfully Written!" "$package_title"
                         fi"""
         extra_files_go.additional_installer_script += """
                                 script_text="<permissions>
@@ -119,7 +119,7 @@ class NikGappsPackages:
                                 installPath=$product_prefix"etc/permissions/com.google.widevine.software.drm.xml"
                                 echo "install=$installPath" >> $TMPDIR/addon/$packagePath
                                 if [ -f "$install_partition/etc/permissions/com.google.widevine.software.drm.xml" ]; then
-                                  addToPackageLog "- $install_partition/etc/permissions/com.google.widevine.software.drm.xml Successfully Written!" "$package_title"
+                                  addToLog "- $install_partition/etc/permissions/com.google.widevine.software.drm.xml Successfully Written!" "$package_title"
                                 fi"""
         extra_files_go.additional_installer_script += """
                                 script_text="<permissions>
@@ -132,7 +132,7 @@ class NikGappsPackages:
                                 installPath=$product_prefix"etc/permissions/com.google.android.media.effects.xml"
                                 echo "install=$installPath" >> $TMPDIR/addon/$packagePath
                                 if [ -f "$install_partition/etc/permissions/com.google.android.media.effects.xml" ]; then
-                                  addToPackageLog "- $install_partition/etc/permissions/com.google.android.media.effects.xml Successfully Written!" "$package_title"
+                                  addToLog "- $install_partition/etc/permissions/com.google.android.media.effects.xml Successfully Written!" "$package_title"
                                 fi"""
 
         core_go = AppSet("CoreGo")
@@ -150,14 +150,14 @@ class NikGappsPackages:
         sed -i '/allow-in-data-usage-save package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
         sed -i '/allow-unthrottled-location package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
         sed -i '/allow-ignore-location-settings package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
-        addToPackageLog \"- Battery Optimization Done in $install_partition/etc/permissions/*.xml!\" "$package_title"
+        addToLog \"- Battery Optimization Done in $install_partition/etc/permissions/*.xml!\" "$package_title"
         sed -i '/allow-in-power-save package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
         sed -i '/allow-in-data-usage-save package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
         sed -i '/allow-unthrottled-location package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
         sed -i '/allow-ignore-location-settings package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
-        addToPackageLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml!\" "$package_title"
+        addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml!\" "$package_title"
     else
-        addToPackageLog "- Battery Optimization not Enabled" "$package_title"
+        addToLog "- Battery Optimization not Enabled" "$package_title"
     fi
         """
         core_go.add_package(prebuiltgmscore)
@@ -220,7 +220,7 @@ class NikGappsPackages:
                 installPath=$product_prefix"etc/permissions/com.google.android.dialer.support.xml"
                 echo "install=$installPath" >> $TMPDIR/addon/$packagePath
                 if [ -f "$install_partition/etc/permissions/com.google.android.dialer.support.xml" ]; then
-                  addToPackageLog "- $install_partition/etc/permissions/com.google.android.dialer.support.xml Successfully Written!" "$package_title"
+                  addToLog "- $install_partition/etc/permissions/com.google.android.dialer.support.xml Successfully Written!" "$package_title"
                 fi"""
         files.additional_installer_script += """
                 script_text="<permissions>
@@ -232,7 +232,7 @@ class NikGappsPackages:
                 installPath=$product_prefix"etc/permissions/com.google.android.maps.xml"
                 echo "install=$installPath" >> $TMPDIR/addon/$packagePath
                 if [ -f "$install_partition/etc/permissions/com.google.android.maps.xml" ]; then
-                  addToPackageLog "- $install_partition/etc/permissions/com.google.android.maps.xml Successfully Written!" "$package_title"
+                  addToLog "- $install_partition/etc/permissions/com.google.android.maps.xml Successfully Written!" "$package_title"
                 fi"""
         files.additional_installer_script += """
                         script_text="<permissions>
@@ -244,7 +244,7 @@ class NikGappsPackages:
                         installPath=$product_prefix"etc/permissions/com.google.widevine.software.drm.xml"
                         echo "install=$installPath" >> $TMPDIR/addon/$packagePath
                         if [ -f "$install_partition/etc/permissions/com.google.widevine.software.drm.xml" ]; then
-                          addToPackageLog "- $install_partition/etc/permissions/com.google.widevine.software.drm.xml Successfully Written!" "$package_title"
+                          addToLog "- $install_partition/etc/permissions/com.google.widevine.software.drm.xml Successfully Written!" "$package_title"
                         fi"""
         files.additional_installer_script += """
                         script_text="<permissions>
@@ -257,7 +257,7 @@ class NikGappsPackages:
                         installPath=$product_prefix"etc/permissions/com.google.android.media.effects.xml"
                         echo "install=$installPath" >> $TMPDIR/addon/$packagePath
                         if [ -f "$install_partition/etc/permissions/com.google.android.media.effects.xml" ]; then
-                          addToPackageLog "- $install_partition/etc/permissions/com.google.android.media.effects.xml Successfully Written!" "$package_title"
+                          addToLog "- $install_partition/etc/permissions/com.google.android.media.effects.xml Successfully Written!" "$package_title"
                         fi"""
 
         # example of how to add files
@@ -275,14 +275,14 @@ class NikGappsPackages:
         sed -i '/allow-in-data-usage-save package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
         sed -i '/allow-unthrottled-location package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
         sed -i '/allow-ignore-location-settings package=\"com.google.android.gms\"/d' $install_partition/etc/permissions/*.xml
-        addToPackageLog \"- Battery Optimization Done in $install_partition/etc/permissions/*.xml!\" "$package_title"
+        addToLog \"- Battery Optimization Done in $install_partition/etc/permissions/*.xml!\" "$package_title"
         sed -i '/allow-in-power-save package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
         sed -i '/allow-in-data-usage-save package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
         sed -i '/allow-unthrottled-location package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
         sed -i '/allow-ignore-location-settings package=\"com.google.android.gms\"/d' $install_partition/etc/sysconfig/*.xml
-        addToPackageLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml!\" "$package_title"
+        addToLog \"- Battery Optimization Done in $install_partition/etc/sysconfig/*.xml!\" "$package_title"
     else
-        addToPackageLog "- Battery Optimization not Enabled" "$package_title"
+        addToLog "- Battery Optimization not Enabled" "$package_title"
     fi
                 """
         phonesky = Package("Phonesky", "com.android.vending", C.is_priv_app, "GooglePlayStore")
