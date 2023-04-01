@@ -516,6 +516,7 @@ set_prop "setupwizard.feature.show_pai_screen_in_main_flow.carrier1839" "false" 
 set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.prop"
         """
         google_restore = Package("GoogleRestore", "com.google.android.apps.restore", C.is_priv_app)
+        google_restore.delete("Seedvault")
         android_migrate_prebuilt = Package("AndroidMigratePrebuilt", "com.google.android.apps.pixelmigrate",
                                            C.is_priv_app)
         setup_wizard_set = AppSet("SetupWizard")
