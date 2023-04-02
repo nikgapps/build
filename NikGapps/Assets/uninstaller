@@ -5,11 +5,13 @@ uninstall_package() {
     for i in $file_list; do
         uninstall_file "$i" "$package_title"
     done
-    addon_index=10
-    addon_file="$addon_index-$package_title.sh"
     # Removing the addon sh so it doesn't get backed up and restored
-    addToLog "- Removing $addon_file"
-    rm -rf "/system/addon.d/$addon_file"
+    for i in $(find /system/addon.d -iname "*$package_title.sh" 2>/dev/null;); do
+      if [ -f "$i" ]; then
+        addToLog "- Removing $i" "$package_title"
+        rm -rf "$i"
+      fi
+    done
     # Removing the updates and residue
     if [ -n "$2" ]; then
         for i in $(find /data -iname "*$2*" 2>/dev/null); do
