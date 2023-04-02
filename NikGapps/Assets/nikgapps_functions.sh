@@ -78,7 +78,7 @@ calculate_space_before() {
         size_left=$(get_available_size_again "/system")
       fi ;;
   esac
-  addToLog "- ${dir#*/}_size_left=$size_left" "$1"
+  addToLog "- ${dir} size left=$size_left" "$1"
   addToLog "----------------------------------------------------------------------------" "$1"
   echo "$size_left"
 }
@@ -564,7 +564,7 @@ find_install_mode() {
     prop_file_exists="false"
     for i in "$system/etc/permissions" "$system/product/etc/permissions" "$system/system_ext/etc/permissions"; do
       if [ -f "$i/$package_title.prop" ]; then
-        addToLog "- Found $i/$package_title.prop" "$package_logDir/$package_title.log"
+        addToLog "- Found $i/$package_title.prop" "$package_title"
         prop_file_exists="true"
         break
       fi
@@ -574,10 +574,10 @@ find_install_mode() {
       test "$zip_type" = "addon" && abort "- Cannot flash $package_title now as you will run into issues! Wipe /data if you still want to install it. You must always flash $package_title before booting into Rom!"
     fi
   fi
-  addToLog "----------------------------------------------------------------------------"
+  addToLog "----------------------------------------------------------------------------" "$package_title"
   ui_print "- Installing $package_title" "$package_logDir/$package_title.log"
   install_package
-  delete_recursive "$pkgFile"  
+  delete_recursive "$pkgFile"
 }
 
 find_install_type() {
