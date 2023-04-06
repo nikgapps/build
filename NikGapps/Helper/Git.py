@@ -27,7 +27,7 @@ class Git:
                 if FileOp.dir_exists(self.working_tree_dir):
                     print(f"{self.working_tree_dir} already exists, deleting for a fresh clone!")
                     FileOp.remove_dir(self.working_tree_dir)
-                print(Fore.GREEN + f"git clone -b {branch} --depth={commit_depth} {repo_url}" + Fore.RESET)
+                C.print_green(f"git clone -b {branch} --depth={commit_depth} {repo_url}")
                 repo_clone_start_time = C.start_of_function()
                 self.repo = git.Repo.clone_from(repo_url, self.working_tree_dir, branch=branch, depth=commit_depth)
                 C.end_of_function(repo_clone_start_time, f"Time taken to clone -b {branch} {repo_url}")
@@ -35,7 +35,7 @@ class Git:
                 # if it is not a fresh clone, we only clone when directory doesn't exist
                 if not FileOp.dir_exists(self.working_tree_dir):
                     print(f"{self.working_tree_dir} doesn't exists, fresh clone is enforced!")
-                    print(Fore.GREEN + f"git clone -b {branch} --depth={commit_depth} {repo_url}" + Fore.RESET)
+                    C.print_yellow(f"git clone -b {branch} --depth={commit_depth} {repo_url}")
                     repo_clone_start_time = C.start_of_function()
                     self.repo = git.Repo.clone_from(repo_url, self.working_tree_dir, branch=branch, depth=commit_depth)
                     C.end_of_function(repo_clone_start_time, f"Time taken to clone -b {branch} {repo_url}")
