@@ -140,6 +140,9 @@ class AddonSet:
                                                            C.is_priv_app, "PrivateComputeServices")
             gapps_list.append(settings_services)
             gapps_list.append(device_intelligence_network_prebuilt)
+        if float(Config.TARGET_ANDROID_VERSION) >= 13:
+            pixel_themes = Package("PixelThemes", "com.google.android.apps.customization.pixel", C.is_system_app)
+            gapps_list.append(pixel_themes)
         return AppSet("PixelLauncher", gapps_list)
 
     @staticmethod
@@ -162,7 +165,6 @@ class AddonSet:
         youtube_music.delete("GooglePlayMusic")
         youtube_music.delete("Eleven")
         return AppSet("YouTubeMusic", [youtube_music])
-
 
     @staticmethod
     def get_mixplorer():
