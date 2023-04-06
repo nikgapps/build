@@ -12,15 +12,15 @@ class Rules:
     def is_update_available(oem_v_code, nikgapps_v_code, oem_version_code, nikgapps_version_code, oem_size,
                             nikgapps_size):
         if oem_v_code > nikgapps_v_code:
-            print("Update because of v_code")
+            C.print_green("Update because of v_code")
             return True
         elif oem_v_code == nikgapps_v_code:
-            if oem_version_code > nikgapps_version_code:
-                print("Update because of version code")
+            if oem_version_code >= nikgapps_version_code:
+                C.print_green("Update because of version code")
                 return True
             elif oem_version_code == nikgapps_version_code:
                 if oem_size > nikgapps_size:
-                    print("Update because of size")
+                    C.print_green("Update because of size")
                     return True
         return False
 

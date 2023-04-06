@@ -17,7 +17,9 @@ nikGappsLog=$TMPDIR/NikGapps.log
 
 # echo before loading util_functions
 ui_print() {
-  echo "$1" >> "$nikGappsLog"
+  logPath=$nikGappsLog
+  [ -n "$2" ] && logPath=$2
+  echo "$1" >> "$logPath"
   if $BOOTMODE; then
     echo "$1"
   else

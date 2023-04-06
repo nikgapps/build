@@ -19,7 +19,7 @@ class Export:
         self.file_name = file_name
         self.z = Zip(file_name)
 
-    def zip(self, app_set_list, config_string, compression_mode=Modes.ZIP):
+    def zip(self, app_set_list, config_string, compression_mode=Modes.DEFAULT):
         total_packages = 0
         print_progress = ""
         start_time = C.start_of_function()
@@ -80,7 +80,8 @@ class Export:
                     file_sizes = file_sizes + str(pkg.package_title) + "=" + str(pkg_size) + "\n"
                 app_set_index = app_set_index + 1
             # Writing additional script files to the zip
-            self.z.add_string(self.get_installer_script(total_packages, app_set_list), "common/install.sh")
+            self.z.add_string(self.get_installer_script(total_packages, app_set_list, compression_mode),
+                              "common/install.sh")
             self.z.add_string("#MAGISK", C.meta_inf_dir + "updater-script")
             self.z.add_file(Assets.magisk_update_binary, C.meta_inf_dir + "update-binary")
             self.z.add_string(config_string, "afzc/nikgapps.config")
@@ -144,7 +145,7 @@ class Export:
             return file_name, zip_execution_status
 
     @staticmethod
-    def get_installer_script(total_packages, app_set_list):
+    def get_installer_script(total_packages, app_set_list, compression_mode=Modes.DEFAULT):
         delem = ","
         installer_script_path_string = "#!/sbin/sh\n"
         installer_script_path_string += "# Shell Script EDIFY Replacement\n\n"
@@ -168,8 +169,10 @@ class Export:
             installer_script_path_string += "\"\n\n"
 
         for app_set in app_set_list:
-            installer_script_path_string += "install_app_set \"" + app_set.title + "\" " \
-                                                                                   "\"$" + app_set.title + "\"\n"
+            installer_script_path_string += "install_app_set \"" + \
+                                            app_set.title + "\" \"$" + \
+                                            app_set.title + "\" \"" + \
+                                            compression_mode + "\" \n"
 
         installer_script_path_string += "\nset_progress 1.00" + "\n\n"
         installer_script_path_string += "exit_install" + "\n\n"

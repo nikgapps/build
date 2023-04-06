@@ -88,18 +88,16 @@ class C:
 
     @staticmethod
     def end_of_function(start_time, message=None):
-        print(Fore.YELLOW)
-        print("---------------------------------------")
+        C.print_yellow("---------------------------------------")
         if message is not None:
-            print("--- " + message + " ---")
+            C.print_yellow("--- " + message + " ---")
         sec = round(time.time() - start_time, 0)
         seconds = int(math.fmod(sec, 60))
         minutes = int(sec // 60)
         time_diff = (time.time() - start_time)
-        print(Fore.YELLOW + f"--- {time_diff} seconds --- " + Fore.RESET)
-        print(Fore.YELLOW + f"--- %s minutes %s seconds --- " % (minutes, seconds) + Fore.RESET)
-        print("---------------------------------------")
-        print(Fore.RESET)
+        C.print_yellow(f"--- {time_diff} seconds --- ")
+        C.print_yellow(f"--- %s minutes %s seconds --- " % (minutes, seconds))
+        C.print_yellow("---------------------------------------")
         return time_diff
 
     @staticmethod
