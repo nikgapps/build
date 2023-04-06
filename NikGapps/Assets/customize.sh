@@ -164,9 +164,10 @@ unpack_pkg() {
 }
 
 # example: tar -xf py-archive.tar.xz -C test
-unpack_tar_xz(){
-  mkdir -p "$(dirname "$2")"
-  addToLog "- unpacking $1"
+extract_tar_xz(){
+  mkdir -p "$2"
+  addToLog "- extracting tar $1"
+  addToLog "  -> to $2"
   tar -xf "$1" -C "$2"
 }
 

@@ -921,6 +921,7 @@ get_total_available_size(){
 install_app_set() {
   appset_name="$1"
   packages_in_appset="$2"
+  extn="$3"
   addToLog "----------------------------------------------------------------------------"
   addToLog "- Current Appset=$appset_name, value=$value"
   case "$mode" in
@@ -963,7 +964,7 @@ install_app_set() {
           addToLog "- $current_package_title required size: $package_size Kb, installing to $install_partition ($default_partition)" "$current_package_title"
           if [ "$install_partition" != "-1" ]; then
             size_before=$(calculate_space_before "$current_package_title" "$install_partition")
-            install_the_package "$appset_name" "$i" "$current_package_title" "$value" "$install_partition"
+            install_the_package "$appset_name" "$i" "$current_package_title" "$value" "$install_partition" "$extn"
             size_after=$(calculate_space_after "$current_package_title" "$install_partition" "$size_before")
           else
             ui_print "x Skipping $current_package_title as no space is left" "$package_logDir/$current_package_title.log"
@@ -983,22 +984,29 @@ install_app_set() {
 }
 
 install_the_package() {
-  extn="zip"
   appset_name="$1"
   default_partition=$(echo $2 | cut -d',' -f3)
   package_name="$3"
   config_value="$4"
   install_partition="$5"
+  [ -z "$6" ] && extn=".zip" || extn="$6"
   addToLog "- Install_Partition=$install_partition" "$package_name"
-  pkgFile="$TMPDIR/$package_name.zip"
+  pkgFile="$TMPDIR/$package_name$extn"
   pkgContent="pkgContent"
-  unpack_pkg "AppSet/$1/$package_name.$extn" "$pkgFile" "$package_name"
-  extract_pkg "$pkgFile" "installer.sh" "$TMPDIR/$pkgContent/installer.sh" "$package_name"
+  unpack_pkg "AppSet/$1/$package_name$extn" "$pkgFile" "$package_name"
+  case $extn in
+    ".zip")
+      extract_pkg "$pkgFile" "installer.sh" "$TMPDIR/$pkgContent/installer.sh" "$package_name"
+    ;;
+    ".tar.xz")
+      extract_tar_xz "$pkgFile" "$TMPDIR/$pkgContent" "$package_name"
+    ;;
+  esac
   chmod 755 "$TMPDIR/$pkgContent/installer.sh"
   # shellcheck source=src/installer.sh
   . "$TMPDIR/$pkgContent/installer.sh" "$config_value" "$nikgapps_config_file_name" "$install_partition"
-  
-  set_progress $(get_package_progress "$package_name")
+
+  set_progress "$(get_package_progress "$package_name")"
 }
 
 install_file() {
