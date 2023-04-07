@@ -489,7 +489,7 @@ find_config() {
     found_config="$(find_config_path nikgapps.config)"
     if [ "$found_config" ]; then
       nikgapps_config_file_name="$found_config"
-      addToLog "- Found custom location of nikgapps.config"
+      addToLog "- Found custom location - $found_config of nikgapps.config"
       copy_file "$found_config" "$nikGappsDir/nikgapps.config"
     fi
     nikgapps_config_dir=$(dirname "$nikgapps_config_file_name")
@@ -497,7 +497,7 @@ find_config() {
     found_config="$(find_config_path debloater.config)"
     if [ "$found_config" ]; then
       debloater_config_file_name="$found_config"
-      addToLog "- Found custom location of debloater.config"
+      addToLog "- Found custom location - $found_config of debloater.config"
       copy_file "$found_config" "$nikGappsDir/debloater.config"
     fi
     nikgappsConfig="$sdcard/NikGapps/nikgapps.config"
