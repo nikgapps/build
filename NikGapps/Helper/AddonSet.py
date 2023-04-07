@@ -23,7 +23,7 @@ class AddonSet:
         ]
         # if float(Config.TARGET_ANDROID_VERSION) == float(12.1):
         #     addon_set_list.append(AddonSet.get_lawnchair())
-        # if TARGET_ANDROID_VERSION in (10, 11):
+        # if float(Config.TARGET_ANDROID_VERSION) in (10, 11):
         #     addon_set_list.append(AddonSet.get_pixel_setup_wizard())
         # if float(Config.TARGET_ANDROID_VERSION) >= 11:
         #     addon_set_list.append(AddonSet.get_flipendo())
@@ -274,7 +274,7 @@ class AddonSet:
             if float(Config.TARGET_ANDROID_VERSION) < 12:
                 setup_wizard_set.add_package(android_migrate_prebuilt)
             # setup_wizard_set.add_package(pixel_tips)
-        # if TARGET_ANDROID_VERSION == 11:
+        # if float(Config.TARGET_ANDROID_VERSION) == 11:
         # setup_wizard_set.add_package(pixel_config_overlays)
         return setup_wizard_set
 
