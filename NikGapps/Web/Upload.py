@@ -96,5 +96,6 @@ class Upload:
         return execution_status
 
     def close_connection(self):
-        self.sftp.close()
-        print("Connection closed")
+        if self.sftp is not None:
+            self.sftp.close()
+            print("Connection closed")
