@@ -4,7 +4,8 @@ import os
 import Config
 from NikGapps.Config.NikGappsConfig import NikGappsConfig
 from NikGapps.Git import PullRequest
-from NikGapps.Helper import C, Git, FileOp, Upload
+from NikGapps.Helper import C, Git, FileOp
+from NikGapps.Web.Upload import Upload
 
 
 class ConfigOperations:
@@ -82,31 +83,11 @@ class ConfigOperations:
         if FileOp.file_exists(C.temp_nikgapps_config_location):
             C.sourceforge_release_directory = "/home/frs/project/nikgapps/Releases/Config"
             u = Upload()
-            if u.successful_connection:
-                file_type = "config"
-                # check if directory exists, if it does, we're good to upload the file
-                cd = u.get_cd_with_date(Config.TARGET_ANDROID_VERSION, file_type)
-                dir_exists = u.cd(cd)
-                if not dir_exists:
-                    print(str(cd) + " doesn't exist!")
-                    # make the folder with current date if the directory doesn't exist
-                    u.make_folder(Config.TARGET_ANDROID_VERSION, file_type,
-                                  folder_name=f"v{config_obj.config_version}")
-                    # try to cd again
-                    dir_exists = u.cd(u.get_cd_with_date(Config.TARGET_ANDROID_VERSION, file_type,
-                                                         input_date=f"v{config_obj.config_version}"))
-                # if the directory exists, we can upload the file
-                if dir_exists:
-                    print("uploading " + C.temp_nikgapps_config_location + " ...")
-                    u.upload_file(C.temp_nikgapps_config_location)
-                    print("uploading file finished...")
-                    execution_status = True
-                else:
-                    print("The directory doesn't exist!")
-            else:
-                print("The Connection Failed!")
-                # make sure we close the connection
-            u.close()
+            file_type = "config"
+            remote_directory = u.get_cd(Config.TARGET_ANDROID_VERSION, file_type) + "/v" + str(
+                config_obj.config_version)
+            u.upload(C.temp_nikgapps_config_location, remote_directory)
+            u.close_connection()
         return execution_status
 
     @staticmethod

@@ -2,8 +2,9 @@ import os
 
 import Config
 from NikGapps.Config.NikGappsConfig import NikGappsConfig
-from NikGapps.Helper import Logs, Upload
+from NikGapps.Helper import Logs
 from Build import Build
+from NikGapps.Web.Upload import Upload
 from NikGappsPackages import NikGappsPackages
 from NikGapps.Helper.Export import Export
 from NikGapps.Helper.C import C

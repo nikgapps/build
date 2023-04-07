@@ -4,13 +4,14 @@ import os
 import Config
 from Build import Build
 from NikGapps.Config.NikGappsConfig import NikGappsConfig
-from NikGapps.Helper import C, Logs, Export, FileOp, Upload
+from NikGapps.Helper import C, Logs, Export, FileOp
+from NikGapps.Web.Upload import Upload
 
 
 class Operations:
 
     @staticmethod
-    def build(config_obj: NikGappsConfig, android_version, config_repo, upload: Upload = None):
+    def build(config_obj: NikGappsConfig, android_version, config_repo, release_directory=None, upload: Upload = None):
         # Generate a file name for the zip
         file_name = C.release_directory
         config_file_name = os.path.splitext(os.path.basename(config_obj.config_path))[0].replace(" ", "")
@@ -50,10 +51,10 @@ class Operations:
             if Config.UPLOAD_FILES:
                 u = upload if upload is not None else Upload()
                 print("Uploading " + str(file_name))
-                execution_status = u.upload(file_name)
+                execution_status = u.upload(file_name, remote_directory=release_directory)
                 print("Done")
             else:
-                execution_status = True
+                execution_status = False
             if execution_status:
                 Operations.archive_the_config(config_obj.config_path, android_version, config_file_name, config_repo)
             else:

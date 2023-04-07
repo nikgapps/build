@@ -14,3 +14,9 @@ class Logs:
         tz_london = pytz.timezone('Europe/London')
         datetime_london = datetime.now(tz_london)
         return datetime_london.strftime("%Y%m%d")
+
+    @staticmethod
+    def get_path(user_name, android_code):
+        tz_london = pytz.timezone('Europe/London')
+        datetime_london = datetime.now(tz_london)
+        return user_name + "/" + "NikGapps-" + str(android_code) + "/" + str(datetime_london.strftime("%d-%b-%Y"))

@@ -3,8 +3,9 @@ from datetime import datetime
 from NikGapps.Config.ConfigOperations import ConfigOperations
 from NikGapps.Config.NikGappsConfig import NikGappsConfig
 from NikGapps.Config.UserBuild.OnDemand import OnDemand
-from NikGapps.Helper import FileOp, Git, Upload
+from NikGapps.Helper import FileOp, Git
 from NikGapps.Helper.C import C
+from NikGapps.Web.Upload import Upload
 from Release import Release
 from Config import FETCH_PACKAGE
 import Config

@@ -2,8 +2,9 @@
 
 from colorama import Fore
 
-from NikGapps.Helper import Upload, FileOp
+from NikGapps.Helper import FileOp
 from NikGapps.Helper.Args import Args
+from NikGapps.Web.Upload import Upload
 from Operation import Operation
 import Config
 from NikGapps.Helper.C import C
@@ -53,7 +54,7 @@ else:
     u = Upload()
     operation.build(git_check=args.enable_git_check, android_versions=android_versions,
                     package_list=package_list, commit_message=commit_message, upload=u)
-    u.close()
+    u.close_connection()
 
 C.end_of_function(start_time, "Total time taken by the program")
 
