@@ -11,14 +11,14 @@ import NikGapps.Git.GitConfig as Config
 class Operations:
 
     @staticmethod
-    def setup_tracker_repo():
+    def setup_tracker_repo(fresh_clone=True):
         repo_name = "git@github.com:nikgapps/tracker.git"
         repo_dir = C.pwd + C.dir_sep + "tracker"
         print()
         print("Repo Dir: " + repo_dir)
 
         tracker_repo = Git(repo_dir)
-        result = tracker_repo.clone_repo(repo_name)
+        result = tracker_repo.clone_repo(repo_name, fresh_clone=fresh_clone)
         return tracker_repo if result else None
 
     @staticmethod

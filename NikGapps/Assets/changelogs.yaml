@@ -1,4 +1,4 @@
-- date: 06th Apr 2023 (Android 10-13)
+- date: 07th Apr 2023 (Android 10-13)
   changes:
       - item: Fixed color selection option not appearing in pixel launcher (A13)
       - item: Fixed Pixel Launcher crash in qpr2 (A13)
