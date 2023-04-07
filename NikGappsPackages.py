@@ -1,3 +1,4 @@
+import Config
 from Config import TARGET_ANDROID_VERSION
 from NikGapps.Helper import C
 from NikGapps.Helper.AddonSet import AddonSet
@@ -345,7 +346,7 @@ class NikGappsPackages:
         google_maps = Package("GoogleMaps", "com.google.android.apps.maps", C.is_priv_app)
         google_maps.delete("Maps")
         app_set_list.append(AppSet("GoogleMaps", [google_maps]))
-        if TARGET_ANDROID_VERSION >= 11:
+        if float(Config.TARGET_ANDROID_VERSION) >= 11:
             google_location_history = Package("LocationHistoryPrebuilt", "com.google.android.gms.location.history",
                                               C.is_system_app, "GoogleLocationHistory")
             app_set_list.append(AppSet("GoogleLocationHistory", [google_location_history]))
@@ -391,8 +392,7 @@ class NikGappsPackages:
         play_games = Package("PlayGames", "com.google.android.play.games", C.is_system_app)
         app_set_list.append(AppSet("PlayGames", [play_games]))
         app_set_list.append(AddonSet.get_pixel_launcher())
-        if TARGET_ANDROID_VERSION >= 11:
-            app_set_list.append(NikGappsPackages.get_google_files())
+        app_set_list.append(NikGappsPackages.get_google_files())
         google_recorder = Package("RecorderPrebuilt", "com.google.android.apps.recorder", C.is_priv_app,
                                   "GoogleRecorder")
         google_recorder.delete("Recorder")
@@ -431,7 +431,7 @@ class NikGappsPackages:
         gmail.delete("Email")
         gmail.delete("PrebuiltEmailGoogle")
         app_set_list.append(AppSet("Gmail", [gmail]))
-        if TARGET_ANDROID_VERSION >= 10:
+        if float(Config.TARGET_ANDROID_VERSION) >= 10:
             google_device_setup = Package("OTAConfigPrebuilt", "com.google.android.apps.work.oobconfig",
                                           C.is_priv_app, "DeviceSetup")
             app_set_list.append(AppSet("DeviceSetup", [google_device_setup]))
@@ -445,7 +445,7 @@ class NikGappsPackages:
         google_partner_setup = Package("PartnerSetupPrebuilt", "com.google.android.partnersetup", C.is_priv_app,
                                        "GooglePartnerSetup")
         app_set_list.append(AppSet("GooglePartnerSetup", [google_partner_setup]))
-        if TARGET_ANDROID_VERSION >= 10:
+        if float(Config.TARGET_ANDROID_VERSION) >= 10:
             android_device_policy = Package("DevicePolicyPrebuilt", "com.google.android.apps.work.clouddpc",
                                             C.is_system_app, "AndroidDevicePolicy")
             app_set_list.append(AppSet("AndroidDevicePolicy", [android_device_policy]))
@@ -461,7 +461,7 @@ class NikGappsPackages:
         storage_manager_google = Package("StorageManagerGoogle", "com.google.android.storagemanager",
                                          C.is_priv_app, "StorageManager", partition="system_ext")
         app_set_list.add_package(storage_manager_google)
-        if TARGET_ANDROID_VERSION >= 11:
+        if float(Config.TARGET_ANDROID_VERSION) >= 11:
             documents_ui_google = Package("DocumentsUIGoogle", "com.google.android.documentsui", C.is_priv_app)
             documents_ui_google.delete("DocumentsUI")
             app_set_list.add_package(documents_ui_google)
@@ -489,7 +489,7 @@ class NikGappsPackages:
         google_chrome.delete("Duckduckgo")
         app_set_list = AppSet("GoogleChrome")
         app_set_list.add_package(google_chrome)
-        if TARGET_ANDROID_VERSION >= 10:
+        if float(Config.TARGET_ANDROID_VERSION) >= 10:
             google_webview = Package("WebViewGoogle", "com.google.android.webview", C.is_system_app)
             google_webview.delete("webview")
             trichromelibrary = Package("TrichromeLibrary", "com.google.android.trichromelibrary",
@@ -522,19 +522,18 @@ set_prop "setupwizard.feature.show_pixel_tos" "false" "$install_partition/build.
         setup_wizard_set = AppSet("SetupWizard")
         setup_wizard_set.add_package(setup_wizard)
         setup_wizard_set.add_package(google_restore)
-        if TARGET_ANDROID_VERSION >= 10:
+        if float(Config.TARGET_ANDROID_VERSION) >= 10:
             google_one_time_initializer = Package("GoogleOneTimeInitializer", "com.google.android.onetimeinitializer",
                                                   C.is_priv_app, partition="system_ext")
             setup_wizard_set.add_package(google_one_time_initializer)
-        if TARGET_ANDROID_VERSION < 12:
+        if float(Config.TARGET_ANDROID_VERSION) < 12:
             setup_wizard_set.add_package(android_migrate_prebuilt)
         return setup_wizard_set
 
     @staticmethod
     def get_lawnchair():
         lawnchair_set = AppSet("Lawnchair")
-        from Config import TARGET_ANDROID_VERSION
-        if TARGET_ANDROID_VERSION == 10:
+        if float(Config.TARGET_ANDROID_VERSION) == 10:
             lawnchair_ci = Package("Lawnchair", "ch.deletescape.lawnchair.ci", C.is_priv_app)
             if "etc/permissions/privapp-permissions-lawnchair.xml" not in lawnchair_ci.predefined_file_list:
                 lawnchair_ci.predefined_file_list.append("etc/permissions/privapp-permissions-lawnchair.xml")
