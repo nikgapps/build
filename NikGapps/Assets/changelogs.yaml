@@ -1,3 +1,9 @@
+- date: 08th Apr 2023 (Android 10-13)
+  changes:
+      - item: Fixed the config detection - those who did not see their config changes reflecting in the last build, please try again
+      - item: Fixed the 2nd app in order failing to install when the 1st app was uninstalled
+      - item: Fixed the issues with dirty flashing NikGapps resulting into skipping some apps, should almost never skip installing app upon dirty flashing NikGapps.
+      - item: Fixed the issue where DocumentsUI was added to the GoogleFiles package when it is not supported (Android 10)
 - date: 07th Apr 2023 (Android 10-13)
   changes:
       - item: Fixed color selection option not appearing in pixel launcher (A13)
