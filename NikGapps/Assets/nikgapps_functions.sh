@@ -959,8 +959,13 @@ install_app_set() {
             [ $androidVersion -le 10 ] && default_partition=product && addToLog "- default_partition is overridden" "$current_package_title"
             ;;
           esac
+          addToLog "----------------------------------------------------------------------------" "$current_package_title"
           install_partition=$(get_install_partition "$default_partition" "$default_partition" "$package_size" "$current_package_title")
-          [ "$install_partition" = "-1" ] && uninstall_the_package "$appset_name" "$current_package_title" "1"
+          if [ "$install_partition" = "-1" ]; then
+            uninstall_the_package "$appset_name" "$current_package_title" "1"
+            addToLog "----------------------------------------------------------------------------" "$current_package_title"
+            install_partition=$(get_install_partition "$default_partition" "$default_partition" "$package_size" "$current_package_title")
+          fi
           addToLog "- $current_package_title required size: $package_size Kb, installing to $install_partition ($default_partition)" "$current_package_title"
           if [ "$install_partition" != "-1" ]; then
             size_before=$(calculate_space_before "$current_package_title" "$install_partition")
