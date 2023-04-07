@@ -36,7 +36,7 @@ class OnDemand:
 
     @staticmethod
     def build_from_config_file(config_path, android_version, config_repo, exclusive=False):
-        config_obj = NikGappsConfig(config_path=config_path, use_zip_config=1, exclusive=exclusive)
+        config_obj = NikGappsConfig(config_path=config_path, use_zip_config=1)
         result = False
         if config_obj.validate():
             # create a config based build
