@@ -995,7 +995,13 @@ install_the_package() {
   config_value="$4"
   install_partition="$5"
   [ -z "$6" ] && extn=".zip" || extn="$6"
+  addToLog "- Default Extn=$extn" "$package_name"
+  case "$extn" in
+    .*) ;;
+    *) extn=".$extn" ;;
+  esac
   addToLog "- Install_Partition=$install_partition" "$package_name"
+  addToLog "- Extn=$extn" "$package_name"
   pkgFile="$TMPDIR/$package_name$extn"
   pkgContent="pkgContent"
   unpack_pkg "AppSet/$1/$package_name$extn" "$pkgFile" "$package_name"
@@ -1301,13 +1307,13 @@ uninstall_file() {
 }
 
 uninstall_the_package() {
-  extn="zip"
+  extn=".zip"
   package_name="$2"
   print_on_screen="$3"
   [ "$print_on_screen" != "1" ] && ui_print "- Uninstalling $package_name"
-  pkgFile="$TMPDIR/$package_name.zip"
+  pkgFile="$TMPDIR/$package_name$extn"
   pkgContent="pkgContent"
-  unpack_pkg "AppSet/$1/$package_name.$extn" "$pkgFile" $package_name
+  unpack_pkg "AppSet/$1/$package_name$extn" "$pkgFile" "$package_name"
   extract_pkg "$pkgFile" "uninstaller.sh" "$TMPDIR/$pkgContent/uninstaller.sh" "$package_name"
   chmod 755 "$TMPDIR/$pkgContent/uninstaller.sh"
   # shellcheck source=src/uninstaller.sh
