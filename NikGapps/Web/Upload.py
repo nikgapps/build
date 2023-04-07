@@ -72,7 +72,7 @@ class Upload:
             except IOError:
                 self.sftp.makedirs(remote_directory)
                 self.sftp.chdir(remote_directory)
-            # putinfo = self.sftp.put(file_name, remote_filename)
+            putinfo = self.sftp.put(file_name, remote_filename)
             # print(putinfo)
             print(f'File uploaded successfully to {remote_directory}/{remote_filename}')
             download_link = C.get_download_link(file_name, remote_directory)

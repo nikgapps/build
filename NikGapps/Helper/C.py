@@ -112,7 +112,7 @@ class C:
             return
         match Config.RELEASE_TYPE:
             case ("config"):
-                C.sourceforge_release_directory = "Config-Releases"
+                C.sourceforge_release_directory = "/home/frs/project/nikgapps/Config-Releases"
             case ("canary"):
                 C.sourceforge_release_directory = "/home/frs/project/nikgapps/Canary-Releases"
             case ("stable"):
