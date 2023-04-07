@@ -8,7 +8,6 @@ from .Logs import Logs
 from .Package import Package
 from .XmlOp import XmlOp
 from .AddonSet import AddonSet
-from .Upload import Upload
 from .Git import Git
 from .SystemStat import SystemStat
 from .NikMail import NikMail

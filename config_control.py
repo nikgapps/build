@@ -11,7 +11,7 @@ from NikGapps.Helper.C import C
 from NikGapps.Helper.FileOp import FileOp
 
 actual_start_time = C.start_of_function()
-
+Config.RELEASE_TYPE = "config"
 pr_list = Operations.process_pull_requests()
 config_dir = ConfigDirectory()
 config_repo = config_dir.setup(override_dir=True)

@@ -40,7 +40,8 @@ class C:
     apk_source_repo = f"https://gitlab.com/nikgapps/"
     apk_source_directory = str(Path(cwd).parent) + os.path.sep
     config_directory = str(Path(cwd).parent) + os.path.sep + "config"
-    sourceforge_release_directory = "/home/frs/project/nikgapps/Releases"
+    sourceforge_root_directory = "/home/frs/project/nikgapps"
+    sourceforge_release_directory = f"{sourceforge_root_directory}/Releases"
 
     # source_directory = export_directory
     # The directory where all the final nikgapps packages will be exported
@@ -101,13 +102,21 @@ class C:
         return time_diff
 
     @staticmethod
-    def update_sourceforge_release_directory(release_type):
-        if release_type == "config":
-            C.sourceforge_release_directory = "/home/frs/project/nikgapps/Config-Releases"
-        elif release_type == "canary":
-            C.sourceforge_release_directory = "/home/frs/project/nikgapps/Canary-Releases"
-        else:
-            C.sourceforge_release_directory = "/home/frs/project/nikgapps/Releases"
+    def get_android_code(android_version):
+        return Config.ANDROID_VERSIONS[str(android_version)]['code']
+
+    @staticmethod
+    def update_sourceforge_release_directory(release_dir=None):
+        if release_dir is not None:
+            C.sourceforge_release_directory = "/home/frs/project/nikgapps/" + release_dir
+            return
+        match Config.RELEASE_TYPE:
+            case ("config"):
+                C.sourceforge_release_directory = "Config-Releases"
+            case ("canary"):
+                C.sourceforge_release_directory = "/home/frs/project/nikgapps/Canary-Releases"
+            case ("stable"):
+                C.sourceforge_release_directory = "/home/frs/project/nikgapps/Releases"
 
     @staticmethod
     def update_android_version_dependencies():

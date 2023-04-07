@@ -118,6 +118,11 @@ class NikGappsConfig:
                 app_set_list.append(new_app_set)
         return app_set_list
 
+    def get_user_name_from_config(self):
+        if self.config_path is None:
+            return "Anonymous"
+        return str(self.config_path).split("/")[-2]
+
     def get_dictionary_value(self, key):
         if key in self.config_dict:
             return str(self.config_dict[key])
