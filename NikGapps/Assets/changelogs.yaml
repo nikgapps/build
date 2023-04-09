@@ -1,3 +1,7 @@
+- date: 10th Apr 2023 (Android 10-13)
+  changes:
+      - item: Fixed the issue with nikgapps.config where AppSet configurations were not cascaded to Packages inside it
+      - item: Fixed the issue with nikgapps.config where Package configurations were misread in some scenarios
 - date: 08th Apr 2023 (Android 10-13)
   changes:
       - item: Fixed the config detection - those who did not see their config changes reflecting in the last build, please try again

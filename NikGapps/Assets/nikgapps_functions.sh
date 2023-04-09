@@ -923,74 +923,95 @@ install_app_set() {
   packages_in_appset="$2"
   extn="$3"
   addToLog "----------------------------------------------------------------------------"
+  value=1
+  if [ -f "$nikgapps_config_file_name" ]; then
+    value=$(ReadConfigValue "$appset_name" "$nikgapps_config_file_name")
+    if [ "$value" = "" ]; then
+      value=1
+    fi
+  fi
   addToLog "- Current Appset=$appset_name, value=$value"
-  case "$mode" in
-    "uninstall_by_name")
-      for k in $packages_in_appset; do
-        current_package_title=$(echo "$k" | cut -d',' -f1)
+  case "$value" in
+    "0")
+      ui_print "x Skipping $appset_name"
+    ;;
+    "-1")
+      addToLog "- $appset_name is disabled"
+      for i in $packages_in_appset; do
+        current_package_title=$(echo "$i" | cut -d',' -f1)
         uninstall_the_package "$appset_name" "$current_package_title"
       done
     ;;
-    "uninstall")
-      for k in $packages_in_appset; do
-        current_package_title=$(echo "$k" | cut -d',' -f1)
-        [ -z "$value" ] && value=$(ReadConfigValue "$current_package_title" "$nikgapps_config_file_name")
-        [ -z "$value" ] && value=1
-        [ "$value" -eq -1 ] && uninstall_the_package "$appset_name" "$current_package_title"
-      done
-    ;;
-    "install")
-      for i in $packages_in_appset; do
-        current_package_title=$(echo "$i" | cut -d',' -f1)
-        addToLog "----------------------------------------------------------------------------" "$current_package_title"
-        addToLog "----------------------------------------------------------------------------"
-        addToLog "- Working for $current_package_title" "$current_package_title"
-        addToLog "- Working for $current_package_title"
-        value=$(ReadConfigValue ">>$current_package_title" "$nikgapps_config_file_name")
-        [ -z "$value" ] && value=$(ReadConfigValue "$current_package_title" "$nikgapps_config_file_name")
-        [ -z "$value" ] && value=1
-        if [ "$value" -ge 1 ]; then
-          package_size=$(echo "$i" | cut -d',' -f2)
-          addToLog "- package_size = $package_size" "$current_package_title"
-          default_partition=$(echo "$i" | cut -d',' -f3)
-          addToLog "- default_partition = $default_partition" "$current_package_title"
-          case "$default_partition" in
-            "system_ext")
-            [ $androidVersion -le 10 ] && default_partition=product && addToLog "- default_partition is overridden" "$current_package_title"
-            ;;
-          esac
-          addToLog "----------------------------------------------------------------------------" "$current_package_title"
-          install_partition=$(get_install_partition "$default_partition" "$default_partition" "$package_size" "$current_package_title")
-          if [ "$install_partition" = "-1" ]; then
-            uninstall_the_package "$appset_name" "$current_package_title" "1"
-            addToLog "----------------------------------------------------------------------------" "$current_package_title"
-            install_partition=$(get_install_partition "$default_partition" "$default_partition" "$package_size" "$current_package_title")
-          fi
-          addToLog "- $current_package_title required size: $package_size Kb, installing to $install_partition ($default_partition)" "$current_package_title"
-          if [ "$install_partition" != "-1" ]; then
-            size_before=$(calculate_space_before "$current_package_title" "$install_partition")
-            install_the_package "$appset_name" "$i" "$current_package_title" "$value" "$install_partition" "$extn"
-            size_after=$(calculate_space_after "$current_package_title" "$install_partition" "$size_before")
-          else
-            ui_print "x Skipping $current_package_title as no space is left" "$package_logDir/$current_package_title.log"
-          fi
-        elif [ "$value" -eq -1 ] ; then
-          addToLog "- uninstalling $current_package_title" "$current_package_title"
-          uninstall_the_package "$appset_name" "$current_package_title"
-        elif [ "$value" -eq 0 ] ; then
-          ui_print "x Skipping $current_package_title" "$package_logDir/$current_package_title.log"
-        fi
-      done
-    ;;
     *)
-      addToLog "- Invalid mode $mode"
+      case "$mode" in
+        "uninstall_by_name")
+          for k in $packages_in_appset; do
+            current_package_title=$(echo "$k" | cut -d',' -f1)
+            uninstall_the_package "$appset_name" "$current_package_title"
+          done
+        ;;
+        "uninstall")
+          for k in $packages_in_appset; do
+            current_package_title=$(echo "$k" | cut -d',' -f1)
+            [ -z "$value" ] && value=$(ReadConfigValue "$current_package_title" "$nikgapps_config_file_name")
+            [ -z "$value" ] && value=1
+            [ "$value" -eq -1 ] && uninstall_the_package "$appset_name" "$current_package_title"
+          done
+        ;;
+        "install")
+          for i in $packages_in_appset; do
+            current_package_title=$(echo "$i" | cut -d',' -f1)
+            addToLog "----------------------------------------------------------------------------" "$current_package_title"
+            addToLog "----------------------------------------------------------------------------"
+            addToLog "- Working for $current_package_title" "$current_package_title"
+            addToLog "- Working for $current_package_title"
+            value=$(ReadConfigValue ">>$current_package_title" "$nikgapps_config_file_name")
+            [ -z "$value" ] && value=$(ReadConfigValue "$current_package_title" "$nikgapps_config_file_name")
+            [ -z "$value" ] && value=1
+            if [ "$value" -ge 1 ]; then
+              package_size=$(echo "$i" | cut -d',' -f2)
+              addToLog "- package_size = $package_size" "$current_package_title"
+              default_partition=$(echo "$i" | cut -d',' -f3)
+              addToLog "- default_partition = $default_partition" "$current_package_title"
+              case "$default_partition" in
+                "system_ext")
+                [ $androidVersion -le 10 ] && default_partition=product && addToLog "- default_partition is overridden" "$current_package_title"
+                ;;
+              esac
+              addToLog "----------------------------------------------------------------------------" "$current_package_title"
+              install_partition=$(get_install_partition "$default_partition" "$default_partition" "$package_size" "$current_package_title")
+              if [ "$install_partition" = "-1" ]; then
+                uninstall_the_package "$appset_name" "$current_package_title" "1"
+                addToLog "----------------------------------------------------------------------------" "$current_package_title"
+                install_partition=$(get_install_partition "$default_partition" "$default_partition" "$package_size" "$current_package_title")
+              fi
+              addToLog "- $current_package_title required size: $package_size Kb, installing to $install_partition ($default_partition)" "$current_package_title"
+              if [ "$install_partition" != "-1" ]; then
+                size_before=$(calculate_space_before "$current_package_title" "$install_partition")
+                install_the_package "$appset_name" "$i" "$current_package_title" "$value" "$install_partition" "$extn"
+                size_after=$(calculate_space_after "$current_package_title" "$install_partition" "$size_before")
+              else
+                ui_print "x Skipping $current_package_title as no space is left" "$package_logDir/$current_package_title.log"
+              fi
+            elif [ "$value" -eq -1 ] ; then
+              addToLog "- uninstalling $current_package_title" "$current_package_title"
+              uninstall_the_package "$appset_name" "$current_package_title"
+            elif [ "$value" -eq 0 ] ; then
+              ui_print "x Skipping $current_package_title" "$package_logDir/$current_package_title.log"
+            fi
+          done
+        ;;
+        *)
+          addToLog "- Invalid mode $mode"
+        ;;
+      esac
     ;;
   esac
 }
 
 install_the_package() {
   appset_name="$1"
-  default_partition=$(echo $2 | cut -d',' -f3)
+  default_partition=$(echo "$2" | cut -d',' -f3)
   package_name="$3"
   config_value="$4"
   install_partition="$5"
