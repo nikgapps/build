@@ -2,6 +2,7 @@
   changes:
       - item: Fixed the issue with nikgapps.config where AppSet configurations were not cascaded to Packages inside it
       - item: Fixed the issue with nikgapps.config where Package configurations were misread in some scenarios
+      - item: Fixed the issue where user builds were skipping the Packages if value was set to 2 (to keep aosp counterpart)
 - date: 08th Apr 2023 (Android 10-13)
   changes:
       - item: Fixed the config detection - those who did not see their config changes reflecting in the last build, please try again
