@@ -108,7 +108,7 @@ class NikGappsConfig:
                             # these will be the addons who can be directly added
                             new_app_set.add_package(pkg)
                         continue
-                    if config_dict[str(">>" + pkg.package_title)] == "1":
+                    if config_dict[str(">>" + pkg.package_title)] in ("1", "2"):
                         new_app_set.add_package(pkg)
                     else:
                         print("Package disabled " + pkg.package_title)
