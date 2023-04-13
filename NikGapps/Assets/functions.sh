@@ -65,6 +65,29 @@ debloat_apps(){
   done
 }
 
+force_debloat_apps(){
+  for i in $(force_debloat_folders); do
+    addToLog "- Force Debloating $i"
+    if [ "${i#*/*}" != "$i" ]; then
+      for j in "/postinstall$S/$i" "/postinstall/$i" "$S/$i" "/$i"; do
+        addToLog "- Checking if $j exists"
+        if [ -f "$j" ] || [ -d "$j" ]; then
+          addToLog "- Found, deleting $j"
+          rm -rf "$j"
+        fi
+      done
+    else
+      for j in $(find "/system" "/product" "/system_ext" -iname "$i"); do
+        addToLog "- Checking if $j exists"
+        if [ -f "$j" ] || [ -d "$j" ]; then
+          addToLog "- Found, deleting $j"
+          rm -rf "$j"
+        fi
+      done
+    fi
+  done
+}
+
 find_config() {
   nikgapps_config_file_name="$nikGappsDir/nikgapps.config"
   for location in "/tmp" "/sdcard1" "/sdcard1/NikGapps" "/sdcard" "/storage/emulated/NikGapps" "/storage/emulated"; do

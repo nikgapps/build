@@ -92,6 +92,27 @@ list_debloat_folders() {
   echo ""
 }
 
+list_force_debloat_folders() {
+  echo ""
+  echo "force_debloat_folders() {"
+  echo "cat <<EOF"
+
+  if [ -f "$debloaterSource" ]; then
+    OLD_IFS="$IFS"
+    IFS="$(printf '%b_' ' \n')"
+    IFS="${IFS%_}"
+    g=$(grep "forceDebloat" "$debloaterSource" | cut -d= -f2)
+    for i in $g; do
+      echo "$i"
+    done
+    IFS="$OLD_IFS"
+  fi
+
+  echo "EOF"
+  echo "}"
+  echo ""
+}
+
 backup() {
   echo " backup)"
   echo "   ui_print \"- Backing up $fileName\""
@@ -111,6 +132,7 @@ restore() {
   echo "   done"
   echo "   delete_aosp_apps"
   echo "   debloat_apps"
+  echo "   force_debloat_apps"
   echo "   for i in \$(list_files); do"
   echo "     f=\$(get_output_path \"\$S/\$i\")"
   echo "     chown root:root \"\$f\""
@@ -168,6 +190,7 @@ cat "$COMMONDIR/header" >> "$dest"
   list_files
   list_delete_folders
   list_debloat_folders
+  list_force_debloat_folders
   run
 } >>"$dest"
 chmod 755 "$dest"
