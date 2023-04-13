@@ -274,7 +274,13 @@ copy_logs() {
   copy_file "$COMMONDIR/size_after.txt" "$logDir/partitions/size_after.txt"
   copy_file "$COMMONDIR/size_after_readable.txt" "$logDir/partitions/size_after_readable.txt"
   copy_file_logs "after"
-  for f in $PROPFILES; do
+  for f in $(find /system -iname "*.prop" 2>/dev/null); do
+    copy_file "$f" "$logDir/propfiles/$f"
+  done
+  for f in $(find /product -iname "*.prop" 2>/dev/null); do
+    copy_file "$f" "$logDir/propfiles/$f"
+  done
+  for f in $(find /system_ext -iname "*.prop" 2>/dev/null); do
     copy_file "$f" "$logDir/propfiles/$f"
   done
   for f in $addon_scripts_logDir; do
@@ -368,15 +374,17 @@ debloat() {
             IFS="$OLD_IFS"
           else
             addToLog "- No $i folders to debloat"
+            update_prop "$i" "forceDebloat" "$propFilePath" "$debloaterFilesPath"
           fi
         else
-          rmv "$i"
-          update_prop "$i" "debloat" "$propFilePath" "$debloaterFilesPath"
+          addToLog "- Force Removing $i"
+          rm -rf "$i"
+          update_prop "$i" "forceDebloat" "$propFilePath" "$debloaterFilesPath"
         fi
       fi
     done
     if [ $debloaterRan = 1 ]; then
-      update_prop "$propFilePath" "install" "$debloaterFilesPath"
+      update_prop "$propFilePath" "install" "$propFilePath" "$debloaterFilesPath"
       . $COMMONDIR/addon "Debloater" "$propFilePath" "$addon_index"
       copy_file "$system/addon.d/$addon_index-Debloater.sh" "$logDir/addonscripts/$addon_index-Debloater.sh"
     fi
@@ -1182,11 +1190,6 @@ RemoveAospAppsFromRom() {
       addToLog "- No $1 folders to remove" "$3"
     fi
   fi
-}
-
-rmv() {
-  addToLog "- Removing $1"
-  rm -rf "$1"
 }
 
 set_perm() {
