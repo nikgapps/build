@@ -43,25 +43,25 @@ CopyFile() {
 
 delete_aosp_apps(){
   for i in $(delete_folders); do
-    addToLog "- Deleting /$i"
-    for j in "/postinstall$S/$i" "/postinstall/$i" "$S/$i" "/$i"; do
-      if [ -f "$j" ] || [ -d "$j" ]; then
-        addToLog "- Found, deleting $j"
-        rm -rf "$j"
-      fi
-    done
+    addToLog "- Deleting aosp app /$i"
+    delete_if_exists "/postinstall$S/$i" "/postinstall/$i" "$S/$i" "/$i"
   done
 }
 
 debloat_apps(){
   for i in $(debloat_folders); do
     addToLog "- Debloating /$i"
-    for j in "/postinstall$S/$i" "/postinstall/$i" "$S/$i" "/$i"; do
-      if [ -f "$j" ] || [ -d "$j" ]; then
-        addToLog "- Found, deleting $j"
-        rm -rf "$j"
-      fi
-    done
+    delete_if_exists "/postinstall$S/$i" "/postinstall/$i" "$S/$i" "/$i"
+  done
+}
+
+delete_if_exists(){
+  for i in "$@"; do
+    addToLog "- Checking if $i exists"
+    if [ -f "$i" ] || [ -d "$i" ]; then
+      addToLog "- Found, deleting $i"
+      rm -rf "$i"
+    fi
   done
 }
 
@@ -69,20 +69,23 @@ force_debloat_apps(){
   for i in $(force_debloat_folders); do
     addToLog "- Force Debloating $i"
     if [ "${i#*/*}" != "$i" ]; then
-      for j in "/postinstall$S/$i" "/postinstall/$i" "$S/$i" "/$i"; do
-        addToLog "- Checking if $j exists"
-        if [ -f "$j" ] || [ -d "$j" ]; then
-          addToLog "- Found, deleting $j"
-          rm -rf "$j"
-        fi
-      done
+      delete_if_exists "/postinstall$S/$i" "/postinstall/$i" "$S/$i" "/$i"
     else
-      for j in $(find "/system" "/product" "/system_ext" -iname "$i"); do
-        addToLog "- Checking if $j exists"
-        if [ -f "$j" ] || [ -d "$j" ]; then
-          addToLog "- Found, deleting $j"
-          rm -rf "$j"
-        fi
+      for j in $(find "/system" "/product" "/system_ext" "/postinstall/system" "/postinstall/product" "/postinstall/system_ext" -iname "$i"); do
+        delete_if_exists "$j"
+      done
+    fi
+  done
+}
+
+force_delete_apps(){
+  for i in $(force_delete_folders); do
+    addToLog "- Force Deleting $i"
+    if [ "${i#*/*}" != "$i" ]; then
+      delete_if_exists "/postinstall$S/$i" "/postinstall/$i" "$S/$i" "/$i"
+    else
+      for j in $(find "/system" "/product" "/system_ext" "/postinstall/system" "/postinstall/product" "/postinstall/system_ext" -iname "$i"); do
+        delete_if_exists "$j"
       done
     fi
   done
