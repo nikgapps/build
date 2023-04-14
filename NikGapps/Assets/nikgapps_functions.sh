@@ -1379,4 +1379,6 @@ uninstall_the_package() {
   # shellcheck source=src/uninstaller.sh
   . "$TMPDIR/$pkgContent/uninstaller.sh"
   set_progress $(get_package_progress "$package_name")
+  delete_recursive "$pkgFile"
+  delete_recursive "$TMPDIR/$pkgContent"
 }
