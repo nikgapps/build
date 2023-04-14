@@ -358,7 +358,6 @@ debloat() {
       else
         debloaterRan=1
         startswith=$(beginswith / "$i")
-        ui_print "x Removing $i"
         if [ "$startswith" = "false" ]; then
           addToLog "- value of i is $i"
           debloated_folders=$(clean_recursive "$i" "$debloaterFilesPath")
@@ -368,6 +367,7 @@ debloat() {
             IFS=":"
             for j in $debloated_folders; do
               if [ -n "$j" ]; then
+                ui_print "x Removing $j"
                 update_prop "$j" "debloat" "$propFilePath" "$debloaterFilesPath"
               fi
             done
@@ -375,13 +375,23 @@ debloat() {
           else
             addToLog "- No $i folders to debloat"
             match=$(find_prop_match "$1" "debloat" "$3")
-            [ -z "$match" ] && update_prop "$i" "forceDebloat" "$propFilePath" "$debloaterFilesPath"
+            if [ -z "$match" ]; then
+              ui_print "x Removing $i"
+              update_prop "$i" "forceDebloat" "$propFilePath" "$debloaterFilesPath"
+            else
+              ui_print "- $i already Debloated"
+            fi
           fi
         else
           addToLog "- Force Removing $i"
           rm -rf "$i"
           match=$(find_prop_match "$1" "debloat" "$3")
-          [ -z "$match" ] && update_prop "$i" "forceDebloat" "$propFilePath" "$debloaterFilesPath"
+          if [ -z "$match" ]; then
+            ui_print "x Removing $i"
+            update_prop "$i" "forceDebloat" "$propFilePath" "$debloaterFilesPath"
+          else
+            ui_print "- $i already Debloated"
+          fi
         fi
       fi
     done
