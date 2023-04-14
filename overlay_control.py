@@ -32,6 +32,10 @@ if FileOp.dir_exists(repo_dir):
             print(f"Copying to {os.path.join(overlays_repo_dir, str(Path(folder).name), f'{Path(folder).name}.apk')}")
             FileOp.copy_file(overlay_path, os.path.join(overlays_repo_dir,
                                                         str(Path(folder).name), f"{Path(folder).name}.apk"))
+            folder_to_remove = os.path.join(str(folder), "dist")
+            FileOp.remove_dir(folder_to_remove)
+            folder_to_remove = os.path.join(str(folder), "build")
+            FileOp.remove_dir(folder_to_remove)
         else:
             print("Failed to build overlay")
     if overlay_config_repo.due_changes():
