@@ -38,7 +38,7 @@ list_files() {
     OLD_IFS="$IFS"
     IFS="$(printf '%b_' ' \n')"
     IFS="${IFS%_}"
-    g=$(grep "install" "$installSource" | cut -d= -f2)
+    g=$(grep "install=" "$installSource" | cut -d= -f2)
     for i in $g; do
       echo "$i"
     done
@@ -59,7 +59,28 @@ list_delete_folders() {
     OLD_IFS="$IFS"
     IFS="$(printf '%b_' ' \n')"
     IFS="${IFS%_}"
-    g=$(grep "delete" "$deleteSource" | cut -d= -f2)
+    g=$(grep "delete=" "$deleteSource" | cut -d= -f2)
+    for i in $g; do
+      echo "$i"
+    done
+    IFS="$OLD_IFS"
+  fi
+
+  echo "EOF"
+  echo "}"
+  echo ""
+}
+
+list_force_delete_folders() {
+  echo ""
+  echo "force_delete_folders() {"
+  echo "cat <<EOF"
+
+  if [ -f "$deleteSource" ]; then
+    OLD_IFS="$IFS"
+    IFS="$(printf '%b_' ' \n')"
+    IFS="${IFS%_}"
+    g=$(grep "forceDelete=" "$deleteSource" | cut -d= -f2)
     for i in $g; do
       echo "$i"
     done
@@ -80,7 +101,7 @@ list_debloat_folders() {
     OLD_IFS="$IFS"
     IFS="$(printf '%b_' ' \n')"
     IFS="${IFS%_}"
-    g=$(grep "debloat" "$debloaterSource" | cut -d= -f2)
+    g=$(grep "debloat=" "$debloaterSource" | cut -d= -f2)
     for i in $g; do
       echo "$i"
     done
@@ -101,7 +122,7 @@ list_force_debloat_folders() {
     OLD_IFS="$IFS"
     IFS="$(printf '%b_' ' \n')"
     IFS="${IFS%_}"
-    g=$(grep "forceDebloat" "$debloaterSource" | cut -d= -f2)
+    g=$(grep "forceDebloat=" "$debloaterSource" | cut -d= -f2)
     for i in $g; do
       echo "$i"
     done
@@ -131,6 +152,7 @@ restore() {
   echo "     [ -f \"\$C/\$S/\$FILE\" ] && restore_file \$S/\"\$FILE\" \"\$R\""
   echo "   done"
   echo "   delete_aosp_apps"
+  echo "   force_delete_apps"
   echo "   debloat_apps"
   echo "   force_debloat_apps"
   echo "   for i in \$(list_files); do"
@@ -189,6 +211,7 @@ cat "$COMMONDIR/header" >> "$dest"
   cat "$COMMONDIR/functions"
   list_files
   list_delete_folders
+  list_force_delete_folders
   list_debloat_folders
   list_force_debloat_folders
   run

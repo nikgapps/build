@@ -374,12 +374,14 @@ debloat() {
             IFS="$OLD_IFS"
           else
             addToLog "- No $i folders to debloat"
-            update_prop "$i" "forceDebloat" "$propFilePath" "$debloaterFilesPath"
+            match=$(find_prop_match "$1" "debloat" "$3")
+            [ -z "$match" ] && update_prop "$i" "forceDebloat" "$propFilePath" "$debloaterFilesPath"
           fi
         else
           addToLog "- Force Removing $i"
           rm -rf "$i"
-          update_prop "$i" "forceDebloat" "$propFilePath" "$debloaterFilesPath"
+          match=$(find_prop_match "$1" "debloat" "$3")
+          [ -z "$match" ] && update_prop "$i" "forceDebloat" "$propFilePath" "$debloaterFilesPath"
         fi
       fi
     done
@@ -699,6 +701,17 @@ find_partitions_type() {
   done
   # calculate gapps space and check if default partition has space
   # set a secondary partition to install if the space runs out
+}
+
+find_prop_match() {
+    if [ ! -f "$3" ]; then
+      echo ""
+    else
+      dataTypePath=$(echo "$1" | sed "s|^$system/||")
+      dataTypePath=${dataTypePath#/}
+      test=$(grep -n "$2=$dataTypePath" "$3" | cut -d: -f1)
+      [ -n "$test" ] && echo "$dataTypePath" || echo ""
+    fi
 }
 
 find_product_prefix() {
@@ -1187,6 +1200,8 @@ RemoveAospAppsFromRom() {
       done
       IFS="$OLD_IFS"
     else
+      match=$(find_prop_match "$1" "delete" "$3")
+      [ -z "$match" ] && update_prop "$1" "forceDelete" "$2" "$3"
       addToLog "- No $1 folders to remove" "$3"
     fi
   fi
