@@ -45,6 +45,7 @@ class OnDemand:
                 C.update_sourceforge_release_directory()
                 result = Operations.build(config_obj, android_version, config_repo)
             else:
+                config_obj.exclusive = True
                 file_name = f"{Config.EXCLUSIVE_FOLDER}-Releases/{Logs.get_path(config_obj.get_user_name_from_config(), C.get_android_code(android_version))}"
                 C.update_sourceforge_release_directory(file_name)
                 result = Operations.build(config_obj, android_version, config_repo,

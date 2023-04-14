@@ -19,7 +19,7 @@ class Export:
         self.file_name = file_name
         self.z = Zip(file_name)
 
-    def zip(self, app_set_list, config_string, compression_mode=Modes.DEFAULT):
+    def zip(self, app_set_list, config_string, sign_zip=Config.SIGN_ZIP, compression_mode=Modes.DEFAULT):
         total_packages = 0
         print_progress = ""
         start_time = C.start_of_function()
@@ -110,7 +110,7 @@ class Export:
             time_taken = C.end_of_function(start_time, "Total time taken to build the zip")
             C.telegram.message("- Completed in: " + str(round(time_taken)) + " seconds")
             file_name = self.file_name
-            if Config.SIGN_ZIP:
+            if sign_zip:
                 start_time = C.start_of_function()
                 print('Signing The Zip')
                 C.telegram.message("- The zip is Signing...")

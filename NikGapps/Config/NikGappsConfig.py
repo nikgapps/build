@@ -31,6 +31,7 @@ class NikGappsConfig:
                 if config_obj.key in self.config_dict:
                     config_obj.value = str(self.config_dict[config_obj.key])
             self.config_package_list = self.get_config_packages()
+        self.exclusive = False
 
     def build_config_objects(self):
         android_version = ConfigObj("AndroidVersion", Config.TARGET_ANDROID_VERSION)

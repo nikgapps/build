@@ -43,7 +43,8 @@ class Operations:
         C.telegram.message(initial_message, escape_text=False)
         z = Export(file_name)
         file_name, zip_execution_status = z.zip(app_set_list=config_obj.config_package_list,
-                                                config_string=config_obj.get_nikgapps_config())
+                                                config_string=config_obj.get_nikgapps_config(),
+                                                sign_zip=config_obj.exclusive)
         if Config.SIGN_ZIP and (not zip_execution_status) and (not str(file_name).endswith("-signed.zip")):
             # this probably happened because the zip failed to sign, we still want to upload the unsigned zip
             zip_execution_status = True
