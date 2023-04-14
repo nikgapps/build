@@ -961,7 +961,7 @@ install_app_set() {
       addToLog "- $appset_name is disabled"
       for i in $packages_in_appset; do
         current_package_title=$(echo "$i" | cut -d',' -f1)
-        uninstall_the_package "$appset_name" "$current_package_title"
+        uninstall_the_package "$appset_name" "$current_package_title" "$extn"
       done
     ;;
     *)
@@ -969,7 +969,7 @@ install_app_set() {
         "uninstall_by_name")
           for k in $packages_in_appset; do
             current_package_title=$(echo "$k" | cut -d',' -f1)
-            uninstall_the_package "$appset_name" "$current_package_title"
+            uninstall_the_package "$appset_name" "$current_package_title" "$extn"
           done
         ;;
         "uninstall")
@@ -977,7 +977,7 @@ install_app_set() {
             current_package_title=$(echo "$k" | cut -d',' -f1)
             [ -z "$value" ] && value=$(ReadConfigValue "$current_package_title" "$nikgapps_config_file_name")
             [ -z "$value" ] && value=1
-            [ "$value" -eq -1 ] && uninstall_the_package "$appset_name" "$current_package_title"
+            [ "$value" -eq -1 ] && uninstall_the_package "$appset_name" "$current_package_title" "$extn"
           done
         ;;
         "install")
@@ -1003,7 +1003,8 @@ install_app_set() {
               addToLog "----------------------------------------------------------------------------" "$current_package_title"
               install_partition=$(get_install_partition "$default_partition" "$default_partition" "$package_size" "$current_package_title")
               if [ "$install_partition" = "-1" ]; then
-                uninstall_the_package "$appset_name" "$current_package_title" "1"
+                ui_print "- Storage is full, uninstalling to free up space"
+                uninstall_the_package "$appset_name" "$current_package_title" "$extn"
                 addToLog "----------------------------------------------------------------------------" "$current_package_title"
                 install_partition=$(get_install_partition "$default_partition" "$default_partition" "$package_size" "$current_package_title")
               fi
@@ -1017,7 +1018,7 @@ install_app_set() {
               fi
             elif [ "$value" -eq -1 ] ; then
               addToLog "- uninstalling $current_package_title" "$current_package_title"
-              uninstall_the_package "$appset_name" "$current_package_title"
+              uninstall_the_package "$appset_name" "$current_package_title" "$extn"
             elif [ "$value" -eq 0 ] ; then
               ui_print "x Skipping $current_package_title" "$package_logDir/$current_package_title.log"
             fi
@@ -1355,14 +1356,25 @@ uninstall_file() {
 }
 
 uninstall_the_package() {
-  extn=".zip"
   package_name="$2"
-  print_on_screen="$3"
-  [ "$print_on_screen" != "1" ] && ui_print "- Uninstalling $package_name"
+  extn="$3"
+  case "$extn" in
+    .*) ;;
+    *) extn=".$extn" ;;
+  esac
+  ui_print "- Uninstalling $package_name"
   pkgFile="$TMPDIR/$package_name$extn"
   pkgContent="pkgContent"
   unpack_pkg "AppSet/$1/$package_name$extn" "$pkgFile" "$package_name"
-  extract_pkg "$pkgFile" "uninstaller.sh" "$TMPDIR/$pkgContent/uninstaller.sh" "$package_name"
+  case $extn in
+    ".zip")
+      extract_pkg "$pkgFile" "uninstaller.sh" "$TMPDIR/$pkgContent/uninstaller.sh" "$package_name"
+    ;;
+    ".tar.xz")
+      delete_recursive "$TMPDIR/$pkgContent"
+      extract_tar_xz "$pkgFile" "$TMPDIR/$pkgContent" "$package_name"
+    ;;
+  esac
   chmod 755 "$TMPDIR/$pkgContent/uninstaller.sh"
   # shellcheck source=src/uninstaller.sh
   . "$TMPDIR/$pkgContent/uninstaller.sh"
