@@ -47,7 +47,7 @@ delete_in_system(){
     if [ "${i#*/*}" != "$i" ]; then
       delete_if_exists "/postinstall$S/$i" "/postinstall/$i" "$S/$i" "/$i"
     else
-      for j in $(find "/system" "/product" "/system_ext" -iname "$i"); do
+      for j in $(find "/system" "/product" "/system_ext" "/postinstall/system" "/postinstall/product" "/postinstall/system_ext" -iname "$i"); do
         delete_if_exists "$j"
       done
     fi
