@@ -41,17 +41,16 @@ CopyFile() {
   fi
 }
 
-delete_aosp_apps(){
-  for i in $(delete_folders); do
-    addToLog "- Deleting aosp app /$i"
-    delete_if_exists "/postinstall$S/$i" "/postinstall/$i" "$S/$i" "/$i"
-  done
-}
-
-debloat_apps(){
-  for i in $(debloat_folders); do
-    addToLog "- Debloating /$i"
-    delete_if_exists "/postinstall$S/$i" "/postinstall/$i" "$S/$i" "/$i"
+delete_in_system(){
+  for i in $1; do
+    addToLog "- $2 $i"
+    if [ "${i#*/*}" != "$i" ]; then
+      delete_if_exists "/postinstall$S/$i" "/postinstall/$i" "$S/$i" "/$i"
+    else
+      for j in $(find "/system" "/product" "/system_ext" -iname "$i"); do
+        delete_if_exists "$j"
+      done
+    fi
   done
 }
 
@@ -61,32 +60,6 @@ delete_if_exists(){
     if [ -f "$i" ] || [ -d "$i" ]; then
       addToLog "- Found, deleting $i"
       rm -rf "$i"
-    fi
-  done
-}
-
-force_debloat_apps(){
-  for i in $(force_debloat_folders); do
-    addToLog "- Force Debloating $i"
-    if [ "${i#*/*}" != "$i" ]; then
-      delete_if_exists "/postinstall$S/$i" "/postinstall/$i" "$S/$i" "/$i"
-    else
-      for j in $(find "/system" "/product" "/system_ext" "/postinstall/system" "/postinstall/product" "/postinstall/system_ext" -iname "$i"); do
-        delete_if_exists "$j"
-      done
-    fi
-  done
-}
-
-force_delete_apps(){
-  for i in $(force_delete_folders); do
-    addToLog "- Force Deleting $i"
-    if [ "${i#*/*}" != "$i" ]; then
-      delete_if_exists "/postinstall$S/$i" "/postinstall/$i" "$S/$i" "/$i"
-    else
-      for j in $(find "/system" "/product" "/system_ext" "/postinstall/system" "/postinstall/product" "/postinstall/system_ext" -iname "$i"); do
-        delete_if_exists "$j"
-      done
     fi
   done
 }
