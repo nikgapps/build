@@ -598,6 +598,7 @@ find_install_mode() {
   ui_print "- Installing $package_title" "$package_logDir/$package_title.log"
   install_package
   delete_recursive "$pkgFile"
+  delete_recursive "$TMPDIR/$pkgContent"
 }
 
 find_install_type() {
@@ -1052,6 +1053,7 @@ install_the_package() {
       extract_pkg "$pkgFile" "installer.sh" "$TMPDIR/$pkgContent/installer.sh" "$package_name"
     ;;
     ".tar.xz")
+      delete_recursive "$TMPDIR/$pkgContent"
       extract_tar_xz "$pkgFile" "$TMPDIR/$pkgContent" "$package_name"
     ;;
   esac
@@ -1081,10 +1083,17 @@ install_file() {
     mkdir -p "$(dirname "$install_location")"
     set_perm 0 0 0755 "$(dirname "$install_location")"
     # unpacking of package
-    addToLog "- Unzipping $pkgFile" "$package_title"
+    addToLog "- Unpacking $pkgFile" "$package_title"
     addToLog "  -> copying $1" "$package_title"
     addToLog "  -> to $install_location" "$package_title"
-    $BB unzip -o "$pkgFile" "$1" -p >"$install_location"
+    case $extn in
+      ".zip")
+        $BB unzip -o "$pkgFile" "$1" -p >"$install_location"
+      ;;
+      ".tar.xz")
+        copy_file "$TMPDIR/$pkgContent/$1" "$install_location"
+      ;;
+    esac
     # post unpack operations
     if [ -f "$install_location" ]; then
       addToLog "- File Successfully Written!" "$package_title"
