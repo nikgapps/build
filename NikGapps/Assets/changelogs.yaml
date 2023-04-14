@@ -1,3 +1,8 @@
+- date: 15th Apr 2023 (Android 10-13)
+  changes:
+      - item: Added the ability to force debloat predefined folders in debloater.config during OTA update
+      - item: Added the ability to force delete predefined aosp folders to remove during OTA update
+      - item: Improve the logs
 - date: 10th Apr 2023 (Android 10-13)
   changes:
       - item: Fixed the issue with nikgapps.config where AppSet configurations were not cascaded to Packages inside it
