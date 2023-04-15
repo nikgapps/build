@@ -358,7 +358,6 @@ debloat() {
       else
         debloaterRan=1
         startswith=$(beginswith / "$i")
-        ui_print "x Removing $i"
         if [ "$startswith" = "false" ]; then
           addToLog "- value of i is $i"
           debloated_folders=$(clean_recursive "$i" "$debloaterFilesPath")
@@ -368,6 +367,7 @@ debloat() {
             IFS=":"
             for j in $debloated_folders; do
               if [ -n "$j" ]; then
+                ui_print "x Removing $j"
                 update_prop "$j" "debloat" "$propFilePath" "$debloaterFilesPath"
               fi
             done
@@ -375,13 +375,23 @@ debloat() {
           else
             addToLog "- No $i folders to debloat"
             match=$(find_prop_match "$1" "debloat" "$3")
-            [ -z "$match" ] && update_prop "$i" "forceDebloat" "$propFilePath" "$debloaterFilesPath"
+            if [ -z "$match" ]; then
+              ui_print "x Removing $i"
+              update_prop "$i" "forceDebloat" "$propFilePath" "$debloaterFilesPath"
+            else
+              ui_print "- $i already Debloated"
+            fi
           fi
         else
           addToLog "- Force Removing $i"
           rm -rf "$i"
           match=$(find_prop_match "$1" "debloat" "$3")
-          [ -z "$match" ] && update_prop "$i" "forceDebloat" "$propFilePath" "$debloaterFilesPath"
+          if [ -z "$match" ]; then
+            ui_print "x Removing $i"
+            update_prop "$i" "forceDebloat" "$propFilePath" "$debloaterFilesPath"
+          else
+            ui_print "- $i already Debloated"
+          fi
         fi
       fi
     done
@@ -598,6 +608,7 @@ find_install_mode() {
   ui_print "- Installing $package_title" "$package_logDir/$package_title.log"
   install_package
   delete_recursive "$pkgFile"
+  delete_recursive "$TMPDIR/$pkgContent"
 }
 
 find_install_type() {
@@ -960,7 +971,7 @@ install_app_set() {
       addToLog "- $appset_name is disabled"
       for i in $packages_in_appset; do
         current_package_title=$(echo "$i" | cut -d',' -f1)
-        uninstall_the_package "$appset_name" "$current_package_title"
+        uninstall_the_package "$appset_name" "$current_package_title" "$extn"
       done
     ;;
     *)
@@ -968,7 +979,7 @@ install_app_set() {
         "uninstall_by_name")
           for k in $packages_in_appset; do
             current_package_title=$(echo "$k" | cut -d',' -f1)
-            uninstall_the_package "$appset_name" "$current_package_title"
+            uninstall_the_package "$appset_name" "$current_package_title" "$extn"
           done
         ;;
         "uninstall")
@@ -976,7 +987,7 @@ install_app_set() {
             current_package_title=$(echo "$k" | cut -d',' -f1)
             [ -z "$value" ] && value=$(ReadConfigValue "$current_package_title" "$nikgapps_config_file_name")
             [ -z "$value" ] && value=1
-            [ "$value" -eq -1 ] && uninstall_the_package "$appset_name" "$current_package_title"
+            [ "$value" -eq -1 ] && uninstall_the_package "$appset_name" "$current_package_title" "$extn"
           done
         ;;
         "install")
@@ -1002,7 +1013,8 @@ install_app_set() {
               addToLog "----------------------------------------------------------------------------" "$current_package_title"
               install_partition=$(get_install_partition "$default_partition" "$default_partition" "$package_size" "$current_package_title")
               if [ "$install_partition" = "-1" ]; then
-                uninstall_the_package "$appset_name" "$current_package_title" "1"
+                ui_print "- Storage is full, uninstalling to free up space"
+                uninstall_the_package "$appset_name" "$current_package_title" "$extn"
                 addToLog "----------------------------------------------------------------------------" "$current_package_title"
                 install_partition=$(get_install_partition "$default_partition" "$default_partition" "$package_size" "$current_package_title")
               fi
@@ -1016,7 +1028,7 @@ install_app_set() {
               fi
             elif [ "$value" -eq -1 ] ; then
               addToLog "- uninstalling $current_package_title" "$current_package_title"
-              uninstall_the_package "$appset_name" "$current_package_title"
+              uninstall_the_package "$appset_name" "$current_package_title" "$extn"
             elif [ "$value" -eq 0 ] ; then
               ui_print "x Skipping $current_package_title" "$package_logDir/$current_package_title.log"
             fi
@@ -1052,6 +1064,7 @@ install_the_package() {
       extract_pkg "$pkgFile" "installer.sh" "$TMPDIR/$pkgContent/installer.sh" "$package_name"
     ;;
     ".tar.xz")
+      delete_recursive "$TMPDIR/$pkgContent"
       extract_tar_xz "$pkgFile" "$TMPDIR/$pkgContent" "$package_name"
     ;;
   esac
@@ -1081,10 +1094,17 @@ install_file() {
     mkdir -p "$(dirname "$install_location")"
     set_perm 0 0 0755 "$(dirname "$install_location")"
     # unpacking of package
-    addToLog "- Unzipping $pkgFile" "$package_title"
+    addToLog "- Unpacking $pkgFile" "$package_title"
     addToLog "  -> copying $1" "$package_title"
     addToLog "  -> to $install_location" "$package_title"
-    $BB unzip -o "$pkgFile" "$1" -p >"$install_location"
+    case $extn in
+      ".zip")
+        $BB unzip -o "$pkgFile" "$1" -p >"$install_location"
+      ;;
+      ".tar.xz")
+        copy_file "$TMPDIR/$pkgContent/$1" "$install_location"
+      ;;
+    esac
     # post unpack operations
     if [ -f "$install_location" ]; then
       addToLog "- File Successfully Written!" "$package_title"
@@ -1346,16 +1366,29 @@ uninstall_file() {
 }
 
 uninstall_the_package() {
-  extn=".zip"
   package_name="$2"
-  print_on_screen="$3"
-  [ "$print_on_screen" != "1" ] && ui_print "- Uninstalling $package_name"
+  extn="$3"
+  case "$extn" in
+    .*) ;;
+    *) extn=".$extn" ;;
+  esac
+  ui_print "- Uninstalling $package_name"
   pkgFile="$TMPDIR/$package_name$extn"
   pkgContent="pkgContent"
   unpack_pkg "AppSet/$1/$package_name$extn" "$pkgFile" "$package_name"
-  extract_pkg "$pkgFile" "uninstaller.sh" "$TMPDIR/$pkgContent/uninstaller.sh" "$package_name"
+  case $extn in
+    ".zip")
+      extract_pkg "$pkgFile" "uninstaller.sh" "$TMPDIR/$pkgContent/uninstaller.sh" "$package_name"
+    ;;
+    ".tar.xz")
+      delete_recursive "$TMPDIR/$pkgContent"
+      extract_tar_xz "$pkgFile" "$TMPDIR/$pkgContent" "$package_name"
+    ;;
+  esac
   chmod 755 "$TMPDIR/$pkgContent/uninstaller.sh"
   # shellcheck source=src/uninstaller.sh
   . "$TMPDIR/$pkgContent/uninstaller.sh"
   set_progress $(get_package_progress "$package_name")
+  delete_recursive "$pkgFile"
+  delete_recursive "$TMPDIR/$pkgContent"
 }
