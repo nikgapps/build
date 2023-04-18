@@ -9,3 +9,4 @@ colorama~=0.4.3
 beautifulsoup4~=4.11.1
 configobj~=5.0.6
 pysftp~=0.2.9
+PyYAML~=5.4.1

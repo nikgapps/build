@@ -1,4 +1,3 @@
-from .C import C
 from .FileOp import FileOp
 import os.path
 import platform
@@ -6,7 +5,7 @@ import platform
 
 class Assets:
     assets_folder = os.path.join(os.getcwd(), 'NikGapps', 'Assets')
-    cwd = assets_folder + C.dir_sep
+    cwd = assets_folder + os.path.sep
     system_name = platform.system()
     apksigner_path = cwd + "apksigner.jar"
     apktool_path = cwd + "apktool_2.7.0.jar"
