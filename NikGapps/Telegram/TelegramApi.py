@@ -1,6 +1,7 @@
 import time
 
 import requests
+import yaml
 
 import Config
 from NikGapps.Web.Requests import Requests
@@ -18,6 +19,7 @@ class TelegramApi:
         self.msg = None
         self.last_msg = None
         self.urls = {}
+        self.changelog = None
 
     def message(self, text, chat_id=None, replace_last_message=False, escape_text=True, parse_mode="markdown",
                 ur_link=None):
@@ -96,6 +98,27 @@ class TelegramApi:
         r = Requests.get(url)
         response = r.json()
         return response
+
+    def get_latest_changelog_message(self, changelog=None):
+        if changelog is not None:
+            self.changelog = changelog
+            with open(self.changelog, 'r') as stream:
+                try:
+                    msg = ""
+                    for date in yaml.safe_load(stream):
+                        msg += f"*New Release is up - {date['date']}*\n\n"
+                        msg += f"Changelog:\n"
+                        for item in date['changes']:
+                            msg += f"- {item['item']}\n"
+                        msg += f"\n"
+                        msg += f"*Note: *\n"
+                        msg += "- You can always take a backup and dirty flash the gapps, if you run into issues, you should try clean flashing the gapps.\n"
+                        msg += "if you have any problem feel free to reach us @NikGappsGroup\nHappy Flashing!"
+                        break
+                    return msg
+                except yaml.YAMLError as exc:
+                    print(exc)
+        return None
 
     def reset_message(self):
         self.message_id = None
