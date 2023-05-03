@@ -412,8 +412,8 @@ class NikGappsPackages:
         google_velvet.priv_app_permissions.append("android.permission.MODIFY_AUDIO_ROUTING")
         google_velvet.clean_flash_only = True
         google_velvet.additional_installer_script = """
-                    set_prop "ro.opa.eligible_device" "true" "$install_partition/build.prop"
-                                        """
+set_prop "ro.opa.eligible_device" "true" "$install_partition/build.prop"
+"""
         google_assistant = Package("Assistant", "com.google.android.apps.googleassistant", C.is_priv_app)
         google_assistant.clean_flash_only = True
         app_set_list.append(AppSet("GoogleSearch", [google_velvet, google_assistant]))
