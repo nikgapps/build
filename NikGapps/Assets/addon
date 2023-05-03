@@ -153,7 +153,7 @@ restore() {
   echo "   list_files | while read FILE REPLACEMENT; do"
   echo "     R=\"\""
   echo "     [ -n \"\$REPLACEMENT\" ] && R=\"\$S/\$REPLACEMENT\""
-  echo "     [ -f \"\$C/\$S/\$FILE\" ] && restore_file \$S/\"\$FILE\" \"\$R\""
+  echo "     [ -f \"\$C/\$S/\$FILE\" ] && restore_file \$S/\"\$FILE\" \"\$R\" && addToLog \"- \$S/\$FILE copied\""
   echo "   done"
   echo "   for i in \$(list_files); do"
   echo "     f=\$(get_output_path \"\$S/\$i\")"
