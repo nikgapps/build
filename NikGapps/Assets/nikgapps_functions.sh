@@ -27,28 +27,48 @@ beginswith() {
 # done
 calc_progress() { awk "BEGIN{print $*}" | awk '{print sprintf("%.2f", $1)}'; }
 
-calculate_space_after() {
-  package_name="$1"
-  package_dir="$2"
-  package_size="$3"
-
-  dirs="/product /system_ext /system /system/product /system/system_ext"
-  for dir in $dirs; do
-    case "$package_dir" in
-      "$dir"*) break ;;
-    esac
-  done
-
-  addToLog "----------------------------------------------------------------------------" "$package_name"
-  addToLog "- calculating space after installing $package_name" "$package_name"
-
-  size_before="$(get_available_size_again "$dir" "$package_name")"
-  size_left=$((size_before - package_size))
-
-  addToLog "- ${dir}_size ($size_before-$size_left) spent=$((size_before - size_left)) vs ($package_size)" "$package_name"
-  addSizeToLog "$dir" "$package_dir" "$package_name" "$size_before" "$size_left" "$package_size" "$((size_before - size_left))"
-
-  addToLog "----------------------------------------------------------------------------" "$package_name"
+calculate_space_after(){
+  addToLog "----------------------------------------------------------------------------" "$1"
+  addToLog "- calculating space after installing $1" "$1"
+  size_before=$3
+  pkg_size=$4
+  case "$2" in
+    "/product") size_left=$(get_available_size_again "/product");
+      addToLog "- product_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)" "$1";
+      addSizeToLog "/product" "$2" "$1" "$size_before" "$size_left" "$pkg_size" "$((size_before-size_left))"
+    ;;
+    "/system_ext") size_left=$(get_available_size_again "/system_ext");
+      addToLog "- system_ext_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)" "$1";
+      addSizeToLog "/system_ext" "$2" "$1" "$size_before" "$size_left" "$pkg_size" "$((size_before-size_left))"
+    ;;
+    "/system") size_left=$(get_available_size_again "/system");
+      addToLog "- system_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)" "$1";
+      addSizeToLog "/system" "$2" "$1" "$size_before" "$size_left" "$pkg_size" "$((size_before-size_left))"
+    ;;
+    "/system/product")
+      if [ -n "$PRODUCT_BLOCK" ]; then
+        size_left=$(get_available_size_again "/product");
+        addToLog "- product_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)" "$1";
+        addSizeToLog "/product" "$2" "$1" "$size_before" "$size_left" "$pkg_size" "$((size_before-size_left))"
+      else
+        size_left=$(get_available_size_again "/system");
+        addToLog "- system_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)" "$1";
+        addSizeToLog "/system" "$2" "$1" "$size_before" "$size_left" "$pkg_size" "$((size_before-size_left))"
+      fi
+    ;;
+    "/system/system_ext")
+      if [ -n "$SYSTEM_EXT_BLOCK" ]; then
+        size_left=$(get_available_size_again "/system_ext");
+        addToLog "- system_ext_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)" "$1";
+        addSizeToLog "/system_ext" "$2" "$1" "$size_before" "$size_left" "$pkg_size" "$((size_before-size_left))"
+      else
+        size_left=$(get_available_size_again "/system");
+        addToLog "- system_size ($size_before-$size_left) spent=$((size_before-size_left)) vs ($pkg_size)" "$1";
+        addSizeToLog "/system" "$2" "$1" "$size_before" "$size_left" "$pkg_size" "$((size_before-size_left))"
+      fi
+    ;;
+  esac
+  addToLog "----------------------------------------------------------------------------" "$1"
   [ -z "$size_left" ] && size_left=0
   echo "$size_left"
 }
@@ -1022,7 +1042,7 @@ install_app_set() {
               if [ "$install_partition" != "-1" ]; then
                 size_before=$(calculate_space_before "$current_package_title" "$install_partition")
                 install_the_package "$appset_name" "$i" "$current_package_title" "$value" "$install_partition" "$extn"
-                size_after=$(calculate_space_after "$current_package_title" "$install_partition" "$size_before")
+                size_after=$(calculate_space_after "$current_package_title" "$install_partition" "$size_before" "$package_size")
               else
                 ui_print "x Skipping $current_package_title as no space is left" "$package_logDir/$current_package_title.log"
               fi
