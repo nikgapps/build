@@ -149,26 +149,40 @@ class Export:
         delem = ","
         installer_script_path_string = "#!/sbin/sh\n"
         installer_script_path_string += "# Shell Script EDIFY Replacement\n\n"
+        core_app_sets = []
+        other_app_sets = []
+        for app_set in app_set_list:
+            if app_set.title in ['Core', 'CoreGo']:
+                core_app_sets.append(app_set)
+            else:
+                other_app_sets.append(app_set)
+        sorted_other_app_sets = sorted(other_app_sets,
+                                       key=lambda app__set: sum(pakg.pkg_size for pakg in app__set.package_list),
+                                       reverse=True)
+        sorted_app_sets = core_app_sets + sorted_other_app_sets
         progress_max = 0.9
         progress_per_package = 0
         if total_packages > 0:
             progress_per_package = round(progress_max / total_packages, 2)
         install_progress = 0
         installer_script_path_string += f"ProgressBarValues=\"\n"
-        for app_set in app_set_list:
-            for pkg in app_set.package_list:
+        for app_set in sorted_app_sets:
+            sorted_packages = sorted(app_set.package_list, key=lambda pakg: pakg.pkg_size, reverse=True)
+            for pkg in sorted_packages:
                 install_progress += progress_per_package
                 if install_progress > 1.0:
                     install_progress = 1.0
                 installer_script_path_string += f"{pkg.package_title}={str(round(install_progress, 2))}\n"
         installer_script_path_string += "\"\n\n"
-        for app_set in app_set_list:
+
+        for app_set in sorted_app_sets:
+            sorted_packages = sorted(app_set.package_list, key=lambda pakg: pakg.pkg_size, reverse=True)
             installer_script_path_string += f"{app_set.title}=\"\n"
-            for pkg in app_set.package_list:
+            for pkg in sorted_packages:
                 installer_script_path_string += f"{pkg.package_title}{delem}{pkg.pkg_size}{delem}{pkg.partition}\n"
             installer_script_path_string += "\"\n\n"
 
-        for app_set in app_set_list:
+        for app_set in sorted_app_sets:
             installer_script_path_string += "install_app_set \"" + \
                                             app_set.title + "\" \"$" + \
                                             app_set.title + "\" \"" + \

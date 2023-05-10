@@ -74,7 +74,7 @@ initializeSizeLog(){
   echo "-------------------------------------------------------------" >> "$installation_size_log"
   echo "- File Name: $actual_file_name" >> "$installation_size_log"
   echo "-------------------------------------------------------------" >> "$installation_size_log"
-  addSizeToLog "Partition" "InstallPartition" "Package" "Before" "After" "Estimated" "Spent"
+  addSizeToLog "Partition" "InstallPartition" "Package" "Before" "After" "Required" "Spent"
   echo "-------------------------------------------------------------" >> "$installation_size_log"
 }
 

@@ -1,3 +1,10 @@
+- date: 3rd May 2023 (Android 10-13)
+  changes:
+      - item: Fixed the incorrect calculation of space after the installation was finished
+      - item: Delete stuff before restoring the files to make space for gapps during OTA
+      - item: Install the apps with largest size first - After Core/CoreGo is installed
+      - item: Fixed Velvet/GoogleClock/AndroidAuto/Gboard/GoogleSounds not restoring after OTA update
+      - item: Log file details when copied over OTA update
 - date: 18th Apr 2023 (Android 10-13)
   changes:
       - item: Added the ability to force debloat predefined folders in debloater.config during OTA update
