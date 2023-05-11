@@ -1,72 +1,27 @@
-from datetime import datetime
-
-from NikGapps.Config.ConfigOperations import ConfigOperations
-from NikGapps.Config.NikGappsConfig import NikGappsConfig
-from NikGapps.Config.UserBuild.OnDemand import OnDemand
-from NikGapps.Helper import FileOp, Git
-from NikGapps.Helper.C import C
-from NikGapps.Web.Upload import Upload
+from helper.NikGappsConfig import NikGappsConfig
+from helper.git.GitOperations import GitOperations
+from helper.Statics import Statics
+from helper.web.TelegramApi import TelegramApi
+from helper.web.Upload import Upload
 from Release import Release
-from Config import FETCH_PACKAGE
-import Config
-import pytz
+from helper.Config import FETCH_PACKAGE
+from helper import Config
 from colorama import Fore
+from ondemand.ConfigOperations import ConfigOperations
 
 
 class Operation:
 
     @staticmethod
-    def fetch():
-        pkg_list = Release.package(FETCH_PACKAGE)
-        if pkg_list.__len__() > 0:
-            message = "Packages Successfully Fetched"
-            print(message)
-        else:
-            message = "Fetching Failed"
-            print(message)
-
-    @staticmethod
-    def clone_apk_repo(android_version, fresh_clone=False, branch="main"):
-        apk_source_directory = C.apk_source_directory + str(android_version)
-        apk_source_repo = C.apk_source_repo + str(android_version) + ".git"
-        repository = Git(apk_source_directory)
-        result = repository.clone_repo(repo_url=apk_source_repo, fresh_clone=fresh_clone, branch=branch)
-        return repository if result else None
-
-    @staticmethod
-    def get_last_commit_date(repo_dir=C.cwd, repo_url=None,
-                             branch="canary" if Config.RELEASE_TYPE.__eq__("canary") else "main", android_version=None):
-        last_commit_datetime = None
-        if android_version is not None:
-            repository = Operation.clone_apk_repo(android_version, branch=branch)
-        else:
-            repository = Git(repo_dir)
-            if repo_url is not None:
-                repository.clone_repo(repo_url=repo_url, fresh_clone=False, branch=branch)
-        if repository is not None:
-            last_commit_datetime = repository.get_latest_commit_date(branch=branch)
-        return last_commit_datetime
-
-    @staticmethod
-    def get_release_repo():
-        release_repo = Git(C.release_history_directory)
-        if not FileOp.dir_exists(C.release_history_directory):
-            repo_name = "git@github.com:nikgapps/canary-release.git" if Config.RELEASE_TYPE.__eq__(
-                "canary") else "git@github.com:nikgapps/release.git"
-            release_repo.clone_repo(repo_name, branch="master", commit_depth=50)
-            if not FileOp.dir_exists(C.release_history_directory):
-                print(C.release_history_directory + " doesn't exist!")
-        return release_repo
-
-    @staticmethod
-    def get_website_repo_for_changelog(repo_dir=C.website_directory, repo_url=C.website_repo,
-                                       branch="master"):
-        repo = Git(repo_dir)
-        if repo_url is not None:
-            repo.clone_repo(repo_url=repo_url, fresh_clone=False, branch=branch)
-        if not FileOp.dir_exists(C.website_directory):
-            print(f"Repo {repo_dir} doesn't exist!")
-        return repo
+    def fetch(android_versions):
+        for android_version in android_versions:
+            pkg_list = Release.package(FETCH_PACKAGE, android_version)
+            if pkg_list.__len__() > 0:
+                message = "Packages Successfully Fetched"
+                print(message)
+            else:
+                message = "Fetching Failed"
+                print(message)
 
     @staticmethod
     def is_new_release(source_last_commit_datetime, apk_source_datetime, release_datetime):
@@ -96,23 +51,24 @@ class Operation:
         # if nothing is true yet, it's already a new release
         return False
 
-    def build(self, git_check=Config.GIT_CHECK, android_versions=None, package_list=Config.BUILD_PACKAGE_LIST,
-              commit_message=None, upload: Upload = None):
-        if android_versions is None:
-            android_versions = [Config.TARGET_ANDROID_VERSION]
-        if commit_message is None:
-            commit_message = datetime.now(pytz.timezone('Europe/London')).strftime("%Y-%m-%d %H:%M:%S")
+    def build(self, android_versions, telegram: TelegramApi, git_check=Config.GIT_CHECK,
+              package_list=Config.BUILD_PACKAGE_LIST,
+              commit_message=None, sign_zip=Config.SIGN_ZIP, send_zip_device=Config.SEND_ZIP_DEVICE,
+              fresh_build=Config.FRESH_BUILD):
         release_repo = None
         source_last_commit_datetime = None
         if git_check:
-            source_last_commit_datetime = self.get_last_commit_date(
+            source_last_commit_datetime = GitOperations.get_last_commit_date(
                 branch="main" if Config.RELEASE_TYPE.__eq__("stable") else "dev")
             print(f"Last {str(Config.RELEASE_TYPE).capitalize()} Source Commit: " + str(source_last_commit_datetime))
-            release_repo = self.get_release_repo()
+            release_repo = GitOperations.get_release_repo(Config.RELEASE_TYPE)
         else:
             print("Git Check is disabled")
         for android_version in android_versions:
+            upload = Upload(android_version=android_version, upload_files=Config.UPLOAD_FILES,
+                            release_type=Config.RELEASE_TYPE)
             Config.TARGET_ANDROID_VERSION = android_version
+            new_release = True
             # clone the apk repo if it doesn't exist
             if git_check:
                 release_datetime = None
@@ -120,31 +76,25 @@ class Operation:
                     release_datetime = release_repo.get_latest_commit_date(branch="master",
                                                                            filter_key=str(android_version))
                     print(f"Last Release ({str(android_version)}): " + str(release_datetime))
-                apk_source_datetime = self.get_last_commit_date(android_version=str(android_version))
+                apk_source_datetime = GitOperations.get_last_commit_date(android_version=str(android_version),
+                                                                         branch="main" if Config.RELEASE_TYPE.__eq__(
+                                                                             "stable") else "canary")
                 if apk_source_datetime is not None:
                     print("Last Apk Repo (" + str(Config.TARGET_ANDROID_VERSION) + ") Commit: " + str(
                         apk_source_datetime))
                 else:
-                    print(C.apk_source_directory + " doesn't exist!")
+                    print(Statics.pwd + Statics.dir_sep + str(android_version) + " doesn't exist!")
                 new_release = self.is_new_release(source_last_commit_datetime, apk_source_datetime, release_datetime)
-            else:
-                new_release = True
             if Config.OVERRIDE_RELEASE or new_release:
-                if Config.TARGET_ANDROID_VERSION == 10 and "go" not in Config.BUILD_PACKAGE_LIST:
-                    Config.BUILD_PACKAGE_LIST.append("go")
-                C.update_android_version_dependencies()
-                Release.zip(package_list, upload)
+                Release.zip(package_list, android_version, sign_zip, send_zip_device, fresh_build, telegram, upload)
                 if release_repo is not None and git_check:
                     release_repo.git_push(str(android_version) + ": " + str(commit_message))
-                if Config.BUILD_EXCLUSIVE:
-                    OnDemand.build_all_configs(android_version, exclusive=True)
+            if Config.UPLOAD_FILES:
+                config = NikGappsConfig(android_version=android_version)
+                ConfigOperations.upload_nikgapps_config(config, android_version, upload)
+            upload.close_connection()
 
         if git_check:
-            website_repo = None
-            website_repo = self.get_website_repo_for_changelog()
+            website_repo = GitOperations.get_website_repo_for_changelog()
             if website_repo is not None:
                 website_repo.update_changelog()
-
-        if Config.UPLOAD_FILES:
-            config = NikGappsConfig()
-            ConfigOperations.upload_nikgapps_config(config)
