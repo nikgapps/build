@@ -1,3 +1,1 @@
 colorama==0.4.4
-helper==2.5.0
-ondemand==1.1.1
